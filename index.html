@@ -1301,64 +1301,56 @@ async function login() {
     }
 
     async function showResult() {
-        if (!currentUser) {
-            alert('Ошибка: пользователь не авторизован');
-            return;
-        }
-
-        // Подсчет результатов
-        const results = {
-            'творческий': 0,
-            'коммуникабельный': 0,
-            'стабильный': 0,
-            'технический': 0
-        };
-
-        // Считаем голоса
-        Object.values(userAnswers).forEach(answer => {
-            if (results.hasOwnProperty(answer)) {
-                results[answer]++;
-            }
-        });
-
-        // Определяем победителя
-        let maxVotes = 0;
-        let personalityType = 'творческий';
-        
-        for (const [type, votes] of Object.entries(results)) {
-            if (votes > maxVotes) {
-                maxVotes = votes;
-                personalityType = type;
-            }
-        }
-
-        // Сохраняем результаты в базу
-        try {
-            const response = await fetch(`${API_BASE}/personality-test`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    answers: userAnswers,
-                    result_type: personalityType
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Ошибка сохранения результатов');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-        }
-
-        // Сохраняем обновленные данные пользователя (с типом личности)
-        currentUser.personality_type = personalityType;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-        // Показываем результаты
-        showScreen('result-screen');
-        displayPersonalityResult(personalityType);
+    if (!currentUser) {
+        alert('Ошибка: пользователь не авторизован');
+        return;
     }
+
+    // Подсчет результатов
+    const results = {
+        'творческий': 0,
+        'коммуникабельный': 0,
+        'стабильный': 0,
+        'технический': 0
+    };
+
+    // Считаем голоса
+    Object.values(userAnswers).forEach(answer => {
+        if (results.hasOwnProperty(answer)) {
+            results[answer]++;
+        }
+    });
+
+    // Определяем победителя
+    let maxVotes = 0;
+    let personalityType = 'творческий';
+    
+    for (const [type, votes] of Object.entries(results)) {
+        if (votes > maxVotes) {
+            maxVotes = votes;
+            personalityType = type;
+        }
+    }
+
+    // Сохраняем обновленные данные пользователя (с типом личности)
+    currentUser.personality_type = personalityType;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    
+    // ДОБАВЛЯЕМ: сохраняем тип личности в базу пользователей
+    updateUserPersonality(currentUser.email, personalityType);
+
+    // Показываем результаты
+    showScreen('result-screen');
+    displayPersonalityResult(personalityType);
+}
+    // ДОБАВЬ ЭТУ ФУНКЦИЮ
+function updateUserPersonality(email, personalityType) {
+    const users = getStoredUsers();
+    if (users[email]) {
+        users[email].personality_type = personalityType;
+        localStorage.setItem('platformUsers', JSON.stringify(users));
+    }
+}
 
     function displayPersonalityResult(type) {
         const resultTypeElement = document.getElementById('result-type');
