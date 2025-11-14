@@ -1060,7 +1060,6 @@
     // Глобальные переменные
     let currentUser = null;
     let userAnswers = {};
-    const API_BASE = 'http://localhost:3000/api';
     const validCodes = ['34193']; // Единственный рабочий код
 
     // Инициализация при загрузке страницы
@@ -1168,78 +1167,54 @@
     }
 
     async function register() {
-        const email = document.getElementById('reg-email').value;
-        const password = document.getElementById('reg-password').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
 
-        if (!email || !password) {
-            showAuthMessage('register-message', 'Заполните все поля', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE}/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                showAuthMessage('register-message', 'Регистрация успешна! Теперь войдите.', 'success');
-                // ДОБАВЛЯЕМ: очищаем поля после успешной регистрации
-                clearAuthFields();
-                setTimeout(() => showLogin(), 2000);
-            } else {
-                showAuthMessage('register-message', result.error || 'Ошибка регистрации', 'error');
-            }
-        } catch (error) {
-            showAuthMessage('register-message', 'Ошибка соединения с сервером', 'error');
-        }
+    if (!email || !password) {
+        showAuthMessage('register-message', 'Заполните все поля', 'error');
+        return;
     }
 
-    async function login() {
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
+    // ПРОСТАЯ РЕГИСТРАЦИЯ БЕЗ SERVER
+    currentUser = { 
+        email: email, 
+        personality_type: null,
+        id: Date.now() // уникальный ID
+    };
+    
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    showAuthMessage('register-message', 'Регистрация успешна!', 'success');
+    clearAuthFields();
+    
+    setTimeout(() => {
+        showScreen('intro-screen');
+    }, 1000);
+}
 
-        if (!email || !password) {
-            showAuthMessage('login-message', 'Заполните все поля', 'error');
-            return;
-        }
+async function login() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
 
-        try {
-            const response = await fetch(`${API_BASE}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                currentUser = result.user;
-                // СОХРАНЯЕМ В LOCALSTORAGE
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showAuthMessage('login-message', 'Вход успешен!', 'success');
-                
-                // ДОБАВЛЯЕМ: очищаем поля после успешного входа
-                clearAuthFields();
-                
-                setTimeout(() => {
-                    if (currentUser.personality_type) {
-                        showScreen('platform-screen');
-                        updateProfileData();
-                    } else {
-                        showScreen('intro-screen');
-                    }
-                }, 1000);
-            } else {
-                showAuthMessage('login-message', result.error || 'Ошибка входа', 'error');
-            }
-        } catch (error) {
-            showAuthMessage('login-message', 'Ошибка соединения с сервером', 'error');
-        }
+    if (!email || !password) {
+        showAuthMessage('login-message', 'Заполните все поля', 'error');
+        return;
     }
+
+    // ПРОСТАЯ АВТОРИЗАЦИЯ БЕЗ SERVER
+    currentUser = { 
+        email: email, 
+        personality_type: null,
+        id: Date.now() // уникальный ID
+    };
+    
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    showAuthMessage('login-message', 'Вход успешен!', 'success');
+    clearAuthFields();
+    
+    setTimeout(() => {
+        showScreen('intro-screen');
+    }, 1000);
+}
 
     // Функции теста
     function startTest() {
