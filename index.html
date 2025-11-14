@@ -544,93 +544,144 @@
         }
 
         /* Адаптация для мобильных */
-        @media (max-width: 768px) {
-            body {
-                padding: 0;
-            }
-            
-            .container {
-                border-radius: 0;
-                margin: 0;
-            }
-            
-            header {
-                padding: 20px 15px;
-            }
-            
-            .brand-name {
-                font-size: 1.8rem;
-            }
-            
-            .brand-tagline {
-                font-size: 1rem;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .content {
-                padding: 20px 15px;
-            }
-            
-            .question {
-                font-size: 1.1rem;
-            }
-            
-            button {
-                padding: 12px 20px;
-                font-size: 0.95rem;
-            }
-            
-            .navigation {
-                flex-direction: column;
-            }
-            
-            .email-input {
-                max-width: 100%;
-            }
-            
-            .platform-header {
-                padding: 15px 20px;
-            }
-            
-            .profile-dropdown {
-                min-width: 280px;
-                right: -10px;
-            }
-            
-            .modules-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Адаптация для мобильных */
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+    
+    .container {
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    header {
+        padding: 20px 15px;
+    }
+    
+    .brand-name {
+        font-size: 1.8rem;
+    }
+    
+    .brand-tagline {
+        font-size: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .content {
+        padding: 20px 10px; /* Уменьшаем боковые отступы */
+    }
+    
+    .question {
+        font-size: 1.1rem;
+    }
+    
+    button {
+        padding: 12px 15px; /* Делаем кнопки компактнее */
+        font-size: 0.95rem;
+    }
+    
+    .navigation {
+        flex-direction: column;
+    }
+    
+    .email-input {
+        max-width: 100%;
+    }
+    
+    .platform-header {
+        padding: 15px 10px; /* Уменьшаем отступы шапки */
+    }
+    
+    .profile-dropdown {
+        min-width: 280px;
+        right: -10px;
+    }
+    
+    .modules-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin: 0 -5px; /* Расширяем сетку модулей */
+    }
+    
+    .module-card {
+        margin: 0 5px;
+        padding: 25px 20px;
+    }
+    
+    .welcome-section {
+        padding: 30px 20px;
+        margin: 0 -5px 30px -5px;
+    }
+    
+    /* ШИРОКИЙ СТИЛЬ ДЛЯ ЦЕННОСТИ */
+    #value-content > div {
+        margin: 0 -10px;
+        border-radius: 0;
+        padding: 25px 15px;
+    }
+    
+    #value-content .submodule-card {
+        min-height: auto;
+        padding: 20px 15px;
+        margin: 0 -5px;
+    }
+    
+    .platform-main-content {
+        padding: 0 5px;
+        margin: 0 -5px;
+    }
+    
+    #value-content {
+        margin: 0 -10px;
+        padding: 0 10px;
+    }
+}
 
-        @media (max-width: 480px) {
-            .brand-name {
-                font-size: 1.6rem;
-            }
-            
-            h1 {
-                font-size: 1.3rem;
-            }
-            
-            .question {
-                font-size: 1rem;
-            }
-            
-            .option {
-                padding: 12px;
-            }
-            
-            .result-type {
-                font-size: 1.6rem;
-                padding: 15px;
-            }
-            
-            .profile-dropdown {
-                min-width: 250px;
-            }
-        }
+@media (max-width: 480px) {
+    .brand-name {
+        font-size: 1.6rem;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+    }
+    
+    .question {
+        font-size: 1rem;
+    }
+    
+    .option {
+        padding: 12px;
+    }
+    
+    .result-type {
+        font-size: 1.6rem;
+        padding: 15px;
+    }
+    
+    .profile-dropdown {
+        min-width: 250px;
+    }
+    
+    /* ЕЩЕ ШИРЕ НА ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНАХ */
+    .content {
+        padding: 15px 5px;
+    }
+    
+    .platform-main-content {
+        padding: 0 2px;
+        margin: 0 -2px;
+    }
+    
+    #value-content {
+        margin: 0 -5px;
+        padding: 0 5px;
+    }
+}
 
         input, textarea, button, select, a {
             -webkit-tap-highlight-color: transparent;
