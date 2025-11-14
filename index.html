@@ -1166,6 +1166,19 @@
         element.style.display = 'block';
     }
 
+    function getStoredUsers() {
+    return JSON.parse(localStorage.getItem('platformUsers')) || {};
+}
+
+function saveUser(email, password, personality_type = null) {
+    const users = getStoredUsers();
+    users[email] = {
+        password: password,
+        personality_type: personality_type,
+        created: new Date().toISOString()
+    };
+    localStorage.setItem('platformUsers', JSON.stringify(users));
+}
     async function register() {
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
@@ -1175,22 +1188,30 @@
         return;
     }
 
-    // ПРОСТАЯ РЕГИСТРАЦИЯ БЕЗ SERVER
+    const users = getStoredUsers();
+    if (users[email]) {
+        showAuthMessage('register-message', 'Аккаунт с таким email уже существует', 'error');
+        return;
+    }
+
+    // Сохраняем нового пользователя
+    saveUser(email, password);
+    
+    // Входим в аккаунт
     currentUser = { 
         email: email, 
         personality_type: null,
-        id: Date.now() // уникальный ID
+        id: Date.now()
     };
     
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     showAuthMessage('register-message', 'Регистрация успешна!', 'success');
     clearAuthFields();
     
-    setTimeout(() => {
-        showScreen('intro-screen');
-    }, 1000);
+    setTimeout(() => showScreen('intro-screen'), 1000);
 }
 
+// ОБНОВИ ФУНКЦИЮ login()
 async function login() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
@@ -1200,11 +1221,24 @@ async function login() {
         return;
     }
 
-    // ПРОСТАЯ АВТОРИЗАЦИЯ БЕЗ SERVER
+    const users = getStoredUsers();
+    const user = users[email];
+    
+    if (!user) {
+        showAuthMessage('login-message', 'Аккаунт не найден', 'error');
+        return;
+    }
+    
+    if (user.password !== password) {
+        showAuthMessage('login-message', 'Неверный пароль', 'error');
+        return;
+    }
+
+    // Успешный вход
     currentUser = { 
         email: email, 
-        personality_type: null,
-        id: Date.now() // уникальный ID
+        personality_type: user.personality_type,
+        id: Date.now()
     };
     
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -1212,7 +1246,12 @@ async function login() {
     clearAuthFields();
     
     setTimeout(() => {
-        showScreen('intro-screen');
+        if (currentUser.personality_type) {
+            showScreen('platform-screen');
+            updateProfileData();
+        } else {
+            showScreen('intro-screen');
+        }
     }, 1000);
 }
 
