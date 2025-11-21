@@ -1,8 +1,8 @@
 {
   "name": "Гений Внутри Вас",
-  "short_name": "FullPotential",
+  "short_name": "FullPotential", 
   "description": "Платформа определения типа личности",
-  "start_url": "/full-potential-platform/",
+  "start_url": "https://fullestpotential-jpg.github.io/full-potential-platform/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4A00E0",
@@ -10,7 +10,7 @@
   "icons": [
     {
       "src": "icon-192.png",
-      "sizes": "192x192",
+      "sizes": "192x192", 
       "type": "image/png"
     },
     {
