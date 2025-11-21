@@ -1,8 +1,8 @@
 {
   "name": "Гений Внутри Вас",
   "short_name": "FullPotential",
-  "description": "Платформа определения типа личности и раскрытия потенциала",
-  "start_url": "/",
+  "description": "Платформа определения типа личности",
+  "start_url": "/full-potential-platform/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4A00E0",
