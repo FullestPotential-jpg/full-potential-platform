@@ -4415,6 +4415,23 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
 // ID основной комнаты сообщества
 const MAIN_COMMUNITY_ID = 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
+    // Функция для скрытия/показа нижней панели
+function toggleBottomNav() {
+    const bottomNav = document.querySelector('.bottom-nav');
+    const personalityType = localStorage.getItem('personality_type');
+    
+    if (bottomNav) {
+        if (personalityType) {
+            // Пользователь прошел тест - показываем панель
+            bottomNav.style.display = 'flex';
+        } else {
+            // Пользователь не прошел тест - скрываем панель
+            bottomNav.style.display = 'none';
+        }
+    }
+}
+// === КОНЕЦ НОВОГО КОДА ===
+
 
 // Функция подключения пользователя к сообществу
 async function connectUserToCommunity() {
@@ -4460,8 +4477,9 @@ async function connectUserToCommunity() {
 
 // Автоматически подключаем при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    connectUserToCommunity()
-})
+    connectUserToCommunity();
+    toggleBottomNav();
+});
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
     <!-- Нижняя панель навигации -->
