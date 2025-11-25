@@ -549,7 +549,6 @@
         }
 
         /* Адаптация для мобильных */
-        /* Адаптация для мобильных */
 @media (max-width: 768px) {
     body {
         padding: 0;
@@ -854,6 +853,50 @@
   .nav-active {
       color: #007bff;
   }
+        .nav-active {
+    color: #007bff;
+}
+
+/* ДОБАВЬТЕ СЮДА новый код */
+@media (max-width: 768px) {
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 1000;
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #666;
+        font-size: 12px;
+        gap: 4px;
+    }
+
+    .nav-item svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .nav-active {
+        color: #007bff;
+    }
+}
+
+@media (min-width: 769px) {
+    .bottom-nav {
+        display: none;
+    }
+}
   </style>
 </head>
 <body>
