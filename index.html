@@ -4328,5 +4328,15 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.log('SW error:', err));
 }
 </script>
+    <!-- ===== SUPABASE ЧАТ ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Подключение к Supabase
+const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY'
+const supabase = supabase.createClient(supabaseUrl, supabaseKey)
+console.log('Supabase подключен!')
+</script>
+<!-- ===== КОНЕЦ SUPABASE ===== -->
 </body>
 </html>
