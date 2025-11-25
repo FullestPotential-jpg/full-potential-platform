@@ -4421,7 +4421,6 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey)
 // ID основной комнаты сообщества
 const MAIN_COMMUNITY_ID = 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
     // Функция для скрытия/показа нижней панели
-// Функция для скрытия/показа нижней панели
 function toggleBottomNav() {
     const bottomNav = document.querySelector('.bottom-nav');
     const personalityType = localStorage.getItem('personality_type');
@@ -4442,8 +4441,7 @@ function toggleBottomNav() {
         bottomNav.style.display = 'none';
     }
 }
-// === КОНЕЦ НОВОГО КОДА ===
-
+// === КОНЕЦ ФУНКЦИИ ===
 
 // Функция подключения пользователя к сообществу
 async function connectUserToCommunity() {
