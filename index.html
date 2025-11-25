@@ -4335,7 +4335,56 @@ if ('serviceWorker' in navigator) {
 const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY'
 const supabase = supabase.createClient(supabaseUrl, supabaseKey)
-console.log('Supabase подключен!')
+
+// ID основной комнаты сообщества
+const MAIN_COMMUNITY_ID = 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
+
+// Функция подключения пользователя к сообществу
+async function connectUserToCommunity() {
+    const localUserId = localStorage.getItem('user_id')
+    const personalityType = localStorage.getItem('personality_type')
+    
+    if (!localUserId) {
+        console.log('Пользователь не авторизован')
+        return
+    }
+    
+    try {
+        console.log('Подключаем пользователя к сообществу...')
+        
+        // 1. Создаем/обновляем профиль пользователя
+        const { data: user, error } = await supabase
+            .from('users')
+            .upsert({ 
+                id: localUserId,
+                personality_type: personalityType 
+            })
+            .select()
+            .single()
+        
+        if (error) throw error
+        
+        // 2. Добавляем пользователя в общее сообщество
+        const { error: communityError } = await supabase
+            .from('user_chat_rooms')
+            .upsert({
+                user_id: user.id,
+                room_id: MAIN_COMMUNITY_ID
+            })
+        
+        if (communityError) throw communityError
+        
+        console.log('✅ Пользователь успешно подключен к сообществу!')
+        
+    } catch (error) {
+        console.error('❌ Ошибка подключения к сообществу:', error)
+    }
+}
+
+// Автоматически подключаем при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    connectUserToCommunity()
+})
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
 </body>
