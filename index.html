@@ -4467,6 +4467,39 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleBottomNav();
     }, 1000);
 });
+    // Автоматическая проверка наличия типа личности каждую секунду
+let checkAttempts = 0;
+const maxAttempts = 30; // 30 секунд максимум
+
+const checkPersonalityInterval = setInterval(() => {
+    const personalityType = localStorage.getItem('personality_type');
+    const bottomNav = document.querySelector('.bottom-nav');
+    
+    checkAttempts++;
+    
+    if (personalityType && bottomNav) {
+        console.log('🎯 Обнаружен тип личности! Показываем панель:', personalityType);
+        bottomNav.style.display = 'flex';
+        clearInterval(checkPersonalityInterval);
+        console.log('✅ Панель активирована');
+    } else if (checkAttempts >= maxAttempts) {
+        console.log('⏰ Проверка завершена, тип личности не найден');
+        clearInterval(checkPersonalityInterval);
+    } else {
+        console.log('⏳ Ожидаем тип личности... попытка', checkAttempts);
+    }
+}, 1000);
+
+// Также проверяем при клике на любую кнопку (на случай если тест в другом месте)
+document.addEventListener('click', function() {
+    const personalityType = localStorage.getItem('personality_type');
+    const bottomNav = document.querySelector('.bottom-nav');
+    
+    if (personalityType && bottomNav && bottomNav.style.display === 'none') {
+        console.log('🎯 Клик обнаружен! Показываем панель:', personalityType);
+        bottomNav.style.display = 'flex';
+    }
+});
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
     <!-- Нижняя панель навигации -->
