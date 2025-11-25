@@ -821,6 +821,40 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
     </style>
+    <style>
+  /* Нижняя панель навигации */
+  .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 1000;
+  }
+
+  .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #666;
+      font-size: 12px;
+      gap: 4px;
+  }
+
+  .nav-item svg {
+      width: 24px;
+      height: 24px;
+  }
+
+  .nav-active {
+      color: #007bff;
+  }
+  </style>
 </head>
 <body>
     <div class="container" id="main-container">
@@ -4387,5 +4421,20 @@ document.addEventListener('DOMContentLoaded', function() {
 })
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
+    <!-- Нижняя панель навигации -->
+<nav class="bottom-nav">
+    <a href="#value" class="nav-item">
+        <span>Ценность</span>
+    </a>
+    <a href="#premium" class="nav-item">
+        <span>Главная</span>
+    </a>
+    <a href="#community" class="nav-item nav-active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-3 12H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1zm0-3H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1zm0-3H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1z"/>
+        </svg>
+        <span>Сообщество</span>
+    </a>
+</nav>
 </body>
 </html>
