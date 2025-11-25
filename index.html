@@ -829,10 +829,11 @@
       right: 0;
       background: white;
       border-top: 1px solid #e0e0e0;
-      display: flex;
+      display: none; /* СКРЫТА ПО УМОЛЧАНИЮ - ВАЖНО! */
       justify-content: space-around;
       padding: 10px 0;
       z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
   }
 
   .nav-item {
@@ -843,6 +844,13 @@
       color: #666;
       font-size: 12px;
       gap: 4px;
+      padding: 5px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+  }
+
+  .nav-item:hover {
+      background: #f5f5f5;
   }
 
   .nav-item svg {
@@ -852,57 +860,9 @@
 
   .nav-active {
       color: #007bff;
+      font-weight: bold;
   }
-        .nav-active {
-    color: #007bff;
-}
-
-/* ДОБАВЬТЕ СЮДА новый код */
-@media (max-width: 768px) {
-    /* Нижняя панель навигации - для всех устройств */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    z-index: 1000;
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: #666;
-    font-size: 12px;
-    gap: 4px;
-}
-
-.nav-item svg {
-    width: 24px;
-    height: 24px;
-}
-
-.nav-active {
-    color: #007bff;
-}
-
-/* Скрываем на странице входа */
-body:not(.platform-page) .bottom-nav {
-    display: none !important;
-  }
-
-@media (min-width: 769px) {
-    .bottom-nav {
-        display: none;
-    }
-}
-  </style>
+</style>
 </head>
 <body>
     <div class="container" id="main-container">
@@ -4402,7 +4362,7 @@ async function savePremiumAccess() {
         };
         return names[type] || type;
     }
-    </script>
+        </script>
     <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
@@ -4413,86 +4373,99 @@ if ('serviceWorker' in navigator) {
     <!-- ===== SUPABASE ЧАТ ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ===== SUPABASE ЗАЩИТА ОТ ОШИБОК =====
-if (typeof window.supabase === 'undefined') {
-    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co'
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY'
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey)
-    console.log('✅ Supabase инициализирован')
-}
-const supabase = window.supabase;
-// ===== КОНЕЦ ЗАЩИТЫ =====
-// ID основной комнаты сообщества
-const MAIN_COMMUNITY_ID = 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
-    // Функция для скрытия/показа нижней панели
-function toggleBottomNav() {
-    const bottomNav = document.querySelector('.bottom-nav');
-    const personalityType = localStorage.getItem('personality_type');
-    
-    // Проверяем, что мы на главной платформе (не в меню входа)
-    const isOnPlatform = document.body.classList.contains('platform-page') || 
-                        window.location.hash === '#platform' || 
-                        document.querySelector('.platform-main-content');
-    
-    if (bottomNav && isOnPlatform) {
-        if (personalityType) {
-            bottomNav.style.display = 'flex';
-        } else {
-            bottomNav.style.display = 'none';
-        }
-    } else if (bottomNav) {
-        // Не на платформе - скрываем
-        bottomNav.style.display = 'none';
-    }
-}
-// === КОНЕЦ ФУНКЦИИ ===
-
-// Функция подключения пользователя к сообществу
-async function connectUserToCommunity() {
-    const localUserId = localStorage.getItem('user_id')
-    const personalityType = localStorage.getItem('personality_type')
-    
-    if (!localUserId) {
-        console.log('Пользователь не авторизован')
-        return
-    }
-    
-    try {
-        console.log('Подключаем пользователя к сообществу...')
-        
-        // 1. Создаем/обновляем профиль пользователя
-        const { data: user, error } = await supabase
-            .from('users')
-            .upsert({ 
-                id: localUserId,
-                personality_type: personalityType 
-            })
-            .select()
-            .single()
-        
-        if (error) throw error
-        
-        // 2. Добавляем пользователя в общее сообщество
-        const { error: communityError } = await supabase
-            .from('user_chat_rooms')
-            .upsert({
-                user_id: user.id,
-                room_id: MAIN_COMMUNITY_ID
-            })
-        
-        if (communityError) throw communityError
-        
-        console.log('✅ Пользователь успешно подключен к сообществу!')
-        
-    } catch (error) {
-        console.error('❌ Ошибка подключения к сообществу:', error)
-    }
-}
-
-// Автоматически подключаем при загрузке страницы
+// Ждем полной загрузки страницы и библиотеки Supabase
 document.addEventListener('DOMContentLoaded', function() {
-    connectUserToCommunity();
-    toggleBottomNav();
+    console.log('🚀 Инициализация Supabase...');
+    
+    // Проверяем что библиотека Supabase загрузилась
+    if (typeof supabase === 'undefined') {
+        console.error('❌ Библиотека Supabase не загрузилась');
+        return;
+    }
+    
+    // Инициализируем Supabase
+    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
+    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    console.log('✅ Supabase инициализирован');
+
+    const MAIN_COMMUNITY_ID = 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e';
+
+    // Функция для скрытия/показа нижней панели
+    function toggleBottomNav() {
+        const bottomNav = document.querySelector('.bottom-nav');
+        const personalityType = localStorage.getItem('personality_type');
+        
+        console.log('📱 Проверка панели:', { hasNav: !!bottomNav, hasType: !!personalityType });
+        
+        if (bottomNav) {
+            if (personalityType) {
+                console.log('📱 ПОКАЗЫВАЕМ нижнюю панель');
+                bottomNav.style.display = 'flex';
+            } else {
+                console.log('📱 СКРЫВАЕМ нижнюю панель');
+                bottomNav.style.display = 'none';
+            }
+        }
+    }
+
+    // Функция подключения пользователя к сообществу
+    async function connectUserToCommunity() {
+        const localUserId = localStorage.getItem('user_id');
+        const personalityType = localStorage.getItem('personality_type');
+        
+        console.log('👤 Данные пользователя:', { localUserId, personalityType });
+        
+        if (!localUserId) {
+            console.log('👤 Пользователь не авторизован');
+            return;
+        }
+        
+        try {
+            console.log('🔗 Подключаем пользователя к сообществу...');
+            
+            // 1. Создаем/обновляем профиль пользователя
+            const { data: user, error } = await window.supabaseClient
+                .from('users')
+                .upsert({ 
+                    id: localUserId,
+                    personality_type: personalityType 
+                })
+                .select()
+                .single();
+            
+            if (error) {
+                console.error('❌ Ошибка создания пользователя:', error);
+                return;
+            }
+            
+            console.log('👤 Пользователь создан:', user);
+
+            // 2. Добавляем пользователя в общее сообщество
+            const { error: communityError } = await window.supabaseClient
+                .from('user_chat_rooms')
+                .upsert({
+                    user_id: user.id,
+                    room_id: MAIN_COMMUNITY_ID
+                });
+            
+            if (communityError) {
+                console.error('❌ Ошибка добавления в сообщество:', communityError);
+                return;
+            }
+            
+            console.log('✅ Пользователь успешно подключен к сообществу!');
+            
+        } catch (error) {
+            console.error('❌ Общая ошибка подключения к сообществу:', error);
+        }
+    }
+
+    // Запускаем функции с небольшой задержкой
+    setTimeout(() => {
+        connectUserToCommunity();
+        toggleBottomNav();
+    }, 1000);
 });
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
