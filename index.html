@@ -859,38 +859,43 @@
 
 /* ДОБАВЬТЕ СЮДА новый код */
 @media (max-width: 768px) {
-    .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: white;
-        border-top: 1px solid #e0e0e0;
-        display: flex;
-        justify-content: space-around;
-        padding: 10px 0;
-        z-index: 1000;
-    }
-
-    .nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-decoration: none;
-        color: #666;
-        font-size: 12px;
-        gap: 4px;
-    }
-
-    .nav-item svg {
-        width: 24px;
-        height: 24px;
-    }
-
-    .nav-active {
-        color: #007bff;
-    }
+    /* Нижняя панель навигации - для всех устройств */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
 }
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #666;
+    font-size: 12px;
+    gap: 4px;
+}
+
+.nav-item svg {
+    width: 24px;
+    height: 24px;
+}
+
+.nav-active {
+    color: #007bff;
+}
+
+/* Скрываем на странице входа */
+body:not(.platform-page) .bottom-nav {
+    display: none !important;
+  }
 
 @media (min-width: 769px) {
     .bottom-nav {
@@ -4416,18 +4421,25 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey)
 // ID основной комнаты сообщества
 const MAIN_COMMUNITY_ID = 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
     // Функция для скрытия/показа нижней панели
+// Функция для скрытия/показа нижней панели
 function toggleBottomNav() {
     const bottomNav = document.querySelector('.bottom-nav');
     const personalityType = localStorage.getItem('personality_type');
     
-    if (bottomNav) {
+    // Проверяем, что мы на главной платформе (не в меню входа)
+    const isOnPlatform = document.body.classList.contains('platform-page') || 
+                        window.location.hash === '#platform' || 
+                        document.querySelector('.platform-main-content');
+    
+    if (bottomNav && isOnPlatform) {
         if (personalityType) {
-            // Пользователь прошел тест - показываем панель
             bottomNav.style.display = 'flex';
         } else {
-            // Пользователь не прошел тест - скрываем панель
             bottomNav.style.display = 'none';
         }
+    } else if (bottomNav) {
+        // Не на платформе - скрываем
+        bottomNav.style.display = 'none';
     }
 }
 // === КОНЕЦ НОВОГО КОДА ===
