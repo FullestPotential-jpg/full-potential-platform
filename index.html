@@ -4863,7 +4863,7 @@ function updateOnlineUsers() {
     const userCount = Object.keys(onlineUsers).length;
     const chatHeader = document.querySelector('.chat-header h3');
     if (chatHeader) {
-        chatHeader.textContent = `Сообщество Fullest Potential (${userCount} онлайн)`;
+        chatHeader.textContent = `Сообщество (${userCount} онлайн)`;
     }
 }
 
@@ -4910,7 +4910,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="chat-overlay" id="chatOverlay" onclick="hideCommunityChat()"></div>
 <div class="community-chat" id="communityChat">
     <div class="chat-header">
-        <h3>Сообщество Fullest Potential</h3>
+        <h3>Сообщество</h3>
         <button class="chat-close" onclick="hideCommunityChat()">✕</button>
     </div>
     <div class="chat-messages" id="chatMessages">
