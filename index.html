@@ -18,16 +18,19 @@
     right: 0;
     background: white;
     border-top: 1px solid #e0e0e0;
-    padding: 15px 0;
+    padding: 8px 0;
     z-index: 1000;
     display: none;
+    height: 60px;
 }
 
 .nav-container {
     display: flex;
-    justify-content: center; /* Центрируем единственную кнопку */
+    justify-content: center;
     max-width: 400px;
     margin: 0 auto;
+    height: 100%;
+    align-items: center;
 }
 
 .nav-btn {
@@ -36,19 +39,20 @@
     align-items: center;
     background: none;
     border: none;
-    padding: 12px 40px; /* Увеличиваем отступы для лучшего вида */
+    padding: 6px 20px;
     cursor: pointer;
     color: #666;
-    font-size: 14px;
+    font-size: 12px;
     transition: all 0.3s;
-    border-radius: 10px;
-    gap: 5px;
+    border-radius: 8px;
+    gap: 2px;
+    height: 44px;
 }
 
 .nav-btn:hover {
     background: #f8f9fa;
     color: #667eea;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .nav-btn:active {
@@ -56,13 +60,13 @@
 }
 
 .nav-icon {
-    font-size: 24px; /* Увеличиваем иконку */
-    margin-bottom: 2px;
+    font-size: 20px;
+    margin-bottom: 0;
 }
 
 .nav-label {
-    font-weight: 600; /* Делаем текст чуть жирнее */
-    font-size: 13px;
+    font-weight: 600;
+    font-size: 11px;
 }
         /* Защита основного контента от перекрытия навигацией */
 .screen {
