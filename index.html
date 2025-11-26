@@ -10,6 +10,197 @@
     <link rel="apple-touch-icon" href="https://fullestpotential-jpg.github.io/full-potential-platform/icon-192.png">
     <title>Гений Внутри Вас - Определитель типа личности</title>
     <style>
+        /* Стили для нижней навигации */
+.bottom-navigation {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    padding: 10px 0;
+    z-index: 1000;
+    display: none;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-around;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #666;
+    font-size: 12px;
+    transition: color 0.3s;
+    border-radius: 8px;
+}
+
+.nav-btn.active {
+    color: #667eea;
+}
+
+.nav-btn:hover {
+    background: #f5f5f5;
+}
+
+.nav-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.nav-label {
+    font-weight: 500;
+}
+
+/* Стили для чата сообщества */
+.community-chat {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    height: 70vh;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 1001;
+    display: none;
+    flex-direction: column;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.chat-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease;
+}
+
+.message.incoming {
+    background: white;
+    border-bottom-left-radius: 5px;
+    align-self: flex-start;
+}
+
+.message.outgoing {
+    background: #667eea;
+    color: white;
+    border-bottom-right-radius: 5px;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.message.system {
+    background: #fff3cd;
+    color: #856404;
+    text-align: center;
+    max-width: 100%;
+    font-size: 12px;
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #e1e1e1;
+    border-radius: 0 0 15px 15px;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e1e1e1;
+    border-radius: 25px;
+    margin-right: 10px;
+    font-size: 14px;
+    outline: none;
+}
+
+.chat-input:focus {
+    border-color: #667eea;
+}
+
+.send-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.send-btn:hover {
+    background: #764ba2;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Затемнение фона при открытом чате */
+.chat-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: none;
+}
         html, body {
             scroll-behavior: smooth;
             height: 100%;
@@ -1356,7 +1547,11 @@ function saveUser(email, password, personality_type = null) {
     showAuthMessage('register-message', 'Регистрация успешна!', 'success');
     clearAuthFields();
     
-    setTimeout(() => showScreen('intro-screen'), 1000);
+    setTimeout(() => {
+        showScreen('intro-screen');
+        showBottomNavigation();
+        addUserToCommunityChat(email.split('@')[0]);
+    }, 1000);
 }
 
 // ОБНОВИ ФУНКЦИЮ login()
@@ -1397,6 +1592,8 @@ async function login() {
         if (currentUser.personality_type) {
             showScreen('platform-screen');
             updateProfileData();
+            showBottomNavigation();
+            addUserToCommunityChat(email.split('@')[0]);
         } else {
             showScreen('intro-screen');
         }
@@ -4500,6 +4697,198 @@ document.addEventListener('click', function() {
         bottomNav.style.display = 'flex';
     }
 });
+    // ===== ФУНКЦИИ ДЛЯ НИЖНЕЙ НАВИГАЦИИ =====
+
+// Показать нижнюю навигацию (вызывать после авторизации)
+function showBottomNavigation() {
+    const bottomNav = document.getElementById('bottomNav');
+    if (bottomNav) {
+        bottomNav.style.display = 'block';
+    }
+}
+
+// Скрыть нижнюю навигацию
+function hideBottomNavigation() {
+    const bottomNav = document.getElementById('bottomNav');
+    if (bottomNav) {
+        bottomNav.style.display = 'none';
+    }
+}
+
+// Переключение между разделами
+function showSection(sectionType) {
+    // Сбрасываем активное состояние всех кнопок
+    const allNavButtons = document.querySelectorAll('.nav-btn');
+    allNavButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Устанавливаем активное состояние нажатой кнопке
+    event.currentTarget.classList.add('active');
+    
+    // Показываем соответствующий раздел
+    switch(sectionType) {
+        case 'values':
+            showValuesContent();
+            break;
+        case 'main-value':
+            showMainValueContent();
+            break;
+        case 'community':
+            showCommunityChat();
+            break;
+    }
+}
+
+// ===== ФУНКЦИИ ДЛЯ ЧАТА =====
+
+// Показать чат сообщества
+function showCommunityChat() {
+    const chat = document.getElementById('communityChat');
+    const overlay = document.getElementById('chatOverlay');
+    
+    if (chat && overlay) {
+        chat.style.display = 'flex';
+        overlay.style.display = 'block';
+        // Прокручиваем вниз
+        setTimeout(() => {
+            const messages = document.getElementById('chatMessages');
+            if (messages) {
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }, 100);
+    }
+}
+
+// Скрыть чат сообщества
+function hideCommunityChat() {
+    const chat = document.getElementById('communityChat');
+    const overlay = document.getElementById('chatOverlay');
+    
+    if (chat && overlay) {
+        chat.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+}
+
+// Добавить пользователя в чат сообщества
+function addUserToCommunityChat(username) {
+    if (!username) {
+        username = 'Пользователь';
+    }
+    
+    const systemMessage = document.createElement('div');
+    systemMessage.className = 'message system';
+    systemMessage.textContent = `${username} присоединился к чату`;
+    
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.appendChild(systemMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+// Отправить сообщение в чат
+function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const messageText = messageInput.value.trim();
+    
+    if (messageText) {
+        // Создаем элемент сообщения пользователя
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message outgoing';
+        userMessage.textContent = messageText;
+        
+        // Добавляем в чат
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            chatMessages.appendChild(userMessage);
+            messageInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Имитируем ответ сообщества
+        simulateCommunityResponse(messageText);
+    }
+}
+
+// Имитация ответа от сообщества
+function simulateCommunityResponse(userMessage) {
+    const responses = [
+        "Отличная мысль! 💫",
+        "Спасибо, что делитесь! 🙏",
+        "Полностью поддерживаю! 👍",
+        "Интересный взгляд на вещи! 🤔",
+        "Продолжайте в том же духе! 💪",
+        "Это очень ценно для сообщества! 🌟",
+        "Как это помогло вам в развитии? 🚀"
+    ];
+    
+    setTimeout(() => {
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        const communityMessage = document.createElement('div');
+        communityMessage.className = 'message incoming';
+        communityMessage.innerHTML = `<strong>Участник сообщества:</strong> ${randomResponse}`;
+        
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            chatMessages.appendChild(communityMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }, 1500);
+}
+
+// Обработка нажатия Enter в поле ввода сообщения
+document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.getElementById('messageInput');
+    if (messageInput) {
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
+});
+    // ===== ФУНКЦИИ-ЗАГЛУШКИ ДЛЯ ИНТЕГРАЦИИ =====
+
+// Функция для показа раздела "Ценность"
+function showValuesContent() {
+    console.log('Показываем раздел Ценность');
+    
+    // ЗДЕСЬ: Добавьте код для показа вашего существующего раздела с ценностями
+    // Например: 
+    // - Показать соответствующий div/секцию
+    // - Скрыть другие разделы
+    // - Обновить контент если нужно
+    
+    // Временное сообщение (удалите после интеграции)
+    alert('Показываем раздел "Ценность" - здесь будет ваш существующий контент');
+}
+
+// Функция для показа раздела "Главная ценность"
+function showMainValueContent() {
+    console.log('Показываем раздел Главная ценность');
+    
+    // ЗДЕСЬ: Добавьте код для показа вашего существующего раздела с главной ценностью
+    // Например:
+    // - Показать соответствующий div/секцию  
+    // - Скрыть другие разделы
+    // - Загрузить контент если нужно
+    
+    // Временное сообщение (удалите после интеграции)
+    alert('Показываем раздел "Главная ценность" - здесь будет ваш существующий контент');
+}
+
+// Функция для получения имени текущего пользователя
+function getCurrentUsername() {
+    // ЗДЕСЬ: Верните имя текущего пользователя из вашей системы
+    // Например:
+    // return currentUser.name;
+    // return localStorage.getItem('username');
+    
+    // Временная заглушка:
+    return 'Участник';
+}
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
     <!-- Нижняя панель навигации -->
@@ -4517,5 +4906,45 @@ document.addEventListener('click', function() {
         <span>Сообщество</span>
     </a>
 </nav>
+    <!-- Нижняя навигация -->
+<div class="bottom-navigation" id="bottomNav">
+    <div class="nav-container">
+        <button class="nav-btn active" onclick="showSection('values')">
+            <span class="nav-icon">💎</span>
+            <span class="nav-label">Ценность</span>
+        </button>
+        <button class="nav-btn" onclick="showSection('main-value')">
+            <span class="nav-icon">⭐</span>
+            <span class="nav-label">Главная ценность</span>
+        </button>
+        <button class="nav-btn" onclick="showSection('community')">
+            <span class="nav-icon">👥</span>
+            <span class="nav-label">Сообщество</span>
+        </button>
+    </div>
+</div>
+
+<!-- Чат сообщества -->
+<div class="chat-overlay" id="chatOverlay" onclick="hideCommunityChat()"></div>
+<div class="community-chat" id="communityChat">
+    <div class="chat-header">
+        <h3>Сообщество Fullest Potential</h3>
+        <button class="chat-close" onclick="hideCommunityChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <div class="message system">
+            Добро пожаловать в чат сообщества!
+        </div>
+        <div class="message incoming">
+            <strong>Администратор:</strong> Рады видеть вас в нашем сообществе! Здесь мы делимся успехами и поддерживаем друг друга.
+        </div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" class="chat-input" id="messageInput" placeholder="Введите сообщение...">
+        <button class="send-btn" onclick="sendMessage()">
+            <span style="font-size: 16px;">↑</span>
+        </button>
+    </div>
+</div>
 </body>
 </html>
