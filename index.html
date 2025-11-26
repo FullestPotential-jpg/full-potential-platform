@@ -64,6 +64,24 @@
     font-weight: 600; /* Делаем текст чуть жирнее */
     font-size: 13px;
 }
+        /* Защита основного контента от перекрытия навигацией */
+.screen {
+    padding-bottom: 80px !important; /* Отступ для нижней навигации */
+}
+
+.platform-container, 
+#platform-screen,
+.main-content {
+    padding-bottom: 80px !important; /* Отступ для нижней навигации */
+    min-height: calc(100vh - 80px) !important; /* Высота минус навигация */
+}
+
+/* Если у вас есть другие контейнеры с контентом */
+.content-wrapper,
+.app-container,
+.main-wrapper {
+    padding-bottom: 80px !important;
+}
 
 /* Стили для полноэкранного чата */
 .community-chat {
@@ -197,13 +215,12 @@
 
 .send-btn:hover {
     background: #764ba2;
+}
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-/* Затемнение фона при открытом чате */
 .chat-overlay {
     position: fixed;
     top: 0;
