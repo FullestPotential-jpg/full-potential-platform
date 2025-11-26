@@ -4738,6 +4738,8 @@ function showBottomNavigation() {
 }
 // ===== ФУНКЦИИ ДЛЯ ЧАТА =====
 
+// ===== СИСТЕМА РЕАЛЬНОГО ЧАТА =====
+
 // Показать чат сообщества
 function showCommunityChat() {
     const chat = document.getElementById('communityChat');
@@ -4746,13 +4748,7 @@ function showCommunityChat() {
     if (chat && overlay) {
         chat.style.display = 'flex';
         overlay.style.display = 'block';
-        // Прокручиваем вниз
-        setTimeout(() => {
-            const messages = document.getElementById('chatMessages');
-            if (messages) {
-                messages.scrollTop = messages.scrollHeight;
-            }
-        }, 100);
+        initializeChat(); // Инициализируем чат при открытии
     }
 }
 
@@ -4767,40 +4763,121 @@ function hideCommunityChat() {
     }
 }
 
-// Добавить пользователя в чат сообщества
-function addUserToCommunityChat(username) {
-    if (!username) {
-        username = 'Пользователь';
+// Функция инициализации чата
+function initializeChat() {
+    // Создаем хранилище чата если его нет
+    if (!localStorage.getItem('communityChat')) {
+        const initialMessages = [
+            { type: 'system', text: 'Добро пожаловать в чат сообщества!', time: Date.now() },
+            { type: 'incoming', author: 'Администратор', text: 'Рады видеть вас в нашем сообществе! Здесь мы делимся успехами и поддерживаем друг друга.', time: Date.now() }
+        ];
+        localStorage.setItem('communityChat', JSON.stringify(initialMessages));
     }
-    
-    const systemMessage = document.createElement('div');
-    systemMessage.className = 'message system';
-    systemMessage.textContent = `${username} присоединился к чату`;
-    
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        chatMessages.appendChild(systemMessage);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+    updateOnlineUsers();
+    loadChatMessages();
 }
 
-// Отправить сообщение в чат
+// Функция загрузки сообщений
+function loadChatMessages() {
+    const chatMessages = document.getElementById('chatMessages');
+    const messages = JSON.parse(localStorage.getItem('communityChat')) || [];
+    
+    chatMessages.innerHTML = '';
+    
+    messages.forEach(msg => {
+        const messageElement = document.createElement('div');
+        
+        if (msg.type === 'system') {
+            messageElement.className = 'message system';
+            messageElement.textContent = msg.text;
+        } else if (msg.type === 'incoming') {
+            messageElement.className = 'message incoming';
+            messageElement.innerHTML = `<strong>${msg.author}:</strong> ${msg.text}`;
+        } else if (msg.type === 'outgoing') {
+            messageElement.className = 'message outgoing';
+            messageElement.textContent = msg.text;
+        }
+        
+        chatMessages.appendChild(messageElement);
+    });
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Функция отправки сообщения
 function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const messageText = messageInput.value.trim();
     
     if (messageText) {
-        const userMessage = document.createElement('div');
-        userMessage.className = 'message outgoing';
-        userMessage.textContent = messageText;
+        const messages = JSON.parse(localStorage.getItem('communityChat')) || [];
+        const username = getCurrentUsername();
         
-        const chatMessages = document.getElementById('chatMessages');
-        if (chatMessages) {
-            chatMessages.appendChild(userMessage);
-            messageInput.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        // Добавляем новое сообщение
+        messages.push({
+            type: 'outgoing',
+            text: messageText,
+            author: username,
+            time: Date.now()
+        });
+        
+        // Сохраняем в localStorage
+        localStorage.setItem('communityChat', JSON.stringify(messages));
+        
+        // Очищаем поле ввода и обновляем чат
+        messageInput.value = '';
+        loadChatMessages();
+        updateOnlineUsers(); // Обновляем счетчик онлайн
     }
+}
+
+// Функция подсчета онлайн пользователей
+function updateOnlineUsers() {
+    let onlineUsers = JSON.parse(localStorage.getItem('onlineUsers')) || {};
+    const currentUser = getCurrentUsername();
+    
+    // Добавляем/обновляем текущего пользователя
+    onlineUsers[currentUser] = Date.now();
+    
+    // Удаляем неактивных (последняя активность больше 5 минут)
+    const now = Date.now();
+    Object.keys(onlineUsers).forEach(user => {
+        if (now - onlineUsers[user] > 5 * 60 * 1000) { // 5 минут
+            delete onlineUsers[user];
+        }
+    });
+    
+    localStorage.setItem('onlineUsers', JSON.stringify(onlineUsers));
+    
+    // Обновляем счетчик в заголовке чата
+    const userCount = Object.keys(onlineUsers).length;
+    const chatHeader = document.querySelector('.chat-header h3');
+    if (chatHeader) {
+        chatHeader.textContent = `Сообщество Fullest Potential (${userCount} онлайн)`;
+    }
+}
+
+// Функция получения имени пользователя
+function getCurrentUsername() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    return currentUser ? currentUser.email.split('@')[0] : 'Участник';
+}
+
+// Добавить пользователя в чат сообщества
+function addUserToCommunityChat(username) {
+    if (!username) {
+        username = getCurrentUsername();
+    }
+    
+    const messages = JSON.parse(localStorage.getItem('communityChat')) || [];
+    messages.push({
+        type: 'system',
+        text: `${username} присоединился к чату`,
+        time: Date.now()
+    });
+    
+    localStorage.setItem('communityChat', JSON.stringify(messages));
+    updateOnlineUsers();
 }
 
 // Обработка нажатия Enter в поле ввода сообщения
@@ -4814,34 +4891,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-// Функция для получения имени текущего пользователя
+// Функция получения имени пользователя
 function getCurrentUsername() {
-    // ЗДЕСЬ: Верните имя текущего пользователя из вашей системы
-    // Например:
-    // return currentUser.name;
-    // return localStorage.getItem('username');
-    
-    // Временная заглушка:
-    return 'Участник';
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    return currentUser ? currentUser.email.split('@')[0] : 'Участник';
 }
-</script>
-<!-- ===== КОНЕЦ SUPABASE ===== -->
-    <!-- Нижняя панель навигации -->
-<nav class="bottom-nav">
-    <a href="#value" class="nav-item">
-        <span>Ценность</span>
-    </a>
-    <a href="#premium" class="nav-item">
-        <span>Главная</span>
-    </a>
-    <a href="#community" class="nav-item nav-active">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-3 12H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1zm0-3H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1zm0-3H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1z"/>
-        </svg>
-        <span>Сообщество</span>
-    </a>
-</nav>
-    <!-- Нижняя навигация -->
 <div class="bottom-navigation" id="bottomNav">
     <div class="nav-container">
         <button class="nav-btn" onclick="showCommunityChat()">
