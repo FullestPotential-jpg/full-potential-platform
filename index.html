@@ -4597,7 +4597,8 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.log('SW error:', err));
 }
 </script>
-    <!-- ===== SUPABASE ЧАТ ===== -->
+
+<!-- ===== SUPABASE ЧАТ ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // Ждем полной загрузки страницы и библиотеки Supabase
@@ -4620,7 +4621,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция для скрытия/показа нижней панели
     function toggleBottomNav() {
-        const bottomNav = document.querySelector('.bottom-nav');
+        const bottomNav = document.getElementById('bottomNav');
         const personalityType = localStorage.getItem('personality_type');
         
         console.log('📱 Проверка панели:', { hasNav: !!bottomNav, hasType: !!personalityType });
@@ -4628,7 +4629,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (bottomNav) {
             if (personalityType) {
                 console.log('📱 ПОКАЗЫВАЕМ нижнюю панель');
-                bottomNav.style.display = 'flex';
+                bottomNav.style.display = 'block';
             } else {
                 console.log('📱 СКРЫВАЕМ нижнюю панель');
                 bottomNav.style.display = 'none';
@@ -4638,12 +4639,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция подключения пользователя к сообществу
     async function connectUserToCommunity() {
-        const localUserId = localStorage.getItem('user_id');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const personalityType = localStorage.getItem('personality_type');
         
-        console.log('👤 Данные пользователя:', { localUserId, personalityType });
+        console.log('👤 Данные пользователя:', { currentUser, personalityType });
         
-        if (!localUserId) {
+        if (!currentUser || !currentUser.email) {
             console.log('👤 Пользователь не авторизован');
             return;
         }
@@ -4655,7 +4656,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const { data: user, error } = await window.supabaseClient
                 .from('users')
                 .upsert({ 
-                    id: localUserId,
+                    id: currentUser.id,
+                    email: currentUser.email,
                     personality_type: personalityType 
                 })
                 .select()
@@ -4694,19 +4696,20 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleBottomNav();
     }, 1000);
 });
-    // Автоматическая проверка наличия типа личности каждую секунду
+
+// Автоматическая проверка наличия типа личности каждую секунду
 let checkAttempts = 0;
-const maxAttempts = 30; // 30 секунд максимум
+const maxAttempts = 30;
 
 const checkPersonalityInterval = setInterval(() => {
     const personalityType = localStorage.getItem('personality_type');
-    const bottomNav = document.querySelector('.bottom-nav');
+    const bottomNav = document.getElementById('bottomNav');
     
     checkAttempts++;
     
     if (personalityType && bottomNav) {
         console.log('🎯 Обнаружен тип личности! Показываем панель:', personalityType);
-        bottomNav.style.display = 'flex';
+        bottomNav.style.display = 'block';
         clearInterval(checkPersonalityInterval);
         console.log('✅ Панель активирована');
     } else if (checkAttempts >= maxAttempts) {
@@ -4717,28 +4720,39 @@ const checkPersonalityInterval = setInterval(() => {
     }
 }, 1000);
 
-// Также проверяем при клике на любую кнопку (на случай если тест в другом месте)
+// Также проверяем при клике на любую кнопку
 document.addEventListener('click', function() {
     const personalityType = localStorage.getItem('personality_type');
-    const bottomNav = document.querySelector('.bottom-nav');
+    const bottomNav = document.getElementById('bottomNav');
     
     if (personalityType && bottomNav && bottomNav.style.display === 'none') {
         console.log('🎯 Клик обнаружен! Показываем панель:', personalityType);
-        bottomNav.style.display = 'flex';
+        bottomNav.style.display = 'block';
     }
 });
-    // ===== ФУНКЦИИ ДЛЯ НИЖНЕЙ НАВИГАЦИИ =====
+</script>
+
+<script>
+// ===== ФУНКЦИИ ДЛЯ НИЖНЕЙ НАВИГАЦИИ =====
 
 // Показать нижнюю навигацию (вызывать после авторизации)
 function showBottomNavigation() {
     const bottomNav = document.getElementById('bottomNav');
     if (bottomNav) {
+        console.log('✅ Показываем нижнюю навигацию');
         bottomNav.style.display = 'block';
+    } else {
+        console.log('❌ Элемент bottomNav не найден');
     }
 }
-// ===== ФУНКЦИИ ДЛЯ ЧАТА =====
 
 // ===== СИСТЕМА РЕАЛЬНОГО ЧАТА =====
+
+// Функция получения имени пользователя
+function getCurrentUsername() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    return currentUser ? currentUser.email.split('@')[0] : 'Участник';
+}
 
 // Показать чат сообщества
 function showCommunityChat() {
@@ -4748,7 +4762,7 @@ function showCommunityChat() {
     if (chat && overlay) {
         chat.style.display = 'flex';
         overlay.style.display = 'block';
-        initializeChat(); // Инициализируем чат при открытии
+        initializeChat();
     }
 }
 
@@ -4765,7 +4779,6 @@ function hideCommunityChat() {
 
 // Функция инициализации чата
 function initializeChat() {
-    // Создаем хранилище чата если его нет
     if (!localStorage.getItem('communityChat')) {
         const initialMessages = [
             { type: 'system', text: 'Добро пожаловать в чат сообщества!', time: Date.now() },
@@ -4813,7 +4826,6 @@ function sendMessage() {
         const messages = JSON.parse(localStorage.getItem('communityChat')) || [];
         const username = getCurrentUsername();
         
-        // Добавляем новое сообщение
         messages.push({
             type: 'outgoing',
             text: messageText,
@@ -4821,13 +4833,10 @@ function sendMessage() {
             time: Date.now()
         });
         
-        // Сохраняем в localStorage
         localStorage.setItem('communityChat', JSON.stringify(messages));
-        
-        // Очищаем поле ввода и обновляем чат
         messageInput.value = '';
         loadChatMessages();
-        updateOnlineUsers(); // Обновляем счетчик онлайн
+        updateOnlineUsers();
     }
 }
 
@@ -4836,31 +4845,22 @@ function updateOnlineUsers() {
     let onlineUsers = JSON.parse(localStorage.getItem('onlineUsers')) || {};
     const currentUser = getCurrentUsername();
     
-    // Добавляем/обновляем текущего пользователя
     onlineUsers[currentUser] = Date.now();
     
-    // Удаляем неактивных (последняя активность больше 5 минут)
     const now = Date.now();
     Object.keys(onlineUsers).forEach(user => {
-        if (now - onlineUsers[user] > 5 * 60 * 1000) { // 5 минут
+        if (now - onlineUsers[user] > 5 * 60 * 1000) {
             delete onlineUsers[user];
         }
     });
     
     localStorage.setItem('onlineUsers', JSON.stringify(onlineUsers));
     
-    // Обновляем счетчик в заголовке чата
     const userCount = Object.keys(onlineUsers).length;
     const chatHeader = document.querySelector('.chat-header h3');
     if (chatHeader) {
         chatHeader.textContent = `Сообщество Fullest Potential (${userCount} онлайн)`;
     }
-}
-
-// Функция получения имени пользователя
-function getCurrentUsername() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    return currentUser ? currentUser.email.split('@')[0] : 'Участник';
 }
 
 // Добавить пользователя в чат сообщества
@@ -4891,11 +4891,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-// Функция получения имени пользователя
-function getCurrentUsername() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    return currentUser ? currentUser.email.split('@')[0] : 'Участник';
-}
+</script>
+
 <div class="bottom-navigation" id="bottomNav">
     <div class="nav-container">
         <button class="nav-btn" onclick="showCommunityChat()">
