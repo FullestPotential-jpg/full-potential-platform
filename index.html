@@ -4765,7 +4765,6 @@ function showCommunityChat() {
         overlay.style.display = 'block';
         initializeChat();
         startRealtimeMessages(); // Запускаем отслеживание новых сообщений
-        startRealtimeOnlineUsers();
     }
 }
 
@@ -4982,30 +4981,6 @@ function stopRealtimeMessages() {
     if (window.chatSubscription) {
         window.supabaseClient.removeChannel(window.chatSubscription);
     }
-}
-
-// ← ВСТАВИТЬ ЗДЕСЬ ↓
-
-// Real-time отслеживание онлайн пользователей
-function startRealtimeOnlineUsers() {
-    if (!window.supabaseClient) return;
-    
-    window.onlineSubscription = window.supabaseClient
-        .channel('public:online_users')
-        .on('postgres_changes', 
-            { 
-                event: '*', // Любые изменения
-                schema: 'public', 
-                table: 'online_users'
-            }, 
-            () => {
-                console.log('🔄 Обновление онлайн статусов');
-                updateOnlineUsers(); // Обновляем счетчик
-            }
-        )
-        .subscribe((status) => {
-            console.log('📡 Статус онлайн подписки:', status);
-        });
 }
 
 // ← ПЕРЕД ЭТОЙ ФУНКЦИЕЙ ↓
