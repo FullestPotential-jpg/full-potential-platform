@@ -1595,6 +1595,30 @@ function showBottomNavigation() {
         bottomNav.style.display = 'block';
     }
 }
+
+        // Показать чат сообщества
+function showCommunityChat() {
+    console.log('✅ Открываем чат');
+    const chat = document.getElementById('communityChat');
+    const overlay = document.getElementById('chatOverlay');
+    
+    if (chat && overlay) {
+        chat.style.display = 'flex';
+        overlay.style.display = 'block';
+    }
+}
+
+// Скрыть чат сообщества
+function hideCommunityChat() {
+    const chat = document.getElementById('communityChat');
+    const overlay = document.getElementById('chatOverlay');
+    
+    if (chat && overlay) {
+        chat.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+}
+
 // ОБНОВИ ФУНКЦИЮ login()
 async function login() {
     const email = document.getElementById('login-email').value;
