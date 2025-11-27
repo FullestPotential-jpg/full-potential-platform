@@ -4739,12 +4739,17 @@ document.addEventListener('click', function() {
 
 // Показать нижнюю навигацию (вызывать после авторизации)
 function showBottomNavigation() {
+    console.log('🔴 ФУНКЦИЯ ВЫЗВАНА!');
+    
     const bottomNav = document.getElementById('bottomNav');
+    console.log('📱 Найден элемент:', bottomNav);
+    
     if (bottomNav) {
-        console.log('✅ Показываем нижнюю навигацию');
+        console.log('✅ Меняем display на block');
         bottomNav.style.display = 'block';
+        console.log('🎯 После изменения:', bottomNav.style.display);
     } else {
-        console.log('❌ Элемент bottomNav не найден');
+        console.log('❌ Элемент не найден');
     }
 }
 
