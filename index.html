@@ -4864,16 +4864,12 @@ async function sendMessage() {
             
             console.log('👤 Пользователь:', currentUser);
             
-            // Исправляем: user_id должен быть UUID или null
             let user_id = null;
             if (currentUser && currentUser.id) {
-                // Если id уже UUID - используем его, иначе генерируем новый
                 if (typeof currentUser.id === 'string' && currentUser.id.length === 36) {
                     user_id = currentUser.id;
                 } else {
-                    // Генерируем UUID для пользователя
                     user_id = generateUUID();
-                    // Сохраняем обратно в localStorage
                     currentUser.id = user_id;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 }
@@ -4881,23 +4877,37 @@ async function sendMessage() {
             
             console.log('🔑 User ID для отправки:', user_id);
             
+            // ОЧИЩАЕМ ПОЛЕ ВВОДА СРАЗУ (для UX)
+            messageInput.value = '';
+            
+            // ДОБАВЛЯЕМ СООБЩЕНИЕ В ЧАТ СРАЗУ (не дожидаясь Supabase)
+            const chatMessages = document.getElementById('chatMessages');
+            const tempMessage = document.createElement('div');
+            tempMessage.className = 'message outgoing';
+            tempMessage.textContent = messageText;
+            tempMessage.id = 'temp-message-' + Date.now();
+            chatMessages.appendChild(tempMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
             const { error } = await window.supabaseClient
                 .from('chat_messages')
                 .insert({
                     text: messageText,
                     author: username,
-                    user_id: user_id, // Теперь это UUID или null
+                    user_id: user_id,
                     type: 'outgoing',
                     room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
                 });
             
             if (error) {
                 console.error('❌ Ошибка отправки сообщения:', error);
+                // Удаляем временное сообщение если ошибка
+                const tempMsg = document.getElementById(tempMessage.id);
+                if (tempMsg) tempMsg.remove();
                 return;
             }
             
             console.log('✅ Сообщение отправлено в Supabase');
-            messageInput.value = '';
             updateOnlineUsers();
             
         } catch (error) {
