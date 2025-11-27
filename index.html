@@ -4850,13 +4850,20 @@ function createMessageElement(msg) {
 
 // Отправка сообщения в Supabase
 async function sendMessage() {
+    console.log('🔴 Функция sendMessage вызвана');
+    
     const messageInput = document.getElementById('messageInput');
     const messageText = messageInput.value.trim();
+    
+    console.log('📝 Текст сообщения:', messageText);
+    console.log('🔌 Supabase client:', window.supabaseClient);
     
     if (messageText && window.supabaseClient) {
         try {
             const username = getCurrentUsername();
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            console.log('👤 Пользователь:', { username, currentUser });
             
             const { error } = await window.supabaseClient
                 .from('chat_messages')
@@ -4865,7 +4872,7 @@ async function sendMessage() {
                     author: username,
                     user_id: currentUser?.id,
                     type: 'outgoing',
-                    room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e' // ID основного сообщества
+                    room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
                 });
             
             if (error) {
@@ -4873,12 +4880,18 @@ async function sendMessage() {
                 return;
             }
             
+            console.log('✅ Сообщение отправлено в Supabase');
             messageInput.value = '';
             updateOnlineUsers();
             
         } catch (error) {
             console.error('❌ Общая ошибка отправки:', error);
         }
+    } else {
+        console.log('❌ Не выполнены условия отправки:', {
+            hasText: !!messageText,
+            hasSupabase: !!window.supabaseClient
+        });
     }
 }
 
