@@ -1584,7 +1584,6 @@ function saveUser(email, password, personality_type = null) {
     setTimeout(() => {
         showScreen('intro-screen');
         showBottomNavigation();
-        addUserToCommunityChat(email.split('@')[0]);
     }, 1000);
 }
 
@@ -1627,7 +1626,6 @@ async function login() {
             showScreen('platform-screen');
             updateProfileData();
             showBottomNavigation();
-            addUserToCommunityChat(email.split('@')[0]);
         } else {
             showScreen('intro-screen');
         }
