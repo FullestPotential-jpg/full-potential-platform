@@ -4932,7 +4932,14 @@ function generateUUID() {
 
 // Реальное время - отслеживание новых сообщений
 function startRealtimeMessages() {
-    if (!window.supabaseClient) return;
+    console.log('🔴 Запускаем real-time подписку');
+    
+    if (!window.supabaseClient) {
+        console.log('❌ Supabase client не доступен');
+        return;
+    }
+    
+    console.log('✅ Supabase client доступен, создаем канал...');
     
     window.chatSubscription = window.supabaseClient
         .channel('public:chat_messages')
@@ -4944,13 +4951,17 @@ function startRealtimeMessages() {
                 filter: 'room_id=eq.e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
             }, 
             (payload) => {
-                console.log('🆕 Новое сообщение:', payload.new);
+                console.log('🆕 Real-time: Новое сообщение получено:', payload.new);
                 addNewMessageToChat(payload.new);
             }
         )
-        .subscribe();
+        .subscribe((status) => {
+            console.log('📡 Статус real-time подписки:', status);
+            if (status === 'SUBSCRIBED') {
+                console.log('✅ Real-time подписка активна!');
+            }
+        });
 }
-
 // Остановка отслеживания
 function stopRealtimeMessages() {
     if (window.chatSubscription) {
