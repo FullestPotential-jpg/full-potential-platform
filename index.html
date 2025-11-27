@@ -4735,7 +4735,7 @@ document.addEventListener('click', function() {
 </script>
 
 <script>
-    // ===== ФУНКЦИИ ДЛЯ НИЖНЕЙ НАВИГАЦИИ =====
+// ===== ФУНКЦИИ ДЛЯ НИЖНЕЙ НАВИГАЦИИ =====
 
 // Показать нижнюю навигацию (вызывать после авторизации)
 function showBottomNavigation() {
@@ -4747,6 +4747,7 @@ function showBottomNavigation() {
         console.log('❌ Элемент bottomNav не найден');
     }
 }
+
 // ===== СИСТЕМА РЕАЛЬНОГО ЧАТА С SUPABASE =====
 
 // Функция получения имени пользователя
@@ -4754,7 +4755,12 @@ function getCurrentUsername() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     return currentUser ? currentUser.email.split('@')[0] : 'Участник';
 }
+    // Глобальные переменные
+    let currentUser = null;
+    let userAnswers = {};
+    const validCodes = ['34193']; // Единственный рабочий код
 
+// ===== СИСТЕМА РЕАЛЬНОГО ЧАТА С SUPABASE =====
 // Показать чат сообщества
 function showCommunityChat() {
     const chat = document.getElementById('communityChat');
