@@ -4856,21 +4856,37 @@ async function sendMessage() {
     const messageText = messageInput.value.trim();
     
     console.log('📝 Текст сообщения:', messageText);
-    console.log('🔌 Supabase client:', window.supabaseClient);
     
     if (messageText && window.supabaseClient) {
         try {
             const username = getCurrentUsername();
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             
-            console.log('👤 Пользователь:', { username, currentUser });
+            console.log('👤 Пользователь:', currentUser);
+            
+            // Исправляем: user_id должен быть UUID или null
+            let user_id = null;
+            if (currentUser && currentUser.id) {
+                // Если id уже UUID - используем его, иначе генерируем новый
+                if (typeof currentUser.id === 'string' && currentUser.id.length === 36) {
+                    user_id = currentUser.id;
+                } else {
+                    // Генерируем UUID для пользователя
+                    user_id = generateUUID();
+                    // Сохраняем обратно в localStorage
+                    currentUser.id = user_id;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+            }
+            
+            console.log('🔑 User ID для отправки:', user_id);
             
             const { error } = await window.supabaseClient
                 .from('chat_messages')
                 .insert({
                     text: messageText,
                     author: username,
-                    user_id: currentUser?.id,
+                    user_id: user_id, // Теперь это UUID или null
                     type: 'outgoing',
                     room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
                 });
@@ -4893,6 +4909,15 @@ async function sendMessage() {
             hasSupabase: !!window.supabaseClient
         });
     }
+}
+
+// Функция для генерации UUID
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
 // Реальное время - отслеживание новых сообщений
@@ -4974,12 +4999,24 @@ async function addUserToCommunityChat(username) {
         try {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             
+            // Исправляем user_id аналогично
+            let user_id = null;
+            if (currentUser && currentUser.id) {
+                if (typeof currentUser.id === 'string' && currentUser.id.length === 36) {
+                    user_id = currentUser.id;
+                } else {
+                    user_id = generateUUID();
+                    currentUser.id = user_id;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+            }
+            
             const { error } = await window.supabaseClient
                 .from('chat_messages')
                 .insert({
                     text: `${username} присоединился к чату`,
                     author: 'Система',
-                    user_id: currentUser?.id,
+                    user_id: user_id,
                     type: 'system',
                     room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
                 });
