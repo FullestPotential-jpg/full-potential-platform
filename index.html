@@ -1587,6 +1587,14 @@ function saveUser(email, password, personality_type = null) {
     }, 1000);
 }
 
+        // Показать нижнюю навигацию
+function showBottomNavigation() {
+    console.log('✅ Показываем нижнюю навигацию');
+    const bottomNav = document.getElementById('bottomNav');
+    if (bottomNav) {
+        bottomNav.style.display = 'block';
+    }
+}
 // ОБНОВИ ФУНКЦИЮ login()
 async function login() {
     const email = document.getElementById('login-email').value;
