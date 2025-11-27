@@ -23,11 +23,6 @@
     display: none;
     height: 60px;
 }
-        /* ← ДОБАВИТЬ ЗДЕСЬ ДЛЯ ТЕСТА */
-.bottom-navigation {
-    display: block !important;
-    background: red !important;
-}
 
 .nav-container {
     display: flex;
@@ -5051,27 +5046,28 @@ function addNewMessageToChat(message) {
         console.log('⏭️ Пропускаем дубликат сообщения');
     }
 }
-// Функция подсчета онлайн пользователей через Supabase
-async function updateOnlineUsers() {
-    if (!window.supabaseClient) return;
+// Функция подсчета онлайн пользователей
+function updateOnlineUsers() {
+    let onlineUsers = JSON.parse(localStorage.getItem('onlineUsers')) || {};
+    const currentUser = getCurrentUsername();
     
-    try {
-        const username = getCurrentUsername();
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        
-        // Обновляем/добавляем текущего пользователя
-        const { error } = await window.supabaseClient
-            .from('online_users')
-            .upsert({
-                user_id: currentUser?.id,
-                username: username,
-                last_seen: new Date().toISOString()
-            });
-        
-        if (error) {
-            console.error('❌ Ошибка обновления онлайн статуса:', error);
-            return;
+    onlineUsers[currentUser] = Date.now();
+    
+    const now = Date.now();
+    Object.keys(onlineUsers).forEach(user => {
+        if (now - onlineUsers[user] > 5 * 60 * 1000) {
+            delete onlineUsers[user];
         }
+    });
+    
+    localStorage.setItem('onlineUsers', JSON.stringify(onlineUsers));
+    
+    const userCount = Object.keys(onlineUsers).length;
+    const chatHeader = document.querySelector('.chat-header h3');
+    if (chatHeader) {
+        chatHeader.textContent = `Сообщество (${userCount} онлайн)`;
+    }
+}
         
         // Удаляем неактивных пользователей (последняя активность больше 2 минут)
         const { error: deleteError } = await window.supabaseClient
