@@ -4833,16 +4833,26 @@ async function loadChatMessages() {
 // Создание элемента сообщения
 function createMessageElement(msg) {
     const messageElement = document.createElement('div');
+    const currentUsername = getCurrentUsername();
+    const isMyMessage = msg.author === currentUsername;
+    
+    console.log('👤 Проверка автора:', {
+        author: msg.author,
+        currentUser: currentUsername,
+        isMyMessage: isMyMessage
+    });
     
     if (msg.type === 'system') {
         messageElement.className = 'message system';
         messageElement.textContent = msg.text;
-    } else if (msg.type === 'incoming') {
-        messageElement.className = 'message incoming';
-        messageElement.innerHTML = `<strong>${msg.author}:</strong> ${msg.text}`;
-    } else if (msg.type === 'outgoing') {
+    } else if (isMyMessage) {
+        // МОИ сообщения - справа
         messageElement.className = 'message outgoing';
         messageElement.textContent = msg.text;
+    } else {
+        // СООБЩЕНИЯ ДРУГИХ - слева с именем автора
+        messageElement.className = 'message incoming';
+        messageElement.innerHTML = `<strong>${msg.author}:</strong> ${msg.text}`;
     }
     
     return messageElement;
