@@ -4952,14 +4952,40 @@ function addNewMessageToChat(message) {
     console.log('🆕 Добавляем сообщение в чат:', message);
     
     const chatMessages = document.getElementById('chatMessages');
-    const messageElement = createMessageElement(message);
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUsername = currentUser ? currentUser.email.split('@')[0] : 'Участник';
     
-    // УПРОЩЕННАЯ ПРОВЕРКА: показываем ВСЕ сообщения, даже одинаковые
-    // (можно отправлять одинаковый текст несколько раз)
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Проверяем, это мое сообщение или чужое?
+    const isMyMessage = message.author === currentUsername;
     
-    console.log('✅ Сообщение добавлено в чат');
+    if (isMyMessage) {
+        // Если это мое сообщение - ИЩЕМ временное сообщение и заменяем его
+        const tempMessages = chatMessages.querySelectorAll('.message.outgoing');
+        let foundTemp = false;
+        
+        tempMessages.forEach(tempMsg => {
+            if (tempMsg.textContent === message.text && !tempMsg.hasAttribute('data-permanent')) {
+                // Нашли временное сообщение - помечаем как постоянное
+                tempMsg.setAttribute('data-permanent', 'true');
+                foundTemp = true;
+                console.log('✅ Заменили временное сообщение на постоянное');
+            }
+        });
+        
+        if (!foundTemp) {
+            // Если временного сообщения не нашли - создаем новое
+            const messageElement = createMessageElement(message);
+            messageElement.setAttribute('data-permanent', 'true');
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    } else {
+        // Если чужое сообщение - просто добавляем
+        const messageElement = createMessageElement(message);
+        messageElement.setAttribute('data-permanent', 'true');
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
