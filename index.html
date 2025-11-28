@@ -4814,16 +4814,16 @@ async function sendMessage() {
             chatMessages.appendChild(tempMessage);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
-            // Отправляем в Supabase
-            const { error } = await window.supabaseClient
-                .from('chat_messages')
-                .insert({
-                    text: messageText,
-                    author: username,
-                    user_id: currentUser?.id,
-                    type: 'outgoing',
-                    room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
-                });
+           // Отправляем в Supabase
+const { error } = await window.supabaseClient
+    .from('chat_messages')
+    .insert({
+        text: messageText,
+        author: username,
+        user_id: null,  // ← ИСПРАВЛЕНО: используем null вместо числа
+        type: 'outgoing',
+        room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
+    });
             
             if (error) {
                 console.error('❌ Ошибка отправки сообщения:', error);
