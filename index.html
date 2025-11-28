@@ -4749,7 +4749,6 @@ function showBottomNavigation() {
 }
 // ===== ФУНКЦИИ ДЛЯ ЧАТА =====
 
-// Показать чат сообщества
 function showCommunityChat() {
     const chat = document.getElementById('communityChat');
     const overlay = document.getElementById('chatOverlay');
@@ -4757,17 +4756,11 @@ function showCommunityChat() {
     if (chat && overlay) {
         chat.style.display = 'flex';
         overlay.style.display = 'block';
-        // Прокручиваем вниз
-        setTimeout(() => {
-            const messages = document.getElementById('chatMessages');
-            if (messages) {
-                messages.scrollTop = messages.scrollHeight;
-            }
-        }, 100);
+        loadChatMessages(); // ЗАГРУЖАЕМ ИСТОРИЮ
+        startRealtimeMessages(); // ЗАПУСКАЕМ REAL-TIME
     }
 }
 
-// Скрыть чат сообщества
 function hideCommunityChat() {
     const chat = document.getElementById('communityChat');
     const overlay = document.getElementById('chatOverlay');
@@ -4775,6 +4768,10 @@ function hideCommunityChat() {
     if (chat && overlay) {
         chat.style.display = 'none';
         overlay.style.display = 'none';
+        // Останавливаем real-time
+        if (window.chatSubscription) {
+            window.supabaseClient.removeChannel(window.chatSubscription);
+        }
     }
 }
 
@@ -4852,6 +4849,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+    // Загрузка сообщений из Supabase
+async function loadChatMessages() {
+    try {
+        const { data: messages, error } = await window.supabaseClient
+            .from('chat_messages')
+            .select('*')
+            .order('created_at', { ascending: true });
+        
+        if (error) {
+            console.error('❌ Ошибка загрузки сообщений:', error);
+            return;
+        }
+        
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '';
+        
+        if (messages && messages.length > 0) {
+            messages.forEach(msg => {
+                const messageElement = createMessageElement(msg);
+                chatMessages.appendChild(messageElement);
+            });
+        }
+        
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки чата:', error);
+    }
+}
+
+// Создание элемента сообщения
+function createMessageElement(msg) {
+    const messageElement = document.createElement('div');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUsername = currentUser ? currentUser.email.split('@')[0] : 'Участник';
+    const isMyMessage = msg.author === currentUsername;
+    
+    if (msg.type === 'system') {
+        messageElement.className = 'message system';
+        messageElement.textContent = msg.text;
+    } else if (isMyMessage) {
+        // МОИ сообщения - справа
+        messageElement.className = 'message outgoing';
+        messageElement.textContent = msg.text;
+    } else {
+        // СООБЩЕНИЯ ДРУГИХ - слева с именем автора
+        messageElement.className = 'message incoming';
+        messageElement.innerHTML = `<strong>${msg.author}:</strong> ${msg.text}`;
+    }
+    
+    return messageElement;
+}
 // Функция для получения имени текущего пользователя
 function getCurrentUsername() {
     // ЗДЕСЬ: Верните имя текущего пользователя из вашей системы
@@ -4861,6 +4910,42 @@ function getCurrentUsername() {
     
     // Временная заглушка:
     return 'Участник';
+}
+    // Real-time отслеживание новых сообщений
+function startRealtimeMessages() {
+    if (!window.supabaseClient) return;
+    
+    window.chatSubscription = window.supabaseClient
+        .channel('public:chat_messages')
+        .on('postgres_changes', 
+            { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: 'chat_messages' 
+            }, 
+            (payload) => {
+                console.log('🆕 Новое сообщение:', payload.new);
+                addNewMessageToChat(payload.new);
+            }
+        )
+        .subscribe();
+}
+
+// Добавление нового сообщения в чат
+function addNewMessageToChat(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageElement = createMessageElement(message);
+    
+    // Проверяем, нет ли уже такого сообщения
+    const existingMessages = chatMessages.querySelectorAll('.message');
+    const isDuplicate = Array.from(existingMessages).some(msg => 
+        msg.textContent.includes(message.text)
+    );
+    
+    if (!isDuplicate) {
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
