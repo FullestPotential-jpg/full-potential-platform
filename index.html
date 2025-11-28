@@ -1084,6 +1084,17 @@
       font-weight: bold;
   }
 </style>
+    <!-- ===== SUPABASE ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Инициализация Supabase
+document.addEventListener('DOMContentLoaded', function() {
+    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
+    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    console.log('✅ Supabase инициализирован');
+});
+</script>
 </head>
 <body>
     <div class="container" id="main-container">
@@ -4784,21 +4795,48 @@ function addUserToCommunityChat(username) {
     }
 }
 
-// Отправить сообщение в чат
-function sendMessage() {
+// Отправка сообщения в Supabase
+async function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const messageText = messageInput.value.trim();
     
-    if (messageText) {
-        const userMessage = document.createElement('div');
-        userMessage.className = 'message outgoing';
-        userMessage.textContent = messageText;
-        
-        const chatMessages = document.getElementById('chatMessages');
-        if (chatMessages) {
-            chatMessages.appendChild(userMessage);
+    if (messageText && window.supabaseClient) {
+        try {
+            // Получаем имя пользователя
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const username = currentUser ? currentUser.email.split('@')[0] : 'Участник';
+            
+            // Очищаем поле ввода сразу
             messageInput.value = '';
+            
+            // Добавляем сообщение в чат сразу (не дожидаясь Supabase)
+            const chatMessages = document.getElementById('chatMessages');
+            const tempMessage = document.createElement('div');
+            tempMessage.className = 'message outgoing';
+            tempMessage.textContent = messageText;
+            chatMessages.appendChild(tempMessage);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Отправляем в Supabase
+            const { error } = await window.supabaseClient
+                .from('chat_messages')
+                .insert({
+                    text: messageText,
+                    author: username,
+                    user_id: currentUser?.id,
+                    type: 'outgoing',
+                    room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
+                });
+            
+            if (error) {
+                console.error('❌ Ошибка отправки сообщения:', error);
+                return;
+            }
+            
+            console.log('✅ Сообщение отправлено в Supabase');
+            
+        } catch (error) {
+            console.error('❌ Общая ошибка отправки:', error);
         }
     }
 }
