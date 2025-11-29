@@ -5000,29 +5000,21 @@ function initFloatingDate() {
     
     if (!chatMessages || !floatingDate) return;
     
-    console.log('✅ Плавающая дата инициализирована');
+    let lastDate = '';
     
     chatMessages.addEventListener('scroll', () => {
-        const dates = document.querySelectorAll('.message-date');
         const scrollTop = chatMessages.scrollTop;
-        let visibleDate = '';
+        const dates = Array.from(document.querySelectorAll('.message-date'));
         
-        // Ищем первую дату которая видна в верхней части
-        for (let date of dates) {
-            const dateTop = date.offsetTop - chatMessages.offsetTop;
-            
-            if (dateTop <= scrollTop + 50) {
-                visibleDate = date.textContent;
-            } else {
-                break;
-            }
-        }
+        // Находим ближайшую дату сверху
+        const currentDate = dates.find(date => 
+            date.offsetTop <= scrollTop + 100
+        );
         
-        if (visibleDate) {
-            floatingDate.textContent = visibleDate;
+        if (currentDate && currentDate.textContent !== lastDate) {
+            floatingDate.textContent = currentDate.textContent;
             floatingDate.style.display = 'block';
-        } else {
-            floatingDate.style.display = 'none';
+            lastDate = currentDate.textContent;
         }
     });
 }
