@@ -4997,83 +4997,34 @@ function startTimeUpdater() {
 function initFloatingDate() {
     const chatMessages = document.getElementById('chatMessages');
     const floatingDate = document.getElementById('floatingDate');
-    const dateElements = document.querySelectorAll('.message-date');
     
     if (!chatMessages || !floatingDate) return;
     
+    console.log('✅ Плавающая дата инициализирована');
+    
     chatMessages.addEventListener('scroll', () => {
-        let currentDate = '';
+        const dates = document.querySelectorAll('.message-date');
         const scrollTop = chatMessages.scrollTop;
+        let visibleDate = '';
         
-        // Находим дату которая сейчас вверху
-        dateElements.forEach(dateElement => {
-            const elementTop = dateElement.offsetTop - chatMessages.offsetTop;
+        // Ищем первую дату которая видна в верхней части
+        for (let date of dates) {
+            const dateTop = date.offsetTop - chatMessages.offsetTop;
             
-            if (elementTop <= scrollTop + 100 && elementTop >= scrollTop - 50) {
-                currentDate = dateElement.textContent;
+            if (dateTop <= scrollTop + 50) {
+                visibleDate = date.textContent;
+            } else {
+                break;
             }
-        });
+        }
         
-        // Показываем/обновляем плавающую дату
-        if (currentDate) {
-            floatingDate.textContent = currentDate;
+        if (visibleDate) {
+            floatingDate.textContent = visibleDate;
             floatingDate.style.display = 'block';
         } else {
             floatingDate.style.display = 'none';
         }
     });
-}
-// Создание элемента сообщения
-function createMessageElement(msg) {
-    const messageElement = document.createElement('div');
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const currentUsername = currentUser ? currentUser.email.split('@')[0] : 'Участник';
-    const isMyMessage = msg.author === currentUsername;
-    
-    // Форматируем время
-    const messageTime = new Date(msg.created_at);
-    const timeString = formatMessageTime(messageTime);
-    
-    if (msg.type === 'system') {
-        messageElement.className = 'message system';
-        messageElement.textContent = msg.text;
-    } else if (isMyMessage) {
-        // МОИ сообщения - справа
-        messageElement.className = 'message outgoing';
-        messageElement.innerHTML = `
-            <div class="message-text">${msg.text}</div>
-            <div class="message-time">${timeString}</div>
-        `;
-    } else {
-        // СООБЩЕНИЯ ДРУГИХ - слева с именем автора
-        messageElement.className = 'message incoming';
-        messageElement.innerHTML = `
-            <div class="message-author"><strong>${msg.author}</strong></div>
-            <div class="message-text">${msg.text}</div>
-            <div class="message-time">${timeString}</div>
-        `;
-    }
-    
-    return messageElement;
-}
-
-// Функция форматирования времени (только время, без даты)
-function formatMessageTime(date) {
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    
-    if (diffMins < 1) {
-        return 'только что';
-    } else if (diffMins < 60) {
-        return `${diffMins} мин назад`;
-    } else {
-        return date.toLocaleTimeString('ru-RU', { 
-            hour: '2-digit', 
-            minute: '2-digit'
-        });
-    }
 }
 // Функция для получения имени текущего пользователя
 function getCurrentUsername() {
