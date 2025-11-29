@@ -4995,13 +4995,22 @@ function startTimeUpdater() {
 }
     // Обновление плавающей даты при скролле
 function initFloatingDate() {
+    console.log('🔴 initFloatingDate вызвана');
+    
     const chatMessages = document.getElementById('chatMessages');
     const floatingDate = document.getElementById('floatingDate');
     const dateElements = document.querySelectorAll('.message-date');
     
+    console.log('📊 Элементы:', {
+        chatMessages: !!chatMessages,
+        floatingDate: !!floatingDate, 
+        dateElements: dateElements.length
+    });
+    
     if (!chatMessages || !floatingDate) return;
     
     chatMessages.addEventListener('scroll', () => {
+        console.log('🔄 Скролл detected');
         let currentDate = '';
         
         // Находим текущую видимую дату
@@ -5009,9 +5018,17 @@ function initFloatingDate() {
             const rect = dateElement.getBoundingClientRect();
             const chatRect = chatMessages.getBoundingClientRect();
             
+            console.log('📐 Позиция даты:', {
+                date: dateElement.textContent,
+                rectTop: rect.top,
+                chatTop: chatRect.top,
+                condition: rect.top <= chatRect.top + 50 && rect.bottom >= chatRect.top
+            });
+            
             // Если дата находится в верхней части видимой области
             if (rect.top <= chatRect.top + 50 && rect.bottom >= chatRect.top) {
                 currentDate = dateElement.textContent;
+                console.log('🎯 Найдена дата:', currentDate);
             }
         });
         
@@ -5019,8 +5036,10 @@ function initFloatingDate() {
         if (currentDate) {
             floatingDate.textContent = currentDate;
             floatingDate.style.display = 'block';
+            console.log('✅ Показали дату:', currentDate);
         } else {
             floatingDate.style.display = 'none';
+            console.log('❌ Скрыли дату');
         }
     });
 }
