@@ -87,14 +87,6 @@
     padding-bottom: 80px !important;
 }
 
-        /* Скрыть чат до авторизации */
-.community-chat {
-    display: none !important;
-}
-
-.chat-overlay {
-    display: none !important;
-}
 /* Стили для полноэкранного чата */
 .community-chat {
     position: fixed;
@@ -5182,21 +5174,18 @@ function addNewMessageToChat(message) {
         <h3>Сообщество</h3>
         <button class="chat-close" onclick="hideCommunityChat()">✕</button>
     </div>
-    <!-- ← ДОБАВИТЬ ЗДЕСЬ -->
+    
     <div class="floating-date" id="floatingDate"></div>
     
-    <div class="chat-messages" id="chatMessages">
-        <!-- ... -->
-    </div>
-</div>
     <div class="chat-messages" id="chatMessages">
         <div class="message system">
             Добро пожаловать в чат сообщества!
         </div>
         <div class="message incoming">
-            <strong>Администратор:</strong> Рады видеть вас в нашем сообществе! Здесь мы делимся успехами и поддерживаем друг друга.
+            <strong>Администратор:</strong> Рады видеть вас в нашем сообществе!
         </div>
     </div>
+    
     <div class="chat-input-area">
         <input type="text" class="chat-input" id="messageInput" placeholder="Введите сообщение...">
         <button class="send-btn" onclick="sendMessage()">
@@ -5204,5 +5193,3 @@ function addNewMessageToChat(message) {
         </button>
     </div>
 </div>
-</body>
-</html>
