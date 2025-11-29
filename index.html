@@ -178,6 +178,27 @@
     margin: 10px auto;
 }
 
+        /* Стили для времени сообщений */
+.message-text {
+    margin-bottom: 4px;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: 11px;
+    opacity: 0.7;
+    text-align: right;
+}
+
+.message.incoming .message-time {
+    text-align: left;
+}
+
+.message-author {
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
 .chat-input-area {
     display: flex;
     padding: 15px 20px;
@@ -4890,20 +4911,54 @@ function createMessageElement(msg) {
     const currentUsername = currentUser ? currentUser.email.split('@')[0] : 'Участник';
     const isMyMessage = msg.author === currentUsername;
     
+    // Форматируем время
+    const messageTime = new Date(msg.created_at);
+    const timeString = formatMessageTime(messageTime);
+    
     if (msg.type === 'system') {
         messageElement.className = 'message system';
         messageElement.textContent = msg.text;
     } else if (isMyMessage) {
         // МОИ сообщения - справа
         messageElement.className = 'message outgoing';
-        messageElement.textContent = msg.text;
+        messageElement.innerHTML = `
+            <div class="message-text">${msg.text}</div>
+            <div class="message-time">${timeString}</div>
+        `;
     } else {
         // СООБЩЕНИЯ ДРУГИХ - слева с именем автора
         messageElement.className = 'message incoming';
-        messageElement.innerHTML = `<strong>${msg.author}:</strong> ${msg.text}`;
+        messageElement.innerHTML = `
+            <div class="message-author"><strong>${msg.author}</strong></div>
+            <div class="message-text">${msg.text}</div>
+            <div class="message-time">${timeString}</div>
+        `;
     }
     
     return messageElement;
+}
+
+// Функция форматирования времени
+function formatMessageTime(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffMins < 1) {
+        return 'только что';
+    } else if (diffMins < 60) {
+        return `${diffMins} мин назад`;
+    } else if (diffHours < 24) {
+        return `${diffHours} ч назад`;
+    } else {
+        return date.toLocaleTimeString('ru-RU', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            day: '2-digit',
+            month: '2-digit'
+        });
+    }
 }
 // Функция для получения имени текущего пользователя
 function getCurrentUsername() {
