@@ -224,6 +224,25 @@
     padding: 0 10px;
 }
 
+        /* Плавающая дата при скролле */
+.floating-date {
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+    text-align: center;
+    margin: 0 auto 10px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #666;
+    width: fit-content;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
 .chat-input-area {
     display: flex;
     padding: 15px 20px;
@@ -4809,6 +4828,7 @@ function showCommunityChat() {
         loadChatMessages(); // ЗАГРУЖАЕМ ИСТОРИЮ
         startRealtimeMessages(); // ЗАПУСКАЕМ REAL-TIME
         startTimeUpdater();
+        setTimeout(initFloatingDate, 100);
     }
 }
 
@@ -4973,6 +4993,37 @@ function startTimeUpdater() {
         });
     }, 60000); // Обновлять каждую минуту
 }
+    // Обновление плавающей даты при скролле
+function initFloatingDate() {
+    const chatMessages = document.getElementById('chatMessages');
+    const floatingDate = document.getElementById('floatingDate');
+    const dateElements = document.querySelectorAll('.message-date');
+    
+    if (!chatMessages || !floatingDate) return;
+    
+    chatMessages.addEventListener('scroll', () => {
+        let currentDate = '';
+        
+        // Находим текущую видимую дату
+        dateElements.forEach(dateElement => {
+            const rect = dateElement.getBoundingClientRect();
+            const chatRect = chatMessages.getBoundingClientRect();
+            
+            // Если дата находится в верхней части видимой области
+            if (rect.top <= chatRect.top + 50 && rect.bottom >= chatRect.top) {
+                currentDate = dateElement.textContent;
+            }
+        });
+        
+        // Показываем/обновляем плавающую дату
+        if (currentDate) {
+            floatingDate.textContent = currentDate;
+            floatingDate.style.display = 'block';
+        } else {
+            floatingDate.style.display = 'none';
+        }
+    });
+}
 // Создание элемента сообщения
 function createMessageElement(msg) {
     const messageElement = document.createElement('div');
@@ -5123,6 +5174,13 @@ function addNewMessageToChat(message) {
         <h3>Сообщество</h3>
         <button class="chat-close" onclick="hideCommunityChat()">✕</button>
     </div>
+    <!-- ← ДОБАВИТЬ ЗДЕСЬ -->
+    <div class="floating-date" id="floatingDate"></div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <!-- ... -->
+    </div>
+</div>
     <div class="chat-messages" id="chatMessages">
         <div class="message system">
             Добро пожаловать в чат сообщества!
