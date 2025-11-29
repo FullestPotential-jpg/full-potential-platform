@@ -199,6 +199,31 @@
     font-size: 13px;
 }
 
+        /* Стили для дат между сообщениями */
+.message-date {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 12px;
+    color: #999;
+    position: relative;
+}
+
+.message-date::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e0e0e0;
+    z-index: -1;
+}
+
+.message-date span {
+    background: white;
+    padding: 0 10px;
+}
+
 .chat-input-area {
     display: flex;
     padding: 15px 20px;
@@ -4783,6 +4808,7 @@ function showCommunityChat() {
         overlay.style.display = 'block';
         loadChatMessages(); // ЗАГРУЖАЕМ ИСТОРИЮ
         startRealtimeMessages(); // ЗАПУСКАЕМ REAL-TIME
+        startTimeUpdater();
     }
 }
 
@@ -4890,8 +4916,20 @@ async function loadChatMessages() {
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '';
         
+        let lastDate = '';
+        
         if (messages && messages.length > 0) {
             messages.forEach(msg => {
+                // Добавляем дату между сообщениями
+                const messageDate = new Date(msg.created_at).toLocaleDateString('ru-RU');
+                if (messageDate !== lastDate) {
+                    const dateElement = document.createElement('div');
+                    dateElement.className = 'message-date';
+                    dateElement.textContent = formatMessageDate(new Date(msg.created_at));
+                    chatMessages.appendChild(dateElement);
+                    lastDate = messageDate;
+                }
+                
                 const messageElement = createMessageElement(msg);
                 chatMessages.appendChild(messageElement);
             });
@@ -4904,6 +4942,37 @@ async function loadChatMessages() {
     }
 }
 
+// Функция форматирования даты (для разделителей)
+function formatMessageDate(date) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+        return 'Сегодня';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+        return 'Вчера';
+    } else {
+        return date.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+}
+    // Автообновление времени сообщений
+function startTimeUpdater() {
+    setInterval(() => {
+        const timeElements = document.querySelectorAll('.message-time');
+        timeElements.forEach(element => {
+            const messageElement = element.closest('.message');
+            if (messageElement && messageElement.dataset.timestamp) {
+                const messageTime = new Date(parseInt(messageElement.dataset.timestamp));
+                element.textContent = formatMessageTime(messageTime);
+            }
+        });
+    }, 60000); // Обновлять каждую минуту
+}
 // Создание элемента сообщения
 function createMessageElement(msg) {
     const messageElement = document.createElement('div');
@@ -4938,7 +5007,7 @@ function createMessageElement(msg) {
     return messageElement;
 }
 
-// Функция форматирования времени
+// Функция форматирования времени (только время, без даты)
 function formatMessageTime(date) {
     const now = new Date();
     const diffMs = now - date;
@@ -4949,14 +5018,10 @@ function formatMessageTime(date) {
         return 'только что';
     } else if (diffMins < 60) {
         return `${diffMins} мин назад`;
-    } else if (diffHours < 24) {
-        return `${diffHours} ч назад`;
     } else {
         return date.toLocaleTimeString('ru-RU', { 
             hour: '2-digit', 
-            minute: '2-digit',
-            day: '2-digit',
-            month: '2-digit'
+            minute: '2-digit'
         });
     }
 }
