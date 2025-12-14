@@ -4832,18 +4832,14 @@ function showCommunityChat() {
     }
 }
 
-function hideCommunityChat() {
-    const chat = document.getElementById('communityChat');
-    const overlay = document.getElementById('chatOverlay');
-    
-    if (chat && overlay) {
-        chat.style.display = 'none';
-        overlay.style.display = 'none';
-        // Останавливаем real-time
-        if (window.chatSubscription) {
-            window.supabaseClient.removeChannel(window.chatSubscription);
-        }
+function hideCommunityChat(event) {
+    console.log("Закрываем чат");
+    // Останавливаем всплытие события, если оно было передано
+    if (event) {
+        event.stopPropagation();
     }
+    document.getElementById('chat-overlay').style.display = 'none';
+    document.getElementById('communityChat').style.display = 'none';
 }
 
 // Добавить пользователя в чат сообщества
@@ -5168,7 +5164,7 @@ function addNewMessageToChat(message) {
 </div>
 
 <!-- Чат сообщества -->
-<div class="chat-overlay" id="chatOverlay" onclick="hideCommunityChat()"></div>
+<div class="chat-overlay" id="chat-overlay"></div>
 <div class="community-chat" id="communityChat">
     <div class="chat-header">
         <h3>Сообщество</h3>
