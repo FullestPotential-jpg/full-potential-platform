@@ -1152,6 +1152,142 @@
       color: #007bff;
       font-weight: bold;
   }
+/* Стили для формы входа в чат */
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.login-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease;
+}
+
+.login-modal h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 24px;
+    text-align: center;
+}
+
+.login-modal p {
+    color: #666;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.login-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e1e1e1;
+    border-radius: 12px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+}
+
+.login-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.login-options {
+    margin-bottom: 25px;
+}
+
+.login-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #555;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.login-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+}
+
+.login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.login-btn {
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login-btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.login-btn.secondary {
+    background: #f8f9fa;
+    color: #555;
+    border: 2px solid #e1e1e1;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}        
 </style>
     <!-- ===== SUPABASE ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1163,6 +1299,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
     console.log('✅ Supabase инициализирован');
 });
+    
 </script>
 </head>
 <body>
@@ -5140,6 +5277,174 @@ function addNewMessageToChat(message) {
     
     console.log('✅ Чужое сообщение добавлено в чат');
 }
+    // ===== СИСТЕМА АВТОРИЗАЦИИ ДЛЯ ЧАТА =====
+let chatUser = null;
+
+function initChatAuth() {
+    // Проверяем, сохранен ли пользователь
+    const savedUser = localStorage.getItem('chatUser');
+    
+    if (savedUser) {
+        chatUser = JSON.parse(savedUser);
+        console.log('👤 Автоматически вошли как:', chatUser.username);
+        showWelcomeMessage();
+        return true;
+    }
+    
+    // Если пользователь не сохранен, показываем форму входа
+    showLoginModal();
+    return false;
+}
+
+function showLoginModal() {
+    // Создаем модальное окно для входа
+    const modalHTML = `
+        <div class="login-overlay" id="loginOverlay">
+            <div class="login-modal">
+                <h3>Вход в чат</h3>
+                <p>Представьтесь, чтобы участвовать в обсуждениях</p>
+                
+                <div class="login-form">
+                    <input type="text" id="loginUsername" 
+                           placeholder="Ваше имя или никнейм" 
+                           class="login-input">
+                    
+                    <div class="login-options">
+                        <label class="login-option">
+                            <input type="checkbox" id="rememberMe" checked>
+                            <span>Запомнить меня</span>
+                        </label>
+                    </div>
+                    
+                    <div class="login-buttons">
+                        <button onclick="handleLogin()" class="login-btn primary">
+                            Войти в чат
+                        </button>
+                        <button onclick="handleGuestLogin()" class="login-btn secondary">
+                            Продолжить как гость
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Добавляем в тело документа
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Фокус на поле ввода
+    setTimeout(() => {
+        const input = document.getElementById('loginUsername');
+        if (input) input.focus();
+    }, 100);
+}
+
+function handleLogin() {
+    const usernameInput = document.getElementById('loginUsername');
+    const rememberMe = document.getElementById('rememberMe');
+    const username = usernameInput.value.trim();
+    
+    if (!username) {
+        alert('Пожалуйста, введите имя');
+        usernameInput.focus();
+        return;
+    }
+    
+    chatUser = {
+        username: username,
+        isGuest: false,
+        joinDate: new Date().toISOString()
+    };
+    
+    // Сохраняем если выбрано "Запомнить меня"
+    if (rememberMe.checked) {
+        localStorage.setItem('chatUser', JSON.stringify(chatUser));
+        console.log('✅ Пользователь сохранен:', username);
+    }
+    
+    // Закрываем модалку
+    closeLoginModal();
+    showWelcomeMessage();
+    
+    // Если чат открыт - обновляем сообщения
+    if (document.getElementById('communityChat').style.display === 'flex') {
+        updateChatMessages();
+    }
+}
+
+function handleGuestLogin() {
+    chatUser = {
+        username: 'Гость_' + Math.floor(Math.random() * 1000),
+        isGuest: true,
+        joinDate: new Date().toISOString()
+    };
+    
+    console.log('👤 Вошли как гость:', chatUser.username);
+    closeLoginModal();
+    showWelcomeMessage();
+}
+
+function closeLoginModal() {
+    const overlay = document.getElementById('loginOverlay');
+    if (overlay) overlay.remove();
+}
+
+function showWelcomeMessage() {
+    if (!chatUser) return;
+    
+    const welcomeMsg = `Добро пожаловать в чат, ${chatUser.username}!`;
+    console.log('👋', welcomeMsg);
+    
+    // Можно добавить системное сообщение в чат
+    if (!messages['community'].some(m => m.text.includes(welcomeMsg))) {
+        messages['community'].push({
+            type: 'system',
+            text: welcomeMsg,
+            time: new Date().toLocaleTimeString()
+        });
+    }
+}
+
+function logoutFromChat() {
+    localStorage.removeItem('chatUser');
+    chatUser = null;
+    console.log('👋 Вы вышли из чата');
+    showLoginModal();
+}
+
+// Обновляем функцию sendMessage для использования chatUser
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    
+    if (!text) return;
+    
+    // Если пользователь не авторизован - показываем форму входа
+    if (!chatUser) {
+        showLoginModal();
+        return;
+    }
+    
+    // Добавляем сообщение
+    if (!messages[currentChat]) messages[currentChat] = [];
+    messages[currentChat].push({
+        type: 'outgoing',
+        author: chatUser.username,
+        text: text,
+        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        isGuest: chatUser.isGuest
+    });
+    
+    input.value = '';
+    updateChatMessages();
+    console.log('💬 Сообщение отправлено:', { author: chatUser.username, text: text });
+}
+
+// Инициализируем при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    // Ждем немного перед инициализацией
+    setTimeout(initChatAuth, 500);
+});
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
     <!-- Нижняя панель навигации -->
@@ -5168,12 +5473,17 @@ function addNewMessageToChat(message) {
 </div>
 
 <!-- Чат сообщества -->
-<div class="chat-overlay" id="chatOverlay" onclick="hideCommunityChat()"></div>
+<div class="chat-overlay" id="chatOverlay"></div>
 <div class="community-chat" id="communityChat">
     <div class="chat-header">
-        <h3>Сообщество</h3>
+    <h3>Сообщество</h3>
+    <div>
+        <button onclick="logoutFromChat()" class="logout-btn" title="Сменить пользователя">
+            👤
+        </button>
         <button class="chat-close" onclick="hideCommunityChat()">✕</button>
     </div>
+</div>
     
     <div class="floating-date" id="floatingDate"></div>
     
