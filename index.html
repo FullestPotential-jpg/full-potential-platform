@@ -5193,3 +5193,74 @@ function addNewMessageToChat(message) {
         </button>
     </div>
 </div>
+            </div> <!-- Этот тег закрывает <div class="chat-input-area"> -->
+        
+        <!-- ВСТАВЛЯЙТЕ JS КОД ПРЯМО ЗДЕСЬ -->
+        <script>
+        // ===== ОСНОВНОЙ ФУНКЦИОНАЛ ЧАТА =====
+        let currentChat = 'community';
+        let messages = {
+            'community': [
+                { type: 'system', text: 'Добро пожаловать в чат сообщества!' },
+                { type: 'incoming', author: 'Администратор', text: 'Рады видеть вас в нашем сообществе!' }
+            ]
+        };
+
+        function showCommunityChat() {
+            console.log("Открываем чат");
+            document.getElementById('chatOverlay').style.display = 'block';
+            document.getElementById('communityChat').style.display = 'flex';
+            updateChatMessages();
+        }
+
+        function hideCommunityChat() {
+            console.log("Закрываем чат");
+            document.getElementById('chatOverlay').style.display = 'none';
+            document.getElementById('communityChat').style.display = 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (text) {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                const username = currentUser ? currentUser.email.split('@')[0] : 'Участник';
+                
+                if (!messages[currentChat]) messages[currentChat] = [];
+                messages[currentChat].push({
+                    type: 'outgoing',
+                    author: username,
+                    text: text,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                
+                input.value = '';
+                updateChatMessages();
+                console.log('Сообщение отправлено:', { author: username, text: text });
+            }
+        }
+
+        function updateChatMessages() {
+            const container = document.getElementById('chatMessages');
+            const chatData = messages[currentChat] || [];
+            
+            container.innerHTML = chatData.map(msg => {
+                if (msg.type === 'system') {
+                    return `<div class="message system">${msg.text}</div>`;
+                }
+                return `
+                    <div class="message ${msg.type}">
+                        ${msg.author ? `<div class="message-author"><strong>${msg.author}</strong></div>` : ''}
+                        <div class="message-text">${msg.text}</div>
+                        ${msg.time ? `<div class="message-time">${msg.time}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        </script>
+        
+    </body>
+</html>
