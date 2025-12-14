@@ -1152,6 +1152,129 @@
       color: #007bff;
       font-weight: bold;
   }
+        .community-chat {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 600px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    z-index: 1002;
+    display: none;
+    overflow: hidden;
+}
+
+.chat-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1001;
+    display: none;
+}
+
+.chat-container {
+    display: flex;
+    height: calc(100% - 60px);
+}
+
+.chat-sidebar {
+    width: 300px;
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+}
+
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 12px;
+    padding: 10px 16px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.message.incoming {
+    background: white;
+    border: 1px solid #e5e7eb;
+    margin-right: auto;
+}
+
+.message.outgoing {
+    background: #3b82f6;
+    color: white;
+    margin-left: auto;
+}
+
+.message.system {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    margin: 0 auto;
+    text-align: center;
+    max-width: 90%;
+}
+
+.message-time {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-left: 10px;
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #e5e7eb;
+    background: white;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    font-size: 14px;
+    outline: none;
+}
+
+.send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.floating-date {
+    position: sticky;
+    top: 10px;
+    background: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin: 10px auto;
+    font-size: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1;
+    width: fit-content;
+}
 </style>
     <!-- ===== SUPABASE ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5140,8 +5263,102 @@ function addNewMessageToChat(message) {
     
     console.log('✅ Чужое сообщение добавлено в чат');
 }
+    // Проверка на существование функций
+if (typeof showCommunityChat === 'undefined') {
+    function showCommunityChat() {
+        console.log("Открываем чат");
+        const chat = document.getElementById('communityChat');
+        const overlay = document.getElementById('chatOverlay');
+        if(chat && overlay) {
+            chat.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+    }
+}
+
+if (typeof hideCommunityChat === 'undefined') {
+    function hideCommunityChat() {
+        console.log("Закрываем чат");
+        const chat = document.getElementById('communityChat');
+        const overlay = document.getElementById('chatOverlay');
+        if(chat && overlay) {
+            chat.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+    }
+}
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
+    </script>
+<!-- ===== КОНЕЦ SUPABASE ===== -->
+
+<!-- НОВЫЙ КОД ДЛЯ ЧАТА ДОБАВЛЯЙ ЗДЕСЬ -->
+<script>
+// Основные переменные чата
+let currentChat = 'community';
+let messages = {
+    'community': [
+        { type: 'system', text: 'Добро пожаловать в общий чат сообщества!' },
+        { type: 'incoming', author: 'Администратор', text: 'Рады видеть вас!' }
+    ]
+};
+
+// Функция переключения чата (если понадобится)
+function switchChat(chatId) {
+    currentChat = chatId;
+    updateChatMessages();
+    updateActiveChatItem();
+}
+
+// Функция отправки сообщения
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    
+    if (text) {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const username = currentUser ? currentUser.email.split('@')[0] : 'Участник';
+        
+        if (!messages[currentChat]) messages[currentChat] = [];
+        messages[currentChat].push({
+            type: 'outgoing',
+            author: username,
+            text: text,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        });
+        
+        input.value = '';
+        updateChatMessages();
+        
+        // Если нужно, интегрируй с твоей существующей функцией addNewMessageToChat
+        // addNewMessageToChat({ author: username, text: text, type: 'outgoing' });
+    }
+}
+
+// Обновление сообщений в чате
+function updateChatMessages() {
+    const container = document.getElementById('chatMessages');
+    const chatData = messages[currentChat] || [];
+    
+    container.innerHTML = chatData.map(msg => `
+        <div class="message ${msg.type}">
+            ${msg.author ? `<strong>${msg.author}:</strong> ` : ''}
+            ${msg.text}
+            ${msg.time ? `<span class="message-time">${msg.time}</span>` : ''}
+        </div>
+    `).join('');
+    
+    container.scrollTop = container.scrollHeight;
+}
+
+// Обновление активного чата в списке
+function updateActiveChatItem() {
+    document.querySelectorAll('.chat-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`.chat-item[onclick*="${currentChat}"]`)?.classList.add('active');
+}
+</script>
     <!-- Нижняя панель навигации -->
 <nav class="bottom-nav">
     <a href="#value" class="nav-item">
@@ -5175,21 +5392,40 @@ function addNewMessageToChat(message) {
         <button class="chat-close" onclick="hideCommunityChat()">✕</button>
     </div>
     
-    <div class="floating-date" id="floatingDate"></div>
-    
-    <div class="chat-messages" id="chatMessages">
-        <div class="message system">
-            Добро пожаловать в чат сообщества!
+    <div class="chat-container">
+        <!-- Список чатов слева -->
+        <div class="chat-sidebar">
+            <div class="chat-list">
+                <div class="chat-item active" onclick="switchChat('community')">
+                    <div class="chat-avatar">👥</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Общий чат</div>
+                        <div class="chat-last-message">Сообщество Fullest Potential</div>
+                    </div>
+                </div>
+                <!-- Сюда будут добавляться личные чаты -->
+            </div>
         </div>
-        <div class="message incoming">
-            <strong>Администратор:</strong> Рады видеть вас в нашем сообществе!
+        
+        <!-- Область сообщений справа -->
+        <div class="chat-main">
+            <div class="floating-date" id="floatingDate"></div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                    Добро пожаловать в общий чат сообщества!
+                </div>
+                <div class="message incoming">
+                    <strong>Администратор:</strong> Рады видеть вас!
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="messageInput" placeholder="Введите сообщение...">
+                <button class="send-btn" onclick="sendMessage()">
+                    <span style="font-size: 16px;">↑</span>
+                </button>
+            </div>
         </div>
-    </div>
-    
-    <div class="chat-input-area">
-        <input type="text" class="chat-input" id="messageInput" placeholder="Введите сообщение...">
-        <button class="send-btn" onclick="sendMessage()">
-            <span style="font-size: 16px;">↑</span>
-        </button>
     </div>
 </div>
