@@ -1152,6 +1152,452 @@
       color: #007bff;
       font-weight: bold;
   }
+        /* ===== СТИЛИ ДЛЯ СИСТЕМЫ ЛИЧНЫХ СООБЩЕНИЙ ===== */
+
+/* Контейнер чата с боковой панелью */
+.chat-container {
+    display: flex;
+    height: calc(100vh - 70px); /* Минус высота шапки */
+    overflow: hidden;
+}
+
+/* Боковая панель с контактами */
+.chat-sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-search {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #667eea;
+}
+
+/* Список чатов */
+.chat-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.chat-item:hover {
+    background: #f8f9fa;
+}
+
+.chat-item.active {
+    background: #f0f2f5;
+}
+
+.chat-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.chat-info {
+    flex: 1;
+    min-width: 0; /* Для корректного обрезания текста */
+}
+
+.chat-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-last-message {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-time {
+    font-size: 12px;
+    color: #999;
+    margin-left: 8px;
+}
+
+/* Информационная панель в основном чате */
+.chat-info-bar {
+    padding: 12px 20px;
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.current-chat-info {
+    display: flex;
+    align-items: center;
+}
+
+.chat-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    margin-right: 12px;
+}
+
+.chat-with-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.chat-status {
+    font-size: 13px;
+    color: #4CAF50;
+}
+
+/* Кнопка нового чата */
+.new-chat-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.new-chat-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Модальное окно нового чата */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    animation: modalSlideUp 0.3s ease;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-content {
+    padding: 20px;
+}
+
+.search-user-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.users-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.user-item:hover {
+    background: #f5f5f5;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 12px;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.user-email {
+    font-size: 12px;
+    color: #666;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+        height: calc(100vh - 60px);
+    }
+    
+    .chat-sidebar {
+        width: 100%;
+        height: 40%;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .chat-main {
+        flex: 1;
+    }
+    
+    .modal {
+        width: 95%;
+        margin: 10px;
+    }
+}
+        /* ===== ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ===== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideUp 0.4s ease;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.modal-content {
+    padding: 0;
+}
+
+.search-user-input {
+    width: 100%;
+    padding: 16px 24px;
+    border: none;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 16px;
+    outline: none;
+    background: #f8f9fa;
+}
+
+.search-user-input:focus {
+    background: white;
+}
+
+.users-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.2s;
+}
+
+.user-item:hover {
+    background: #f8f9fa;
+}
+
+.user-item:active {
+    background: #f0f2f5;
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.user-email {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.no-users, .no-users-placeholder {
+    padding: 40px 20px;
+    text-align: center;
+    color: #666;
+}
+
+.no-users-placeholder h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.no-users-placeholder p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Анимация появления модалки */
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
     <!-- ===== SUPABASE ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5192,29 +5638,496 @@ function addNewMessageToChat(message) {
 </div>
 
 <!-- Чат сообщества -->
-<div class="chat-overlay" id="chatOverlay" onclick="hideCommunityChat()"></div>
+<div class="chat-overlay" id="chatOverlay"></div>
 <div class="community-chat" id="communityChat">
     <div class="chat-header">
-        <h3>Сообщество</h3>
-        <button class="chat-close" onclick="hideCommunityChat()">✕</button>
-    </div>
-    
-    <div class="floating-date" id="floatingDate"></div>
-    
-    <div class="chat-messages" id="chatMessages">
-        <div class="message system">
-            Добро пожаловать в чат сообщества!
-        </div>
-        <div class="message incoming">
-            <strong>Администратор:</strong> Рады видеть вас в нашем сообществе!
+        <h3 id="chatTitle">Сообщество</h3>
+        <div>
+            <button class="new-chat-btn" onclick="startNewChat()" title="Новый чат">
+                ✏️
+            </button>
+            <button class="chat-close" onclick="hideCommunityChat()">✕</button>
         </div>
     </div>
     
-    <div class="chat-input-area">
-        <input type="text" class="chat-input" id="messageInput" placeholder="Введите сообщение...">
-        <button class="send-btn" onclick="sendMessage()">
-            <span style="font-size: 16px;">↑</span>
-        </button>
+    <div class="chat-container">
+        <!-- Боковая панель с контактами -->
+        <div class="chat-sidebar">
+            <div class="chat-search">
+                <input type="text" id="chatSearch" placeholder="Поиск..." class="search-input">
+            </div>
+            
+            <div class="chat-list">
+                <!-- Общий чат (всегда первый) -->
+                <div class="chat-item active" onclick="switchChat('community', '👥 Общий чат', 'Сообщество Fullest Potential')" data-chat-id="community">
+                    <div class="chat-avatar">👥</div>
+                    <div class="chat-info">
+                        <div class="chat-name">👥 Общий чат</div>
+                        <div class="chat-last-message">Сообщество Fullest Potential</div>
+                    </div>
+                    <div class="chat-time">14:30</div>
+                </div>
+                
+                <!-- Сюда будут добавляться личные чаты -->
+                <div id="personalChatsList"></div>
+            </div>
+        </div>
+        
+        <!-- Основная область чата -->
+        <div class="chat-main">
+            <div class="chat-info-bar" id="chatInfoBar">
+                <div class="current-chat-info">
+                    <div class="chat-avatar-small">👥</div>
+                    <div>
+                        <div class="chat-with-name" id="chatWithName">Общий чат</div>
+                        <div class="chat-status" id="chatStatus">онлайн</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="floating-date" id="floatingDate"></div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                    Добро пожаловать в общий чат сообщества!
+                </div>
+                <div class="message incoming">
+                    <strong>Администратор:</strong> Рады видеть вас!
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="messageInput" 
+                       placeholder="Введите сообщение..." onkeypress="handleChatKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()">
+                    <span style="font-size: 16px;">↑</span>
+                </button>
+            </div>
+        </div>
+        </div> <!-- закрывающий тег для community-chat -->
+
+<script>
+// ===== СИСТЕМА ЛИЧНЫХ СООБЩЕНИЙ =====
+
+// 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+let currentChat = {
+    id: 'community',
+    type: 'group',
+    name: '👥 Общий чат',
+    avatar: '👥'
+};
+let messages = {
+    'community': [
+        { 
+            id: 1,
+            type: 'system', 
+            text: 'Добро пожаловать в общий чат сообщества!',
+            time: '14:30'
+        },
+        { 
+            id: 2,
+            type: 'incoming', 
+            author: 'Администратор',
+            text: 'Рады видеть вас!',
+            time: '14:31'
+        }
+    ]
+};
+let personalChats = {}; // { 'user1-user2': { messages: [], user: {...} } }
+let allUsers = []; // Список всех пользователей платформы
+
+// 2. ФУНКЦИИ УПРАВЛЕНИЯ ЧАТОМ
+function showCommunityChat() {
+    console.log("Открываем чат");
+    document.getElementById('chatOverlay').style.display = 'block';
+    document.getElementById('communityChat').style.display = 'flex';
+    loadAllUsers(); // Загружаем пользователей для личных сообщений
+    updateChatList(); // Обновляем список чатов
+}
+
+function hideCommunityChat() {
+    console.log("Закрываем чат");
+    document.getElementById('chatOverlay').style.display = 'none';
+    document.getElementById('communityChat').style.display = 'none';
+}
+
+// 3. ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ЧАТАМИ
+function switchChat(chatId, chatName = 'Общий чат', lastMessage = '') {
+    console.log(`Переключаемся на чат: ${chatId} - ${chatName}`);
+    
+    // Обновляем текущий чат
+    currentChat = {
+        id: chatId,
+        type: chatId === 'community' ? 'group' : 'private',
+        name: chatName,
+        avatar: chatId === 'community' ? '👥' : '👤'
+    };
+    
+    // Обновляем UI
+    document.getElementById('chatTitle').textContent = chatName;
+    document.getElementById('chatWithName').textContent = chatName;
+    document.getElementById('chatStatus').textContent = 
+        chatId === 'community' ? 'онлайн' : 'был(а) недавно';
+    
+    // Обновляем активный элемент в списке
+    document.querySelectorAll('.chat-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-chat-id') === chatId) {
+            item.classList.add('active');
+        }
+    });
+    
+    // Показываем сообщения этого чата
+    updateChatMessages();
+    
+    // Фокус на поле ввода
+    document.getElementById('messageInput').focus();
+}
+
+// 4. ОБНОВЛЕНИЕ СООБЩЕНИЙ НА ЭКРАНЕ
+function updateChatMessages() {
+    const container = document.getElementById('chatMessages');
+    const chatData = messages[currentChat.id] || [];
+    
+    container.innerHTML = chatData.map(msg => {
+        if (msg.type === 'system') {
+            return `<div class="message system">${msg.text}</div>`;
+        }
+        
+        const isOutgoing = msg.type === 'outgoing';
+        return `
+            <div class="message ${msg.type}">
+                ${!isOutgoing && msg.author ? `
+                    <div class="message-author"><strong>${msg.author}</strong></div>
+                ` : ''}
+                <div class="message-text">${msg.text}</div>
+                <div class="message-time">${msg.time || ''}</div>
+            </div>
+        `;
+    }).join('');
+    
+    // Прокручиваем вниз
+    container.scrollTop = container.scrollHeight;
+}
+
+// 5. ЗАГРУЗКА ВСЕХ ПОЛЬЗОВАТЕЛЕЙ ПЛАТФОРМЫ
+function loadAllUsers() {
+    try {
+        // Получаем пользователей из localStorage вашей платформы
+        const platformUsers = JSON.parse(localStorage.getItem('platformUsers')) || {};
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        allUsers = Object.keys(platformUsers).map(email => ({
+            email: email,
+            name: email.split('@')[0],
+            avatar: email.charAt(0).toUpperCase(),
+            isCurrent: email === (currentUser?.email || '')
+        })).filter(user => !user.isCurrent); // Исключаем текущего пользователя
+        
+        console.log('Загружено пользователей:', allUsers.length);
+        
+    } catch (error) {
+        console.error('Ошибка загрузки пользователей:', error);
+        allUsers = [];
+    }
+}
+
+// 6. ОБНОВЛЕНИЕ СПИСКА ЧАТОВ В БОКОВОЙ ПАНЕЛИ
+function updateChatList() {
+    const container = document.getElementById('personalChatsList');
+    if (!container) return;
+    
+    // Пока только общий чат, личные добавятся позже
+    container.innerHTML = `
+        <div class="no-chats-message">
+            <p>У вас пока нет личных чатов</p>
+            <p><small>Начните новый диалог, нажав ✏️</small></p>
+        </div>
+    `;
+}
+
+// 7. ОТПРАВКА СООБЩЕНИЙ (базовая версия)
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    
+    if (!text) return;
+    
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const username = currentUser ? currentUser.email.split('@')[0] : 'Участник';
+    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    // Создаем сообщение
+    const newMessage = {
+        id: Date.now(),
+        type: 'outgoing',
+        author: username,
+        text: text,
+        time: time
+    };
+    
+    // Добавляем в текущий чат
+    if (!messages[currentChat.id]) {
+        messages[currentChat.id] = [];
+    }
+    messages[currentChat.id].push(newMessage);
+    
+    // Очищаем поле ввода
+    input.value = '';
+    
+    // Обновляем экран
+    updateChatMessages();
+    
+    // Обновляем последнее сообщение в списке чатов
+    updateLastMessageInList(currentChat.id, text, time);
+    
+    console.log('Сообщение отправлено в', currentChat.name);
+}
+
+// 8. ОБНОВЛЕНИЕ ПОСЛЕДНЕГО СООБЩЕНИЯ В СПИСКЕ
+function updateLastMessageInList(chatId, text, time) {
+    // Для личных чатов обновляем данные в personalChats
+    if (chatId.startsWith('private_') && personalChats[chatId]) {
+        personalChats[chatId].lastMessage = text;
+        personalChats[chatId].lastMessageTime = time;
+        saveChatsToStorage();
+    }
+    
+    // Обновляем UI
+    const chatItem = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
+    if (chatItem) {
+        const lastMsgEl = chatItem.querySelector('.chat-last-message');
+        const timeEl = chatItem.querySelector('.chat-time');
+        
+        if (lastMsgEl) lastMsgEl.textContent = text;
+        if (timeEl) timeEl.textContent = time;
+    }
+}
+
+// 9. ОТКРЫТИЕ МОДАЛЬНОГО ОКНА НОВОГО ЧАТА
+function startNewChat() {
+    document.getElementById('newChatModal').style.display = 'flex';
+    document.getElementById('searchUserInput').value = '';
+    document.getElementById('searchUserInput').focus();
+    searchUsers(''); // Показываем всех пользователей
+}
+
+function closeNewChatModal() {
+    document.getElementById('newChatModal').style.display = 'none';
+}
+
+// 10. ПОИСК ПОЛЬЗОВАТЕЛЕЙ (заглушка)
+function searchUsers(query) {
+    const usersList = document.getElementById('usersList');
+    const filteredUsers = allUsers.filter(user => 
+        user.name.toLowerCase().includes(query.toLowerCase()) ||
+        user.email.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    if (filteredUsers.length === 0) {
+        usersList.innerHTML = `<div class="no-users">Пользователи не найдены</div>`;
+        return;
+    }
+    
+    usersList.innerHTML = filteredUsers.map(user => `
+        <div class="user-item" onclick="createPersonalChat('${user.email}')">
+            <div class="user-avatar">${user.avatar}</div>
+            <div class="user-info">
+                <div class="user-name">${user.name}</div>
+                <div class="user-email">${user.email}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 11. СОЗДАНИЕ ЛИЧНОГО ЧАТА (заглушка)
+// 11. СОЗДАНИЕ ЛИЧНОГО ЧАТА (полная версия)
+function createPersonalChat(userEmail) {
+    console.log('Создаем чат с:', userEmail);
+    
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+        alert('Сначала войдите в платформу!');
+        return;
+    }
+    
+    // Создаем уникальный ID для чата (сортируем emails для единообразия)
+    const emails = [currentUser.email, userEmail].sort();
+    const chatId = `private_${emails[0]}_${emails[1]}`.replace(/[@.]/g, '_');
+    
+    const userName = userEmail.split('@')[0];
+    const currentUserName = currentUser.email.split('@')[0];
+    
+    // Создаем новый чат если его нет
+    if (!personalChats[chatId]) {
+        personalChats[chatId] = {
+            id: chatId,
+            userEmail: userEmail,
+            userName: userName,
+            avatar: userName.charAt(0).toUpperCase(),
+            lastMessage: 'Чат создан',
+            lastMessageTime: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+            unread: 0,
+            messages: [
+                {
+                    id: 1,
+                    type: 'system',
+                    text: `Личный чат между ${currentUserName} и ${userName}`,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                }
+            ]
+        };
+        
+        // Сохраняем в общие сообщения для отображения
+        messages[chatId] = personalChats[chatId].messages;
+        
+        console.log('Создан новый чат:', personalChats[chatId]);
+    }
+    
+    // Закрываем модалку
+    closeNewChatModal();
+    
+    // Переключаемся на новый чат
+    switchChat(chatId, userName, 'Начните общение');
+    
+    // Обновляем список чатов
+    updateChatList();
+    
+    // Сохраняем в localStorage
+    saveChatsToStorage();
+}
+
+// 13. СОХРАНЕНИЕ ЧАТОВ В LOCALSTORAGE
+function saveChatsToStorage() {
+    localStorage.setItem('personalChats', JSON.stringify(personalChats));
+    console.log('Чаты сохранены');
+}
+
+// 14. ЗАГРУЗКА ЧАТОВ ИЗ LOCALSTORAGE
+function loadChatsFromStorage() {
+    const savedChats = localStorage.getItem('personalChats');
+    if (savedChats) {
+        try {
+            personalChats = JSON.parse(savedChats);
+            
+            // Восстанавливаем сообщения в основной объект messages
+            Object.keys(personalChats).forEach(chatId => {
+                messages[chatId] = personalChats[chatId].messages;
+            });
+            
+            console.log('Загружено чатов:', Object.keys(personalChats).length);
+        } catch (error) {
+            console.error('Ошибка загрузки чатов:', error);
+            personalChats = {};
+        }
+    }
+}
+
+// 15. ОБНОВЛЕННАЯ ФУНКЦИЯ updateChatList() - замените старую версию
+function updateChatList() {
+    const container = document.getElementById('personalChatsList');
+    if (!container) return;
+    
+    if (Object.keys(personalChats).length === 0) {
+        container.innerHTML = `
+            <div class="no-chats-message" style="padding: 30px 20px; text-align: center; color: #666;">
+                <div style="font-size: 48px; margin-bottom: 20px;">💬</div>
+                <h4 style="margin-bottom: 10px; color: #333;">Нет личных чатов</h4>
+                <p>Нажмите ✏️ чтобы начать новый диалог</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Создаем список личных чатов
+    container.innerHTML = Object.values(personalChats)
+        .sort((a, b) => new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0))
+        .map(chat => `
+            <div class="chat-item" onclick="switchChat('${chat.id}', '${chat.userName}', '${chat.lastMessage}')" 
+                 data-chat-id="${chat.id}">
+                <div class="chat-avatar">${chat.avatar}</div>
+                <div class="chat-info">
+                    <div class="chat-name">${chat.userName}</div>
+                    <div class="chat-last-message">${chat.lastMessage}</div>
+                </div>
+                <div class="chat-time">${chat.lastMessageTime}</div>
+                ${chat.unread > 0 ? `
+                    <div class="unread-badge">${chat.unread}</div>
+                ` : ''}
+            </div>
+        `).join('');
+}
+
+// 16. ДОБАВЬТЕ В НАЧАЛО ФУНКЦИИ showCommunityChat() вызов loadChatsFromStorage()
+// Найдите функцию showCommunityChat и добавьте в начало:
+function showCommunityChat() {
+    console.log("Открываем чат");
+    loadChatsFromStorage(); // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+    document.getElementById('chatOverlay').style.display = 'block';
+    document.getElementById('communityChat').style.display = 'flex';
+    loadAllUsers();
+    updateChatList();
+}
+
+// 12. ОБРАБОТКА НАЖАТИЯ ENTER
+function handleChatKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    // Добавляем обработчик клика на оверлей для закрытия чата
+    document.getElementById('chatOverlay').addEventListener('click', function(event) {
+        if (event.target === this) {
+            hideCommunityChat();
+        }
+    });
+    
+    console.log('Система личных сообщений загружена');
+});
+</script>
+<!-- Модальное окно нового чата -->
+<div class="modal-overlay" id="newChatModal" style="display:none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Новый чат</h3>
+            <button class="modal-close" onclick="closeNewChatModal()">✕</button>
+        </div>
+        <div class="modal-content">
+            <input type="text" id="searchUserInput" placeholder="Начните вводить имя или email..." 
+                   class="search-user-input" oninput="searchUsers(this.value)">
+            <div id="usersList" class="users-list">
+                <div class="no-users-placeholder">
+                    <div style="text-align: center; padding: 40px 20px; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                        <h4 style="margin-bottom: 10px;">Начните общение</h4>
+                        <p>Введите имя или email пользователя чтобы найти его</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Ваши остальные скрипты (если есть) -->
+    </div>
+</div>
+
+<!-- Модальное окно нового чата -->
+<div class="modal-overlay" id="newChatModal" style="display:none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Новый чат</h3>
+            <button class="modal-close" onclick="closeNewChatModal()">✕</button>
+        </div>
+        <div class="modal-content">
+            <input type="text" id="searchUserInput" placeholder="Начните вводить имя или email..." 
+                   class="search-user-input" oninput="searchUsers(this.value)">
+            <div id="usersList" class="users-list">
+                <!-- Список пользователей появится здесь -->
+            </div>
+        </div>
     </div>
 </div>
 <script>
