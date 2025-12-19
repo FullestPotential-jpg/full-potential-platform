@@ -5724,47 +5724,61 @@ function addUserToCommunityChat(username) {
 
 // Отправка сообщения в Supabase
 async function sendMessage() {
-    const messageInput = document.getElementById('messageInput');
-    const messageText = messageInput.value.trim();
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
     
-    if (messageText && window.supabaseClient) {
-        try {
-            // Получаем имя пользователя
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            const username = currentUser ? currentUser.email.split('@')[0] : 'Участник';
-            
-            // Очищаем поле ввода сразу
-            messageInput.value = '';
-            
-            // Добавляем сообщение в чат сразу (не дожидаясь Supabase)
-            const chatMessages = document.getElementById('chatMessages');
-            const tempMessage = document.createElement('div');
-            tempMessage.className = 'message outgoing';
-            tempMessage.textContent = messageText;
-            chatMessages.appendChild(tempMessage);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-           // Отправляем в Supabase
-const { error } = await window.supabaseClient
-    .from('chat_messages')
-    .insert({
-        text: messageText,
-        author: username,
-        user_id: null,  // ← ИСПРАВЛЕНО: используем null вместо числа
+    if (!text) return;
+    
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+        alert('Сначала войдите в платформу!');
+        return;
+    }
+    
+    const username = currentUser.email.split('@')[0];
+    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    // 1. Локально (мгновенно)
+    const newMessage = {
+        id: Date.now(),
         type: 'outgoing',
-        room_id: 'e9e374ed-505d-4e73-a5dd-b29a522d7b3e'
-    });
+        author: username,
+        text: text,
+        time: time,
+        userId: currentUser.email,
+        chatId: currentChat.id,
+        timestamp: new Date().toISOString()
+    };
+    
+    if (!messages[currentChat.id]) {
+        messages[currentChat.id] = [];
+    }
+    messages[currentChat.id].push(newMessage);
+    
+    input.value = '';
+    updateChatMessages();
+    
+    // 2. Отправляем на сервер (Supabase)
+    try {
+        const { data, error } = await supabase
+            .from('chat_messages')
+            .insert([
+                {
+                    chat_id: currentChat.id,
+                    author: username,
+                    text: text,
+                    user_email: currentUser.email,
+                    message_type: currentChat.id === 'community' ? 'group' : 'private'
+                }
+            ]);
             
-            if (error) {
-                console.error('❌ Ошибка отправки сообщения:', error);
-                return;
-            }
-            
-            console.log('✅ Сообщение отправлено в Supabase');
-            
-        } catch (error) {
-            console.error('❌ Общая ошибка отправки:', error);
-        }
+        if (error) throw error;
+        console.log('✅ Сообщение отправлено на сервер');
+        
+    } catch (error) {
+        console.error('❌ Ошибка отправки на сервер:', error);
+        // Можно сохранить в очередь для повторной отправки
+        saveOfflineMessage(newMessage);
     }
 }
 
@@ -5781,43 +5795,33 @@ document.addEventListener('DOMContentLoaded', function() {
 });
     // Загрузка сообщений из Supabase
 async function loadChatMessages() {
-    try {
-        const { data: messages, error } = await window.supabaseClient
-            .from('chat_messages')
-            .select('*')
-            .order('created_at', { ascending: true });
-        
-        if (error) {
-            console.error('❌ Ошибка загрузки сообщений:', error);
-            return;
-        }
-        
-        const chatMessages = document.getElementById('chatMessages');
-        chatMessages.innerHTML = '';
-        
-        let lastDate = '';
-        
-        if (messages && messages.length > 0) {
-            messages.forEach(msg => {
-                // Добавляем дату между сообщениями
-                const messageDate = new Date(msg.created_at).toLocaleDateString('ru-RU');
-                if (messageDate !== lastDate) {
-                    const dateElement = document.createElement('div');
-                    dateElement.className = 'message-date';
-                    dateElement.textContent = formatMessageDate(new Date(msg.created_at));
-                    chatMessages.appendChild(dateElement);
-                    lastDate = messageDate;
-                }
+    if (currentChat.id === 'community') {
+        try {
+            const { data, error } = await supabase
+                .from('chat_messages')
+                .select('*')
+                .eq('chat_id', 'community')
+                .order('created_at', { ascending: true })
+                .limit(50);
                 
-                const messageElement = createMessageElement(msg);
-                chatMessages.appendChild(messageElement);
-            });
+            if (error) throw error;
+            
+            // Конвертируем в локальный формат
+            messages['community'] = data.map(msg => ({
+                id: msg.id,
+                type: msg.user_email === currentUser?.email ? 'outgoing' : 'incoming',
+                author: msg.author,
+                text: msg.text,
+                time: new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                userId: msg.user_email
+            }));
+            
+            updateChatMessages();
+            console.log('✅ Загружено сообщений:', data.length);
+            
+        } catch (error) {
+            console.error('❌ Ошибка загрузки сообщений:', error);
         }
-        
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-    } catch (error) {
-        console.error('❌ Ошибка загрузки чата:', error);
     }
 }
 
@@ -6163,7 +6167,53 @@ let messages = {
 };
 let personalChats = {};
 let allUsers = [];
-
+    
+// Подписка на новые сообщения
+function setupRealtimeSubscription() {
+    const subscription = supabase
+        .channel('chat-messages')
+        .on('postgres_changes', 
+            { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: 'chat_messages',
+                filter: `chat_id=eq.community`
+            }, 
+            (payload) => {
+                console.log('🆕 Новое сообщение от Supabase:', payload.new);
+                
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                const isMyMessage = payload.new.user_email === currentUser?.email;
+                
+                if (!isMyMessage) {
+                    const newMsg = {
+                        id: payload.new.id,
+                        type: 'incoming',
+                        author: payload.new.author,
+                        text: payload.new.text,
+                        time: new Date(payload.new.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                        userId: payload.new.user_email
+                    };
+                    
+                    if (!messages['community']) messages['community'] = [];
+                    messages['community'].push(newMsg);
+                    
+                    // Обновляем только если сейчас открыт общий чат
+                    if (currentChat.id === 'community') {
+                        updateChatMessages();
+                    }
+                    
+                    // Показываем уведомление если чат не открыт
+                    if (currentChat.id !== 'community') {
+                        showNewMessageNotification(payload.new.author, payload.new.text);
+                    }
+                }
+            }
+        )
+        .subscribe();
+        
+    console.log('🔔 Подписка на сообщения активирована');
+}
 // 2. ФУНКЦИИ ДВУХЭТАПНОГО ИНТЕРФЕЙСА
 function showCommunityChat() {
     console.log("Открываем список чатов");
@@ -6174,6 +6224,7 @@ function showCommunityChat() {
     document.getElementById('chatScreen').style.display = 'none';
     loadAllUsers();
     updateChatsList();
+    checkForNewMessages();
 }
 
 function hideCommunityChat() {
@@ -6261,6 +6312,9 @@ function sendMessage() {
         messages[currentChat.id] = [];
     }
     messages[currentChat.id].push(newMessage);
+    if (currentChat.id === 'community') {
+        saveToSharedChat(newMessage);
+    }
     
     if (currentChat.id.startsWith('private_') && personalChats[currentChat.id]) {
         personalChats[currentChat.id].lastMessage = text;
@@ -6272,6 +6326,47 @@ function sendMessage() {
     updateChatMessages();
     
     console.log('Сообщение отправлено в', currentChat.name);
+}
+    // Сохраняем в общий чат
+function saveToSharedChat(message) {
+    const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
+    
+    if (!sharedData.messages) sharedData.messages = [];
+    
+    sharedData.messages.push({
+        ...message,
+        globalId: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    });
+    
+    // Ограничиваем 200 сообщений
+    if (sharedData.messages.length > 200) {
+        sharedData.messages = sharedData.messages.slice(-200);
+    }
+    
+    sharedData.lastUpdate = Date.now();
+    localStorage.setItem(SHARED_CHAT_KEY, JSON.stringify(sharedData));
+    console.log('💾 Сообщение сохранено в общий чат');
+}
+
+// Проверяем обновления
+function checkForNewMessages() {
+    const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (sharedData.lastUpdate > lastSyncTime) {
+        lastSyncTime = sharedData.lastUpdate;
+        
+        // Обновляем только если открыт общий чат
+        if (sharedData.messages && currentChat.id === 'community') {
+            messages['community'] = sharedData.messages.map(msg => ({
+                ...msg,
+                type: msg.userId === (currentUser?.email || '') ? 'outgoing' : 'incoming'
+            }));
+            
+            updateChatMessages();
+            console.log('🔄 Обновлены сообщения из общего чата');
+        }
+    }
 }
 
 // 4. УПРАВЛЕНИЕ ЧАТАМИ
@@ -6584,6 +6679,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 500);
     });
+    // Проверяем новые сообщения каждые 2 секунды
+    setInterval(checkForNewMessages, 2000);
     </script>
     
 </body>
