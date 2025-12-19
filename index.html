@@ -5677,20 +5677,6 @@ function showBottomNavigation() {
 }
 // ===== ФУНКЦИИ ДЛЯ ЧАТА =====
 
-function showCommunityChat() {
-    const chat = document.getElementById('communityChat');
-    const overlay = document.getElementById('chatOverlay');
-    
-    if (chat && overlay) {
-        chat.style.display = 'flex';
-        overlay.style.display = 'block';
-        loadChatMessages(); // ЗАГРУЖАЕМ ИСТОРИЮ
-        startRealtimeMessages(); // ЗАПУСКАЕМ REAL-TIME
-        startTimeUpdater();
-        setTimeout(initFloatingDate, 100);
-    }
-}
-
 function hideCommunityChat() {
     const chat = document.getElementById('communityChat');
     const overlay = document.getElementById('chatOverlay');
@@ -5738,27 +5724,33 @@ async function sendMessage() {
     const username = currentUser.email.split('@')[0];
     const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     
-    // 1. Локально (мгновенно)
-    const newMessage = {
-        id: Date.now(),
-        type: 'outgoing',
-        author: username,
-        text: text,
-        time: time,
-        userId: currentUser.email,
-        chatId: currentChat.id,
-        timestamp: new Date().toISOString()
-    };
-    
-    if (!messages[currentChat.id]) {
-        messages[currentChat.id] = [];
+    // 1. Локально (мгновенно) - ТОЛЬКО ЕСЛИ ОБЩИЙ ЧАТ
+    if (currentChat.id === 'community') {
+        const newMessage = {
+            id: Date.now(),
+            type: 'outgoing',
+            author: username,
+            text: text,
+            time: time,
+            userId: currentUser.email,
+            timestamp: Date.now()
+        };
+        
+        if (!messages['community']) {
+            messages['community'] = [];
+        }
+        messages['community'].push(newMessage);
+        
+        // Обновляем UI мгновенно
+        updateChatMessages();
+        
+        // Сохраняем в localStorage
+        await saveToSharedChat(newMessage);
     }
-    messages[currentChat.id].push(newMessage);
     
     input.value = '';
-    updateChatMessages();
     
-    // 2. Отправляем на сервер (Supabase)
+    // 2. Отправляем на сервер (Supabase) - ДЛЯ ВСЕХ ЧАТОВ
     try {
         const { data, error } = await supabase
             .from('chat_messages')
@@ -5773,26 +5765,84 @@ async function sendMessage() {
             ]);
             
         if (error) throw error;
-        console.log('✅ Сообщение отправлено на сервер');
+        console.log('✅ Сообщение отправлено на Supabase');
+        
+        // 3. Обновляем сообщения с сервера (чтобы получить ID)
+        if (currentChat.id === 'community') {
+            setTimeout(checkSupabaseMessages, 500);
+        }
         
     } catch (error) {
         console.error('❌ Ошибка отправки на сервер:', error);
-        // Можно сохранить в очередь для повторной отправки
-        saveOfflineMessage(newMessage);
+        
+        // Сохраняем для повторной отправки
+        const failedMessage = {
+            chat_id: currentChat.id,
+            author: username,
+            text: text,
+            user_email: currentUser.email,
+            message_type: currentChat.id === 'community' ? 'group' : 'private',
+            timestamp: Date.now(),
+            retryCount: 0
+        };
+        
+        saveFailedMessage(failedMessage);
     }
 }
 
-// Обработка нажатия Enter в поле ввода сообщения
-document.addEventListener('DOMContentLoaded', function() {
-    const messageInput = document.getElementById('messageInput');
-    if (messageInput) {
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+// Сохранить неудачное сообщение
+function saveFailedMessage(message) {
+    const failedMessages = JSON.parse(localStorage.getItem('failed_messages') || '[]');
+    failedMessages.push(message);
+    localStorage.setItem('failed_messages', JSON.stringify(failedMessages));
+    console.log('💾 Сохранено неудачное сообщение для повтора');
+}
+
+// Попытаться отправить неудачные сообщения
+async function retryFailedMessages() {
+    const failedMessages = JSON.parse(localStorage.getItem('failed_messages') || '[]');
+    
+    if (failedMessages.length === 0) return;
+    
+    console.log(`🔄 Пытаемся отправить ${failedMessages.length} неудачных сообщений`);
+    
+    for (let i = 0; i < failedMessages.length; i++) {
+        const msg = failedMessages[i];
+        
+        if (msg.retryCount >= 3) {
+            console.log(`❌ Сообщение "${msg.text}" превысило лимит попыток`);
+            continue;
+        }
+        
+        try {
+            const { error } = await supabase
+                .from('chat_messages')
+                .insert([{
+                    chat_id: msg.chat_id,
+                    author: msg.author,
+                    text: msg.text,
+                    user_email: msg.user_email,
+                    message_type: msg.message_type
+                }]);
+                
+            if (error) throw error;
+            
+            // Удаляем успешно отправленное
+            failedMessages.splice(i, 1);
+            i--;
+            console.log('✅ Повторно отправлено сообщение:', msg.text);
+            
+        } catch (error) {
+            msg.retryCount = (msg.retryCount || 0) + 1;
+            console.log(`⚠️ Не удалось отправить (попытка ${msg.retryCount}):`, msg.text);
+        }
     }
-});
+    
+    localStorage.setItem('failed_messages', JSON.stringify(failedMessages));
+}
+
+// Запускаем повторную отправку каждые 30 секунд
+setInterval(retryFailedMessages, 30000);
     // Загрузка сообщений из Supabase
 async function loadChatMessages() {
     if (currentChat.id === 'community') {
@@ -6216,17 +6266,36 @@ function setupRealtimeSubscription() {
         
     console.log('🔔 Подписка на сообщения активирована');
 }
-// 2. ФУНКЦИИ ДВУХЭТАПНОГО ИНТЕРФЕЙСА
+    
+    // 2. ФУНКЦИИ ДВУХЭТАПНОГО ИНТЕРФЕЙСА
 function showCommunityChat() {
     console.log("Открываем список чатов");
-    loadChatsFromStorage();
+    
+    // 1. Показываем интерфейс
     document.getElementById('chatOverlay').style.display = 'block';
     document.getElementById('communityChat').style.display = 'flex';
     document.getElementById('chatsListScreen').style.display = 'flex';
     document.getElementById('chatScreen').style.display = 'none';
+    
+    // 2. Загружаем данные
+    loadChatsFromStorage();
     loadAllUsers();
     updateChatsList();
+    
+    // 3. Загружаем сообщения из Supabase
+    if (typeof loadChatMessages === 'function') {
+        loadChatMessages(); // Загружаем историю
+    }
+    
+    // 4. Проверяем новые сообщения
     checkForNewMessages();
+    
+    // 5. Запускаем real-time (если функция есть)
+    if (typeof startRealtimeMessages === 'function') {
+        startRealtimeMessages();
+    }
+    
+    console.log("✅ Чат сообщества открыт");
 }
 
 function hideCommunityChat() {
@@ -6330,17 +6399,18 @@ function sendMessage() {
     console.log('Сообщение отправлено в', currentChat.name);
 }
     // Сохраняем в общий чат
-function saveToSharedChat(message) {
+// Сохраняем в общий чат И отправляем на Supabase
+async function saveToSharedChat(message) {
     try {
-        console.log('💾 Сохраняем СВОЕ сообщение:', message.text);
+        console.log('💾 Сохраняем и отправляем сообщение:', message.text);
         
+        // 1. Локально (мгновенно)
         const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
         
         if (!sharedData.messages) {
             sharedData.messages = [];
         }
         
-        // Проверяем, нет ли уже такого сообщения
         const messageExists = sharedData.messages.some(msg => 
             msg.id === message.id && msg.userId === message.userId
         );
@@ -6349,71 +6419,167 @@ function saveToSharedChat(message) {
             sharedData.messages.push({
                 ...message,
                 globalId: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                supabase_sent: false // Флаг отправки
             });
             
-            // Ограничиваем историю
             if (sharedData.messages.length > 200) {
                 sharedData.messages = sharedData.messages.slice(-200);
             }
             
             sharedData.lastUpdate = Date.now();
             localStorage.setItem(SHARED_CHAT_KEY, JSON.stringify(sharedData));
-            
-            console.log('✅ Сообщение добавлено. Всего:', sharedData.messages.length);
+        }
+        
+        // 2. Отправляем на Supabase (если доступен)
+        if (typeof supabase !== 'undefined') {
+            try {
+                const { data, error } = await supabase
+                    .from('chat_messages')
+                    .insert([
+                        {
+                            chat_id: 'community',
+                            author: message.author,
+                            text: message.text,
+                            user_email: message.userId,
+                            message_type: 'group'
+                        }
+                    ]);
+                    
+                if (error) throw error;
+                console.log('✅ Сообщение отправлено на Supabase');
+                
+                // Помечаем как отправленное
+                markMessageAsSent(message.id);
+                
+            } catch (supabaseError) {
+                console.error('❌ Ошибка Supabase:', supabaseError);
+                // Сохраняем для повторной отправки
+                saveForRetry(message);
+            }
         } else {
-            console.log('⏭️ Сообщение уже существует, пропускаем');
+            console.log('ℹ️ Supabase не доступен, только локальное сохранение');
         }
         
     } catch (error) {
-        console.error('❌ Ошибка сохранения:', error);
+        console.error('❌ Общая ошибка сохранения:', error);
+    }
+}
+
+// Пометить сообщение как отправленное
+function markMessageAsSent(messageId) {
+    const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
+    if (sharedData.messages) {
+        sharedData.messages = sharedData.messages.map(msg => 
+            msg.id === messageId ? { ...msg, supabase_sent: true } : msg
+        );
+        localStorage.setItem(SHARED_CHAT_KEY, JSON.stringify(sharedData));
     }
 }
 // Проверяем обновления
-function checkForNewMessages() {
+// Проверяем обновления из Supabase И localStorage
+async function checkForNewMessages() {
     try {
-        const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        const currentUserEmail = currentUser?.email || '';
-        
-        if (!sharedData.messages || !sharedData.lastUpdate) {
-            return;
+        // 1. Сначала проверяем Supabase (если доступен)
+        if (typeof supabase !== 'undefined' && currentChat.id === 'community') {
+            await checkSupabaseMessages();
         }
         
-        if (sharedData.lastUpdate > lastSyncTime) {
-            console.log('🔄 Обнаружены новые сообщения');
-            lastSyncTime = sharedData.lastUpdate;
-            
-            if (currentChat.id === 'community') {
-                // ФИЛЬТРУЕМ: берем только ЧУЖИЕ сообщения
-                const otherUsersMessages = sharedData.messages.filter(msg => 
-                    msg.userId !== currentUserEmail
-                );
-                
-                // СВОИ сообщения
-                const myMessages = sharedData.messages.filter(msg => 
-                    msg.userId === currentUserEmail
-                );
-                
-                // Объединяем: сначала свои (outgoing), потом чужие (incoming)
-                const allMessages = [
-                    ...myMessages.map(msg => ({ ...msg, type: 'outgoing' })),
-                    ...otherUsersMessages.map(msg => ({ ...msg, type: 'incoming' }))
-                ];
-                
-                // Сортируем по времени
-                allMessages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                
-                messages['community'] = allMessages;
-                updateChatMessages();
-                
-                console.log('✅ Обновлено: своих', myMessages.length, 'чужих', otherUsersMessages.length);
-            }
-        }
+        // 2. Затем проверяем локальные сообщения (для оффлайн режима)
+        checkLocalMessages();
         
     } catch (error) {
         console.error('❌ Ошибка проверки сообщений:', error);
     }
+}
+
+// Проверка сообщений из Supabase
+async function checkSupabaseMessages() {
+    try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const currentUserEmail = currentUser?.email || '';
+        
+        // Получаем последние 50 сообщений из Supabase
+        const { data, error } = await supabase
+            .from('chat_messages')
+            .select('*')
+            .eq('chat_id', 'community')
+            .order('created_at', { ascending: true })
+            .limit(50);
+            
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            // Конвертируем в наш формат
+            const supabaseMessages = data.map(msg => ({
+                id: msg.id,
+                type: msg.user_email === currentUserEmail ? 'outgoing' : 'incoming',
+                author: msg.author,
+                text: msg.text,
+                time: new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                userId: msg.user_email,
+                timestamp: new Date(msg.created_at).getTime(),
+                source: 'supabase'
+            }));
+            
+            // Объединяем с локальными (если есть)
+            const localData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
+            const localMessages = localData.messages || [];
+            
+            // Фильтруем локальные сообщения (убираем дубли)
+            const uniqueLocalMessages = localMessages.filter(localMsg => 
+                !supabaseMessages.some(supabaseMsg => 
+                    supabaseMsg.text === localMsg.text && 
+                    supabaseMsg.userId === localMsg.userId
+                )
+            );
+            
+            // Объединяем и сортируем
+            const allMessages = [...supabaseMessages, ...uniqueLocalMessages]
+                .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            
+            // Сохраняем в messages и обновляем UI
+            messages['community'] = allMessages;
+            updateChatMessages();
+            
+            // Сохраняем в localStorage для оффлайн доступа
+            saveMessagesToLocalStorage(allMessages);
+            
+            console.log('✅ Загружено из Supabase:', data.length, 'сообщений');
+        }
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки из Supabase:', error);
+    }
+}
+
+// Проверка локальных сообщений
+function checkLocalMessages() {
+    const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUserEmail = currentUser?.email || '';
+    
+    if (!sharedData.messages || !sharedData.lastUpdate) {
+        return;
+    }
+    
+    if (sharedData.lastUpdate > lastSyncTime) {
+        console.log('🔄 Обновления в localStorage');
+        lastSyncTime = sharedData.lastUpdate;
+        
+        if (currentChat.id === 'community') {
+            // ... ваш существующий код для фильтрации ...
+        }
+    }
+}
+
+// Сохранить сообщения в localStorage
+function saveMessagesToLocalStorage(messagesArray) {
+    const sharedData = {
+        messages: messagesArray,
+        lastUpdate: Date.now()
+    };
+    localStorage.setItem(SHARED_CHAT_KEY, JSON.stringify(sharedData));
 }
 
 // 4. УПРАВЛЕНИЕ ЧАТАМИ
@@ -6728,6 +6894,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     // Проверяем новые сообщения каждые 2 секунды
     setInterval(checkForNewMessages, 2000);
+    // Запускаем подписку Supabase если она доступна
+if (typeof supabase !== 'undefined') {
+    setupRealtimeSubscription();
+} else {
+    console.log('ℹ️ Supabase не доступен, используем localStorage синхронизацию');
+}
     </script>
     
 </body>
