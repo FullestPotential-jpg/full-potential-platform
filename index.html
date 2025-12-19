@@ -6331,43 +6331,88 @@ function sendMessage() {
 }
     // Сохраняем в общий чат
 function saveToSharedChat(message) {
-    const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
-    
-    if (!sharedData.messages) sharedData.messages = [];
-    
-    sharedData.messages.push({
-        ...message,
-        globalId: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    });
-    
-    // Ограничиваем 200 сообщений
-    if (sharedData.messages.length > 200) {
-        sharedData.messages = sharedData.messages.slice(-200);
+    try {
+        console.log('💾 Сохраняем СВОЕ сообщение:', message.text);
+        
+        const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
+        
+        if (!sharedData.messages) {
+            sharedData.messages = [];
+        }
+        
+        // Проверяем, нет ли уже такого сообщения
+        const messageExists = sharedData.messages.some(msg => 
+            msg.id === message.id && msg.userId === message.userId
+        );
+        
+        if (!messageExists) {
+            sharedData.messages.push({
+                ...message,
+                globalId: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                timestamp: Date.now()
+            });
+            
+            // Ограничиваем историю
+            if (sharedData.messages.length > 200) {
+                sharedData.messages = sharedData.messages.slice(-200);
+            }
+            
+            sharedData.lastUpdate = Date.now();
+            localStorage.setItem(SHARED_CHAT_KEY, JSON.stringify(sharedData));
+            
+            console.log('✅ Сообщение добавлено. Всего:', sharedData.messages.length);
+        } else {
+            console.log('⏭️ Сообщение уже существует, пропускаем');
+        }
+        
+    } catch (error) {
+        console.error('❌ Ошибка сохранения:', error);
     }
-    
-    sharedData.lastUpdate = Date.now();
-    localStorage.setItem(SHARED_CHAT_KEY, JSON.stringify(sharedData));
-    console.log('💾 Сообщение сохранено в общий чат');
 }
-
 // Проверяем обновления
 function checkForNewMessages() {
-    const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (sharedData.lastUpdate > lastSyncTime) {
-        lastSyncTime = sharedData.lastUpdate;
+    try {
+        const sharedData = JSON.parse(localStorage.getItem(SHARED_CHAT_KEY) || '{}');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const currentUserEmail = currentUser?.email || '';
         
-        // Обновляем только если открыт общий чат
-        if (sharedData.messages && currentChat.id === 'community') {
-            messages['community'] = sharedData.messages.map(msg => ({
-                ...msg,
-                type: msg.userId === (currentUser?.email || '') ? 'outgoing' : 'incoming'
-            }));
-            
-            updateChatMessages();
-            console.log('🔄 Обновлены сообщения из общего чата');
+        if (!sharedData.messages || !sharedData.lastUpdate) {
+            return;
         }
+        
+        if (sharedData.lastUpdate > lastSyncTime) {
+            console.log('🔄 Обнаружены новые сообщения');
+            lastSyncTime = sharedData.lastUpdate;
+            
+            if (currentChat.id === 'community') {
+                // ФИЛЬТРУЕМ: берем только ЧУЖИЕ сообщения
+                const otherUsersMessages = sharedData.messages.filter(msg => 
+                    msg.userId !== currentUserEmail
+                );
+                
+                // СВОИ сообщения
+                const myMessages = sharedData.messages.filter(msg => 
+                    msg.userId === currentUserEmail
+                );
+                
+                // Объединяем: сначала свои (outgoing), потом чужие (incoming)
+                const allMessages = [
+                    ...myMessages.map(msg => ({ ...msg, type: 'outgoing' })),
+                    ...otherUsersMessages.map(msg => ({ ...msg, type: 'incoming' }))
+                ];
+                
+                // Сортируем по времени
+                allMessages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                
+                messages['community'] = allMessages;
+                updateChatMessages();
+                
+                console.log('✅ Обновлено: своих', myMessages.length, 'чужих', otherUsersMessages.length);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Ошибка проверки сообщений:', error);
     }
 }
 
