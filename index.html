@@ -9,26 +9,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://fullestpotential-jpg.github.io/full-potential-platform/icon-192.png">
     <title>Гений Внутри Вас - Определитель типа личности</title>
-    <!-- Подключение Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // Инициализация Supabase (правильная версия)
-    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
-    
-    // Правильный способ инициализации
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true
-        }
-    });
-    
-    // Сделать глобально доступным
-    window.supabaseClient = supabase;
-    console.log('✅ Supabase инициализирован. URL:', supabaseUrl);
-    console.log('Объект supabase:', supabase);
-</script>
     <style>
        /* Стили для нижней навигации  */
 .bottom-navigation {
@@ -2011,31 +1991,6 @@
     <!-- ===== SUPABASE ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // Исправление Supabase если не инициализирован
-if (typeof supabase === 'undefined' || !supabase.from) {
-    console.log('⚠️ Supabase не инициализирован, создаем клиент...');
-    
-    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
-    
-    // Пытаемся создать клиент
-    try {
-        window.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        console.log('✅ Supabase клиент создан');
-    } catch (e) {
-        console.error('❌ Не удалось создать клиент:', e);
-        
-        // Создаем заглушку
-        window.supabase = {
-            from: () => ({
-                select: () => ({ eq: () => ({ order: () => ({ limit: () => Promise.resolve({ data: [], error: null }) }) }) }),
-                insert: () => Promise.resolve({ data: null, error: null })
-            }),
-            channel: () => ({ on: () => ({ subscribe: () => ({}) }) })
-        };
-        console.log('✅ Создана заглушка Supabase');
-    }
-}
 // Инициализация Supabase
 document.addEventListener('DOMContentLoaded', function() {
     const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
@@ -2626,17 +2581,7 @@ async function login() {
         updateProgress(0);
     }
 
-    let currentScreen = null;
-
-function showScreen(screenId) {
-    // Если уже показываем этот экран - пропускаем
-    if (currentScreen === screenId) {
-        console.log('⏭️ Экран', screenId, 'уже показан, пропускаем');
-        return;
-    }
-    
-    console.log('🔄 Показываем экран:', screenId, 'предыдущий:', currentScreen);
-    currentScreen = screenId;
+    function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(screen => {
             screen.classList.remove('active');
         });
@@ -6875,159 +6820,78 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 <script>
-    // ===== СИСТЕМА ДОЛГОЙ АВТОРИЗАЦИИ =====
-const PLATFORM_AUTH_EXPIRE_DAYS = 7;
-
-// НОВАЯ ВЕРСИЯ - ВСТАВИТЬ
-function checkPlatformAuth() {
-    console.log('🔐 Проверяем сохраненную авторизацию...');
+    // ===== СИСТЕМА ДОЛГОЙ АВТОРИЗАЦИИ ПЛАТФОРМЫ (7 дней) =====
+    const PLATFORM_AUTH_EXPIRE_DAYS = 7;
     
-    // 1. Проверяем есть ли сохраненная авторизация
-    const authData = localStorage.getItem('platformAuth');
-    
-    if (!authData) {
-        console.log('❌ Нет сохраненной авторизации - показываем форму входа');
-        // ПОКАЗЫВАЕМ ФОРМУ ВХОДА
-        setTimeout(() => {
-            // Скрываем все экраны
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.style.display = 'none';
-            });
-            // Показываем экран входа
-            const loginScreen = document.getElementById('login-screen');
-            if (loginScreen) {
-                loginScreen.style.display = 'block';
-                console.log('✅ Форма входа показана');
-            }
-            // Скрываем нижнюю навигацию
-            const bottomNav = document.querySelector('.bottom-navigation');
-            if (bottomNav) bottomNav.style.display = 'none';
-        }, 100);
-        return false;
-    }
-    
-    try {
-        // 2. Пытаемся прочитать данные
-        const { user, expires, token } = JSON.parse(authData);
+    // Проверка авторизации при загрузке страницы
+    function checkPlatformAuth() {
+        console.log('🔐 Проверяем авторизацию платформы...');
         
-        // 3. Проверяем не истек ли срок
-        const now = new Date();
-        const expireDate = new Date(expires);
+        const authData = localStorage.getItem('platformAuth');
         
-        if (now > expireDate) {
-            console.log('⏰ Токен истек - показываем форму входа');
-            // Удаляем просроченную авторизацию
-            localStorage.removeItem('platformAuth');
-            localStorage.removeItem('currentUser');
-            
-            // ПОКАЗЫВАЕМ ФОРМУ ВХОДА
-            setTimeout(() => {
-                document.querySelectorAll('.screen').forEach(screen => {
-                    screen.style.display = 'none';
-                });
-                const loginScreen = document.getElementById('login-screen');
-                if (loginScreen) loginScreen.style.display = 'block';
-            }, 100);
+        if (!authData) {
+            console.log('❌ Нет сохраненной авторизации');
             return false;
         }
         
-        // 4. Авторизация валидна
-        console.log('✅ Авторизован как:', user.email, 
-                   '(истекает через', Math.ceil((expireDate - now) / (1000 * 60 * 60 * 24)), 'дней)');
-        
-        // 5. Сохраняем пользователя в currentUser
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        
-        // 6. Скрываем форму входа если она видна
-        setTimeout(() => {
-            const loginScreen = document.getElementById('login-screen');
-            const registerScreen = document.getElementById('register-section');
-            if (loginScreen && loginScreen.style.display !== 'none') {
-                loginScreen.style.display = 'none';
-            }
-            if (registerScreen && registerScreen.style.display !== 'none') {
-                registerScreen.style.display = 'none';
+        try {
+            const { user, expires, token } = JSON.parse(authData);
+            
+            // Проверяем срок действия
+            if (new Date() > new Date(expires)) {
+                console.log('⏰ Токен истек');
+                localStorage.removeItem('platformAuth');
+                return false;
             }
             
-            // 7. Показываем основной экран
-            if (user.personality_type) {
-                if (typeof showScreen === 'function') showScreen('platform-screen');
-                if (typeof updateProfileData === 'function') updateProfileData();
-                if (typeof showBottomNavigation === 'function') showBottomNavigation();
-            } else {
-                if (typeof showScreen === 'function') showScreen('intro-screen');
-            }
-        }, 100);
+            console.log('✅ Авторизован как:', user.email, 
+                       '(истекает через', Math.ceil((new Date(expires) - new Date()) / (1000 * 60 * 60 * 24)), 'дней)');
+            
+            // Автоматически входим в систему
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            return true;
+            
+        } catch (error) {
+            console.error('Ошибка проверки авторизации:', error);
+            return false;
+        }
+    }
+    
+    // Сохранение авторизации при успешном входе
+    function savePlatformAuth(userData) {
+        const expires = new Date();
+        expires.setDate(expires.getDate() + PLATFORM_AUTH_EXPIRE_DAYS);
         
-        return true;
+        const authData = {
+            user: userData,
+            expires: expires.toISOString(),
+            token: 'auth_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+        };
         
-    } catch (error) {
-        // 8. Если ошибка чтения
-        console.error('❌ Ошибка проверки авторизации:', error);
+        localStorage.setItem('platformAuth', JSON.stringify(authData));
+        localStorage.setItem('currentUser', JSON.stringify(userData));
         
-        // Очищаем битые данные
+        console.log('💾 Авторизация сохранена до:', expires.toLocaleDateString());
+    }
+    
+    // Выход из системы
+    function platformLogout() {
         localStorage.removeItem('platformAuth');
         localStorage.removeItem('currentUser');
-        
-        // ПОКАЗЫВАЕМ ФОРМУ ВХОДА
-        setTimeout(() => {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.style.display = 'none';
-            });
-            const loginScreen = document.getElementById('login-screen');
-            if (loginScreen) loginScreen.style.display = 'block';
-        }, 100);
-        
-        return false;
+        console.log('👋 Вы вышли из платформы');
+        window.location.reload();
     }
-}
-
-// Сохранение авторизации при успешном входе
-function savePlatformAuth(userData) {
-    const expires = new Date();
-    expires.setDate(expires.getDate() + PLATFORM_AUTH_EXPIRE_DAYS);
     
-    const authData = {
-        user: userData,
-        expires: expires.toISOString(),
-        token: 'auth_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-    };
-    
-    localStorage.setItem('platformAuth', JSON.stringify(authData));
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    
-    console.log('💾 Авторизация сохранена до:', expires.toLocaleDateString());
-}
-
-// Выход из системы
-function platformLogout() {
-    localStorage.removeItem('platformAuth');
-    localStorage.removeItem('currentUser');
-    console.log('👋 Вы вышли из платформы');
-    
-    // Показываем экран входа
-    showScreen('login-screen');
-    
-    // Очищаем форму
-    document.getElementById('login-email').value = '';
-    document.getElementById('login-password').value = '';
-    
-    // Перезагрузка не нужна, можно обновить интерфейс
-    hideBottomNavigation();
-}
-
-// Проверка при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        if (checkPlatformAuth()) {
-            console.log('🚀 Автоматический вход выполнен');
-        } else {
-            console.log('ℹ️ Требуется вход в систему');
-            // Показываем форму входа
-            showScreen('login-screen');
-        }
-    }, 500);
-});
+    // Проверка при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            if (checkPlatformAuth()) {
+                console.log('🚀 Автоматический вход выполнен');
+            } else {
+                console.log('ℹ️ Требуется вход в систему');
+            }
+        }, 500);
+    });
     // Проверяем новые сообщения каждые 2 секунды
     setInterval(checkForNewMessages, 2000);
     // Запускаем подписку Supabase если она доступна
