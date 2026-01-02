@@ -6820,78 +6820,112 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 <script>
-    // ===== СИСТЕМА ДОЛГОЙ АВТОРИЗАЦИИ ПЛАТФОРМЫ (7 дней) =====
-    const PLATFORM_AUTH_EXPIRE_DAYS = 7;
+    // ===== СИСТЕМА ДОЛГОЙ АВТОРИЗАЦИИ =====
+const PLATFORM_AUTH_EXPIRE_DAYS = 7;
+
+function checkPlatformAuth() {
+    console.log('🔐 Проверяем сохраненную авторизацию...');
     
-    // Проверка авторизации при загрузке страницы
-    function checkPlatformAuth() {
-        console.log('🔐 Проверяем авторизацию платформы...');
+    const authData = localStorage.getItem('platformAuth');
+    
+    if (!authData) {
+        console.log('❌ Нет сохраненной авторизации');
+        return false;
+    }
+    
+    try {
+        const { user, expires, token } = JSON.parse(authData);
         
-        const authData = localStorage.getItem('platformAuth');
-        
-        if (!authData) {
-            console.log('❌ Нет сохраненной авторизации');
+        // Проверяем срок действия
+        if (new Date() > new Date(expires)) {
+            console.log('⏰ Токен истек');
+            localStorage.removeItem('platformAuth');
+            localStorage.removeItem('currentUser');
             return false;
         }
         
-        try {
-            const { user, expires, token } = JSON.parse(authData);
-            
-            // Проверяем срок действия
-            if (new Date() > new Date(expires)) {
-                console.log('⏰ Токен истек');
-                localStorage.removeItem('platformAuth');
-                return false;
-            }
-            
-            console.log('✅ Авторизован как:', user.email, 
-                       '(истекает через', Math.ceil((new Date(expires) - new Date()) / (1000 * 60 * 60 * 24)), 'дней)');
-            
-            // Автоматически входим в систему
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            return true;
-            
-        } catch (error) {
-            console.error('Ошибка проверки авторизации:', error);
-            return false;
-        }
-    }
-    
-    // Сохранение авторизации при успешном входе
-    function savePlatformAuth(userData) {
-        const expires = new Date();
-        expires.setDate(expires.getDate() + PLATFORM_AUTH_EXPIRE_DAYS);
+        console.log('✅ Авторизован как:', user.email, 
+                   '(истекает через', Math.ceil((new Date(expires) - new Date()) / (1000 * 60 * 60 * 24)), 'дней)');
         
-        const authData = {
-            user: userData,
-            expires: expires.toISOString(),
-            token: 'auth_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-        };
+        // КРИТИЧЕСКОЕ: АВТОМАТИЧЕСКИ ВХОДИМ
+        localStorage.setItem('currentUser', JSON.stringify(user));
         
-        localStorage.setItem('platformAuth', JSON.stringify(authData));
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        console.log('💾 Авторизация сохранена до:', expires.toLocaleDateString());
-    }
-    
-    // Выход из системы
-    function platformLogout() {
-        localStorage.removeItem('platformAuth');
-        localStorage.removeItem('currentUser');
-        console.log('👋 Вы вышли из платформы');
-        window.location.reload();
-    }
-    
-    // Проверка при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
+        // Скрываем форму входа если она показана
         setTimeout(() => {
-            if (checkPlatformAuth()) {
-                console.log('🚀 Автоматический вход выполнен');
-            } else {
-                console.log('ℹ️ Требуется вход в систему');
+            const loginScreen = document.getElementById('login-screen');
+            const registerScreen = document.getElementById('register-section');
+            if (loginScreen && loginScreen.style.display !== 'none') {
+                loginScreen.style.display = 'none';
             }
-        }, 500);
-    });
+            if (registerScreen && registerScreen.style.display !== 'none') {
+                registerScreen.style.display = 'none';
+            }
+            
+            // Показываем основной экран
+            if (user.personality_type) {
+                showScreen('platform-screen');
+                updateProfileData();
+                showBottomNavigation();
+            } else {
+                showScreen('intro-screen');
+            }
+        }, 100);
+        
+        return true;
+        
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        localStorage.removeItem('platformAuth');
+        return false;
+    }
+}
+
+// Сохранение авторизации при успешном входе
+function savePlatformAuth(userData) {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + PLATFORM_AUTH_EXPIRE_DAYS);
+    
+    const authData = {
+        user: userData,
+        expires: expires.toISOString(),
+        token: 'auth_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+    };
+    
+    localStorage.setItem('platformAuth', JSON.stringify(authData));
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    
+    console.log('💾 Авторизация сохранена до:', expires.toLocaleDateString());
+}
+
+// Выход из системы
+function platformLogout() {
+    localStorage.removeItem('platformAuth');
+    localStorage.removeItem('currentUser');
+    console.log('👋 Вы вышли из платформы');
+    
+    // Показываем экран входа
+    showScreen('login-screen');
+    
+    // Очищаем форму
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    
+    // Перезагрузка не нужна, можно обновить интерфейс
+    hideBottomNavigation();
+}
+
+// Проверка при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        if (checkPlatformAuth()) {
+            console.log('🚀 Автоматический вход выполнен');
+        } else {
+            console.log('ℹ️ Требуется вход в систему');
+            // Показываем форму входа
+            showScreen('login-screen');
+        }
+    }, 500);
+});
     // Проверяем новые сообщения каждые 2 секунды
     setInterval(checkForNewMessages, 2000);
     // Запускаем подписку Supabase если она доступна
