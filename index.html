@@ -12,14 +12,22 @@
     <!-- Подключение Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // Инициализация Supabase
-    const supabaseUrl = 'ВАШ_URL.supabase.co';
-    const supabaseKey = 'ВАШ_ПУБЛИЧНЫЙ_КЛЮЧ';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    // Инициализация Supabase (правильная версия)
+    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
+    
+    // Правильный способ инициализации
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true
+        }
+    });
     
     // Сделать глобально доступным
     window.supabaseClient = supabase;
-    console.log('✅ Supabase инициализирован:', supabaseUrl);
+    console.log('✅ Supabase инициализирован. URL:', supabaseUrl);
+    console.log('Объект supabase:', supabase);
 </script>
     <style>
        /* Стили для нижней навигации  */
