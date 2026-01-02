@@ -6823,36 +6823,67 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== СИСТЕМА ДОЛГОЙ АВТОРИЗАЦИИ =====
 const PLATFORM_AUTH_EXPIRE_DAYS = 7;
 
+// НОВАЯ ВЕРСИЯ - ВСТАВИТЬ
 function checkPlatformAuth() {
     console.log('🔐 Проверяем сохраненную авторизацию...');
     
+    // 1. Проверяем есть ли сохраненная авторизация
     const authData = localStorage.getItem('platformAuth');
     
     if (!authData) {
-        console.log('❌ Нет сохраненной авторизации');
-        showAuthScreen();
+        console.log('❌ Нет сохраненной авторизации - показываем форму входа');
+        // ПОКАЗЫВАЕМ ФОРМУ ВХОДА
+        setTimeout(() => {
+            // Скрываем все экраны
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+            // Показываем экран входа
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) {
+                loginScreen.style.display = 'block';
+                console.log('✅ Форма входа показана');
+            }
+            // Скрываем нижнюю навигацию
+            const bottomNav = document.querySelector('.bottom-navigation');
+            if (bottomNav) bottomNav.style.display = 'none';
+        }, 100);
         return false;
     }
     
     try {
+        // 2. Пытаемся прочитать данные
         const { user, expires, token } = JSON.parse(authData);
         
-        // Проверяем срок действия
-        if (new Date() > new Date(expires)) {
-            console.log('⏰ Токен истек');
+        // 3. Проверяем не истек ли срок
+        const now = new Date();
+        const expireDate = new Date(expires);
+        
+        if (now > expireDate) {
+            console.log('⏰ Токен истек - показываем форму входа');
+            // Удаляем просроченную авторизацию
             localStorage.removeItem('platformAuth');
             localStorage.removeItem('currentUser');
-            showAuthScreen();
+            
+            // ПОКАЗЫВАЕМ ФОРМУ ВХОДА
+            setTimeout(() => {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.style.display = 'none';
+                });
+                const loginScreen = document.getElementById('login-screen');
+                if (loginScreen) loginScreen.style.display = 'block';
+            }, 100);
             return false;
         }
         
+        // 4. Авторизация валидна
         console.log('✅ Авторизован как:', user.email, 
-                   '(истекает через', Math.ceil((new Date(expires) - new Date()) / (1000 * 60 * 60 * 24)), 'дней)');
+                   '(истекает через', Math.ceil((expireDate - now) / (1000 * 60 * 60 * 24)), 'дней)');
         
-        // КРИТИЧЕСКОЕ: АВТОМАТИЧЕСКИ ВХОДИМ
+        // 5. Сохраняем пользователя в currentUser
         localStorage.setItem('currentUser', JSON.stringify(user));
         
-        // Скрываем форму входа если она показана
+        // 6. Скрываем форму входа если она видна
         setTimeout(() => {
             const loginScreen = document.getElementById('login-screen');
             const registerScreen = document.getElementById('register-section');
@@ -6863,61 +6894,37 @@ function checkPlatformAuth() {
                 registerScreen.style.display = 'none';
             }
             
-            // Показываем основной экран
+            // 7. Показываем основной экран
             if (user.personality_type) {
-                showScreen('platform-screen');
-                updateProfileData();
-                showBottomNavigation();
+                if (typeof showScreen === 'function') showScreen('platform-screen');
+                if (typeof updateProfileData === 'function') updateProfileData();
+                if (typeof showBottomNavigation === 'function') showBottomNavigation();
             } else {
-                showScreen('intro-screen');
+                if (typeof showScreen === 'function') showScreen('intro-screen');
             }
         }, 100);
         
         return true;
         
     } catch (error) {
-        console.error('Ошибка проверки авторизации:', error);
+        // 8. Если ошибка чтения
+        console.error('❌ Ошибка проверки авторизации:', error);
+        
+        // Очищаем битые данные
         localStorage.removeItem('platformAuth');
-        showAuthScreen();
+        localStorage.removeItem('currentUser');
+        
+        // ПОКАЗЫВАЕМ ФОРМУ ВХОДА
+        setTimeout(() => {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) loginScreen.style.display = 'block';
+        }, 100);
+        
         return false;
     }
-}
-
-    // ==== ДОБАВЬТЕ ЭТУ ФУНКЦИЮ ПОСЛЕ checkPlatformAuth() ====
-function showAuthScreen() {
-    console.log('👤 Показываем экран авторизации');
-    
-    // 1. Скрываем все экраны
-    const allScreens = document.querySelectorAll('.screen');
-    allScreens.forEach(screen => {
-        screen.style.display = 'none';
-    });
-    
-    // 2. Показываем экран входа
-    const loginScreen = document.getElementById('login-screen');
-    const registerScreen = document.getElementById('register-section');
-    
-    if (loginScreen) {
-        loginScreen.style.display = 'block';
-    }
-    
-    if (registerScreen) {
-        registerScreen.style.display = 'none';
-    }
-    
-    // 3. Скрываем нижнюю навигацию
-    if (typeof hideBottomNavigation === 'function') {
-        hideBottomNavigation();
-    }
-    
-    // 4. Очищаем поля
-    setTimeout(() => {
-        const emailField = document.getElementById('login-email');
-        const passwordField = document.getElementById('login-password');
-        if (emailField) emailField.value = '';
-        if (passwordField) passwordField.value = '';
-        if (emailField) emailField.focus();
-    }, 100);
 }
 
 // Сохранение авторизации при успешном входе
