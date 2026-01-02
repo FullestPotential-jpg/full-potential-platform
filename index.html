@@ -2011,6 +2011,31 @@
     <!-- ===== SUPABASE ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // Исправление Supabase если не инициализирован
+if (typeof supabase === 'undefined' || !supabase.from) {
+    console.log('⚠️ Supabase не инициализирован, создаем клиент...');
+    
+    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
+    
+    // Пытаемся создать клиент
+    try {
+        window.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        console.log('✅ Supabase клиент создан');
+    } catch (e) {
+        console.error('❌ Не удалось создать клиент:', e);
+        
+        // Создаем заглушку
+        window.supabase = {
+            from: () => ({
+                select: () => ({ eq: () => ({ order: () => ({ limit: () => Promise.resolve({ data: [], error: null }) }) }) }),
+                insert: () => Promise.resolve({ data: null, error: null })
+            }),
+            channel: () => ({ on: () => ({ subscribe: () => ({}) }) })
+        };
+        console.log('✅ Создана заглушка Supabase');
+    }
+}
 // Инициализация Supabase
 document.addEventListener('DOMContentLoaded', function() {
     const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
