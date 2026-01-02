@@ -9,6 +9,18 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://fullestpotential-jpg.github.io/full-potential-platform/icon-192.png">
     <title>Гений Внутри Вас - Определитель типа личности</title>
+    <!-- Подключение Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // Инициализация Supabase
+    const supabaseUrl = 'ВАШ_URL.supabase.co';
+    const supabaseKey = 'ВАШ_ПУБЛИЧНЫЙ_КЛЮЧ';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // Сделать глобально доступным
+    window.supabaseClient = supabase;
+    console.log('✅ Supabase инициализирован:', supabaseUrl);
+</script>
     <style>
        /* Стили для нижней навигации  */
 .bottom-navigation {
@@ -2581,7 +2593,17 @@ async function login() {
         updateProgress(0);
     }
 
-    function showScreen(screenId) {
+    let currentScreen = null;
+
+function showScreen(screenId) {
+    // Если уже показываем этот экран - пропускаем
+    if (currentScreen === screenId) {
+        console.log('⏭️ Экран', screenId, 'уже показан, пропускаем');
+        return;
+    }
+    
+    console.log('🔄 Показываем экран:', screenId, 'предыдущий:', currentScreen);
+    currentScreen = screenId;
         document.querySelectorAll('.screen').forEach(screen => {
             screen.classList.remove('active');
         });
