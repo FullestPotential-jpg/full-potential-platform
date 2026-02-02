@@ -2053,212 +2053,179 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <!-- ЭКРАН ПРИВЕТСТВИЯ -->
-            <div id="intro-screen" class="screen">
-                <h2 class="question">Добро пожаловать в Определитель Типа Личности!</h2>
-                <p>Этот тест поможет определить ваш тип личности. Ответьте на 12 вопросов, выбрав наиболее подходящий для вас вариант.</p>
-                <p><strong>Важно!</strong></p>
-                <p>Не задумывайтесь слишком долго, полагайтесь на первую реакцию, но взвешивайте каждый вопрос, чтобы выбрать максимально правильный ответ для вас. Выбирайте ответы, которые лучше всего описывают ваше Естественное поведение в жизни.</p>
-                <div class="navigation">
-                    <button id="start-btn" onclick="startTest()">Начать тест</button>
-                </div>
-            </div>
-            
-            <!-- ВОПРОС 1 -->
-            <div id="question-1" class="screen">
-                <h3 class="question">1. На вечеринке или крупном корпоративном мероприятии вы, скорее всего:</h3>
-                <div class="options">
-                    <div class="option" data-value="коммуникабельный">Общаетесь с разными людьми, заряжаясь энергией от толпы, легко переключаясь между группами.</div>
-                    <div class="option" data-value="стабильный">Находите одного-двух человек и ведете с ними глубокий, содержательный разговор.</div>
-                    <div class="option" data-value="технический">Наблюдаете за происходящим, анализируете динамику группы и чувствуете общую атмосферу.</div>
-                    <div class="option" data-value="творческий">Замечаете практические детали: накрыт ли стол, всем ли удобно, как организовано мероприятие.</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('intro-screen')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-2')" disabled>Далее</button>
-                </div>
-            </div>
+<div id="intro-screen" class="screen">
+    <h2 class="question">Добро пожаловать в «Сканер Ядра»</h2>
+    <p>Этот тест определит ваш <strong>архетип ядра</strong> — неизменную основу вашей психики.</p>
+    <p><strong>Важно!</strong> Отвечайте быстро, первой реакцией. Выбирайте вариант, который описывает ваше <strong>естественное, интуитивное поведение</strong>, а не то, как «надо».</p>
+    <p>Тест состоит из 12 вопросов (3 блока). Будьте честны с собой.</p>
+    <div class="navigation">
+        <button id="start-btn" onclick="startTest()">Начать сканирование</button>
+    </div>
+</div>
 
-            <!-- ВОПРОС 2 -->
-            <div id="question-2" class="screen">
-                <h3 class="question">2. Когда перед вами стоит большая и сложная задача, ваша первая реакция — это:</h3>
-                <div class="options">
-                    <div class="option" data-value="коммуникабельный">Немедленно начать действовать, "войти в воду", чтобы почувствовать процесс.</div>
-                    <div class="option" data-value="стабильный">Сначала составить детальный план, разбить все на маленькие шаги и понять последовательность.</div>
-                    <div class="option" data-value="технический">Отступить на шаг, чтобы увидеть картину в целом, понять, как эта задача связана с более крупными целями.</div>
-                    <div class="option" data-value="творческий">Погрузиться в размышления, представить идеальный результат и сгенерировать несколько творческих путей решения.</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-1')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-3')" disabled>Далее</button>
-                </div>
-            </div>
-            
-            <!-- ВОПРОС 3 -->
-            <div id="question-3" class="screen">
-                <h3 class="question">3. Что для вас важнее в работе или проекте?</h3>
-                <div class="options">
-                    <div class="option" data-value="коммуникабельный">Свобода действовать и быстро видеть результат.</div>
-                    <div class="option" data-value="стабильный">Четкие инструкции, надежные процессы и точность.</div>
-                    <div class="option" data-value="технический">Возможность вдохновлять команду и работать вместе для достижения общей цели.</div>
-                    <div class="option" data-value="творческий">Возможность глубоко погрузиться в тему и создать что-то по-настоящему инновационное.</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-2')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-4')" disabled>Далее</button>
-                </div>
-            </div>
-            
-            <!-- ВОПРОС 4 -->
-            <div id="question-4" class="screen">
-                <h3 class="question">4. Ваша суперсила в команде — это способность:</h3>
-                <div class="options">
-                    <div class="option" data-value="коммуникабельный">Легко устанавливать контакты и мотивировать людей.</div>
-                    <div class="option" data-value="стабильный">Обеспечивать стабильность, выполнять обещания и доводить все до конца.</div>
-                    <div class="option" data-value="технический">Видеть неочевидные связи, продумывать многоходовую стратегию.</div>
-                    <div class="option" data-value="творческий">Видеть будущее и предлагать свежие, оригинальные идеи.</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-3')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-5')" disabled>Далее</button>
-                </div>
-            </div>
-            
-            <!-- ВОПРОС 5 -->
-            <div id="question-5" class="screen">
-                <h3 class="question">5. Что вас истощает больше всего?</h3>
-                <div class="options">
-                    <div class="option" data-value="коммуникабельный">Длительная монотонная работа в одиночестве без общения.</div>
-                    <div class="option" data-value="стабильный">Хаос, неопределенность и отсутствие четкого плана.</div>
-                    <div class="option" data-value="технический">Необходимость сосредотачиваться на мелких, незначительных деталях.</div>
-                    <div class="option" data-value="творческий">Постоянные отвлечения и необходимость "носить много шляк" одновременно, не имея времени на глубокую концентрацию.</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-4')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-6')" disabled>Далее</button>
-                </div>
-            </div>
-            
-            <!-- ВОПРОС 6 -->
-            <div id="question-6" class="screen">
-                <h3 class="question">6. Принимая важное решение, вы в основном полагаетесь на:</h3>
-                <div class="options">
-                    <div class="option" data-value="коммуникабельный">Интуицию и "внутреннее чутье".</div>
-                    <div class="option" data-value="стабильный">Логику, данные и проверенные факты.</div>
-                    <div class="option" data-value="технический">Советы и мнения доверенных людей из вашего окружения.</div>
-                    <div class="option" data-value="творческий">Собственный анализ всех "за" и "против" и долгосрочные последствия.</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-5')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-7')" disabled>Далее</button>
-                </div>
-            </div>
+<!-- БЛОК А: Обработка информации -->
+<div id="question-1" class="screen">
+    <h3 class="question">1. Вам показали сложную абстрактную картину. Первый импульс — это...</h3>
+    <div class="options">
+        <div class="option" data-axis="A" data-value="amygdala">Почувствовать её общее настроение, уловить, на что она <em>похожа</em> в целом</div>
+        <div class="option" data-axis="A" data-value="hippocampus">Начать разбирать её на элементы, анализировать детали и композицию</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('intro-screen')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-2')" disabled>Далее</button>
+    </div>
+</div>
 
-            <!-- ВОПРОС 7 -->
-            <div id="question-7" class="screen">
-                <h3 class="question">7. Какой подход к жизни вам ближе всего?</h3>
-                <div class="options">
-                    <div class="option" data-value="творческий">"Нужно постоянно создавать новое и менять мир вокруг себя"</div>
-                    <div class="option" data-value="коммуникабельный">"Жизнь - это люди, отношения и эмоциональные связи"</div>
-                    <div class="option" data-value="стабильный">"Важна стабильность, порядок и надежность во всем"</div>
-                    <div class="option" data-value="технический">"Все должно быть логично, эффективно и просчитано"</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-6')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-8')" disabled>Далее</button>
-                </div>
-            </div>
+<div id="question-2" class="screen">
+    <h3 class="question">2. Принимая важное решение, вы в основном полагаетесь на...</h3>
+    <div class="options">
+        <div class="option" data-axis="A" data-value="amygdala">Интуитивное ощущение, внутреннее «чувство» правильного варианта</div>
+        <div class="option" data-axis="A" data-value="hippocampus">Список плюсов/минусов, логические доводы и прошлый опыт</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-1')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-3')" disabled>Далее</button>
+    </div>
+</div>
 
-            <!-- ВОПРОС 8 -->
-            <div id="question-8" class="screen">
-                <h3 class="question">8. Когда вы работаете над задачей, что происходит чаще всего?</h3>
-                <div class="options">
-                    <div class="option" data-value="творческий">Увлекаюсь настолько, что забываю о времени и окружающих</div>
-                    <div class="option" data-value="коммуникабельный">Делаю перерывы, чтобы пообщаться с коллегами</div>
-                    <div class="option" data-value="стабильный">Работаю равномерно, соблюдая установленный график</div>
-                    <div class="option" data-value="технический">Анализирую каждый шаг, чтобы найти оптимальный способ</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-7')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-9')" disabled>Далее</button>
-                </div>
-            </div>
+<div id="question-3" class="screen">
+    <h3 class="question">3. Как вам проще усваивать новый сложный навык?</h3>
+    <div class="options">
+        <div class="option" data-axis="A" data-value="amygdala">Через метафоры, аналогии и общее видение («как если бы это было...»)</div>
+        <div class="option" data-axis="A" data-value="hippocampus">Через пошаговые инструкции, чёткие правила и практические упражнения</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-2')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-4')" disabled>Далее</button>
+    </div>
+</div>
 
-            <!-- ВОПРОС 9 -->
-            <div id="question-9" class="screen">
-                <h3 class="question">9. Вы обнаружили ошибку в важном проекте. Ваши первые действия?</h3>
-                <div class="options">
-                    <div class="option" data-value="творческий">Ищу креативное решение, которое превратит ошибку в преимущество</div>
-                    <div class="option" data-value="коммуникабельный">Сразу сообщаю команде, чтобы вместе найти выход</div>
-                    <div class="option" data-value="стабильный">Тщательно проверяю все связанные процессы, чтобы найти корень проблемы</div>
-                    <div class="option" data-value="технический">Анализирую данные ошибки, чтобы понять системную причину</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-8')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-10')" disabled>Далее</button>
-                </div>
-            </div>
+<div id="question-4" class="screen">
+    <h3 class="question">4. В споре или дискуссии ваша сильная сторона — это...</h3>
+    <div class="options">
+        <div class="option" data-axis="A" data-value="amygdala">Умение уловить суть и показать оппоненту целостную картину</div>
+        <div class="option" data-axis="A" data-value="hippocampus">Умение последовательно разбирать аргументы, находя логические нестыковки</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-3')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-5')" disabled>Далее</button>
+    </div>
+</div>
 
-            <!-- ВОПРОС 10 -->
-            <div id="question-10" class="screen">
-                <h3 class="question">10. Как вы предпочитаете осваивать новые навыки?</h3>
-                <div class="options">
-                    <div class="option" data-value="творческий">Экспериментирую и пробую сразу на практике</div>
-                    <div class="option" data-value="коммуникабельный">Нахожу ментора или иду на групповой тренинг</div>
-                    <div class="option" data-value="стабильный">Следую четкой пошаговой инструкции</div>
-                    <div class="option" data-value="технический">Изучаю теорию и только потом перехожу к практике</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-9')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-11')" disabled>Далее</button>
-                </div>
-            </div>
+<!-- БЛОК Б: Источник энергии -->
+<div id="question-5" class="screen">
+    <h3 class="question">5. Неделя с чётким, повторяющимся графиком задач вызовет у вас скорее...</h3>
+    <div class="options">
+        <div class="option" data-axis="B" data-value="dopamine">Скуку, тоску и потерю мотивации уже к середине недели</div>
+        <div class="option" data-axis="B" data-value="serotonin">Спокойствие, удовлетворение и возможность углубиться в работу</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-4')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-6')" disabled>Далее</button>
+    </div>
+</div>
 
-            <!-- ВОПРОС 11 -->
-            <div id="question-11" class="screen">
-                <h3 class="question">11. Вам нужно принять сложное решение. На что вы опираетесь в первую очередь?</h3>
-                <div class="options">
-                    <div class="option" data-value="творческий">На внутреннее ощущение и интуицию</div>
-                    <div class="option" data-value="коммуникабельный">На мнение людей, которым доверяю</div>
-                    <div class="option" data-value="стабильный">На предыдущий опыт и проверенные методы</div>
-                    <div class="option" data-value="технический">На данные, статистику и логический анализ</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-10')">Назад</button>
-                    <button class="next-btn" onclick="showScreen('question-12')" disabled>Далее</button>
-                </div>
-            </div>
+<div id="question-6" class="screen">
+    <h3 class="question">6. После какого дня вы чувствуете прилив сил?</h3>
+    <div class="options">
+        <div class="option" data-axis="B" data-value="dopamine">День был хаотичным, но вы запустили новый, интересный проект</div>
+        <div class="option" data-axis="B" data-value="serotonin">День был спокойным, и вы навели идеальный порядок в важной для вас системе</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-5')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-7')" disabled>Далее</button>
+    </div>
+</div>
 
-            <!-- ВОПРОС 12 -->
-            <div id="question-12" class="screen">
-                <h3 class="question">12. После чего вы чувствуете наибольшее истощение?</h3>
-                <div class="options">
-                    <div class="option" data-value="творческий">После долгой рутинной работы по инструкции</div>
-                    <div class="option" data-value="коммуникабельный">После дня, проведенного в одиночестве за компьютером</div>
-                    <div class="option" data-value="стабильный">После хаотичного дня без четкого плана</div>
-                    <div class="option" data-value="технический">После работы, где приходилось руководствоваться только эмоциями</div>
-                </div>
-                <div class="navigation">
-                    <button class="prev-btn" onclick="showScreen('question-11')">Назад</button>
-                    <button id="submit-btn" onclick="showResult()" disabled>Узнать результат</button>
-                </div>
-            </div>
-            
-            <!-- ЭКРАН РЕЗУЛЬТАТА -->
-            <div id="result-screen" class="screen">
-                <h2 class="result-title">Ваш тип личности:</h2>
-                <div id="result-type" class="result-type"></div>
-                <div id="result-description" class="result-description"></div>
-                
-                <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px;">
-                    <h3 style="margin: 0; font-size: 1.3rem;">🎯 Добро пожаловать на платформу!</h3>
-                    <p style="margin: 10px 0 0 0; opacity: 0.9;">Теперь у вас есть доступ ко всем материалам для вашего типа личности.</p>
-                </div>
-                
-                <div class="navigation" style="justify-content: center; margin-top: 30px; gap: 15px;">
-                    <button onclick="goToPlatform()" style="background: #28a745;">Перейти на платформу</button>
-                    <button id="restart-btn" onclick="restartTest()">Пройти тест снова</button>
-                </div>
-            </div>
+<div id="question-7" class="screen">
+    <h3 class="question">7. Ваша идеальная рабочая неделя содержит много...</h3>
+    <div class="options">
+        <div class="option" data-axis="B" data-value="dopamine">Новых вызовов, разнообразия, моментов «эврики» и движения вперёд</div>
+        <div class="option" data-axis="B" data-value="serotonin">Отлаженных процессов, предсказуемости, глубокого погружения и завершённых циклов</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-6')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-8')" disabled>Далее</button>
+    </div>
+</div>
+
+<div id="question-8" class="screen">
+    <h3 class="question">8. Что для вас ценнее в долгосрочной перспективе?</h3>
+    <div class="options">
+        <div class="option" data-axis="B" data-value="dopamine">Возможность постоянно развиваться, осваивать новое и не стоять на месте</div>
+        <div class="option" data-axis="B" data-value="serotonin">Создание устойчивой, гармоничной системы жизни, где всё на своих местах</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-7')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-9')" disabled>Далее</button>
+    </div>
+</div>
+
+<!-- БЛОК В: Базовая угроза -->
+<div id="question-9" class="screen">
+    <h3 class="question">9. Какая ситуация вызывает у вас более глубокий, почти физический дискомфорт?</h3>
+    <div class="options">
+        <div class="option" data-axis="C" data-value="control">Коллега вносит непредсказуемые изменения в ваш проект без согласования, руша план</div>
+        <div class="option" data-axis="C" data-value="connection">Ваша команда принимает важное решение без вас, исключая из общего круга</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-8')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-10')" disabled>Далее</button>
+    </div>
+</div>
+
+<div id="question-10" class="screen">
+    <h3 class="question">10. В какой среде ваша продуктивность падает до нуля быстрее?</h3>
+    <div class="options">
+        <div class="option" data-axis="C" data-value="control">Полный хаос, нет ясных правил, сроков, каждый действует как хочет</div>
+        <div class="option" data-axis="C" data-value="connection">Атмосфера холодной формальности, нет личных связей, вы — «винтик»</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-9')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-11')" disabled>Далее</button>
+    </div>
+</div>
+
+<div id="question-11" class="screen">
+    <h3 class="question">11. Что подрывает ваше доверие к человеку или организации сильнее?</h3>
+    <div class="options">
+        <div class="option" data-axis="C" data-value="control">Непоследовательность, нарушение договорённостей, скрытые мотивы</div>
+        <div class="option" data-axis="C" data-value="connection">Отстранённость, игнорирование вашего мнения, отсутствие обратной связи</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-10')">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-12')" disabled>Далее</button>
+    </div>
+</div>
+
+<div id="question-12" class="screen">
+    <h3 class="question">12. Какой тип критики вы переносите болезненнее?</h3>
+    <div class="options">
+        <div class="option" data-axis="C" data-value="control">Критика вашего метода или подхода, указание на неэффективность системы</div>
+        <div class="option" data-axis="C" data-value="connection">Критика вас как личности, отвержение ваших ценностей или принадлежности к группе</div>
+    </div>
+    <div class="navigation">
+        <button class="prev-btn" onclick="showScreen('question-11')">Назад</button>
+        <button id="submit-btn" onclick="showResult()" disabled>Узнать результат</button>
+    </div>
+</div>
+
+<!-- ЭКРАН РЕЗУЛЬТАТА -->
+<div id="result-screen" class="screen">
+    <h2 class="result-title">Ваш архетип ядра:</h2>
+    <div id="result-type" class="result-type"></div>
+    <div id="result-description" class="result-description"></div>
+    
+    <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px;">
+        <h3 style="margin: 0; font-size: 1.3rem;">🎯 Добро пожаловать на платформу!</h3>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Теперь у вас есть доступ к материалам для вашего архетипа.</p>
+    </div>
+    
+    <div class="navigation" style="justify-content: center; margin-top: 30px; gap: 15px;">
+        <button onclick="goToPlatform()" style="background: #28a745;">Перейти на платформу</button>
+        <button id="restart-btn" onclick="restartTest()">Пройти тест снова</button>
+    </div>
+</div>
 
             <!-- ЭКРАН ПЛАТФОРМЫ -->
             <div id="platform-screen" class="screen">
