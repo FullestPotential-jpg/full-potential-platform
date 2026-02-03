@@ -5565,14 +5565,18 @@ async function showResult() {
 
     // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
     function getPersonalityTypeName(type) {
-        const names = {
-            'творческий': 'Творческий',
-            'коммуникабельный': 'Коммуникабельный', 
-            'стабильный': 'Стабильный',
-            'технический': 'Технический'
-        };
-        return names[type] || type;
-    }
+    const names = {
+        'ПРОВИДЕЦ': 'Провидец',
+        'СТРАТЕГ': 'Стратег', 
+        'ИНЖЕНЕР': 'Инженер',
+        'ХРАНИТЕЛЬ': 'Хранитель',
+        'КОММУНИКАТОР': 'Коммуникатор',
+        'ПОСРЕДНИК': 'Посредник',
+        'НОМАД': 'Номад',
+        'ПИОНЕР': 'Пионер'
+    };
+    return names[type] || type;
+}
         </script>
     <script>
 if ('serviceWorker' in navigator) {
@@ -6945,6 +6949,8 @@ if (typeof supabase !== 'undefined') {
 } else {
     console.log('ℹ️ Supabase не доступен, используем localStorage синхронизацию');
 }
+    }
+    }
     </script>
     
 </body>
