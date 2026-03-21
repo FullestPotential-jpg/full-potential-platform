@@ -698,6 +698,34 @@
             border-radius: 20px;
             font-weight: 600;
             margin: 10px 0;
+            background: linear-gradient(135deg, rgba(74, 0, 224, 0.12), rgba(142, 45, 226, 0.12));
+            color: #4A00E0;
+        }
+        
+        .profile-dropdown .personality-description {
+            text-align: left;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #444;
+            margin: 10px 0 0;
+            max-height: 280px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .profile-dropdown .personality-description h4 {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+            color: #4A00E0;
+        }
+        .profile-dropdown .personality-description p {
+            margin: 0 0 8px;
+        }
+        .profile-dropdown .personality-description .result-list {
+            margin: 8px 0 0;
+            padding-left: 18px;
+        }
+        .profile-dropdown .personality-description .result-list li {
+            margin-bottom: 6px;
         }
         
         .platform-main-content {
@@ -2240,9 +2268,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="user-avatar" id="userAvatar">U</div>
                                 <h3 id="userEmail">user@example.com</h3>
                                 <div class="personality-badge" id="personalityBadge">Творческий</div>
-                                <p class="personality-description" id="personalityDescription">
+                                <div class="personality-description" id="personalityDescription">
                                     Вы - генератор идей и инноватор. Ваша сила в творческом подходе и видении новых возможностей.
-                                </p>
+                                </div>
                                 <div id="premium-status" style="margin-top: 15px; padding: 8px 16px; border-radius: 20px; background: #f8f9fa; font-size: 0.9rem;">
                                     Статус: Бесплатный доступ
                                 </div>
@@ -2437,8 +2465,19 @@ function saveUser(email, password, personality_type = null) {
     users[email] = {
         password: password,
         personality_type: personality_type,
+        personality_description_html: null,
+        archetype_key: null,
         created: new Date().toISOString()
     };
+    localStorage.setItem('platformUsers', JSON.stringify(users));
+}
+
+function updateUserPersonalityInStore(email, personality_type, personality_description_html, archetype_key) {
+    const users = getStoredUsers();
+    if (!users[email]) return;
+    users[email].personality_type = personality_type;
+    users[email].personality_description_html = personality_description_html;
+    users[email].archetype_key = archetype_key;
     localStorage.setItem('platformUsers', JSON.stringify(users));
 }
     async function register() {
@@ -2510,6 +2549,8 @@ async function login() {
     currentUser = { 
         email: email, 
         personality_type: user.personality_type,
+        personality_description_html: user.personality_description_html || null,
+        archetype_key: user.archetype_key || null,
         id: Date.now(),
         created: user.created // сохраняем дату создания
     };
@@ -2754,9 +2795,15 @@ async function showResult() {
         description: "<p>Попробуйте пройти тест ещё раз, отвечая на все вопросы.</p>"
     };
 
-    // 4. Сохраняем тип личности в текущего пользователя
+    // 4. Сохраняем тип личности и полное описание (для профиля на платформе)
     currentUser.personality_type = userArchetype.name;
+    currentUser.personality_description_html = userArchetype.description;
+    currentUser.archetype_key = archetypeKey;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    updateUserPersonalityInStore(currentUser.email, userArchetype.name, userArchetype.description, archetypeKey);
+    if (typeof savePlatformAuth === 'function') {
+        savePlatformAuth(currentUser);
+    }
     
     // 5. Сохраняем в базу пользователей (если есть такая функция)
     if (typeof updateUserPersonality === 'function') {
@@ -2779,6 +2826,9 @@ async function showResult() {
     function toggleProfileMenu() {
         const dropdown = document.getElementById('profileDropdown');
         dropdown.classList.toggle('active');
+        if (dropdown.classList.contains('active')) {
+            updateProfileData();
+        }
     }
 
     // Закрываем меню при клике вне его
@@ -2815,17 +2865,34 @@ async function showResult() {
             if (currentUser.personality_type) {
                 const personalityType = currentUser.personality_type;
                 document.getElementById('personalityBadge').textContent = personalityType;
-                document.getElementById('personalityBadge').className = `personality-badge ${personalityType}`;
-                
-                const descriptions = {
-                    'творческий': 'Вы - генератор идей и инноватор. Ваша сила в творческом подходе и видении новых возможностей там, где другие видят препятствия.',
-                    'коммуникабельный': 'Вы - душа компании и мотиватор. Ваша сила в умении создавать связи, вдохновлять людей и находить общий язык с кем угодно.',
-                    'стабильный': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
-                    'технический': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.'
-                };
-                
-                document.getElementById('personalityDescription').textContent = 
-                    descriptions[personalityType] || 'Информация о вашем типе личности';
+                const archetypeSlug = (currentUser.archetype_key || 'legacy')
+                    .replace(/[^a-z0-9-]/gi, '-');
+                document.getElementById('personalityBadge').className =
+                    `personality-badge archetype-${archetypeSlug}`;
+
+                const descEl = document.getElementById('personalityDescription');
+                let html = currentUser.personality_description_html;
+                if (!html && currentUser.archetype_key && archetypeMap[currentUser.archetype_key]) {
+                    html = archetypeMap[currentUser.archetype_key].description;
+                }
+                if (!html) {
+                    const found = Object.values(archetypeMap).find(function (a) {
+                        return a.name === personalityType;
+                    });
+                    if (found) html = found.description;
+                }
+                if (html) {
+                    descEl.innerHTML = html;
+                } else {
+                    const descriptions = {
+                        'творческий': 'Вы - генератор идей и инноватор. Ваша сила в творческом подходе и видении новых возможностей там, где другие видят препятствия.',
+                        'коммуникабельный': 'Вы - душа компании и мотиватор. Ваша сила в умении создавать связи, вдохновлять людей и находить общий язык с кем угодно.',
+                        'стабильный': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
+                        'технический': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.'
+                    };
+                    descEl.textContent =
+                        descriptions[personalityType] || 'Информация о вашем типе личности';
+                }
             }
         }
     }
