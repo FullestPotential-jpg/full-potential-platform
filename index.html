@@ -405,6 +405,10 @@
             padding: 25px 20px;
             overflow-y: auto;
         }
+        /* Иначе выпадающее меню профиля обрезается снизу (ноутбук / телефон) */
+        .content:has(#platform-screen.active) {
+            overflow: visible;
+        }
         
         .screen {
             display: none;
@@ -624,6 +628,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            overflow: visible;
         }
         
         .platform-logo {
@@ -634,6 +639,8 @@
         
         .profile-menu {
             position: relative;
+            overflow: visible;
+            z-index: 1001;
         }
         
         .profile-icon {
@@ -662,8 +669,13 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 20px;
+            padding: 16px 16px 12px;
             min-width: 300px;
+            max-width: min(100vw - 24px, 360px);
+            max-height: min(90vh, 560px);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             display: none;
             z-index: 1000;
             margin-top: 10px;
@@ -675,7 +687,45 @@
         
         .user-info {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 0;
+        }
+        
+        .profile-archetype-toggle-row {
+            margin-top: 12px;
+        }
+        .profile-archetype-toggle {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(74, 0, 224, 0.28);
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(74, 0, 224, 0.07), rgba(142, 45, 226, 0.09));
+            color: #4A00E0;
+            font-weight: 600;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            text-align: left;
+        }
+        .profile-archetype-toggle .chevron {
+            flex-shrink: 0;
+            font-size: 0.65rem;
+            opacity: 0.75;
+            transition: transform 0.2s ease;
+        }
+        .profile-archetype-toggle.is-open .chevron {
+            transform: rotate(180deg);
+        }
+        .profile-archetype-panel {
+            display: none;
+            margin-top: 10px;
+            padding-top: 2px;
+            text-align: left;
+        }
+        .profile-archetype-panel.is-open {
+            display: block;
         }
         
         .user-avatar {
@@ -708,7 +758,7 @@
             line-height: 1.45;
             color: #444;
             margin: 10px 0 0;
-            max-height: 280px;
+            max-height: min(220px, 32vh);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -729,9 +779,15 @@
         }
         
         .profile-dropdown .profile-logout-wrap {
-            margin-top: 18px;
-            padding-top: 16px;
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            margin-top: 14px;
+            padding-top: 12px;
+            padding-bottom: 4px;
             border-top: 1px solid #ececf0;
+            background: #fff;
+            box-shadow: 0 -8px 16px rgba(255, 255, 255, 0.95);
         }
         .profile-logout-btn {
             width: 100%;
@@ -944,8 +1000,11 @@
     }
     
     .profile-dropdown {
-        min-width: 280px;
-        right: -10px;
+        min-width: min(100vw - 20px, 320px);
+        max-width: calc(100vw - 16px);
+        max-height: min(85vh, 520px);
+        right: 0;
+        left: auto;
     }
     
     .modules-grid {
@@ -1011,7 +1070,14 @@
     }
     
     .profile-dropdown {
-        min-width: 250px;
+        min-width: min(100vw - 16px, 300px);
+        max-width: calc(100vw - 12px);
+        max-height: min(82vh, 480px);
+        padding: 14px 12px 10px;
+    }
+    .profile-logout-btn {
+        padding: 14px 14px;
+        font-size: 0.92rem;
     }
     
     /* ЕЩЕ ШИРЕ НА ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНАХ */
@@ -2293,9 +2359,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="user-info">
                                 <div class="user-avatar" id="userAvatar">U</div>
                                 <h3 id="userEmail">user@example.com</h3>
-                                <div class="personality-badge" id="personalityBadge">Творческий</div>
-                                <div class="personality-description" id="personalityDescription">
-                                    Вы - генератор идей и инноватор. Ваша сила в творческом подходе и видении новых возможностей.
+                                <div id="archetypeToggleRow" class="profile-archetype-toggle-row" style="display: none;">
+                                    <button type="button" id="archetypeToggleBtn" class="profile-archetype-toggle" onclick="toggleProfileArchetypeSection(event)">
+                                        <span>Мой архетип</span>
+                                        <span class="chevron" aria-hidden="true">▼</span>
+                                    </button>
+                                    <div id="profileArchetypePanel" class="profile-archetype-panel">
+                                        <div class="personality-badge" id="personalityBadge">—</div>
+                                        <div class="personality-description" id="personalityDescription"></div>
+                                    </div>
                                 </div>
                                 <div id="premium-status" style="margin-top: 15px; padding: 8px 16px; border-radius: 20px; background: #f8f9fa; font-size: 0.9rem;">
                                     Статус: Бесплатный доступ
@@ -2885,10 +2957,28 @@ async function showResult() {
         showScreen('platform-screen');
     }
 
+    function closeProfileArchetypePanel() {
+        const panel = document.getElementById('profileArchetypePanel');
+        const btn = document.getElementById('archetypeToggleBtn');
+        if (panel) panel.classList.remove('is-open');
+        if (btn) btn.classList.remove('is-open');
+    }
+
+    function toggleProfileArchetypeSection(ev) {
+        if (ev) ev.stopPropagation();
+        const panel = document.getElementById('profileArchetypePanel');
+        const btn = document.getElementById('archetypeToggleBtn');
+        if (!panel || !btn) return;
+        const open = panel.classList.toggle('is-open');
+        btn.classList.toggle('is-open', open);
+    }
+
     function toggleProfileMenu() {
         const dropdown = document.getElementById('profileDropdown');
+        const willOpen = !dropdown.classList.contains('active');
         dropdown.classList.toggle('active');
-        if (dropdown.classList.contains('active')) {
+        if (willOpen) {
+            closeProfileArchetypePanel();
             updateProfileData();
         }
     }
@@ -2900,6 +2990,7 @@ async function showResult() {
         
         if (dropdown && profileIcon && !profileIcon.contains(event.target) && !dropdown.contains(event.target)) {
             dropdown.classList.remove('active');
+            closeProfileArchetypePanel();
         }
     });
 
@@ -2922,6 +3013,11 @@ async function showResult() {
                 premiumStatus.innerHTML = 'Статус: Бесплатный доступ';
                 premiumStatus.style.background = '#f8f9fa';
                 premiumStatus.style.border = 'none';
+            }
+
+            const archetypeRow = document.getElementById('archetypeToggleRow');
+            if (archetypeRow) {
+                archetypeRow.style.display = currentUser.personality_type ? 'block' : 'none';
             }
             
             if (currentUser.personality_type) {
