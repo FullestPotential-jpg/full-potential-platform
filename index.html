@@ -742,6 +742,75 @@
             font-weight: bold;
         }
         
+        .profile-name-block {
+            margin-bottom: 4px;
+        }
+        .profile-display-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #1a1a2e;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+        .profile-email-sub {
+            font-size: 0.78rem;
+            color: #888;
+            margin-top: 6px;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+        .profile-nick-edit-link {
+            background: none;
+            border: none;
+            color: #4A00E0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+        .profile-nick-edit-link:hover {
+            color: #6c3fd9;
+        }
+        .profile-nick-edit-wrap {
+            margin-top: 10px;
+            text-align: left;
+        }
+        .profile-nick-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+        .profile-nick-edit-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .profile-nick-save {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .profile-nick-cancel {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: #f5f5f5;
+            cursor: pointer;
+        }
+        
         .personality-badge {
             display: inline-block;
             padding: 8px 16px;
@@ -2143,7 +2212,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <!-- ЛОГИН -->
                     <div id="login-section">
                         <div id="login-message" class="auth-message" style="display: none;"></div>
-                        <input type="text" id="login-email" class="email-input" placeholder="ваш@email.com" required autocomplete="new-email">
+                        <input type="email" id="login-email" class="email-input" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
                         <input type="password" id="login-password" class="email-input" placeholder="пароль" required autocomplete="new-password">
                         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
                             <button onclick="login()" style="flex: 1;">Войти</button>
@@ -2158,7 +2227,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <!-- РЕГИСТРАЦИЯ -->
                     <div id="register-section" style="display: none;">
                         <div id="register-message" class="auth-message" style="display: none;"></div>
-                        <input type="text" id="reg-email" class="email-input" placeholder="ваш@email.com" required autocomplete="new-email">
+                        <input type="email" id="reg-email" class="email-input" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
                         <input type="password" id="reg-password" class="email-input" placeholder="придумайте пароль" required autocomplete="new-password">
                         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
                             <button onclick="register()" style="flex: 1;">Зарегистрироваться</button>
@@ -2358,7 +2427,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="profile-dropdown" id="profileDropdown">
                             <div class="user-info">
                                 <div class="user-avatar" id="userAvatar">U</div>
-                                <h3 id="userEmail">user@example.com</h3>
+                                <div class="profile-name-block">
+                                    <div class="profile-display-name" id="userDisplayName">ПОЛЬЗОВАТЕЛЬ</div>
+                                    <div class="profile-email-sub" id="userEmailSub">user@example.com</div>
+                                    <button type="button" class="profile-nick-edit-link" id="editNicknameBtn" onclick="toggleNicknameEdit(event)">Изменить ник</button>
+                                    <div id="nicknameEditWrap" class="profile-nick-edit-wrap" style="display: none;">
+                                        <input type="text" id="userNicknameInput" class="profile-nick-input" maxlength="32" placeholder="Ваш ник (до 32 символов)" autocomplete="off" />
+                                        <div class="profile-nick-edit-buttons">
+                                            <button type="button" class="profile-nick-save" onclick="saveNickname()">Сохранить</button>
+                                            <button type="button" class="profile-nick-cancel" onclick="cancelNicknameEdit()">Отмена</button>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div id="archetypeToggleRow" class="profile-archetype-toggle-row" style="display: none;">
                                     <button type="button" id="archetypeToggleBtn" class="profile-archetype-toggle" onclick="toggleProfileArchetypeSection(event)">
                                         <span>Мой архетип</span>
@@ -2551,6 +2631,103 @@ document.addEventListener('DOMContentLoaded', function() {
         element.style.display = 'block';
     }
 
+    function normalizeEmail(s) {
+        return String(s).trim().toLowerCase();
+    }
+
+    function isValidEmail(s) {
+        const t = normalizeEmail(s);
+        if (t.length < 5 || t.length > 254) return false;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
+    }
+
+    function generateDefaultNickname(email) {
+        const key = normalizeEmail(email);
+        const local = key.split('@')[0] || '';
+        let base = local.replace(/[^a-zA-Zа-яА-ЯёЁ0-9_-]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+        if (!base) base = 'user_' + Math.random().toString(36).slice(-5);
+        return base.slice(0, 32);
+    }
+
+    function sanitizeNickname(s) {
+        return String(s).trim().slice(0, 32);
+    }
+
+    function isValidNickname(s) {
+        const t = sanitizeNickname(s);
+        if (t.length < 1 || t.length > 32) return false;
+        return /^[a-zA-Zа-яА-ЯёЁ0-9\s.\-_]+$/u.test(t);
+    }
+
+    function findUserByEmail(email) {
+        const key = normalizeEmail(email);
+        const users = getStoredUsers();
+        if (users[key]) return { key: key, user: users[key] };
+        for (const k of Object.keys(users)) {
+            if (normalizeEmail(k) === key) return { key: k, user: users[k] };
+        }
+        return null;
+    }
+
+    function ensureNicknameInStore(storageKey) {
+        const users = getStoredUsers();
+        const u = users[storageKey];
+        if (!u) return generateDefaultNickname(storageKey);
+        if (u.nickname && String(u.nickname).trim()) return String(u.nickname).trim();
+        const nick = generateDefaultNickname(normalizeEmail(storageKey));
+        u.nickname = nick;
+        localStorage.setItem('platformUsers', JSON.stringify(users));
+        return nick;
+    }
+
+    function persistUserNickname() {
+        if (!currentUser || !currentUser.email) return;
+        const found = findUserByEmail(currentUser.email);
+        if (found) {
+            found.user.nickname = currentUser.nickname;
+            const users = getStoredUsers();
+            users[found.key] = found.user;
+            localStorage.setItem('platformUsers', JSON.stringify(users));
+        }
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        if (typeof savePlatformAuth === 'function') {
+            savePlatformAuth(currentUser);
+        }
+    }
+
+    function toggleNicknameEdit(ev) {
+        if (ev) ev.stopPropagation();
+        const wrap = document.getElementById('nicknameEditWrap');
+        const input = document.getElementById('userNicknameInput');
+        if (!wrap || !input) return;
+        const showing = wrap.style.display === 'block';
+        if (showing) {
+            wrap.style.display = 'none';
+        } else {
+            input.value = currentUser && currentUser.nickname ? currentUser.nickname : '';
+            wrap.style.display = 'block';
+            input.focus();
+        }
+    }
+
+    function cancelNicknameEdit() {
+        const wrap = document.getElementById('nicknameEditWrap');
+        if (wrap) wrap.style.display = 'none';
+    }
+
+    function saveNickname() {
+        if (!currentUser) return;
+        const nick = sanitizeNickname(document.getElementById('userNicknameInput').value);
+        if (!isValidNickname(nick)) {
+            alert('Ник: от 1 до 32 символов. Допустимы буквы, цифры, пробел, точка, дефис и подчёркивание.');
+            return;
+        }
+        currentUser.nickname = nick;
+        persistUserNickname();
+        cancelNicknameEdit();
+        updateProfileData();
+    }
+
     function getStoredUsers() {
     const users = JSON.parse(localStorage.getItem('platformUsers')) || {};
     
@@ -2569,35 +2746,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function saveUser(email, password, personality_type = null) {
     const users = getStoredUsers();
-    users[email] = {
+    const key = normalizeEmail(email);
+    users[key] = {
         password: password,
         personality_type: personality_type,
         personality_description_html: null,
         archetype_key: null,
+        nickname: generateDefaultNickname(key),
         created: new Date().toISOString()
     };
     localStorage.setItem('platformUsers', JSON.stringify(users));
 }
 
 function updateUserPersonalityInStore(email, personality_type, personality_description_html, archetype_key) {
+    const found = findUserByEmail(email);
+    if (!found) return;
+    found.user.personality_type = personality_type;
+    found.user.personality_description_html = personality_description_html;
+    found.user.archetype_key = archetype_key;
     const users = getStoredUsers();
-    if (!users[email]) return;
-    users[email].personality_type = personality_type;
-    users[email].personality_description_html = personality_description_html;
-    users[email].archetype_key = archetype_key;
+    users[found.key] = found.user;
     localStorage.setItem('platformUsers', JSON.stringify(users));
 }
     async function register() {
-    const email = document.getElementById('reg-email').value;
+    const emailRaw = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
 
-    if (!email || !password) {
+    if (!emailRaw || !password) {
         showAuthMessage('register-message', 'Заполните все поля', 'error');
         return;
     }
 
-    const users = getStoredUsers();
-    if (users[email]) {
+    if (!isValidEmail(emailRaw)) {
+        showAuthMessage('register-message', 'Введите корректный адрес email', 'error');
+        return;
+    }
+
+    const email = normalizeEmail(emailRaw);
+
+    if (findUserByEmail(email)) {
         showAuthMessage('register-message', 'Аккаунт с таким email уже существует', 'error');
         return;
     }
@@ -2605,9 +2792,12 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
     // Сохраняем нового пользователя
     saveUser(email, password);
     
+    const nick = generateDefaultNickname(email);
+
     // Входим в аккаунт
     currentUser = { 
         email: email, 
+        nickname: nick,
         personality_type: null,
         id: Date.now(),
         created: new Date().toISOString()
@@ -2625,36 +2815,45 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
     setTimeout(() => {
         showScreen('intro-screen');
         showBottomNavigation();
-        addUserToCommunityChat(email.split('@')[0]);
+        addUserToCommunityChat(currentUser.nickname || email.split('@')[0]);
     }, 1000);
 }
 
 // ОБНОВИ ФУНКЦИЮ login()
 async function login() {
-    const email = document.getElementById('login-email').value;
+    const emailRaw = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    if (!email || !password) {
+    if (!emailRaw || !password) {
         showAuthMessage('login-message', 'Заполните все поля', 'error');
         return;
     }
 
-    const users = getStoredUsers();
-    const user = users[email];
+    if (!isValidEmail(emailRaw)) {
+        showAuthMessage('login-message', 'Введите корректный адрес email', 'error');
+        return;
+    }
+
+    const email = normalizeEmail(emailRaw);
+    const found = findUserByEmail(emailRaw);
     
-    if (!user) {
+    if (!found) {
         showAuthMessage('login-message', 'Аккаунт не найден', 'error');
         return;
     }
     
+    const user = found.user;
     if (user.password !== password) {
         showAuthMessage('login-message', 'Неверный пароль', 'error');
         return;
     }
 
+    const nick = ensureNicknameInStore(found.key);
+
     // Успешный вход - создаем объект пользователя
     currentUser = { 
-        email: email, 
+        email: normalizeEmail(emailRaw),
+        nickname: nick,
         personality_type: user.personality_type,
         personality_description_html: user.personality_description_html || null,
         archetype_key: user.archetype_key || null,
@@ -2676,7 +2875,7 @@ async function login() {
             showScreen('platform-screen');
             updateProfileData();
             showBottomNavigation();
-            addUserToCommunityChat(email.split('@')[0]);
+            addUserToCommunityChat(currentUser.nickname || email.split('@')[0]);
         } else {
             showScreen('intro-screen');
         }
@@ -2866,6 +3065,14 @@ function restoreSessionFromStorage() {
     if (!user || !user.email) return;
     currentUser = user;
 
+    const found = findUserByEmail(user.email);
+    if (found) {
+        if (!currentUser.nickname || !String(currentUser.nickname).trim()) {
+            currentUser.nickname = ensureNicknameInStore(found.key);
+        }
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    }
+
     if (user.personality_type) {
         showScreen('platform-screen');
         updateProfileData();
@@ -2979,6 +3186,7 @@ async function showResult() {
         dropdown.classList.toggle('active');
         if (willOpen) {
             closeProfileArchetypePanel();
+            cancelNicknameEdit();
             updateProfileData();
         }
     }
@@ -2997,8 +3205,22 @@ async function showResult() {
     // Обновляем данные профиля при переходе на платформу
     async function updateProfileData() {
         if (currentUser) {
-            document.getElementById('userEmail').textContent = currentUser.email;
-            document.getElementById('userAvatar').textContent = currentUser.email.charAt(0).toUpperCase();
+            let displayNick = (currentUser.nickname && String(currentUser.nickname).trim())
+                ? String(currentUser.nickname).trim()
+                : generateDefaultNickname(currentUser.email);
+            if (!currentUser.nickname || !String(currentUser.nickname).trim()) {
+                currentUser.nickname = displayNick;
+                persistUserNickname();
+            }
+            const nameEl = document.getElementById('userDisplayName');
+            const emailEl = document.getElementById('userEmailSub');
+            if (nameEl) nameEl.textContent = displayNick;
+            if (emailEl) emailEl.textContent = currentUser.email;
+            const av = document.getElementById('userAvatar');
+            if (av) {
+                const letter = displayNick.charAt(0);
+                av.textContent = letter ? letter.toUpperCase() : '?';
+            }
             
             // Проверяем актуальный premium статус для ЭТОГО пользователя
             const hasPremium = await checkPremiumAccess();
