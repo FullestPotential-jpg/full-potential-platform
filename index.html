@@ -8,11 +8,20 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://fullestpotential-jpg.github.io/full-potential-platform/icon-192.png">
-    <title>Full Potential — платформа</title>
+    <title>Full Potentiall — платформа</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
     <style>
+    :root {
+        --fp-night-text: #141c42;
+        --fp-night-text-hover: #1f2a5e;
+        --fp-night-border: rgba(20, 28, 66, 0.38);
+        --fp-gradient-btn: linear-gradient(135deg, #0f1740 0%, #1a2858 55%, #1e3268 100%);
+        --fp-gradient-banner: linear-gradient(135deg, #0c1438 0%, #1a2858 100%);
+        --fp-gradient-chat: linear-gradient(135deg, #0c1438 0%, #162454 100%);
+        --fp-msg-out: #1a3268;
+    }
        /* Стили для нижней навигации  */
 .bottom-navigation {
     position: fixed;
@@ -54,7 +63,7 @@
 
 .nav-btn:hover {
     background: #f8f9fa;
-    color: #667eea;
+    color: #1a2d5c;
     transform: translateY(-1px); /* Уменьшили анимацию */
 }
 
@@ -105,7 +114,7 @@
 }
 
 .chat-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0c1438 0%, #1a2858 100%);
     color: white;
     padding: 15px 20px;
     display: flex;
@@ -164,7 +173,7 @@
 }
 
 .message.outgoing {
-    background: #667eea;
+    background: #1a3268;
     color: white;
     border-bottom-right-radius: 6px;
     margin-left: auto;
@@ -266,12 +275,12 @@
 }
 
 .chat-input:focus {
-    border-color: #667eea;
+    border-color: #24366d;
     background: white;
 }
 
 .send-btn {
-    background: #667eea;
+    background: #1a3268;
     color: white;
     border: none;
     border-radius: 50%;
@@ -286,7 +295,7 @@
 }
 
 .send-btn:hover {
-    background: #764ba2;
+    background: #162454;
 }
 
 @keyframes fadeIn {
@@ -520,10 +529,10 @@
         }
         
         .option:hover {
-            border-color: #8E2DE2;
-            background-color: #f8f6ff;
+            border-color: #2a3f78;
+            background-color: #f4f6fb;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(142, 45, 226, 0.1);
+            box-shadow: 0 5px 15px rgba(15, 23, 64, 0.12);
         }
         
         .option:active {
@@ -532,9 +541,9 @@
         }
         
         .option.selected {
-            border-color: #4A00E0;
-            background-color: #f0ebff;
-            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.15);
+            border-color: #1a2858;
+            background-color: #eef1f8;
+            box-shadow: 0 5px 15px rgba(15, 23, 64, 0.14);
         }
         
         .navigation {
@@ -570,18 +579,18 @@
         
         .prev-btn:hover:not(:disabled) {
             background-color: #e9ecef;
-            border-color: #8E2DE2;
+            border-color: #2a3f78;
         }
         
         .next-btn, #restart-btn, #submit-btn, #start-btn {
-            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
+            background: var(--fp-gradient-btn);
             color: white;
-            box-shadow: 0 4px 15px rgba(74, 0, 224, 0.3);
+            box-shadow: 0 4px 15px rgba(15, 23, 64, 0.35);
         }
         
         .next-btn:hover, #restart-btn:hover, #submit-btn:hover, #start-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(74, 0, 224, 0.4);
+            box-shadow: 0 8px 25px rgba(15, 23, 64, 0.4);
         }
         
         button:disabled {
@@ -594,7 +603,7 @@
         .result-title {
             font-size: 1.8rem;
             margin-bottom: 20px;
-            color: #4A00E0;
+            color: var(--fp-night-text);
             text-align: center;
         }
         
@@ -679,8 +688,8 @@
         }
         
         .email-input:focus {
-            border-color: #4A00E0;
-            box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.1);
+            border-color: #1a2858;
+            box-shadow: 0 0 0 3px rgba(15, 23, 64, 0.12);
             transform: translateY(-2px);
         }
         
@@ -718,7 +727,7 @@
         .platform-logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #4A00E0;
+            color: var(--fp-night-text);
         }
         
         .profile-menu {
@@ -731,19 +740,37 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(130, 150, 210, 0.28);
+            background-color: #0a0e28;
+            background-image:
+                radial-gradient(1px 1px at 18% 28%, rgba(255,255,255,0.92), transparent),
+                radial-gradient(1px 1px at 62% 22%, rgba(255,255,255,0.78), transparent),
+                radial-gradient(1.5px 1.5px at 82% 58%, rgba(255,255,255,0.88), transparent),
+                radial-gradient(1px 1px at 35% 72%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1px 1px at 8% 85%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 92% 38%, rgba(255,255,255,0.68), transparent),
+                radial-gradient(1px 1px at 48% 48%, rgba(200,210,255,0.35), transparent),
+                linear-gradient(165deg, #060818 0%, #0f1438 48%, #141e48 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
         }
         
         .profile-icon:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.4);
+            transform: scale(1.08);
+            box-shadow: 0 6px 18px rgba(6, 10, 35, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .profile-icon .profile-icon-person {
+            position: relative;
+            z-index: 1;
+            display: block;
+            flex-shrink: 0;
         }
         
         .profile-dropdown {
@@ -780,10 +807,10 @@
         .profile-archetype-toggle {
             width: 100%;
             padding: 10px 14px;
-            border: 1px solid rgba(74, 0, 224, 0.28);
+            border: 1px solid var(--fp-night-border);
             border-radius: 12px;
-            background: linear-gradient(135deg, rgba(74, 0, 224, 0.07), rgba(142, 45, 226, 0.09));
-            color: #4A00E0;
+            background: linear-gradient(135deg, rgba(15, 23, 64, 0.09), rgba(26, 40, 88, 0.1));
+            color: var(--fp-night-text);
             font-weight: 600;
             font-size: 0.92rem;
             cursor: pointer;
@@ -812,18 +839,31 @@
             display: block;
         }
         
-        .user-avatar {
+        #profileDropdown .user-avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
             margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #ffffff;
             font-size: 2rem;
             font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(130, 150, 210, 0.28);
+            background-color: #0a0e28;
+            background-image:
+                radial-gradient(1px 1px at 22% 30%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 58% 24%, rgba(255,255,255,0.75), transparent),
+                radial-gradient(1.5px 1.5px at 78% 62%, rgba(255,255,255,0.85), transparent),
+                radial-gradient(1px 1px at 38% 78%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1px 1px at 12% 55%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 88% 42%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1px 1px at 52% 52%, rgba(200,210,255,0.3), transparent),
+                linear-gradient(165deg, #060818 0%, #0f1438 48%, #141e48 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
         }
         
         .profile-name-block {
@@ -848,7 +888,7 @@
         .profile-nick-edit-link {
             background: none;
             border: none;
-            color: #4A00E0;
+            color: var(--fp-night-text);
             font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
@@ -856,7 +896,7 @@
             padding: 0;
         }
         .profile-nick-edit-link:hover {
-            color: #6c3fd9;
+            color: var(--fp-night-text-hover);
         }
         .profile-nick-edit-wrap {
             margin-top: 10px;
@@ -882,7 +922,7 @@
             padding: 8px 12px;
             border: none;
             border-radius: 10px;
-            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
+            background: var(--fp-gradient-btn);
             color: #fff;
             font-weight: 600;
             cursor: pointer;
@@ -901,8 +941,8 @@
             border-radius: 20px;
             font-weight: 600;
             margin: 10px 0;
-            background: linear-gradient(135deg, rgba(74, 0, 224, 0.12), rgba(142, 45, 226, 0.12));
-            color: #4A00E0;
+            background: linear-gradient(135deg, rgba(15, 23, 64, 0.12), rgba(26, 40, 88, 0.14));
+            color: var(--fp-night-text);
         }
         
         .profile-dropdown .personality-description {
@@ -918,7 +958,7 @@
         .profile-dropdown .personality-description h4 {
             margin: 0 0 8px;
             font-size: 0.95rem;
-            color: #4A00E0;
+            color: var(--fp-night-text);
         }
         .profile-dropdown .personality-description p {
             margin: 0 0 8px;
@@ -981,7 +1021,7 @@
         .welcome-title {
             font-size: 2.5rem;
             margin-bottom: 20px;
-            color: #4A00E0;
+            color: var(--fp-night-text);
         }
         
         .welcome-subtitle {
@@ -1016,7 +1056,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
+            background: var(--fp-gradient-btn);
             transform: scaleX(0);
             transition: transform 0.4s ease;
         }
@@ -1078,7 +1118,7 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #0c1438, #1a2858);
             color: white;
             padding: 4px 12px;
             border-radius: 12px;
@@ -1353,9 +1393,9 @@
         }
 
         .module-nav-btn.active {
-            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
+            background: linear-gradient(135deg, #0f1740, #1a2858);
             color: white;
-            border-color: #4A00E0;
+            border-color: #141c42;
         }
 
         .module-nav-btn:hover {
@@ -1448,7 +1488,7 @@
 }
 
 .search-input:focus {
-    border-color: #667eea;
+    border-color: #24366d;
 }
 
 /* Список чатов */
@@ -1479,14 +1519,21 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    color: white;
+    color: #ffffff;
     margin-right: 12px;
     flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid rgba(130, 150, 210, 0.22);
+    background-color: #0a0e28;
+    background-image:
+        radial-gradient(1px 1px at 20% 28%, rgba(255,255,255,0.88), transparent),
+        radial-gradient(1px 1px at 65% 52%, rgba(255,255,255,0.72), transparent),
+        radial-gradient(1px 1px at 42% 78%, rgba(255,255,255,0.5), transparent),
+        linear-gradient(165deg, #060818 0%, #0f1438 50%, #141e48 100%);
 }
 
 .chat-info {
@@ -1533,13 +1580,19 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    color: white;
+    color: #ffffff;
     margin-right: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(130, 150, 210, 0.22);
+    background-color: #0a0e28;
+    background-image:
+        radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.85), transparent),
+        radial-gradient(1px 1px at 70% 55%, rgba(255,255,255,0.65), transparent),
+        linear-gradient(165deg, #060818 0%, #0f1438 50%, #141e48 100%);
 }
 
 .chat-with-name {
@@ -1632,16 +1685,23 @@
     background: #f5f5f5;
 }
 
-.user-avatar {
+.user-item .user-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #ffffff;
     margin-right: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(130, 150, 210, 0.22);
+    background-color: #0a0e28;
+    background-image:
+        radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.85), transparent),
+        radial-gradient(1px 1px at 70% 55%, rgba(255,255,255,0.65), transparent),
+        radial-gradient(1px 1px at 45% 78%, rgba(255,255,255,0.5), transparent),
+        linear-gradient(165deg, #060818 0%, #0f1438 50%, #141e48 100%);
 }
 
 .user-info {
@@ -1801,15 +1861,22 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #ffffff;
     font-size: 20px;
     font-weight: 600;
     margin-right: 16px;
     flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid rgba(130, 150, 210, 0.22);
+    background-color: #0a0e28;
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.88), transparent),
+        radial-gradient(1px 1px at 65% 50%, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.55), transparent),
+        linear-gradient(165deg, #060818 0%, #0f1438 50%, #141e48 100%);
 }
 
 .user-info {
@@ -1908,13 +1975,19 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    color: white;
+    color: #ffffff;
     margin-right: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(130, 150, 210, 0.28);
+    background-color: #0a0e28;
+    background-image:
+        radial-gradient(1px 1px at 22% 30%, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 70% 58%, rgba(255,255,255,0.7), transparent),
+        linear-gradient(165deg, #060818 0%, #0f1438 50%, #141e48 100%);
 }
 
 .header-name {
@@ -1977,17 +2050,24 @@
     align-items: center;
     justify-content: center;
     font-size: 28px;
-    color: white;
+    color: #ffffff;
     margin-right: 16px;
     flex-shrink: 0;
-}
-
-.chat-avatar.community {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    overflow: hidden;
+    border: 1px solid rgba(130, 150, 210, 0.22);
+    background-color: #0a0e28;
+    background-image:
+        radial-gradient(1px 1px at 18% 26%, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 70% 48%, rgba(255,255,255,0.75), transparent),
+        radial-gradient(1.5px 1.5px at 52% 72%, rgba(255,255,255,0.65), transparent),
+        radial-gradient(1px 1px at 88% 30%, rgba(255,255,255,0.55), transparent),
+        linear-gradient(165deg, #060818 0%, #0f1438 50%, #141e48 100%);
 }
 
 .chat-avatar.private {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
+    border-color: rgba(76, 175, 80, 0.45);
+    background-color: #1b5e20;
+    background-image: linear-gradient(135deg, #4CAF50, #45a049);
 }
 
 .chat-info {
@@ -2078,7 +2158,7 @@
 }
 
 .search-input:focus {
-    border-color: #667eea;
+    border-color: #24366d;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -2129,15 +2209,22 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #ffffff;
     font-weight: 600;
     font-size: 18px;
     margin-right: 12px;
     flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid rgba(130, 150, 210, 0.22);
+    background-color: #0a0e28;
+    background-image:
+        radial-gradient(1px 1px at 22% 32%, rgba(255,255,255,0.88), transparent),
+        radial-gradient(1px 1px at 68% 48%, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 45% 78%, rgba(255,255,255,0.52), transparent),
+        linear-gradient(165deg, #060818 0%, #0f1438 50%, #141e48 100%);
 }
 
 /* Сообщения в чате */
@@ -2160,7 +2247,7 @@
 }
 
 .message.outgoing {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #0c1438, #1a2858);
     color: white;
     border-bottom-right-radius: 6px;
     align-self: flex-end;
@@ -2268,7 +2355,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="stars-layer" aria-hidden="true"></div>
             <div class="stars-layer-2" aria-hidden="true"></div>
             <div class="hero-aurora" aria-hidden="true"></div>
-            <h1 class="hero-title">Full <span class="hero-word-accent">Potential</span></h1>
+            <h1 class="hero-title">Full <span class="hero-word-accent">Potentiall</span></h1>
         </header>
         
         <div class="progress-container">
@@ -2477,7 +2564,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="result-type" class="result-type"></div>
     <div id="result-description" class="result-description"></div>
     
-    <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px;">
+    <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #0c1438 0%, #1a2858 100%); color: white; border-radius: 16px;">
         <h3 style="margin: 0; font-size: 1.3rem;">🎯 Добро пожаловать на платформу!</h3>
         <p style="margin: 10px 0 0 0; opacity: 0.9;">Теперь у вас есть доступ к материалам для вашего архетипа.</p>
     </div>
@@ -2493,8 +2580,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="platform-header">
                     <div class="platform-logo">Платформа Полный Потенциал</div>
                     <div class="profile-menu">
-                        <div class="profile-icon" onclick="toggleProfileMenu()">
-                            👤
+                        <div class="profile-icon" onclick="toggleProfileMenu()" title="Профиль">
+                            <svg class="profile-icon-person" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="8" r="3.5" fill="none" stroke="#ffffff" stroke-width="1.65"/>
+                                <path fill="none" stroke="#ffffff" stroke-width="1.65" stroke-linecap="round" d="M5 20c0-3.5 3.5-5.5 7-5.5s7 2 7 5.5"/>
+                            </svg>
                         </div>
                         <div class="profile-dropdown" id="profileDropdown">
                             <div class="user-info">
@@ -3471,7 +3561,7 @@ async function showResult() {
         <div style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 24px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); border: 1px solid #e8e8e8;">
             <div style="text-align: center; margin-bottom: 35px;">
                 <div style="font-size: 3rem; margin-bottom: 15px;">🎨</div>
-                <h2 style="color: #4A00E0; margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, #4A00E0, #8E2DE2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ТВОРЧЕСКИЙ ТИП</h2>
+                <h2 style="color: #141c42; margin: 0; font-size: 2.2rem; background: linear-gradient(135deg, #0f1740, #1a2858); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ТВОРЧЕСКИЙ ТИП</h2>
                 <p style="color: #666; margin: 10px 0 0 0; font-size: 1.1rem;">Генератор идей • Инноватор • Визионер</p>
             </div>
 
@@ -3660,7 +3750,7 @@ async function showResult() {
             </div>
 
             <!-- Финальное сообщение -->
-            <div style="background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%); color: white; padding: 30px; border-radius: 20px; text-align: center; position: relative; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #0f1740 0%, #1a2858 100%); color: white; padding: 30px; border-radius: 20px; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
                 <div style="position: absolute; bottom: -30px; left: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
                 
@@ -4399,20 +4489,20 @@ async function savePremiumAccess() {
                             z-index: 10;
                         ">x</button>
                     
-                    <div style="background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%); color: white; padding: 40px 30px 30px; text-align: center; border-radius: 24px 24px 0 0;">
+                    <div style="background: linear-gradient(135deg, #0f1740 0%, #1a2858 100%); color: white; padding: 40px 30px 30px; text-align: center; border-radius: 24px 24px 0 0;">
                         <h2 style="font-size: 2.2rem; margin-bottom: 15px; font-weight: 700;">Используй свой тип личности на максимум!</h2>
                         <p style="font-size: 1.1rem; opacity: 0.9;">Система реализации вашего потенциала в карьере, отношениях и саморазвитии</p>
                     </div>
 
                     <div style="padding: 30px;">
                         <div style="text-align: center; margin-bottom: 30px;">
-                            <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: #4A00E0;">От самопознания — к действию</h3>
+                            <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: #141c42;">От самопознания — к действию</h3>
                             <p style="font-size: 1.1rem; color: #666; line-height: 1.5;">
                                 Узнайте, как применять сильные стороны вашего типа личности для достижения успеха в ключевых сферах жизни
                             </p>
                         </div>
 
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 16px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.15);">
+                        <div style="background: linear-gradient(135deg, #0c1438 0%, #1a2858 100%); color: white; padding: 25px; border-radius: 16px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.15);">
                             <h4 style="font-size: 1.4rem; margin-bottom: 12px;">Вы уже узнали базовую информацию. Что дальше?</h4>
                             <p style="font-size: 1rem; opacity: 0.9; line-height: 1.5;">
                                 Пора узнать самую ценную информацию и превратить это знание в конкретные результаты в карьере, отношениях и личном развитии
@@ -4420,7 +4510,7 @@ async function savePremiumAccess() {
                         </div>
 
                         <div style="margin: 40px 0;">
-                            <h3 style="text-align: center; color: #4A00E0; margin-bottom: 30px; font-size: 1.6rem;">Что вы получите в системе:</h3>
+                            <h3 style="text-align: center; color: #141c42; margin-bottom: 30px; font-size: 1.6rem;">Что вы получите в системе:</h3>
                             
                             ${createModule('1', 'Зона вашего максимального роста', 'Раскройте свой карьерный и бизнес-потенциал', [
                                 ['🎯 Сильные стороны и их применение', 'Как использовать ваши уникальные способности в своем бизнесе или работе на компанию для максимального дохода', '#FF4081'],
@@ -4461,15 +4551,15 @@ async function savePremiumAccess() {
         return `
             <div style="background: #f8f9fa; border-radius: 16px; padding: 25px; margin-bottom: 20px; border: 1px solid #e8e8e8;">
                 <div style="display: flex; align-items: start; gap: 15px; margin-bottom: 15px;">
-                    <div style="background: linear-gradient(135deg, #4A00E0, #8E2DE2); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; flex-shrink: 0;">${number}</div>
+                    <div style="background: linear-gradient(135deg, #0f1740, #1a2858); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; flex-shrink: 0;">${number}</div>
                     <div style="flex: 1;">
-                        <h4 style="color: #4A00E0; margin-bottom: 5px; font-size: 1.3rem; font-weight: 600;">Модуль ${number}: ${title}</h4>
+                        <h4 style="color: #141c42; margin-bottom: 5px; font-size: 1.3rem; font-weight: 600;">Модуль ${number}: ${title}</h4>
                         <p style="color: #666; font-size: 1rem;">${subtitle}</p>
                     </div>
                 </div>
                 <!-- БЕЗ ФИОЛЕТОВОЙ ПОЛОСКИ -->
             <div style="margin: 20px 0 15px 0; padding: 12px 20px; background: white; border-radius: 12px; text-align: center;">
-                <p style="margin: 0; font-weight: 600; color: #4A00E0; font-size: 1.1rem;">
+                <p style="margin: 0; font-weight: 600; color: #141c42; font-size: 1.1rem;">
                     📚 ${items.length} подмодуля:
                 </p>
             </div>
@@ -4518,7 +4608,7 @@ async function savePremiumAccess() {
         return `
         <!-- СТРАНИЦА ПРОДУКТА ПОСЛЕ ОПЛАТЫ -->
         <div id="product-page">
-            <div style="min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px;">
+            <div style="min-height: 100vh; background: linear-gradient(135deg, #0c1438 0%, #1a2858 100%); padding: 20px;">
                 <div style="max-width: 1200px; margin: 0 auto;">
                     <header style="text-align: center; padding: 40px 20px;">
                         <h1 style="color: white; font-size: 2.5rem; margin: 20px 0; text-shadow: 2px 2px 8px rgba(0,0,0,0.3);">
@@ -4564,7 +4654,7 @@ async function savePremiumAccess() {
         if (moduleNumber === 1) {
             return `
                 <div id="module-1" class="module-section active">
-                    <h2 style="color: #4A00E0; font-size: 2.2rem; margin-bottom: 30px; text-align: center;">
+                    <h2 style="color: #141c42; font-size: 2.2rem; margin-bottom: 30px; text-align: center;">
                         Модуль 1: Зона вашего максимального роста
                     </h2>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 40px;">
@@ -4578,7 +4668,7 @@ async function savePremiumAccess() {
         } else if (moduleNumber === 2) {
             return `
                 <div id="module-2" class="module-section active">
-                    <h2 style="color: #4A00E0; font-size: 2.2rem; margin-bottom: 30px; text-align: center;">
+                    <h2 style="color: #141c42; font-size: 2.2rem; margin-bottom: 30px; text-align: center;">
                         Модуль 2: Наиболее эффективное обучение с вашим типом
                     </h2>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 40px;">
@@ -4591,7 +4681,7 @@ async function savePremiumAccess() {
         } else if (moduleNumber === 3) {
             return `
                 <div id="module-3" class="module-section active">
-                    <h2 style="color: #4A00E0; font-size: 2.2rem; margin-bottom: 30px; text-align: center;">
+                    <h2 style="color: #141c42; font-size: 2.2rem; margin-bottom: 30px; text-align: center;">
                         Модуль 3: Синергия типов личностей
                     </h2>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 40px;">
@@ -4612,7 +4702,7 @@ async function savePremiumAccess() {
         return `
             <div class="submodule-card" style="background: #f8f9fa; border-radius: 16px; padding: 25px; border: 1px solid #e8e8e8; min-height: 300px;">
                 <div class="submodule-header" style="margin-bottom: 15px;">
-                    <h3 style="color: #4A00E0; margin: 0 0 15px 0; font-size: 1.3rem;">${title}</h3>
+                    <h3 style="color: #141c42; margin: 0 0 15px 0; font-size: 1.3rem;">${title}</h3>
                 </div>
                 <div class="submodule-content" style="color: #333; line-height: 1.6;">
                     ${content}
@@ -6076,7 +6166,7 @@ async function savePremiumAccess() {
                         ">×</button>
                     
                     <div style="margin-bottom: 25px;">
-                        <h2 style="color: #4A00E0; margin-bottom: 15px;">Получить доступ к premium-контенту</h2>
+                        <h2 style="color: #141c42; margin-bottom: 15px;">Получить доступ к premium-контенту</h2>
                         <p style="color: #666;">Введите код доступа, полученный после оплаты</p>
                     </div>
 
@@ -6112,7 +6202,7 @@ async function savePremiumAccess() {
                         <p style="color: #666; margin-bottom: 15px;">Еще не получили код?</p>
                         <button onclick="window.open('https://t.me/Dimasurkov1', '_blank')" 
                             style="
-                                background: linear-gradient(135deg, #4A00E0, #8E2DE2);
+                                background: linear-gradient(135deg, #0f1740, #1a2858);
                                 color: white;
                                 border: none;
                                 padding: 15px 25px;
