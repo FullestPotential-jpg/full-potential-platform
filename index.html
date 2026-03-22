@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html lang="ru
+<html lang="ru">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4A00E0">
+    <meta name="theme-color" content="#0c1028">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://fullestpotential-jpg.github.io/full-potential-platform/icon-192.png">
-    <title>Гений Внутри Вас - Определитель типа личности</title>
+    <title>Full Potential — платформа</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
     <style>
        /* Стили для нижней навигации  */
 .bottom-navigation {
@@ -323,7 +327,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #070a14;
             color: #333;
             line-height: 1.6;
             min-height: 100vh;
@@ -341,63 +345,136 @@
             border-radius: 0;
         }
         
-        header {
-            background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
-            color: white;
-            padding: 30px 20px 25px;
-            text-align: center;
+        body > .container > header.hero-header {
             position: relative;
+            overflow: hidden;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px 44px;
+            text-align: center;
             flex-shrink: 0;
+            background: linear-gradient(165deg, #060818 0%, #0f1438 38%, #121a4a 72%, #0a0e28 100%);
+            border-bottom: 1px solid rgba(120, 140, 255, 0.12);
         }
-        
-        .brand {
-            margin-bottom: 20px;
+
+        .hero-header .stars-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1.5px 1.5px at 8% 12%, rgba(255,255,255,0.95), transparent),
+                radial-gradient(1px 1px at 22% 28%, rgba(255,255,255,0.85), transparent),
+                radial-gradient(1px 1px at 41% 18%, rgba(255,255,255,0.75), transparent),
+                radial-gradient(2px 2px at 55% 35%, rgba(230,240,255,0.9), transparent),
+                radial-gradient(1px 1px at 72% 14%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 88% 32%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 15% 48%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1px 1px at 33% 58%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1.5px 1.5px at 48% 72%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 63% 62%, rgba(200,210,255,0.5), transparent),
+                radial-gradient(1px 1px at 78% 78%, rgba(255,255,255,0.75), transparent),
+                radial-gradient(2px 2px at 91% 58%, rgba(255,255,255,0.85), transparent),
+                radial-gradient(1px 1px at 5% 85%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 28% 92%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1.5px 1.5px at 50% 88%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1px 1px at 95% 88%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 12% 38%, rgba(255,255,255,0.45), transparent),
+                radial-gradient(1px 1px at 38% 42%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 66% 48%, rgba(255,255,255,0.35), transparent),
+                radial-gradient(1.5px 1.5px at 84% 18%, rgba(255,255,255,0.55), transparent);
+            animation: hero-twinkle 7s ease-in-out infinite alternate;
         }
-        
-        .brand-name {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-            letter-spacing: 0.5px;
-            background: linear-gradient(45deg, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+
+        .hero-header .stars-layer-2 {
+            position: absolute;
+            inset: 0;
+            opacity: 0.55;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1px 1px at 18% 55%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 44% 8%, rgba(255,255,255,0.45), transparent),
+                radial-gradient(1px 1px at 58% 92%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 76% 44%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 92% 12%, rgba(255,255,255,0.45), transparent),
+                radial-gradient(1px 1px at 7% 68%, rgba(255,255,255,0.35), transparent),
+                radial-gradient(1px 1px at 31% 22%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 52% 52%, rgba(255,255,255,0.35), transparent);
+            animation: hero-twinkle 11s ease-in-out infinite alternate-reverse;
         }
-        
-        .brand-tagline {
-            font-size: 1.1rem;
-            font-weight: 300;
-            opacity: 0.9;
-            letter-spacing: 1px;
+
+        @keyframes hero-twinkle {
+            0%, 100% { opacity: 0.85; filter: brightness(1); }
+            50% { opacity: 1; filter: brightness(1.12); }
         }
-        
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
+
+        .hero-header .hero-aurora {
+            position: absolute;
+            bottom: -35%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160%;
+            height: 55%;
+            min-height: 100px;
+            background: radial-gradient(ellipse 50% 45% at 50% 50%,
+                rgba(100, 80, 200, 0.22) 0%,
+                rgba(40, 60, 140, 0.12) 40%,
+                transparent 72%);
+            filter: blur(28px);
+            pointer-events: none;
+            animation: hero-aurora-pulse 12s ease-in-out infinite;
+        }
+
+        @keyframes hero-aurora-pulse {
+            0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
+        }
+
+        .hero-header .hero-title {
+            position: relative;
+            z-index: 2;
+            margin: 0;
+            padding: 0 8px;
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-size: clamp(2.35rem, 7vw, 3.35rem);
             font-weight: 600;
+            font-style: normal;
+            letter-spacing: 0.14em;
+            line-height: 1.15;
+            color: #f4f6ff;
+            text-shadow:
+                0 0 28px rgba(130, 160, 255, 0.45),
+                0 0 56px rgba(90, 70, 180, 0.35),
+                0 2px 24px rgba(0, 0, 0, 0.45);
         }
-        
-        .subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
+
+        .hero-header .hero-title .hero-word-accent {
+            font-weight: 500;
+            font-style: italic;
+            background: linear-gradient(120deg, #ffffff 0%, #c8d4ff 45%, #a8b8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            filter: drop-shadow(0 0 20px rgba(160, 180, 255, 0.45));
         }
         
         .progress-container {
-            background-color: rgba(255,255,255,0.2);
-            height: 6px;
+            background-color: rgba(12, 18, 45, 0.85);
+            height: 5px;
             width: 100%;
-            border-radius: 3px;
             overflow: hidden;
+            border-bottom: 1px solid rgba(100, 120, 200, 0.15);
         }
         
         .progress-bar {
             height: 100%;
-            background: linear-gradient(to right, #fff, rgba(255,255,255,0.8));
+            background: linear-gradient(90deg, #6b8cff 0%, #a78bfa 50%, #c4b5fd 100%);
             width: 0%;
             transition: width 0.5s ease;
-            border-radius: 3px;
+            border-radius: 0 2px 2px 0;
+            box-shadow: 0 0 12px rgba(140, 160, 255, 0.5);
         }
         
         .content {
@@ -577,7 +654,14 @@
         
         .email-section {
             text-align: center;
-            padding: 30px 20px;
+            padding: 32px 20px 36px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        #auth-screen .question {
+            color: #2c3e50;
+            margin-bottom: 22px;
         }
         
         .email-input {
@@ -1027,20 +1111,14 @@
         margin: 0;
     }
     
-    header {
-        padding: 20px 15px;
+    body > .container > header.hero-header {
+        min-height: 180px;
+        padding: 36px 18px 32px;
     }
     
-    .brand-name {
-        font-size: 1.8rem;
-    }
-    
-    .brand-tagline {
-        font-size: 1rem;
-    }
-    
-    h1 {
-        font-size: 1.5rem;
+    body > .container > header.hero-header .hero-title {
+        font-size: clamp(1.95rem, 8vw, 2.75rem);
+        letter-spacing: 0.1em;
     }
     
     .content {
@@ -1117,12 +1195,8 @@
 }
 
 @media (max-width: 480px) {
-    .brand-name {
-        font-size: 1.6rem;
-    }
-    
-    h1 {
-        font-size: 1.3rem;
+    body > .container > header.hero-header .hero-title {
+        letter-spacing: 0.08em;
     }
     
     .question {
@@ -2190,13 +2264,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </head>
 <body>
     <div class="container" id="main-container">
-        <header>
-            <div>
-            <div class="brand-name">Полный Потенциал</div>
-                <div class="brand-tagline">Full-Potential</div>
-                </div>
-            <h1>Гений Внутри Вас</h1>
-            <p class="subtitle">Определитель типа личности</p>
+        <header class="hero-header">
+            <div class="stars-layer" aria-hidden="true"></div>
+            <div class="stars-layer-2" aria-hidden="true"></div>
+            <div class="hero-aurora" aria-hidden="true"></div>
+            <h1 class="hero-title">Full <span class="hero-word-accent">Potential</span></h1>
         </header>
         
         <div class="progress-container">
@@ -3125,22 +3197,6 @@ function showScreen(screenId) {
         screen.classList.remove('active');
     });
     document.getElementById(screenId).classList.add('active');
-    
-    // Меняем заголовки в зависимости от экрана
-    const brandName = document.querySelector('.brand-name');
-    const mainTitle = document.querySelector('header h1');
-    const subtitle = document.querySelector('.subtitle');
-    
-    if (screenId === 'platform-screen') {
-        brandName.textContent = 'Полный Потенциал';
-        mainTitle.textContent = 'Здесь вы найдете всё для раскрытия вашего потенциала';
-        subtitle.style.display = 'none';
-    } else {
-        brandName.textContent = 'Полный Потенциал';
-        mainTitle.textContent = 'Гений Внутри Вас';
-        subtitle.textContent = 'Определитель типа личности';
-        subtitle.style.display = 'block';
-    }
     
     // Обновляем прогресс
     const questionNumber = parseInt(screenId.split('-')[1]);
