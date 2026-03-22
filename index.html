@@ -2375,10 +2375,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const savedUser = localStorage.getItem('currentUser');
         
         if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            // Показываем сообщение о возможности автоматического входа
-            showAuthMessage('login-message', 'Обнаружен сохраненный аккаунт. Нажмите "Войти"', 'success');
+            try {
+                currentUser = JSON.parse(savedUser);
+            } catch (e) {
+                currentUser = null;
+            }
         }
+
+        setTimeout(function () {
+            restoreSessionFromStorage();
+        }, 0);
         
         // Инициализация обработчиков выбора ответов
         document.querySelectorAll('.option').forEach(option => {
@@ -2741,6 +2747,33 @@ function showScreen(screenId) {
 
 function updateProgress(percent) {
     document.getElementById('progress-bar').style.width = percent + '%';
+}
+
+/** После перезагрузки страницы — вернуть пользователя на intro или платформу, не на экран входа */
+function restoreSessionFromStorage() {
+    if (typeof checkPlatformAuth === 'function') {
+        checkPlatformAuth();
+    }
+    const raw = localStorage.getItem('currentUser');
+    if (!raw) return;
+    let user;
+    try {
+        user = JSON.parse(raw);
+    } catch (e) {
+        return;
+    }
+    if (!user || !user.email) return;
+    currentUser = user;
+
+    if (user.personality_type) {
+        showScreen('platform-screen');
+        updateProfileData();
+    } else {
+        showScreen('intro-screen');
+    }
+    if (typeof showBottomNavigation === 'function') {
+        showBottomNavigation();
+    }
 }
 
 // Инициализация обработчиков выбора ответов (только один раз!)
@@ -6997,16 +7030,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.reload();
     }
     
-    // Проверка при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(() => {
-            if (checkPlatformAuth()) {
-                console.log('🚀 Автоматический вход выполнен');
-            } else {
-                console.log('ℹ️ Требуется вход в систему');
-            }
-        }, 500);
-    });
+    // Восстановление сессии: см. restoreSessionFromStorage() в основном скрипте (вызывается при DOMContentLoaded)
     // Проверяем новые сообщения каждые 2 секунды
     setInterval(checkForNewMessages, 2000);
     // Запускаем подписку Supabase если она доступна
