@@ -728,6 +728,32 @@
             margin-bottom: 6px;
         }
         
+        .profile-dropdown .profile-logout-wrap {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #ececf0;
+        }
+        .profile-logout-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ef5350 0%, #c62828 100%);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(198, 40, 40, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .profile-logout-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(198, 40, 40, 0.48);
+        }
+        .profile-logout-btn:active {
+            transform: translateY(0);
+        }
+        
         .platform-main-content {
             max-width: none;
             margin: 40px auto;
@@ -2274,6 +2300,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div id="premium-status" style="margin-top: 15px; padding: 8px 16px; border-radius: 20px; background: #f8f9fa; font-size: 0.9rem;">
                                     Статус: Бесплатный доступ
                                 </div>
+                            </div>
+                            <div class="profile-logout-wrap">
+                                <button type="button" class="profile-logout-btn" onclick="platformLogout()">Выйти из аккаунта</button>
                             </div>
                         </div>
                     </div>
@@ -7026,6 +7055,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function platformLogout() {
         localStorage.removeItem('platformAuth');
         localStorage.removeItem('currentUser');
+        const dd = document.getElementById('profileDropdown');
+        if (dd) dd.classList.remove('active');
         console.log('👋 Вы вышли из платформы');
         window.location.reload();
     }
