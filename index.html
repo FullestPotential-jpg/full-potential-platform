@@ -2635,6 +2635,42 @@ document.addEventListener('DOMContentLoaded', function() {
         return String(s).trim().toLowerCase();
     }
 
+    async function hashPlatformPassword(email, password) {
+        const enc = new TextEncoder();
+        const data = enc.encode(normalizeEmail(email) + '\u0000' + password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function verifyStoredPassword(email, password, user) {
+        if (!user) return false;
+        if (user.password_hash) {
+            return (await hashPlatformPassword(email, password)) === user.password_hash;
+        }
+        if (user.password !== undefined) {
+            return user.password === password;
+        }
+        return false;
+    }
+
+    async function migrateLegacyPasswordToHash(found, email, password) {
+        const u = found.user;
+        if (u.password_hash || u.password === undefined) return;
+        if (u.password !== password) return;
+        const hash = await hashPlatformPassword(email, password);
+        u.password_hash = hash;
+        delete u.password;
+        const users = getStoredUsers();
+        users[found.key] = u;
+        localStorage.setItem('platformUsers', JSON.stringify(users));
+    }
+
+    function syncUserIdToLocalStorage(user) {
+        if (user && user.id != null) {
+            try { localStorage.setItem('user_id', String(user.id)); } catch (e) {}
+        }
+    }
+
     function isValidEmail(s) {
         const t = normalizeEmail(s);
         if (t.length < 5 || t.length > 254) return false;
@@ -2744,17 +2780,22 @@ document.addEventListener('DOMContentLoaded', function() {
     return users;
 }
 
-function saveUser(email, password, personality_type = null) {
+async function saveUser(email, password, personality_type = null, serverUserId = null) {
     const users = getStoredUsers();
     const key = normalizeEmail(email);
-    users[key] = {
-        password: password,
+    const password_hash = await hashPlatformPassword(key, password);
+    const row = {
+        password_hash: password_hash,
         personality_type: personality_type,
         personality_description_html: null,
         archetype_key: null,
         nickname: generateDefaultNickname(key),
         created: new Date().toISOString()
     };
+    if (serverUserId) {
+        row.server_user_id = serverUserId;
+    }
+    users[key] = row;
     localStorage.setItem('platformUsers', JSON.stringify(users));
 }
 
@@ -2789,25 +2830,51 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
         return;
     }
 
-    // Сохраняем нового пользователя
-    saveUser(email, password);
+    if (!window.supabaseClient) {
+        showAuthMessage('register-message', 'Сервер недоступен. Обновите страницу и попробуйте снова.', 'error');
+        return;
+    }
+
+    const hash = await hashPlatformPassword(email, password);
+    const { data: regData, error: regError } = await window.supabaseClient.rpc('platform_accounts_register', {
+        p_email: email,
+        p_hash: hash
+    });
+
+    if (regError) {
+        console.error(regError);
+        showAuthMessage('register-message', 'Не удалось зарегистрироваться. Проверьте интернет или выполните SQL-скрипт в Supabase (supabase/platform_accounts.sql).', 'error');
+        return;
+    }
+
+    if (!regData || !regData.ok) {
+        if (regData && regData.error === 'duplicate') {
+            showAuthMessage('register-message', 'Аккаунт с таким email уже существует', 'error');
+        } else {
+            showAuthMessage('register-message', 'Регистрация отклонена. Попробуйте другой email.', 'error');
+        }
+        return;
+    }
+
+    const serverId = regData.id;
+
+    await saveUser(email, password, null, serverId);
     
     const nick = generateDefaultNickname(email);
 
-    // Входим в аккаунт
     currentUser = { 
         email: email, 
         nickname: nick,
         personality_type: null,
-        id: Date.now(),
+        id: serverId,
         created: new Date().toISOString()
     };
+
+    syncUserIdToLocalStorage(currentUser);
     
-    // СТАРОЕ (оставить):
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     
-    // НОВОЕ (добавить - долгая авторизация на 7 дней):
-    savePlatformAuth(currentUser); // ← ВОТ ЭТА СТРОКА ВАЖНА!
+    savePlatformAuth(currentUser);
     
     showAuthMessage('register-message', 'Регистрация успешна!', 'success');
     clearAuthFields();
@@ -2835,37 +2902,74 @@ async function login() {
     }
 
     const email = normalizeEmail(emailRaw);
-    const found = findUserByEmail(emailRaw);
-    
-    if (!found) {
-        showAuthMessage('login-message', 'Аккаунт не найден', 'error');
-        return;
-    }
-    
-    const user = found.user;
-    if (user.password !== password) {
-        showAuthMessage('login-message', 'Неверный пароль', 'error');
-        return;
+    let found = findUserByEmail(email);
+    let user = found ? found.user : null;
+    let resolvedId = user && user.server_user_id ? user.server_user_id : null;
+
+    if (found) {
+        const ok = await verifyStoredPassword(email, password, user);
+        if (!ok) {
+            showAuthMessage('login-message', 'Неверный пароль', 'error');
+            return;
+        }
+        await migrateLegacyPasswordToHash(found, email, password);
+        user = found.user;
+        if (!user.server_user_id && window.supabaseClient) {
+            const h = await hashPlatformPassword(email, password);
+            const { data: srvData, error: srvErr } = await window.supabaseClient.rpc('platform_accounts_verify_login', {
+                p_email: email,
+                p_hash: h
+            });
+            if (!srvErr && srvData && srvData.ok && srvData.id) {
+                user.server_user_id = srvData.id;
+                const users = getStoredUsers();
+                users[found.key] = user;
+                localStorage.setItem('platformUsers', JSON.stringify(users));
+                resolvedId = srvData.id;
+            }
+        }
+    } else {
+        if (!window.supabaseClient) {
+            showAuthMessage('login-message', 'Аккаунт не найден. Нужен интернет для входа с другого устройства.', 'error');
+            return;
+        }
+        const hash = await hashPlatformPassword(email, password);
+        const { data: loginData, error: loginError } = await window.supabaseClient.rpc('platform_accounts_verify_login', {
+            p_email: email,
+            p_hash: hash
+        });
+        if (loginError) {
+            console.error(loginError);
+            showAuthMessage('login-message', 'Не удалось проверить вход. Проверьте интернет или SQL в Supabase.', 'error');
+            return;
+        }
+        if (!loginData || !loginData.ok) {
+            showAuthMessage('login-message', 'Аккаунт не найден или неверный пароль', 'error');
+            return;
+        }
+        resolvedId = loginData.id;
+        await saveUser(email, password, null, resolvedId);
+        found = findUserByEmail(email);
+        user = found.user;
     }
 
     const nick = ensureNicknameInStore(found.key);
 
-    // Успешный вход - создаем объект пользователя
     currentUser = { 
-        email: normalizeEmail(emailRaw),
+        email: email,
         nickname: nick,
         personality_type: user.personality_type,
         personality_description_html: user.personality_description_html || null,
         archetype_key: user.archetype_key || null,
-        id: Date.now(),
-        created: user.created // сохраняем дату создания
+        id: resolvedId || Date.now(),
+        created: user.created
     };
     
-    // СТАРОЕ (оставить):
+    syncUserIdToLocalStorage(currentUser);
+
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     
-    // НОВОЕ (добавить - долгая авторизация на 7 дней):
-    savePlatformAuth(currentUser); // ← ВОТ ЭТА СТРОКА ВАЖНА!
+    savePlatformAuth(currentUser);
     
     showAuthMessage('login-message', 'Вход успешен!', 'success');
     clearAuthFields();
