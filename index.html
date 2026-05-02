@@ -2626,21 +2626,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <section class="welcome-section">
                         <h1 class="welcome-title">Добро пожаловать на платформу!</h1>
                         
-                        <div class="modules-grid">
-                            <div class="module-card free" onclick="showValueContent()">
-                                <h3 class="module-title">🎯 Ценность</h3>
-                                <p class="module-description">Бесплатные материалы и упражнения для вашего типа личности</p>
-                                <div class="module-price price-free">Бесплатно</div>
-                            </div>
-                            
-                            <div class="module-card premium" onclick="showPremiumContent()">
-                                <h3 class="module-title">💎 Главная ценность</h3>
-                                <p class="module-description">Полная система реализации вашего потенциала</p>
-                                <div style="color: #FF9800; font-weight: 600; margin-top: 10px; padding: 8px 16px; border: 2px solid #FF9800; border-radius: 25px; display: inline-block; transition: all 0.3s ease;">
-                                    ✨ Узнать больше
-                                </div>
-                            </div>
-                        </div>
+                        <div class="modules-grid"></div>
                     </section>
                 </div>
 
@@ -6713,15 +6699,6 @@ function addNewMessageToChat(message) {
 }
 </script>
 <!-- ===== КОНЕЦ SUPABASE ===== -->
-    <!-- Нижняя панель навигации -->
-<nav class="bottom-nav">
-    <a href="#value" class="nav-item">
-        <span>Ценность</span>
-    </a>
-    <a href="#premium" class="nav-item">
-        <span>Главная</span>
-    </a>
-</nav>
 <!-- Чат сообщества - двухэтапный интерфейс -->
 <div class="chat-overlay" id="chatOverlay"></div>
 <div class="community-chat" id="communityChat">
