@@ -2565,8 +2565,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="result-description" class="result-description"></div>
     
     <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #0c1438 0%, #1a2858 100%); color: white; border-radius: 16px;">
-        <h3 style="margin: 0; font-size: 1.3rem;">🎯 Добро пожаловать на платформу!</h3>
-        <p style="margin: 10px 0 0 0; opacity: 0.9;">Теперь у вас есть доступ к материалам для вашего архетипа.</p>
+        <p style="margin: 0; opacity: 0.9;">Теперь у вас есть доступ к материалам для вашего архетипа.</p>
     </div>
     
     <div class="navigation" style="justify-content: center; margin-top: 30px; gap: 15px;">
@@ -2624,10 +2623,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <div class="platform-main-content" id="platform-main">
                     <section class="welcome-section">
-                        <h1 class="welcome-title">Добро пожаловать на платформу!</h1>
-                        
                         <div class="modules-grid"></div>
                     </section>
+                </div>
+
+                <nav class="bottom-nav" id="bottomNav">
+                    <a href="#" class="nav-item" id="goalNavItem" onclick="openGoalScreen(event)">
+                        <span>Моя цель</span>
+                    </a>
+                </nav>
+
+                <div id="goal-screen" style="display: none;">
+                    <div class="platform-header">
+                        <button onclick="closeGoalScreen()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">← Назад</button>
+                        <div class="platform-logo">Моя цель</div>
+                        <div style="width: 45px;"></div>
+                    </div>
+                    <div class="platform-main-content">
+                        <div id="goal-content"></div>
+                    </div>
                 </div>
 
                 <!-- ЭКРАН ЦЕННОСТИ (ВНУТРИ ПЛАТФОРМЫ) -->
@@ -2668,6 +2682,237 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentUser = null;
     let userAnswers = {};
     const validCodes = ['34193']; // Единственный рабочий код
+    let goalDraft = { category: '', time: '' };
+
+    const GOAL_CATEGORIES = [
+        { id: 'career', label: 'Карьера' },
+        { id: 'health', label: 'Здоровье' },
+        { id: 'creativity', label: 'Творчество' },
+        { id: 'relationships', label: 'Отношения' },
+        { id: 'finance', label: 'Финансы' },
+        { id: 'selfdev', label: 'Саморазвитие' }
+    ];
+
+    const GOAL_TIMES = [
+        { id: '15m', label: '15 мин/день' },
+        { id: '1-2h', label: '1–2 ч/день' },
+        { id: '3-5h', label: '3–5 ч/неделю' },
+        { id: 'unlimited', label: 'Неограниченно' }
+    ];
+
+    const GOAL_PLANS = {
+        'amygdala-dopamine-control': {
+            career: {
+                '15m': [
+                    'Сформулируйте одну карьерную цель на 30 дней в 1 предложении.',
+                    'Каждый день выделяйте 15 минут на ключевой микро-шаг по этой цели.',
+                    'Ведите короткий лог: что сделали, что мешало, что ускоряет.',
+                    'Раз в неделю пересматривайте приоритеты и убирайте лишние задачи.',
+                    'Соберите 1 мини-кейс результата для портфолио.',
+                    'В конце месяца обновите цель на основе фактов и прогресса.'
+                ],
+                '1-2h': [
+                    'Выберите карьерный трек и зафиксируйте критерии успеха на 90 дней.',
+                    'Разбейте цель на недельные спринты с измеримым результатом.',
+                    'Ежедневно выполняйте 1 блок глубокой работы 60-90 минут.',
+                    'Создайте рабочий артефакт (проект, кейс, презентацию) каждую неделю.',
+                    'Раз в неделю проводите ретроспективу и корректируйте план.',
+                    'Подготовьте публичный отчет о своем прогрессе (LinkedIn/резюме/портфолио).'
+                ],
+                '3-5h': [
+                    'Определите одну профессиональную компетенцию для фокуса на 8 недель.',
+                    'Составьте карту навыка: 3 подтемы, которые дают 80% результата.',
+                    'Проводите 2-3 сессии в неделю по 60-90 минут на практику.',
+                    'Еженедельно применяйте навык в мини-проекте.',
+                    'Запрашивайте обратную связь у 1 человека раз в неделю.',
+                    'В конце цикла оформите результат в виде кейса или прототипа.'
+                ],
+                unlimited: [
+                    'Сформируйте стратегию карьерного роста на 6-12 месяцев.',
+                    'Постройте систему: цели, метрики, еженедельный обзор и квартальный аудит.',
+                    'Запускайте 2 параллельных проекта: развитие навыков и публичный бренд.',
+                    'Организуйте сеть контактов: 3 профессиональных касания в неделю.',
+                    'Создавайте и публикуйте демонстрационные результаты каждую неделю.',
+                    'Оптимизируйте режим работы под пики продуктивности архетипа.',
+                    'Раз в месяц обновляйте стратегию, отталкиваясь от фактов и данных.'
+                ]
+            },
+            finance: {
+                '15m': [
+                    'Определите финансовую цель на 30 дней и одну метрику контроля.',
+                    'Каждый день фиксируйте доходы/расходы в одном месте.',
+                    'Раз в 3 дня ищите одну точку оптимизации расходов.',
+                    'Создайте простой план накопления с автопереводом.',
+                    'Раз в неделю сверяйте фактический прогресс с целью.',
+                    'Корректируйте лимиты, чтобы сохранить устойчивость.'
+                ],
+                '1-2h': [
+                    'Сделайте финансовый аудит: активы, долги, обязательные траты.',
+                    'Постройте 3 сценария бюджета: базовый, целевой, ускоренный.',
+                    'Раз в неделю выделяйте 1-2 часа на финансовый обзор и корректировки.',
+                    'Создайте одну новую точку дохода (мини-услуга/продукт).',
+                    'Еженедельно автоматизируйте один рутинный финансовый процесс.',
+                    'В конце месяца формируйте отчет и новые финансовые цели.'
+                ],
+                '3-5h': [
+                    'Определите приоритет: подушка, закрытие долга или рост дохода.',
+                    'Запланируйте 2-3 финансовых сессии в неделю по 60 минут.',
+                    'Создайте таблицу контроля денежных потоков и обновляйте её.',
+                    'Тестируйте 1 гипотезу по росту дохода каждую неделю.',
+                    'Оптимизируйте крупные категории расходов.',
+                    'Подводите итоги и фиксируйте решения на следующую неделю.'
+                ],
+                unlimited: [
+                    'Соберите долгосрочную финансовую стратегию на год.',
+                    'Разделите деньги по корзинам: безопасность, развитие, инвестиции.',
+                    'Постройте систему еженедельного финансового контроля и ревизии рисков.',
+                    'Масштабируйте источники дохода через продукты/услуги.',
+                    'Внедрите автоматизацию учета, платежей и напоминаний.',
+                    'Раз в месяц проводите стратегическую сессию по капиталу.',
+                    'Регулярно пересматривайте стратегию по результатам.'
+                ]
+            },
+            selfdev: {
+                '15m': [
+                    'Выберите один навык саморазвития на 4 недели.',
+                    'Ежедневно уделяйте 15 минут на практику навыка.',
+                    'Фиксируйте, что сработало лучше всего.',
+                    'Раз в неделю оценивайте прогресс по шкале 1-10.',
+                    'Убирайте лишние источники информации, оставляя 1-2 качественных.',
+                    'Закрепите результат мини-привычкой на следующий месяц.'
+                ],
+                '1-2h': [
+                    'Определите ключевую личную цель на квартал.',
+                    'Составьте недельный план обучения и практики.',
+                    'Ежедневно делайте одну глубокую сессию 60-90 минут.',
+                    'Раз в неделю проводите самоаудит и корректировку фокуса.',
+                    'Ведите дневник прогресса с конкретными наблюдениями.',
+                    'В конце месяца фиксируйте результат и новую точку роста.'
+                ],
+                '3-5h': [
+                    'Выберите 2 навыка: основной и поддерживающий.',
+                    'Проводите 2-3 сессии в неделю с практическими заданиями.',
+                    'После каждой сессии пишите краткий вывод: что улучшить.',
+                    'Раз в неделю тестируйте навык в реальной задаче.',
+                    'Отслеживайте метрики прогресса (скорость, качество, стабильность).',
+                    'Закрепите рабочую систему и масштабируйте ее.'
+                ],
+                unlimited: [
+                    'Постройте персональную систему развития на 6 месяцев.',
+                    'Создайте дорожную карту навыков и критерии перехода по этапам.',
+                    'Комбинируйте обучение, практику и обратную связь ежедневно.',
+                    'Раз в неделю проводите стратегическую ревизию прогресса.',
+                    'Ведите базу знаний с собственными выводами и подходами.',
+                    'Создавайте внешние артефакты результата (проект, статья, выступление).',
+                    'Раз в месяц перепланируйте маршрут на основе достижений.'
+                ]
+            }
+        },
+        'amygdala-dopamine-connection': {
+            career: {
+                '15m': [
+                    'Определите карьерную цель, связанную с людьми и коммуникацией.',
+                    'Ежедневно делайте одно полезное касание: сообщение, контакт, благодарность.',
+                    'Фиксируйте, какие форматы общения дают лучший отклик.',
+                    'Раз в неделю обновляйте мини-план нетворкинга.',
+                    'Создайте один публичный пост о профессиональной теме.',
+                    'Оцените, какие связи приблизили вас к цели.'
+                ],
+                '1-2h': [
+                    'Соберите карту карьерных контактов и приоритетных направлений.',
+                    'Ежедневно выделяйте 60-90 минут на коммуникацию и развитие бренда.',
+                    'Раз в неделю проводите 2-3 целевые встречи/созвона.',
+                    'Создавайте контент, который показывает вашу ценность.',
+                    'Просите обратную связь и предложения сотрудничества.',
+                    'Еженедельно корректируйте стратегию взаимодействия.'
+                ]
+            },
+            relationships: {
+                '15m': [
+                    'Сформулируйте цель в отношениях на ближайшие 30 дней.',
+                    'Каждый день делайте один осознанный шаг на сближение.',
+                    'Отмечайте, какие слова/действия лучше всего поддерживают контакт.',
+                    'Раз в неделю обсуждайте ожидания и границы.',
+                    'Фиксируйте прогресс и благодарность.',
+                    'В конце месяца обновите цель на следующий цикл.'
+                ],
+                '1-2h': [
+                    'Определите 2 ключевых направления улучшения отношений.',
+                    'Выделяйте 1-2 часа в день на качественное общение без отвлечений.',
+                    'Проводите еженедельный разговор о чувствах, планах и поддержке.',
+                    'Создайте 2-3 совместных ритуала (прогулка, обсуждение, активность).',
+                    'Учитесь мягко решать конфликты через "я-сообщения".',
+                    'Подводите итоги недели и фиксируйте улучшения.'
+                ]
+            },
+            creativity: {
+                '15m': [
+                    'Выберите творческую цель с понятным результатом.',
+                    'Ежедневно 15 минут генерируйте идеи и записывайте их.',
+                    'Раз в 2-3 дня выбирайте одну идею для мини-реализации.',
+                    'Публикуйте маленький результат и собирайте отклик.',
+                    'Поддерживайте ритм через короткий трекер привычки.',
+                    'В конце недели выберите лучшую идею для развития.'
+                ],
+                '1-2h': [
+                    'Определите творческий проект на месяц.',
+                    'Ежедневно выделяйте 60-120 минут на создание результата.',
+                    'Раз в неделю показывайте черновик аудитории.',
+                    'Собирайте обратную связь и выбирайте 1 улучшение.',
+                    'Поддерживайте баланс между вдохновением и дедлайном.',
+                    'В конце месяца завершите и опубликуйте проект.'
+                ]
+            }
+        },
+        'hippocampus-serotonin-control': {
+            health: {
+                '15m': [
+                    'Определите одну цель по здоровью на 30 дней.',
+                    'Ежедневно выполняйте 15-минутный базовый ритуал (ходьба/зарядка).',
+                    'Отмечайте выполнение в чек-листе.',
+                    'Раз в неделю анализируйте стабильность графика.',
+                    'Улучшайте сон и восстановление через один конкретный шаг.',
+                    'Закрепите рабочий режим на следующий месяц.'
+                ],
+                '3-5h': [
+                    'Составьте структурированный план здоровья на 8 недель.',
+                    'Проводите 2-3 тренировочные/восстановительные сессии в неделю.',
+                    'Ведите системный трекинг сна, нагрузки и самочувствия.',
+                    'Корректируйте программу раз в неделю по фактам.',
+                    'Добавьте рациональный контроль питания без экстремальных мер.',
+                    'Подводите итоги каждые 2 недели и усиливайте результат.'
+                ]
+            },
+            finance: {
+                '15m': [
+                    'Поставьте финансовую цель и дедлайн.',
+                    'Ежедневно 15 минут обновляйте учет расходов.',
+                    'Следуйте одному заранее заданному лимиту.',
+                    'Раз в неделю проводите сверку с планом.',
+                    'Уменьшайте один лишний расход в неделю.',
+                    'Закрепите дисциплину в новом месяце.'
+                ],
+                '3-5h': [
+                    'Постройте подробный финансовый план на квартал.',
+                    'Проводите 2-3 сессии финансового контроля в неделю.',
+                    'Разделите бюджет на обязательное, развитие, резерв.',
+                    'Запустите системное накопление и контроль отклонений.',
+                    'Оценивайте эффективность решений раз в неделю.',
+                    'Формируйте отчет и корректируйте стратегию ежемесячно.'
+                ]
+            },
+            selfdev: {
+                '15m': [
+                    'Выберите один навык для последовательного развития.',
+                    'Ежедневно практикуйте его 15 минут в одно и то же время.',
+                    'Фиксируйте прогресс в простой таблице.',
+                    'Раз в неделю проверяйте качество выполнения.',
+                    'Устраняйте один барьер, который мешает регулярности.',
+                    'Сформируйте устойчивую привычку на следующий этап.'
+                ]
+            }
+        }
+    };
 
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
@@ -3396,6 +3641,9 @@ async function showResult() {
     function goToPlatform() {
         updateProfileData();
         showScreen('platform-screen');
+        document.getElementById('goal-screen').style.display = 'none';
+        document.getElementById('platform-main').style.display = 'block';
+        setGoalNavActive(false);
     }
 
     function closeProfileArchetypePanel() {
@@ -3439,6 +3687,12 @@ async function showResult() {
     // Обновляем данные профиля при переходе на платформу
     async function updateProfileData() {
         if (currentUser) {
+            const goalScreen = document.getElementById('goal-screen');
+            const platformMain = document.getElementById('platform-main');
+            if (goalScreen) goalScreen.style.display = 'none';
+            if (platformMain) platformMain.style.display = 'block';
+            setGoalNavActive(false);
+
             let displayNick = (currentUser.nickname && String(currentUser.nickname).trim())
                 ? String(currentUser.nickname).trim()
                 : generateDefaultNickname(currentUser.email);
@@ -3518,6 +3772,202 @@ async function showResult() {
             updateProgress(0);
         }
     }
+
+function getGoalStorageKey() {
+    const email = currentUser?.email ? currentUser.email.toLowerCase() : 'guest';
+    return `fp_goal_plan_v1_${email}`;
+}
+
+function loadGoalState() {
+    try {
+        const raw = localStorage.getItem(getGoalStorageKey());
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function saveGoalState(state) {
+    localStorage.setItem(getGoalStorageKey(), JSON.stringify(state));
+}
+
+function getCurrentArchetypeKey() {
+    return currentUser?.archetype_key || 'default';
+}
+
+function getCurrentArchetypeLabel() {
+    return currentUser?.personality_type || 'Ваш архетип';
+}
+
+function buildFallbackPlan(categoryLabel, timeLabel, archetypeLabel) {
+    return [
+        `Определите конкретную цель в категории "${categoryLabel}" с горизонтом 30 дней.`,
+        `Выделите фиксированное время "${timeLabel}" и закрепите его в расписании.`,
+        `Используйте сильные стороны архетипа "${archetypeLabel}" в ежедневных действиях.`,
+        'Разбейте цель на небольшие шаги и выполняйте минимум один шаг за сессию.',
+        'Раз в неделю анализируйте прогресс и корректируйте план.',
+        'Фиксируйте результаты и завершайте цикл с выводами для следующего этапа.'
+    ];
+}
+
+function getGoalPlan(archetypeKey, categoryId, timeId) {
+    const categoryLabel = GOAL_CATEGORIES.find(c => c.id === categoryId)?.label || categoryId;
+    const timeLabel = GOAL_TIMES.find(t => t.id === timeId)?.label || timeId;
+    const archetypeLabel = getCurrentArchetypeLabel();
+    const categoryPlans = GOAL_PLANS[archetypeKey]?.[categoryId];
+    if (!categoryPlans) {
+        return buildFallbackPlan(categoryLabel, timeLabel, archetypeLabel);
+    }
+    return categoryPlans[timeId] || categoryPlans['1-2h'] || categoryPlans['15m'] || buildFallbackPlan(categoryLabel, timeLabel, archetypeLabel);
+}
+
+function openGoalScreen(event) {
+    if (event) event.preventDefault();
+    document.getElementById('platform-main').style.display = 'none';
+    document.getElementById('goal-screen').style.display = 'block';
+    setGoalNavActive(true);
+    renderGoalContent();
+}
+
+function closeGoalScreen() {
+    document.getElementById('goal-screen').style.display = 'none';
+    document.getElementById('platform-main').style.display = 'block';
+    setGoalNavActive(false);
+}
+
+function setGoalNavActive(isActive) {
+    const navItem = document.getElementById('goalNavItem');
+    if (!navItem) return;
+    if (isActive) navItem.classList.add('nav-active');
+    else navItem.classList.remove('nav-active');
+}
+
+function renderGoalContent() {
+    const container = document.getElementById('goal-content');
+    if (!container) return;
+
+    const goalState = loadGoalState();
+    if (!goalState || !Array.isArray(goalState.steps) || !goalState.steps.length) {
+        renderGoalSetup(container);
+        return;
+    }
+    renderActiveGoal(container, goalState);
+}
+
+function renderGoalSetup(container) {
+    const categoryCards = GOAL_CATEGORIES.map(cat => `
+        <button type="button" onclick="selectGoalCategory('${cat.id}')"
+            style="padding: 14px 16px; border-radius: 12px; border: 2px solid ${goalDraft.category === cat.id ? '#4CAF50' : '#d9d9d9'}; background: ${goalDraft.category === cat.id ? '#eaf8ec' : '#fff'}; cursor: pointer; text-align: left; font-weight: 600;">
+            ${cat.label}
+        </button>
+    `).join('');
+
+    const timeCards = GOAL_TIMES.map(time => `
+        <button type="button" onclick="selectGoalTime('${time.id}')"
+            style="padding: 14px 16px; border-radius: 12px; border: 2px solid ${goalDraft.time === time.id ? '#4CAF50' : '#d9d9d9'}; background: ${goalDraft.time === time.id ? '#eaf8ec' : '#fff'}; cursor: pointer; text-align: left; font-weight: 600;">
+            ${time.label}
+        </button>
+    `).join('');
+
+    container.innerHTML = `
+        <div style="max-width: 860px; margin: 0 auto;">
+            <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
+                <h3 style="margin: 0 0 12px 0; color: #1b2557;">Шаг 1. Выберите категорию цели</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                    ${categoryCards}
+                </div>
+            </div>
+            <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
+                <h3 style="margin: 0 0 12px 0; color: #1b2557;">Шаг 2. Выберите доступное время</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                    ${timeCards}
+                </div>
+            </div>
+            <button type="button" onclick="createGoalPlan()" ${(!goalDraft.category || !goalDraft.time) ? 'disabled' : ''}
+                style="width: 100%; border: none; padding: 14px 20px; border-radius: 14px; font-size: 1rem; font-weight: 700; color: white; background: ${(!goalDraft.category || !goalDraft.time) ? '#9ca3af' : 'linear-gradient(135deg, #0f1740, #1a2858)'}; cursor: ${(!goalDraft.category || !goalDraft.time) ? 'not-allowed' : 'pointer'};">
+                Сформировать план
+            </button>
+        </div>
+    `;
+}
+
+function renderActiveGoal(container, goalState) {
+    const categoryLabel = GOAL_CATEGORIES.find(c => c.id === goalState.category)?.label || goalState.category;
+    const timeLabel = GOAL_TIMES.find(t => t.id === goalState.time)?.label || goalState.time;
+    const completedCount = goalState.completed.filter(Boolean).length;
+    const progress = Math.round((completedCount / goalState.steps.length) * 100);
+
+    const stepsHtml = goalState.steps.map((step, index) => `
+        <label style="display: flex; align-items: flex-start; gap: 12px; background: #fff; border: 1px solid #ececec; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;">
+            <input type="checkbox" ${goalState.completed[index] ? 'checked' : ''} onchange="toggleGoalStep(${index})" style="margin-top: 4px;">
+            <span style="line-height: 1.5;">${step}</span>
+        </label>
+    `).join('');
+
+    container.innerHTML = `
+        <div style="max-width: 860px; margin: 0 auto;">
+            <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <h3 style="margin: 0 0 8px 0; color: #1b2557;">Активная цель</h3>
+                        <p style="margin: 0; color: #4b5563;">${categoryLabel} · ${timeLabel} · ${goalState.archetypeName}</p>
+                    </div>
+                    <button type="button" onclick="changeGoal()" style="background: #fff; color: #0f1740; border: 2px solid #0f1740; border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 600;">
+                        Изменить цель
+                    </button>
+                </div>
+                <div style="margin-top: 16px; background: #eef2ff; border-radius: 999px; height: 10px; overflow: hidden;">
+                    <div style="height: 100%; width: ${progress}%; background: linear-gradient(135deg, #4CAF50, #2e7d32);"></div>
+                </div>
+                <p style="margin: 8px 0 0 0; color: #4b5563;">Прогресс: ${completedCount}/${goalState.steps.length} (${progress}%)</p>
+            </div>
+            ${stepsHtml}
+        </div>
+    `;
+}
+
+function selectGoalCategory(categoryId) {
+    goalDraft.category = categoryId;
+    renderGoalContent();
+}
+
+function selectGoalTime(timeId) {
+    goalDraft.time = timeId;
+    renderGoalContent();
+}
+
+function createGoalPlan() {
+    if (!goalDraft.category || !goalDraft.time) return;
+    const archetypeKey = getCurrentArchetypeKey();
+    const plan = getGoalPlan(archetypeKey, goalDraft.category, goalDraft.time);
+    const goalState = {
+        category: goalDraft.category,
+        time: goalDraft.time,
+        archetypeKey: archetypeKey,
+        archetypeName: getCurrentArchetypeLabel(),
+        steps: plan,
+        completed: plan.map(() => false),
+        updatedAt: Date.now()
+    };
+    saveGoalState(goalState);
+    renderGoalContent();
+}
+
+function toggleGoalStep(stepIndex) {
+    const goalState = loadGoalState();
+    if (!goalState || !Array.isArray(goalState.completed)) return;
+    goalState.completed[stepIndex] = !goalState.completed[stepIndex];
+    goalState.updatedAt = Date.now();
+    saveGoalState(goalState);
+    renderGoalContent();
+}
+
+function changeGoal() {
+    if (!confirm('Сбросить текущую цель и выбрать новую?')) return;
+    localStorage.removeItem(getGoalStorageKey());
+    goalDraft = { category: '', time: '' };
+    renderGoalContent();
+}
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
