@@ -3703,6 +3703,30 @@ document.addEventListener('DOMContentLoaded', function() {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
     }
 
+    /** Текст ошибки при сбое RPC в Supabase (пауза проекта, сеть, не тот ключ и т.д.) */
+    function fpSupabaseRpcAuthHint(err) {
+        var pauseHint =
+            'Проект Supabase не отвечает — часто он «уснул» после простоя. Зайдите в dashboard.supabase.com, откройте проект и нажмите Resume (или Restore). Подождите около минуты и обновите эту страницу.';
+        if (!err) return pauseHint;
+        var raw = '';
+        try {
+            raw = String(err.message != null ? err.message : err);
+        } catch (e) {
+            raw = String(err);
+        }
+        var low = raw.toLowerCase();
+        var looksLikeNetwork =
+            low.indexOf('failed to fetch') !== -1 ||
+            low.indexOf('networkerror') !== -1 ||
+            low.indexOf('load failed') !== -1 ||
+            low.indexOf('err_network') !== -1 ||
+            (low.indexOf('fetch') !== -1 && low.indexOf('abort') !== -1);
+        if (looksLikeNetwork || /502|503|504/.test(raw)) {
+            return pauseHint;
+        }
+        return pauseHint + ' Технические детали: ' + raw.slice(0, 160);
+    }
+
     function generateDefaultNickname(email) {
         const key = normalizeEmail(email);
         const local = key.split('@')[0] || '';
@@ -3870,7 +3894,7 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
 
     if (regError) {
         console.error(regError);
-        showAuthMessage('register-message', 'Не удалось зарегистрироваться. Проверьте интернет или выполните SQL-скрипт в Supabase (supabase/platform_accounts.sql).', 'error');
+        showAuthMessage('register-message', fpSupabaseRpcAuthHint(regError), 'error');
         return;
     }
 
@@ -3975,7 +3999,7 @@ async function login() {
         });
         if (loginError) {
             console.error(loginError);
-            showAuthMessage('login-message', 'Не удалось проверить вход. Проверьте интернет или SQL в Supabase.', 'error');
+            showAuthMessage('login-message', fpSupabaseRpcAuthHint(loginError), 'error');
             return;
         }
         if (!loginData || !loginData.ok) {
