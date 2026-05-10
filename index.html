@@ -1234,7 +1234,7 @@
                 0 0 2px rgba(255, 255, 255, 0.85);
             filter: blur(0.25px);
             transform-origin: left center;
-            animation: shootingStarPath var(--dur, 0.85s) linear forwards;
+            animation: shootingStarPath var(--dur, 1.7s) linear forwards;
             opacity: 0;
             will-change: transform, opacity;
         }
@@ -3235,10 +3235,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const dy = Math.sin(theta) * travel;
         const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
 
-        /* Реальные болиды очень быстрые: ~0.35–0.95 с на экране */
-        const dur = faint
-            ? 0.32 + Math.random() * 0.38
-            : 0.48 + Math.random() * 0.52;
+        /* В два раза длиннее прежнего темпа (~1.0–2.0 с сильные, ~0.64–1.4 с слабые) */
+        const dur =
+            (faint ? 0.32 + Math.random() * 0.38 : 0.48 + Math.random() * 0.52) * 2;
 
         star.style.setProperty('--angle', `${angleDeg}deg`);
         star.style.setProperty('--travel', `${travel}px`);
@@ -3252,14 +3251,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (shootingStarTimer) clearTimeout(shootingStarTimer);
         if (fpShootingStarsReducedMotion()) return;
 
-        /* Редкие события: преимущественно длинные паузы, иногда чуть чаще */
+        /* Немного чаще, чем раньше, но без «дождя» */
         const u = Math.random();
-        const gapMs = 3800 + Math.pow(u, 1.55) * 58000;
+        const gapMs = 2400 + Math.pow(u, 1.45) * 40000;
 
         shootingStarTimer = window.setTimeout(() => {
             spawnShootingStar();
             /* Редкий «двойной» метеор за 1–2 с — как краткий активный участок */
-            if (Math.random() < 0.07) {
+            if (Math.random() < 0.11) {
                 window.setTimeout(spawnShootingStar, 160 + Math.random() * 520);
             }
             scheduleShootingStar();
