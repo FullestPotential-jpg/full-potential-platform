@@ -1500,13 +1500,14 @@
         padding: 0 10px;
     }
 
-    /* Блок с луной: уже по ширине и ниже по высоте на телефоне */
+    /* Блок с луной: на всю ширину экрана; высота задаётся aspect-ratio / max-height */
     #platform-main .welcome-section.night-scene-wrap {
-        width: 100%;
-        max-width: min(336px, calc(100vw - 40px));
-        margin-left: auto !important;
-        margin-right: auto !important;
+        width: 100vw;
+        max-width: none;
+        margin-left: calc(50% - 50vw) !important;
+        margin-right: calc(50% - 50vw) !important;
         margin-bottom: 10px !important;
+        border-radius: 0;
     }
     #platform-main .welcome-section.night-scene-wrap .modules-grid {
         margin-left: 0;
@@ -1564,9 +1565,6 @@
         padding: 0 5px;
     }
 
-    #platform-main .welcome-section.night-scene-wrap {
-        max-width: min(312px, calc(100vw - 28px));
-    }
     #platform-main .night-scene {
         aspect-ratio: 2.22 / 1;
         max-height: 156px;
