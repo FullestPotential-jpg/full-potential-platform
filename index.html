@@ -446,6 +446,8 @@
             pointer-events: none;
             z-index: 1;
             overflow: hidden;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
 
         .hero-header .hero-title {
@@ -1133,16 +1135,26 @@
             inset: 0;
             background-image:
                 radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.95), transparent),
-                radial-gradient(1px 1px at 28% 34%, rgba(255,255,255,0.75), transparent),
-                radial-gradient(1.2px 1.2px at 52% 22%, rgba(255,255,255,0.85), transparent),
-                radial-gradient(1px 1px at 76% 28%, rgba(255,255,255,0.68), transparent),
-                radial-gradient(1px 1px at 88% 14%, rgba(255,255,255,0.9), transparent),
-                radial-gradient(1px 1px at 66% 44%, rgba(255,255,255,0.5), transparent),
-                radial-gradient(1px 1px at 18% 56%, rgba(255,255,255,0.62), transparent),
-                radial-gradient(1px 1px at 40% 64%, rgba(255,255,255,0.58), transparent),
-                radial-gradient(1px 1px at 84% 60%, rgba(255,255,255,0.7), transparent);
+                radial-gradient(1px 1px at 28% 34%, rgba(255,255,255,0.78), transparent),
+                radial-gradient(1px 1px at 52% 22%, rgba(255,255,255,0.88), transparent),
+                radial-gradient(1px 1px at 76% 28%, rgba(255,255,255,0.72), transparent),
+                radial-gradient(1px 1px at 88% 14%, rgba(255,255,255,0.92), transparent),
+                radial-gradient(1px 1px at 66% 44%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1px 1px at 18% 56%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1px 1px at 40% 64%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 84% 60%, rgba(255,255,255,0.74), transparent),
+                radial-gradient(1px 1px at 71% 11%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 82% 19%, rgba(255,255,255,0.82), transparent),
+                radial-gradient(1px 1px at 93% 26%, rgba(255,255,255,0.75), transparent),
+                radial-gradient(1px 1px at 62% 15%, rgba(255,255,255,0.68), transparent),
+                radial-gradient(1px 1px at 48% 38%, rgba(255,255,255,0.58), transparent),
+                radial-gradient(1px 1px at 33% 22%, rgba(255,255,255,0.62), transparent),
+                radial-gradient(1px 1px at 22% 41%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1px 1px at 8% 28%, rgba(255,255,255,0.72), transparent),
+                radial-gradient(1px 1px at 55% 52%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 91% 44%, rgba(255,255,255,0.64), transparent);
             animation: skyDrift 28s linear infinite;
-            opacity: 0.9;
+            opacity: 0.94;
         }
         .night-scene::after {
             content: '';
@@ -1224,60 +1236,53 @@
             inset: 0;
             pointer-events: none;
             z-index: 1;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
         .shooting-star {
             position: absolute;
             width: clamp(72px, 16vw, 200px);
             height: 1px;
-            border-radius: 999px;
-            /* Хвост полупрозрачный, к голове — резче стык (без общего blur) */
+            border-radius: 0;
+            /* Контрастный хвост + резкая голова, без размытых ореолов */
             background: linear-gradient(
                 to right,
                 rgba(255, 255, 255, 0) 0%,
-                rgba(215, 232, 255, 0.22) 34%,
-                rgba(236, 244, 255, 0.62) 68%,
-                rgba(255, 255, 255, 0.98) 88%,
+                rgba(224, 238, 255, 0.28) 36%,
+                rgba(242, 248, 255, 0.78) 71%,
+                #ffffff 94%,
                 #ffffff 100%
             );
-            box-shadow:
-                0 0 1px rgba(255, 255, 255, 0.92),
-                0 0 5px rgba(195, 218, 255, 0.38);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
             transform-origin: left center;
             animation: shootingStarPath var(--dur, 1.7s) linear forwards;
             opacity: 0;
             will-change: transform, opacity;
             backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         .shooting-star.shooting-star--faint {
             width: clamp(56px, 12vw, 140px);
-            box-shadow:
-                0 0 1px rgba(255, 255, 255, 0.55),
-                0 0 4px rgba(210, 228, 255, 0.28);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22);
         }
         .shooting-star.shooting-star--faint::before {
-            width: 2.5px;
-            height: 2.5px;
-            box-shadow: 0 0 3px rgba(255, 255, 255, 0.65), 0 0 6px rgba(200, 225, 255, 0.35);
+            width: 2px;
+            height: 2px;
+            box-shadow: 0 0 1px rgba(255, 255, 255, 0.95), 0 0 3px rgba(210, 228, 255, 0.4);
         }
         .shooting-star::before {
             content: '';
             position: absolute;
-            right: -1px;
+            right: 0;
             top: 50%;
-            width: 3px;
-            height: 3px;
-            transform: translateY(-50%);
+            width: 2px;
+            height: 2px;
+            transform: translate(50%, -50%);
             border-radius: 50%;
-            background: radial-gradient(
-                circle at 32% 32%,
-                #ffffff 0%,
-                #eef4ff 42%,
-                rgba(195, 218, 255, 0.55) 58%,
-                transparent 68%
-            );
+            background: #ffffff;
             box-shadow:
-                0 0 3px rgba(255, 255, 255, 0.98),
-                0 0 8px rgba(188, 212, 255, 0.48);
+                0 0 1px rgba(255, 255, 255, 1),
+                0 0 3px rgba(200, 225, 255, 0.55);
         }
         @keyframes skyDrift {
             0% { transform: translateX(0); }
@@ -1288,23 +1293,23 @@
         @keyframes shootingStarPath {
             0% {
                 opacity: 0;
-                transform: rotate(var(--angle, 32deg)) translateX(0) scaleX(0.35);
+                transform: rotate(var(--angle, 32deg)) translateX(0) translateZ(0) scaleX(0.35);
             }
             4% {
                 opacity: 1;
-                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.06)) scaleX(1);
+                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.06)) translateZ(0) scaleX(1);
             }
             62% {
-                opacity: 0.92;
-                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.78)) scaleX(1);
+                opacity: 0.94;
+                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.78)) translateZ(0) scaleX(1);
             }
             82% {
-                opacity: 0.35;
-                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.94)) scaleX(0.92);
+                opacity: 0.38;
+                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.94)) translateZ(0) scaleX(0.94);
             }
             100% {
                 opacity: 0;
-                transform: rotate(var(--angle, 32deg)) translateX(var(--travel, 220px)) scaleX(0.82);
+                transform: rotate(var(--angle, 32deg)) translateX(var(--travel, 220px)) translateZ(0) scaleX(0.84);
             }
         }
 
@@ -3298,6 +3303,36 @@ document.addEventListener('DOMContentLoaded', function() {
         return { tEnter: tMin, tExit: tMax };
     }
 
+    /** Дополнительный метеор только над блоком с луной (не ломает чередование hero + ночь) */
+    function spawnExtraNightMeteor() {
+        if (fpShootingStarsReducedMotion()) return;
+        const nightLayer = document.getElementById('shootingStarsLayer');
+        const nightScene = document.getElementById('nightScene');
+        if (!nightLayer || !nightScene) return;
+        const wNight = nightScene.offsetWidth || 320;
+        const hNight = nightScene.offsetHeight || 190;
+        const faint = Math.random() < 0.3;
+        const thetaDeg = 18 + Math.pow(Math.random(), 0.85) * 44;
+        const theta = (thetaDeg * Math.PI) / 180;
+        const travelScale = faint ? 0.52 + Math.random() * 0.28 : 0.62 + Math.random() * 0.42;
+        const travel = Math.max(110, wNight * travelScale * (0.75 + Math.random() * 0.55));
+        const dx = Math.cos(theta) * travel;
+        const dy = Math.sin(theta) * travel;
+        const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+        const dur = (faint ? 0.32 + Math.random() * 0.38 : 0.48 + Math.random() * 0.52) * 2;
+        const leftPct = 0.03 + Math.random() * 0.72;
+        const topPct =
+            Math.random() < 0.68 ? 0.04 + Math.random() * 0.26 : 0.04 + Math.random() * 0.42;
+        fpAppendShootingStar(nightLayer, {
+            faint,
+            angleDeg,
+            travel,
+            dur,
+            leftPx: leftPct * wNight,
+            topPx: topPct * hNight
+        });
+    }
+
     function spawnShootingStar() {
         if (fpShootingStarsReducedMotion()) return;
 
@@ -3474,14 +3509,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (shootingStarTimer) clearTimeout(shootingStarTimer);
         if (fpShootingStarsReducedMotion()) return;
 
-        /* Немного чаще, чем раньше, но без «дождя» */
+        /* Частота метеоров; дополнительные — только над ночной сценой */
         const u = Math.random();
-        const gapMs = 2400 + Math.pow(u, 1.45) * 40000;
+        const gapMs = 1900 + Math.pow(u, 1.38) * 32000;
 
         shootingStarTimer = window.setTimeout(() => {
             spawnShootingStar();
-            /* Редкий «двойной» метеор за 1–2 с — как краткий активный участок */
-            if (Math.random() < 0.11) {
+            /* Вторая вспышка на блоке с луной */
+            if (Math.random() < 0.32) {
+                window.setTimeout(spawnExtraNightMeteor, 200 + Math.random() * 750);
+            }
+            /* Редкий «двойной» общий цикл */
+            if (Math.random() < 0.19) {
                 window.setTimeout(spawnShootingStar, 160 + Math.random() * 520);
             }
             scheduleShootingStar();
@@ -3495,6 +3534,9 @@ document.addEventListener('DOMContentLoaded', function() {
         window.__nightSceneInitialized = true;
         if (fpShootingStarsReducedMotion()) return;
         spawnShootingStar();
+        window.setTimeout(function () {
+            if (!fpShootingStarsReducedMotion()) spawnExtraNightMeteor();
+        }, 650 + Math.random() * 1100);
         scheduleShootingStar();
     }
 
