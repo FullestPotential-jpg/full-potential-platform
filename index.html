@@ -741,6 +741,41 @@
             font-weight: bold;
             color: var(--fp-night-text);
         }
+        /* Заголовок платформы: аккуратный градиент и лёгкая «дорожка звёзд» под текстом */
+        #platform-screen > .platform-header > .platform-logo--brand {
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-size: clamp(1.45rem, 4vw, 1.85rem);
+            font-weight: 600;
+            font-style: normal;
+            letter-spacing: 0.07em;
+            line-height: 1.2;
+            background: linear-gradient(118deg, #141e52 0%, #3859c9 38%, #2d4aa8 62%, #1a2860 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: none;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        #platform-screen > .platform-header > .platform-logo--brand::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: min(168px, 52vw);
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(180, 200, 255, 0.25) 20%,
+                rgba(130, 170, 255, 0.85) 50%,
+                rgba(180, 200, 255, 0.25) 80%,
+                transparent 100%
+            );
+            box-shadow: 0 0 12px rgba(140, 175, 255, 0.45);
+        }
         .goal-entry-wrap {
             padding: 14px 20px 6px;
         }
@@ -1125,14 +1160,91 @@
             min-height: 190px;
             border-radius: 0;
             overflow: hidden;
-            background: radial-gradient(circle at 72% 16%, rgba(226, 232, 255, 0.2) 0%, rgba(226, 232, 255, 0) 30%),
-                        linear-gradient(180deg, #060818 0%, #0f1438 58%, #111a44 100%);
+            background:
+                radial-gradient(ellipse 95% 70% at 8% 96%, rgba(255, 186, 160, 0.14) 0%, transparent 52%),
+                radial-gradient(ellipse 55% 45% at 22% 88%, rgba(186, 150, 255, 0.12) 0%, transparent 55%),
+                radial-gradient(circle at 72% 16%, rgba(226, 232, 255, 0.22) 0%, rgba(226, 232, 255, 0) 32%),
+                linear-gradient(180deg, #0a1030 0%, #142058 42%, #1c2870 68%, #1e2668 100%);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(8, 12, 42, 0.35);
+        }
+        /* Слоистые горы слева: сумерки с лёгким «альпийским» свечением, не серые */
+        .night-mountains {
+            position: absolute;
+            left: -10%;
+            bottom: -6%;
+            width: 88%;
+            height: 68%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: visible;
+        }
+        .night-mountains::before {
+            content: '';
+            position: absolute;
+            left: 12%;
+            top: 0;
+            width: 52%;
+            height: 42%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(200, 160, 255, 0.28), transparent 68%);
+            filter: blur(18px);
+            opacity: 0.85;
+            z-index: 0;
+        }
+        .night-mountains .nm-layer {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 104%;
+            height: 92%;
+        }
+        .night-mountains .nm-layer--far {
+            z-index: 1;
+            clip-path: polygon(
+                -3% 100%, -3% 52%, 4% 48%, 10% 58%, 18% 42%, 26% 50%, 34% 36%, 44% 44%, 54% 32%, 64% 38%, 74% 28%, 84% 36%, 94% 30%, 102% 36%, 102% 100%
+            );
+            background: linear-gradient(
+                180deg,
+                rgba(150, 170, 230, 0.42) 0%,
+                rgba(96, 115, 195, 0.72) 45%,
+                rgba(72, 90, 168, 0.82) 100%
+            );
+            opacity: 0.92;
+        }
+        .night-mountains .nm-layer--mid {
+            z-index: 2;
+            clip-path: polygon(
+                -4% 100%, -4% 62%, 6% 55%, 14% 68%, 24% 50%, 32% 58%, 42% 46%, 52% 54%, 63% 42%, 74% 50%, 85% 40%, 96% 48%, 104% 44%, 104% 100%
+            );
+            background: linear-gradient(
+                180deg,
+                rgba(255, 200, 190, 0.14) 0%,
+                rgba(92, 108, 188, 0.78) 18%,
+                rgba(58, 72, 150, 0.92) 100%
+            );
+            opacity: 0.96;
+        }
+        .night-mountains .nm-layer--near {
+            z-index: 3;
+            clip-path: polygon(
+                -5% 100%, -5% 72%, 8% 64%, 16% 78%, 28% 62%, 38% 72%, 50% 58%, 62% 70%, 75% 60%, 86% 76%, 100% 68%, 106% 100%
+            );
+            background: linear-gradient(
+                180deg,
+                rgba(255, 215, 200, 0.22) 0%,
+                rgba(255, 185, 170, 0.08) 8%,
+                rgba(52, 64, 128, 0.94) 22%,
+                rgba(38, 46, 98, 0.98) 100%
+            );
+            box-shadow:
+                inset 0 -18px 28px rgba(120, 150, 255, 0.08),
+                0 -1px 0 rgba(255, 235, 220, 0.22);
         }
         .night-scene::before {
             content: '';
             position: absolute;
             inset: 0;
+            z-index: 1;
             background-image:
                 radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.95), transparent),
                 radial-gradient(1px 1px at 28% 34%, rgba(255,255,255,0.78), transparent),
@@ -1162,13 +1274,23 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: 22%;
-            background: linear-gradient(180deg, rgba(8,12,35,0) 0%, rgba(7,10,30,0.55) 38%, rgba(5,7,24,0.96) 100%);
+            height: 26%;
+            z-index: 5;
+            background: linear-gradient(
+                    180deg,
+                    rgba(10, 14, 40, 0) 0%,
+                    rgba(18, 24, 70, 0.18) 40%,
+                    rgba(14, 18, 55, 0.42) 72%,
+                    rgba(12, 14, 48, 0.72) 100%
+                ),
+                linear-gradient(105deg, rgba(255, 200, 180, 0.06) 0%, transparent 42%);
+            pointer-events: none;
         }
         .night-moon {
             position: absolute;
             top: 11%;
             right: 14%;
+            z-index: 4;
             width: clamp(52px, 7vw, 92px);
             aspect-ratio: 1;
             border-radius: 50%;
@@ -1191,7 +1313,7 @@
             transform: translateX(-50%);
             width: clamp(26px, 5.8%, 46px);
             height: 26%;
-            z-index: 2;
+            z-index: 6;
             filter: drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72));
         }
         .night-person .person-head {
@@ -1582,7 +1704,7 @@
             position: absolute;
             inset: 0;
             pointer-events: none;
-            z-index: 1;
+            z-index: 3;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
         }
@@ -3234,7 +3356,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <!-- ЭКРАН ПЛАТФОРМЫ -->
             <div id="platform-screen" class="screen">
                 <div class="platform-header">
-                    <div class="platform-logo" data-i18n="platform.title">Платформа Полный Потенциал</div>
+                    <div class="platform-logo platform-logo--brand" data-i18n="platform.title">Полный Потенциал</div>
                     <div class="profile-menu">
                         <div class="profile-icon" onclick="toggleProfileMenu()" data-i18n-title="platform.profile_tooltip" title="Профиль">
                             <svg class="profile-icon-person" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -3286,6 +3408,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <section class="welcome-section night-scene-wrap">
                         <div class="modules-grid">
                             <div class="night-scene" id="nightScene">
+                                <div class="night-mountains" aria-hidden="true">
+                                    <span class="nm-layer nm-layer--far"></span>
+                                    <span class="nm-layer nm-layer--mid"></span>
+                                    <span class="nm-layer nm-layer--near"></span>
+                                </div>
                                 <div class="night-moon"></div>
                                 <div class="shooting-stars-layer" id="shootingStarsLayer"></div>
                                 <div class="night-person night-person--default" id="nightPerson" aria-hidden="true">
@@ -3415,7 +3542,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'result.banner': 'Теперь у вас есть доступ к материалам для вашего архетипа.',
             'result.goto_platform': 'Перейти на платформу',
             'result.retry': 'Пройти тест снова',
-            'platform.title': 'Платформа Полный Потенциал',
+            'platform.title': 'Полный Потенциал',
             'platform.profile_tooltip': 'Профиль',
             'platform.lang_group': 'Язык интерфейса',
             'platform.lang_ru': 'Русский',
@@ -3500,7 +3627,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'result.banner': 'You now have access to materials for your archetype.',
             'result.goto_platform': 'Go to platform',
             'result.retry': 'Retake the test',
-            'platform.title': 'Full Potential Platform',
+            'platform.title': 'Full Potential',
             'platform.profile_tooltip': 'Profile',
             'platform.lang_group': 'Interface language',
             'platform.lang_ru': 'Russian',
