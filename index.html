@@ -1231,6 +1231,289 @@
             right: 14%;
             transform: rotate(52deg);
         }
+        .night-person .person-head::after,
+        .night-person .person-torso::before {
+            content: none;
+            display: none;
+        }
+        .night-person .person-accent {
+            position: absolute;
+            left: 50%;
+            bottom: -2%;
+            width: 140%;
+            height: 55%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 0;
+        }
+
+        /* --- ПРОВИДЕЦ: творческий силуэт, намёк на «искру» и шарф --- */
+        .night-person.night-person--amygdala-dopamine-control {
+            width: clamp(26px, 5.6%, 46px);
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-head {
+            transform: translateX(-50%) rotate(-10deg);
+            background: linear-gradient(145deg, #f5e6d8 0%, #edd8c8 100%);
+            box-shadow: 0 -4px 0 rgba(210, 185, 240, 0.35) inset;
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-head::after {
+            display: block;
+            content: '';
+            position: absolute;
+            top: -18%;
+            right: 8%;
+            width: 42%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.95), rgba(220, 200, 255, 0.5) 55%, transparent 70%);
+            box-shadow: 0 0 6px rgba(200, 170, 255, 0.45);
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-torso {
+            background: linear-gradient(180deg, #faf6ff 0%, #ebe4ff 72%, #dfd5ff 100%);
+            border-radius: 46% 42% 28% 30%;
+            box-shadow: 0 -4px 0 rgba(255, 255, 255, 0.5) inset;
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-torso::before {
+            display: block;
+            content: '';
+            position: absolute;
+            left: -8%;
+            top: 8%;
+            width: 38%;
+            height: 52%;
+            border-radius: 60% 20% 40% 40%;
+            background: linear-gradient(160deg, rgba(230, 215, 255, 0.75), rgba(200, 185, 245, 0.35));
+            transform: rotate(-18deg);
+            z-index: -1;
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-arm {
+            background: linear-gradient(180deg, #f6f2ff, #e8defa);
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-arm.left {
+            transform: rotate(-76deg);
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-arm.right {
+            transform: rotate(38deg);
+        }
+        .night-person.night-person--amygdala-dopamine-control .person-accent {
+            opacity: 1;
+            background:
+                radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.95) 0 1.5px, transparent 2px),
+                radial-gradient(circle at 88% 38%, rgba(255, 230, 255, 0.85) 0 1px, transparent 1.5px);
+        }
+
+        /* --- КОММУНИКАТОР: открытая поза, «узлы» связи --- */
+        .night-person.night-person--amygdala-dopamine-connection .person-torso {
+            width: 66%;
+            border-radius: 42% 42% 26% 26%;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f6ff 100%);
+        }
+        .night-person.night-person--amygdala-dopamine-connection .person-arm.left {
+            left: 10%;
+            transform: rotate(-62deg);
+        }
+        .night-person.night-person--amygdala-dopamine-connection .person-arm.right {
+            right: 10%;
+            transform: rotate(62deg);
+        }
+        .night-person.night-person--amygdala-dopamine-connection .person-accent {
+            opacity: 1;
+            background:
+                radial-gradient(circle at 30% 55%, rgba(255, 255, 255, 0.9) 0 1.5px, transparent 2px),
+                radial-gradient(circle at 50% 48%, rgba(200, 220, 255, 0.9) 0 1.5px, transparent 2px),
+                radial-gradient(circle at 70% 55%, rgba(255, 255, 255, 0.85) 0 1.5px, transparent 2px),
+                linear-gradient(rgba(210, 228, 255, 0.45), rgba(210, 228, 255, 0.45)) center 52% / 48% 2px no-repeat;
+        }
+
+        /* --- НОМАД: капюшон, собранная поза --- */
+        .night-person.night-person--amygdala-serotonin-control .person-head {
+            width: 38%;
+            border-radius: 48% 48% 42% 42%;
+            box-shadow:
+                0 0 0 3px rgba(45, 55, 95, 0.35),
+                0 -9px 0 8px rgba(55, 65, 105, 0.52);
+            background: #dbc8b8;
+        }
+        .night-person.night-person--amygdala-serotonin-control .person-torso {
+            width: 56%;
+            border-radius: 38% 38% 22% 22%;
+            background: linear-gradient(180deg, #dce2f4 0%, #b8c4e8 100%);
+            box-shadow: 0 4px 12px rgba(20, 28, 60, 0.25);
+        }
+        .night-person.night-person--amygdala-serotonin-control .person-arm {
+            background: linear-gradient(180deg, #dce2f4, #aab8de);
+        }
+        .night-person.night-person--amygdala-serotonin-control .person-arm.left {
+            transform: rotate(-28deg);
+        }
+        .night-person.night-person--amygdala-serotonin-control .person-arm.right {
+            transform: rotate(28deg);
+        }
+        .night-person.night-person--amygdala-serotonin-control .person-accent {
+            opacity: 1;
+            bottom: 8%;
+            height: 35%;
+            border-radius: 50% 50% 0 0 / 80% 80% 0 0;
+            background: rgba(30, 38, 72, 0.12);
+            width: 95%;
+        }
+
+        /* --- ПОСРЕДНИК: симметрия, мягкие линии --- */
+        .night-person.night-person--amygdala-serotonin-connection .person-head {
+            border-radius: 50%;
+            background: #ecd9cb;
+        }
+        .night-person.night-person--amygdala-serotonin-connection .person-torso {
+            width: 60%;
+            border-radius: 48% 48% 36% 36%;
+            background: linear-gradient(180deg, #fefeff 0%, #eef2fb 85%);
+            box-shadow: 0 2px 10px rgba(100, 120, 180, 0.12);
+        }
+        .night-person.night-person--amygdala-serotonin-connection .person-arm.left {
+            transform: rotate(-44deg);
+        }
+        .night-person.night-person--amygdala-serotonin-connection .person-arm.right {
+            transform: rotate(44deg);
+        }
+        .night-person.night-person--amygdala-serotonin-connection .person-accent {
+            opacity: 1;
+            background:
+                linear-gradient(90deg, transparent 35%, rgba(255, 255, 255, 0.65) 47%, rgba(255, 255, 255, 0.65) 53%, transparent 65%) center 62% / 70% 3px no-repeat,
+                radial-gradient(circle at 50% 54%, rgba(200, 215, 245, 0.5) 0 5px, transparent 6px);
+        }
+
+        /* --- СТРАТЕГ: угловатость, «очки» --- */
+        .night-person.night-person--hippocampus-dopamine-control .person-head {
+            width: 30%;
+            border-radius: 45%;
+            background: #e8d5c8;
+        }
+        .night-person.night-person--hippocampus-dopamine-control .person-torso {
+            width: 58%;
+            border-radius: 14px 14px 12px 12px;
+            background: linear-gradient(180deg, #f4f6fb 0%, #dde5f5 100%);
+            box-shadow: inset 0 0 0 1px rgba(80, 100, 160, 0.15);
+        }
+        .night-person.night-person--hippocampus-dopamine-control .person-arm.left {
+            transform: rotate(-82deg);
+            height: 30%;
+        }
+        .night-person.night-person--hippocampus-dopamine-control .person-arm.right {
+            transform: rotate(18deg);
+            height: 28%;
+        }
+        .night-person.night-person--hippocampus-dopamine-control .person-accent {
+            opacity: 1;
+            left: 50%;
+            top: 4%;
+            bottom: auto;
+            height: 22%;
+            transform: translateX(-50%);
+            background:
+                linear-gradient(#2a3558, #2a3558) calc(50% - 7px) 28% / 10px 3px no-repeat,
+                linear-gradient(#2a3558, #2a3558) calc(50% + 7px) 28% / 10px 3px no-repeat,
+                linear-gradient(90deg, #2a3558, #2a3558) calc(50% - 12px) 30% / 24px 2px no-repeat;
+        }
+
+        /* --- ПИОНЕР: рюкзак, выдвинутый шаг --- */
+        .night-person.night-person--hippocampus-dopamine-connection {
+            transform: translateX(-50%) skewX(-4deg);
+            transform-origin: center bottom;
+        }
+        .night-person.night-person--hippocampus-dopamine-connection .person-head {
+            transform: translateX(-50%) skewX(4deg);
+            background: #eedbc8;
+        }
+        .night-person.night-person--hippocampus-dopamine-connection .person-torso {
+            transform: translateX(-50%) skewX(4deg);
+            background: linear-gradient(180deg, #ffffff 0%, #e8eefc 100%);
+        }
+        .night-person.night-person--hippocampus-dopamine-connection .person-arm {
+            transform-origin: top center;
+        }
+        .night-person.night-person--hippocampus-dopamine-connection .person-arm.left {
+            transform: skewX(4deg) rotate(-48deg);
+        }
+        .night-person.night-person--hippocampus-dopamine-connection .person-arm.right {
+            transform: skewX(4deg) rotate(48deg);
+        }
+        .night-person.night-person--hippocampus-dopamine-connection .person-accent {
+            opacity: 1;
+            left: 18%;
+            bottom: 18%;
+            width: 42%;
+            height: 38%;
+            transform: none;
+            border-radius: 8px 6px 10px 8px;
+            background: linear-gradient(180deg, #c8d4ec 0%, #9eb0d8 100%);
+            box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.35);
+            z-index: -1;
+        }
+
+        /* --- ИНЖЕНЕР: прямоугольник, линии чертежа --- */
+        .night-person.night-person--hippocampus-serotonin-control .person-head {
+            border-radius: 40%;
+            background: #dcccb8;
+        }
+        .night-person.night-person--hippocampus-serotonin-control .person-torso {
+            width: 54%;
+            border-radius: 6px 6px 10px 10px;
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f4 100%);
+            box-shadow: inset 0 -6px 0 rgba(180, 195, 225, 0.35);
+        }
+        .night-person.night-person--hippocampus-serotonin-control .person-arm.left {
+            transform: rotate(-22deg);
+            border-radius: 6px;
+        }
+        .night-person.night-person--hippocampus-serotonin-control .person-arm.right {
+            transform: rotate(22deg);
+            border-radius: 6px;
+        }
+        .night-person.night-person--hippocampus-serotonin-control .person-accent {
+            opacity: 1;
+            background:
+                linear-gradient(rgba(120, 140, 190, 0.35), rgba(120, 140, 190, 0.35)) center 44% / 55% 1px no-repeat,
+                linear-gradient(rgba(120, 140, 190, 0.35), rgba(120, 140, 190, 0.35)) center 52% / 62% 1px no-repeat,
+                linear-gradient(rgba(120, 140, 190, 0.35), rgba(120, 140, 190, 0.35)) center 60% / 48% 1px no-repeat;
+        }
+
+        /* --- ХРАНИТЕЛЬ: широкая опора, щит --- */
+        .night-person.night-person--hippocampus-serotonin-connection {
+            width: clamp(28px, 6%, 48px);
+        }
+        .night-person.night-person--hippocampus-serotonin-connection .person-head {
+            background: #e6d2c2;
+        }
+        .night-person.night-person--hippocampus-serotonin-connection .person-torso {
+            width: 70%;
+            border-radius: 36% 36% 22% 22%;
+            background: linear-gradient(180deg, #fdfefe 0%, #e8edf7 100%);
+            box-shadow: 0 6px 14px rgba(40, 55, 100, 0.12);
+        }
+        .night-person.night-person--hippocampus-serotonin-connection .person-arm.left {
+            transform: rotate(-58deg);
+            height: 36%;
+            top: 32%;
+        }
+        .night-person.night-person--hippocampus-serotonin-connection .person-arm.right {
+            transform: rotate(58deg);
+            height: 36%;
+            top: 32%;
+        }
+        .night-person.night-person--hippocampus-serotonin-connection .person-accent {
+            opacity: 1;
+            left: auto;
+            right: -8%;
+            bottom: 12%;
+            width: 38%;
+            height: 42%;
+            transform: none;
+            clip-path: polygon(50% 0%, 100% 22%, 100% 78%, 50% 100%, 0% 78%, 0% 22%);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.55), rgba(180, 200, 235, 0.45));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+
         .shooting-stars-layer {
             position: absolute;
             inset: 0;
@@ -2941,11 +3224,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="night-scene" id="nightScene">
                                 <div class="night-moon"></div>
                                 <div class="shooting-stars-layer" id="shootingStarsLayer"></div>
-                                <div class="night-person">
+                                <div class="night-person night-person--default" id="nightPerson" aria-hidden="true">
                                     <div class="person-head"></div>
                                     <div class="person-torso"></div>
                                     <div class="person-arm left"></div>
                                     <div class="person-arm right"></div>
+                                    <span class="person-accent"></span>
                                 </div>
                             </div>
                         </div>
@@ -3554,6 +3838,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (e) {
                 currentUser = null;
             }
+        }
+        if (typeof syncNightPersonArchetype === 'function') {
+            syncNightPersonArchetype(currentUser);
         }
 
         setTimeout(function () {
@@ -4345,6 +4632,23 @@ function resolveArchetypeKeyFromUser(user) {
     return null;
 }
 
+function syncNightPersonArchetype(user) {
+    var el = document.getElementById('nightPerson');
+    if (!el || typeof ARCHETYPE_SOURCE_RU === 'undefined') return;
+    var prefix = 'night-person--';
+    var keys = Object.keys(ARCHETYPE_SOURCE_RU);
+    for (var i = 0; i < keys.length; i++) {
+        el.classList.remove(prefix + keys[i]);
+    }
+    el.classList.remove('night-person--default');
+    var ak = user ? resolveArchetypeKeyFromUser(user) : null;
+    if (ak && ARCHETYPE_SOURCE_RU[ak]) {
+        el.classList.add(prefix + ak);
+    } else {
+        el.classList.add('night-person--default');
+    }
+}
+
 function fpArchetypeDisplayNameFromUser(user) {
     if (!user) return fpT('goal.archetype_fallback');
     if (user.personality_type === FP_MSG.ru['archetype.incomplete.name']) {
@@ -4627,6 +4931,9 @@ async function showResult() {
                     }
                 }
             }
+            syncNightPersonArchetype(currentUser);
+        } else {
+            syncNightPersonArchetype(null);
         }
     }
 
