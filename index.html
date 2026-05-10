@@ -1489,6 +1489,106 @@
                 drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72))
                 drop-shadow(0 0 18px rgba(255, 200, 150, 0.22));
         }
+        .night-person {
+            cursor: pointer;
+            transition: filter 0.22s ease;
+        }
+        .night-person:hover {
+            filter: drop-shadow(0 3px 10px rgba(0, 10, 42, 0.82))
+                brightness(1.07)
+                drop-shadow(0 0 14px rgba(255, 210, 170, 0.35));
+        }
+        .night-person:not(.night-person--default):hover {
+            filter:
+                drop-shadow(0 3px 10px rgba(0, 10, 42, 0.82))
+                brightness(1.06)
+                drop-shadow(0 0 22px rgba(255, 200, 150, 0.38));
+        }
+        .night-person:focus {
+            outline: none;
+        }
+        .night-person:focus-visible {
+            outline: 2px solid rgba(255, 218, 170, 0.95);
+            outline-offset: 4px;
+            border-radius: 12px;
+        }
+        .night-person-archetype-toast {
+            position: absolute;
+            left: 50%;
+            bottom: 38%;
+            z-index: 12;
+            max-width: min(300px, 90%);
+            transform: translateX(-50%) translateY(10px) scale(0.96);
+            padding: 14px 20px 16px;
+            border-radius: 18px;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            background: linear-gradient(
+                155deg,
+                rgba(255, 255, 255, 0.18) 0%,
+                rgba(140, 170, 255, 0.12) 45%,
+                rgba(30, 45, 110, 0.55) 100%
+            );
+            border: 1px solid rgba(255, 228, 200, 0.55);
+            box-shadow:
+                0 16px 44px rgba(4, 8, 40, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                0 0 32px rgba(120, 160, 255, 0.22);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition:
+                opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0s linear 0.38s;
+        }
+        .night-person-archetype-toast.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0) scale(1);
+            transition:
+                opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0s linear 0s;
+        }
+        .night-person-archetype-toast__line1 {
+            margin: 0;
+            font-size: clamp(0.84rem, 2.6vw, 1rem);
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            line-height: 1.35;
+            color: #fff;
+            text-shadow:
+                0 2px 14px rgba(0, 8, 36, 0.65),
+                0 0 24px rgba(100, 140, 255, 0.35);
+        }
+        .night-person-archetype-toast__line2 {
+            margin: 8px 0 0;
+            font-size: clamp(0.72rem, 2.1vw, 0.88rem);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            line-height: 1.3;
+            color: rgba(255, 224, 186, 0.96);
+            text-shadow: 0 2px 10px rgba(0, 6, 28, 0.55);
+        }
+        .night-person-archetype-toast__line2.is-hidden {
+            display: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .night-person-archetype-toast {
+                transition-duration: 0.08s;
+            }
+            .night-person:hover {
+                filter: drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72));
+            }
+            .night-person:not(.night-person--default):hover {
+                filter:
+                    drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72))
+                    drop-shadow(0 0 18px rgba(255, 200, 150, 0.22));
+            }
+        }
         .night-person .person-head {
             position: absolute;
             top: 0;
@@ -3642,12 +3742,19 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 <div class="night-moon"></div>
                                 <div class="shooting-stars-layer" id="shootingStarsLayer"></div>
-                                <div class="night-person night-person--default" id="nightPerson" aria-hidden="true">
+                                <div class="night-person night-person--default" id="nightPerson">
                                     <div class="person-head"></div>
                                     <div class="person-torso"></div>
                                     <div class="person-arm left"></div>
                                     <div class="person-arm right"></div>
                                     <span class="person-accent"></span>
+                                </div>
+                                <div
+                                    class="night-person-archetype-toast"
+                                    id="nightPersonArchetypeToast"
+                                    aria-hidden="true">
+                                    <p class="night-person-archetype-toast__line1" id="nightPersonToastLine1"></p>
+                                    <p class="night-person-archetype-toast__line2" id="nightPersonToastLine2"></p>
                                 </div>
                             </div>
                         </div>
@@ -3795,6 +3902,13 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back': '← Назад',
             'goal.screen_title': 'Моя цель',
             'goal.archetype_fallback': 'Ваш архетип',
+            'night_scene.archetype_icon_title': 'Иконка вашего архетипа',
+            'night_scene.archetype_icon_pending':
+                'Пройдите тест — здесь появится фигурка вашего архетипа.',
+            'night_scene.archetype_icon_incomplete':
+                'Пройдите тест ещё раз — данные архетипа неполные.',
+            'night_scene.person_aria_default': 'Подсказка об иконке архетипа — нажмите',
+            'night_scene.person_aria_known': 'Подсказка об иконке этого архетипа — нажмите',
             'value.screen_title': 'Ценность',
             'premium.back': '← Назад к платформе',
             'premium.main_value_title': 'Главная ценность',
@@ -3882,6 +3996,13 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back': '← Back',
             'goal.screen_title': 'My goal',
             'goal.archetype_fallback': 'Your archetype',
+            'night_scene.archetype_icon_title': 'Your archetype icon',
+            'night_scene.archetype_icon_pending':
+                'Take the scan — your archetype figure will appear here.',
+            'night_scene.archetype_icon_incomplete':
+                'Retake the scan — archetype data is incomplete.',
+            'night_scene.person_aria_default': 'Tip about your archetype icon — tap',
+            'night_scene.person_aria_known': 'Tip about this archetype icon — tap',
             'value.screen_title': 'Value',
             'premium.back': '← Back to platform',
             'premium.main_value_title': 'Main value',
@@ -4307,6 +4428,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (typeof syncNightPersonArchetype === 'function') {
             syncNightPersonArchetype(currentUser);
+        }
+        if (typeof fpBindNightPersonArchetypeInteractions === 'function') {
+            fpBindNightPersonArchetypeInteractions();
         }
 
         setTimeout(function () {
@@ -5098,6 +5222,87 @@ function resolveArchetypeKeyFromUser(user) {
     return null;
 }
 
+var fpNightPersonToastTimer = null;
+
+function fpDismissNightPersonArchetypeToast() {
+    var toast = document.getElementById('nightPersonArchetypeToast');
+    if (toast) {
+        toast.classList.remove('is-visible');
+        toast.setAttribute('aria-hidden', 'true');
+    }
+    fpNightPersonToastTimer = null;
+}
+
+function fpShowNightPersonArchetypeToast() {
+    var toast = document.getElementById('nightPersonArchetypeToast');
+    var line1 = document.getElementById('nightPersonToastLine1');
+    var line2 = document.getElementById('nightPersonToastLine2');
+    if (!toast || !line1 || !line2) return;
+    if (fpNightPersonToastTimer) {
+        clearTimeout(fpNightPersonToastTimer);
+        fpNightPersonToastTimer = null;
+    }
+    var user = typeof currentUser !== 'undefined' ? currentUser : null;
+    var ak = user ? resolveArchetypeKeyFromUser(user) : null;
+    var hasKnown = ak && typeof ARCHETYPE_SOURCE_RU !== 'undefined' && ARCHETYPE_SOURCE_RU[ak];
+    var incomplete =
+        user &&
+        user.personality_type &&
+        user.personality_type === FP_MSG.ru['archetype.incomplete.name'];
+
+    if (hasKnown) {
+        line1.textContent = fpT('night_scene.archetype_icon_title');
+        line2.textContent = fpArchetypeDisplayNameFromUser(user);
+        line2.classList.remove('is-hidden');
+    } else if (incomplete) {
+        line1.textContent = fpT('night_scene.archetype_icon_incomplete');
+        line2.textContent = '';
+        line2.classList.add('is-hidden');
+    } else {
+        line1.textContent = fpT('night_scene.archetype_icon_pending');
+        line2.textContent = '';
+        line2.classList.add('is-hidden');
+    }
+
+    toast.setAttribute('aria-hidden', 'false');
+    toast.classList.add('is-visible');
+
+    fpNightPersonToastTimer = window.setTimeout(function () {
+        fpDismissNightPersonArchetypeToast();
+    }, 2500);
+}
+
+function fpRefreshNightPersonTapAria(personEl, user) {
+    if (!personEl) return;
+    personEl.setAttribute('role', 'button');
+    personEl.setAttribute('tabindex', '0');
+    personEl.removeAttribute('aria-hidden');
+    var ak = user ? resolveArchetypeKeyFromUser(user) : null;
+    var hasKnown = ak && ARCHETYPE_SOURCE_RU[ak];
+    personEl.setAttribute(
+        'aria-label',
+        fpT(hasKnown ? 'night_scene.person_aria_known' : 'night_scene.person_aria_default')
+    );
+}
+
+function fpBindNightPersonArchetypeInteractions() {
+    var root = document.getElementById('nightPerson');
+    if (!root || root.dataset.fpArchetypeTapBound === '1') return;
+    root.dataset.fpArchetypeTapBound = '1';
+    root.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        fpShowNightPersonArchetypeToast();
+    });
+    root.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            fpShowNightPersonArchetypeToast();
+        }
+    });
+    fpRefreshNightPersonTapAria(root, typeof currentUser !== 'undefined' ? currentUser : null);
+}
+
 function syncNightPersonArchetype(user) {
     var el = document.getElementById('nightPerson');
     if (!el || typeof ARCHETYPE_SOURCE_RU === 'undefined') return;
@@ -5113,6 +5318,7 @@ function syncNightPersonArchetype(user) {
     } else {
         el.classList.add('night-person--default');
     }
+    fpRefreshNightPersonTapAria(el, user);
 }
 
 function fpArchetypeDisplayNameFromUser(user) {
