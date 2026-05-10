@@ -1489,44 +1489,6 @@
                 drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72))
                 drop-shadow(0 0 18px rgba(255, 200, 150, 0.22));
         }
-        .night-person-caption {
-            position: absolute;
-            left: 50%;
-            bottom: clamp(8px, 2vw, 14px);
-            transform: translateX(-50%);
-            z-index: 8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            max-width: min(340px, 92%);
-            padding: 8px 16px 11px;
-            border-radius: 14px;
-            background: rgba(10, 14, 42, 0.88);
-            border: 1px solid rgba(255, 214, 170, 0.5);
-            box-shadow:
-                0 6px 22px rgba(0, 4, 28, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.14);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            pointer-events: none;
-        }
-        .night-person-caption__kicker {
-            font-size: 0.62rem;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: rgba(255, 224, 196, 0.88);
-        }
-        .night-person-caption__name {
-            font-size: clamp(0.8rem, 2.2vw, 1rem);
-            font-weight: 800;
-            color: #fff;
-            text-align: center;
-            line-height: 1.2;
-            letter-spacing: 0.02em;
-            text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
-        }
         .night-person .person-head {
             position: absolute;
             top: 0;
@@ -3687,10 +3649,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <div class="person-arm right"></div>
                                     <span class="person-accent"></span>
                                 </div>
-                                <div class="night-person-caption" id="nightPersonCaption" hidden aria-live="polite">
-                                    <span class="night-person-caption__kicker" data-i18n="night_scene.caption_kicker">Мой архетип</span>
-                                    <span class="night-person-caption__name" id="nightPersonCaptionName"></span>
-                                </div>
                             </div>
                         </div>
                     </section>
@@ -3837,7 +3795,6 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back': '← Назад',
             'goal.screen_title': 'Моя цель',
             'goal.archetype_fallback': 'Ваш архетип',
-            'night_scene.caption_kicker': 'Мой архетип',
             'value.screen_title': 'Ценность',
             'premium.back': '← Назад к платформе',
             'premium.main_value_title': 'Главная ценность',
@@ -3925,7 +3882,6 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back': '← Back',
             'goal.screen_title': 'My goal',
             'goal.archetype_fallback': 'Your archetype',
-            'night_scene.caption_kicker': 'My archetype',
             'value.screen_title': 'Value',
             'premium.back': '← Back to platform',
             'premium.main_value_title': 'Main value',
@@ -5102,8 +5058,6 @@ function resolveArchetypeKeyFromUser(user) {
 
 function syncNightPersonArchetype(user) {
     var el = document.getElementById('nightPerson');
-    var cap = document.getElementById('nightPersonCaption');
-    var capName = document.getElementById('nightPersonCaptionName');
     if (!el || typeof ARCHETYPE_SOURCE_RU === 'undefined') return;
     var prefix = 'night-person--';
     var keys = Object.keys(ARCHETYPE_SOURCE_RU);
@@ -5114,12 +5068,8 @@ function syncNightPersonArchetype(user) {
     var ak = user ? resolveArchetypeKeyFromUser(user) : null;
     if (ak && ARCHETYPE_SOURCE_RU[ak]) {
         el.classList.add(prefix + ak);
-        if (cap) cap.hidden = false;
-        if (capName) capName.textContent = fpArchetypeDisplayNameFromUser(user);
     } else {
         el.classList.add('night-person--default');
-        if (cap) cap.hidden = true;
-        if (capName) capName.textContent = '';
     }
 }
 
@@ -9190,3 +9140,5 @@ if (typeof supabase !== 'undefined') {
     
 </body>
 </html>
+
+    
