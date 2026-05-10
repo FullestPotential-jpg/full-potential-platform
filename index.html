@@ -3965,6 +3965,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /** 21:00–04:00 по Москве (Europe/Moscow): звёзды только траекторией верхний блок → нижний */
+    function fpMskHeroThroughNightWindow() {
+        try {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Europe/Moscow',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: false
+            }).formatToParts(new Date());
+            let hour = 0;
+            let minute = 0;
+            parts.forEach(function (p) {
+                if (p.type === 'hour') hour = parseInt(p.value, 10);
+                if (p.type === 'minute') minute = parseInt(p.value, 10);
+            });
+            const mins = hour * 60 + minute;
+            return mins >= 21 * 60 || mins < 4 * 60;
+        } catch (e) {
+            return false;
+        }
+    }
+
     function fpAppendShootingStar(layer, opts) {
         if (!layer || fpShootingStarsReducedMotion()) return null;
         const faint = opts.faint;
@@ -4014,6 +4036,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /** Дополнительный метеор только над блоком с луной (не ломает чередование hero + ночь) */
     function spawnExtraNightMeteor() {
         if (fpShootingStarsReducedMotion()) return;
+        if (fpMskHeroThroughNightWindow()) return;
         const nightLayer = document.getElementById('shootingStarsLayer');
         const nightScene = document.getElementById('nightScene');
         if (!nightLayer || !nightScene) return;
@@ -4041,8 +4064,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function spawnShootingStar() {
+    function spawnShootingStar(mskGeoRetryOpts) {
         if (fpShootingStarsReducedMotion()) return;
+        mskGeoRetryOpts = mskGeoRetryOpts || {};
 
         const nightLayer = document.getElementById('shootingStarsLayer');
         const heroLayer = document.getElementById('heroShootingStarsLayer');
@@ -4051,8 +4075,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!nightLayer || !nightScene) return;
 
-        fpShootingStarSeq += 1;
-        const linked = fpShootingStarSeq % 2 === 0;
+        const mskNight = fpMskHeroThroughNightWindow();
+        if (mskNight && (!heroLayer || !heroLayer.isConnected)) return;
+
+        if (!mskGeoRetryOpts.fpRetryGeo) {
+            fpShootingStarSeq += 1;
+        }
+
+        const linked = mskNight || fpShootingStarSeq % 2 === 0;
 
         const faint = Math.random() < 0.26;
 
@@ -4133,7 +4163,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let tNightEnter = 0;
         let tNightExit = 0;
 
-        for (let attempt = 0; attempt < 22; attempt++) {
+        const geoAttempts = mskNight ? 72 : 22;
+        for (let attempt = 0; attempt < geoAttempts; attempt++) {
             P0x = heroRect.left + (0.04 + Math.random() * 0.74) * heroRect.width;
             P0y = heroRect.top + (0.06 + Math.random() * 0.4) * heroRect.height;
 
@@ -4163,6 +4194,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (!geoOk) {
+            const retryCount = mskGeoRetryOpts.fpMskGeoRetries || 0;
+            if (mskNight && retryCount < 12) {
+                window.setTimeout(function () {
+                    spawnShootingStar({
+                        fpRetryGeo: true,
+                        fpMskGeoRetries: retryCount + 1
+                    });
+                }, 18 + Math.random() * 45);
+                return;
+            }
+            if (mskNight) return;
             fpAppendShootingStar(nightLayer, {
                 faint,
                 angleDeg,
@@ -4223,8 +4265,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         shootingStarTimer = window.setTimeout(() => {
             spawnShootingStar();
-            /* Вторая вспышка на блоке с луной */
-            if (Math.random() < 0.32) {
+            /* Вторая вспышка на блоке с луной — не в московское окно hero→night */
+            if (!fpMskHeroThroughNightWindow() && Math.random() < 0.32) {
                 window.setTimeout(spawnExtraNightMeteor, 200 + Math.random() * 750);
             }
             /* Редкий «двойной» общий цикл */
@@ -4243,7 +4285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fpShootingStarsReducedMotion()) return;
         spawnShootingStar();
         window.setTimeout(function () {
-            if (!fpShootingStarsReducedMotion()) spawnExtraNightMeteor();
+            if (!fpShootingStarsReducedMotion() && !fpMskHeroThroughNightWindow()) spawnExtraNightMeteor();
         }, 650 + Math.random() * 1100);
         scheduleShootingStar();
     }
@@ -9140,5 +9182,3 @@ if (typeof supabase !== 'undefined') {
     
 </body>
 </html>
-
-    
