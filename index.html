@@ -1466,6 +1466,67 @@
             z-index: 6;
             filter: drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72));
         }
+        .night-person:not(.night-person--default)::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -6%;
+            width: 155%;
+            height: 92%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(255, 210, 160, 0.28) 0%,
+                rgba(120, 160, 255, 0.14) 42%,
+                transparent 70%
+            );
+            z-index: -1;
+            pointer-events: none;
+        }
+        .night-person:not(.night-person--default) {
+            filter:
+                drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72))
+                drop-shadow(0 0 18px rgba(255, 200, 150, 0.22));
+        }
+        .night-person-caption {
+            position: absolute;
+            left: 50%;
+            bottom: clamp(8px, 2vw, 14px);
+            transform: translateX(-50%);
+            z-index: 8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            max-width: min(340px, 92%);
+            padding: 8px 16px 11px;
+            border-radius: 14px;
+            background: rgba(10, 14, 42, 0.88);
+            border: 1px solid rgba(255, 214, 170, 0.5);
+            box-shadow:
+                0 6px 22px rgba(0, 4, 28, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            pointer-events: none;
+        }
+        .night-person-caption__kicker {
+            font-size: 0.62rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: rgba(255, 224, 196, 0.88);
+        }
+        .night-person-caption__name {
+            font-size: clamp(0.8rem, 2.2vw, 1rem);
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            line-height: 1.2;
+            letter-spacing: 0.02em;
+            text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+        }
         .night-person .person-head {
             position: absolute;
             top: 0;
@@ -1486,6 +1547,20 @@
             border-radius: 44% 44% 24% 24%;
             background: #ffffff;
             box-shadow: 0 -3px 0 rgba(255,255,255,0.45) inset, 0 0 10px rgba(255,255,255,0.22);
+        }
+        .night-person.night-person--default .person-torso {
+            background: linear-gradient(180deg, #f4f6ff 0%, #dce3f5 100%);
+            box-shadow:
+                0 -3px 0 rgba(255, 255, 255, 0.5) inset,
+                0 0 0 2px rgba(28, 40, 85, 0.55),
+                0 4px 12px rgba(0, 12, 40, 0.35);
+        }
+        .night-person.night-person--default .person-arm {
+            box-shadow: 0 0 0 2px rgba(28, 40, 85, 0.45);
+            background: linear-gradient(180deg, #eef2fb, #d5dff0);
+        }
+        .night-person.night-person--default .person-head {
+            box-shadow: 0 0 0 2px rgba(28, 40, 85, 0.38);
         }
         .night-person .person-arm {
             position: absolute;
@@ -1583,9 +1658,10 @@
             opacity: 1;
             z-index: 4;
             background:
-                radial-gradient(circle at 72% 14%, #ffffff 0 3px, rgba(255, 255, 255, 0.5) 4px, transparent 5px),
-                radial-gradient(circle at 86% 28%, #fff5ff 0 2px, transparent 3.5px),
-                radial-gradient(circle at 92% 42%, #ffffff 0 2px, transparent 3px);
+                radial-gradient(circle at 72% 14%, #fffef0 0 2px, #fbbf24 3px 4px, #7c3aed 5px 8px, transparent 9px),
+                radial-gradient(circle at 86% 28%, #ffffff 0 2px, #6366f1 3px 6px, #312e81 7px, transparent 10px),
+                radial-gradient(circle at 92% 42%, #fef3c7 0 2px, #a855f7 3px 7px, transparent 9px);
+            filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.75));
         }
 
         /* --- КОММУНИКАТОР: крупные узлы и жирная «связь» --- */
@@ -1607,10 +1683,12 @@
             opacity: 1;
             z-index: 4;
             background:
-                radial-gradient(circle at 26% 54%, #ffffff 0 4px, rgba(180, 205, 255, 0.9) 5px, transparent 6px),
-                radial-gradient(circle at 50% 46%, #ffffff 0 4px, rgba(180, 205, 255, 0.9) 5px, transparent 6px),
-                radial-gradient(circle at 74% 54%, #ffffff 0 4px, rgba(180, 205, 255, 0.9) 5px, transparent 6px),
-                linear-gradient(#cfe0ff, #cfe0ff) center 52% / 58% 4px no-repeat;
+                radial-gradient(circle at 26% 54%, #ffffff 0 3px, #38bdf8 4px 7px, #1d4ed8 8px 10px, transparent 11px),
+                radial-gradient(circle at 50% 46%, #ffffff 0 3px, #38bdf8 4px 7px, #1d4ed8 8px 10px, transparent 11px),
+                radial-gradient(circle at 74% 54%, #ffffff 0 3px, #38bdf8 4px 7px, #1d4ed8 8px 10px, transparent 11px),
+                linear-gradient(#93c5fd, #38bdf8) center 52% / 62% 7px no-repeat,
+                linear-gradient(#0f172a, #0f172a) center 52% / 64% 9px no-repeat;
+            filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.55));
         }
 
         /* --- НОМАД: читаемый капюшон + поясная сумка с контуром --- */
@@ -1650,10 +1728,14 @@
             width: 72%;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(180deg, rgba(35, 42, 78, 0.55), rgba(25, 32, 62, 0.72));
+            background:
+                linear-gradient(180deg, #f59e0b 0%, #d97706 100%) 78% 26% / 18% 22% no-repeat,
+                linear-gradient(180deg, rgba(42, 52, 98, 0.95), rgba(22, 28, 58, 0.98));
             box-shadow:
-                inset 0 0 0 2px rgba(255, 255, 255, 0.35),
-                0 4px 12px rgba(0, 0, 0, 0.35);
+                inset 0 0 0 2px rgba(255, 255, 255, 0.55),
+                inset 0 -4px 0 rgba(0, 0, 0, 0.25),
+                0 0 0 2px rgba(15, 23, 42, 0.65),
+                0 6px 14px rgba(0, 0, 0, 0.45);
         }
 
         /* --- ПОСРЕДНИК: чаши + ось — крупнее --- */
@@ -1680,10 +1762,12 @@
             opacity: 1;
             z-index: 4;
             background:
-                radial-gradient(circle at 34% 56%, #ffffff 0 6px, rgba(170, 190, 235, 0.95) 7px, rgba(90, 110, 170, 0.55) 8px, transparent 10px),
-                radial-gradient(circle at 66% 56%, #ffffff 0 6px, rgba(170, 190, 235, 0.95) 7px, rgba(90, 110, 170, 0.55) 8px, transparent 10px),
-                linear-gradient(#ffffff, #ffffff) center 58% / 22% 5px no-repeat,
-                linear-gradient(90deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)) center 62% / 42% 5px no-repeat;
+                radial-gradient(circle at 34% 56%, #f8fafc 0 5px, #64748b 6px 8px, #334155 9px 11px, transparent 13px),
+                radial-gradient(circle at 66% 56%, #f8fafc 0 5px, #64748b 6px 8px, #334155 9px 11px, transparent 13px),
+                linear-gradient(#f1f5f9, #e2e8f0) center 58% / 24% 7px no-repeat,
+                linear-gradient(90deg, #cbd5e1, #94a3b8) center 62% / 44% 7px no-repeat,
+                linear-gradient(#0f172a, #0f172a) center 63% / 46% 9px no-repeat;
+            filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.5));
         }
 
         /* --- СТРАТЕГ: крупные «стёкла» и переносица --- */
@@ -1717,13 +1801,13 @@
             bottom: auto;
             height: 26%;
             transform: translateX(-50%);
-            /* Обводка линз + светлое стекло + переносица */
             background:
-                linear-gradient(#152042, #152042) calc(50% - 11px) 31% / 15px 8px no-repeat,
-                linear-gradient(#152042, #152042) calc(50% + 11px) 31% / 15px 8px no-repeat,
-                linear-gradient(#eef3ff, #dce8ff) calc(50% - 11px) 32% / 12px 5px no-repeat,
-                linear-gradient(#eef3ff, #dce8ff) calc(50% + 11px) 32% / 12px 5px no-repeat,
-                linear-gradient(#152042, #152042) calc(50% - 20px) 36% / 40px 5px no-repeat;
+                linear-gradient(#0c1228, #0c1228) calc(50% - 11px) 29% / 17px 11px no-repeat,
+                linear-gradient(#0c1228, #0c1228) calc(50% + 11px) 29% / 17px 11px no-repeat,
+                linear-gradient(145deg, #a5f3fc 0%, #22d3ee 45%, #0ea5e9 100%) calc(50% - 11px) 31% / 13px 6px no-repeat,
+                linear-gradient(145deg, #a5f3fc 0%, #22d3ee 45%, #0ea5e9 100%) calc(50% + 11px) 31% / 13px 6px no-repeat,
+                linear-gradient(#020617, #020617) calc(50% - 20px) 36% / 42px 7px no-repeat;
+            filter: drop-shadow(0 1px 4px rgba(34, 211, 238, 0.45));
         }
 
         /* --- ПИОНЕР: рюкзак крупнее, обводка и «молния» --- */
@@ -1762,12 +1846,13 @@
             border-radius: 10px 8px 14px 10px;
             z-index: 0;
             background:
-                linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.35)) 42% 42% / 8% 46% no-repeat,
-                linear-gradient(180deg, #b8c8e8 0%, #8fa6cf 55%, #758bb8 100%);
+                linear-gradient(180deg, #fde68a 0%, #f59e0b 55%, #b45309 100%) 44% 36% / 10% 52% no-repeat,
+                linear-gradient(180deg, #cbd5f5 0%, #818cf8 45%, #4338ca 100%);
             box-shadow:
-                0 0 0 2px rgba(255, 255, 255, 0.55),
-                0 0 0 3px rgba(25, 38, 72, 0.45),
-                inset -3px 0 0 rgba(255, 255, 255, 0.25);
+                0 0 0 2px rgba(255, 255, 255, 0.75),
+                0 0 0 4px rgba(15, 23, 42, 0.65),
+                inset -4px 0 0 rgba(255, 255, 255, 0.35),
+                0 8px 18px rgba(0, 12, 40, 0.4);
         }
 
         /* --- ИНЖЕНЕР: яркие линии чертежа --- */
@@ -1795,13 +1880,17 @@
         .night-person.night-person--hippocampus-serotonin-control .person-accent {
             opacity: 1;
             z-index: 4;
+            border-radius: 8px;
             background:
-                linear-gradient(#ffffff, #ffffff) center 42% / 58% 3px no-repeat,
-                linear-gradient(#ffffff, #ffffff) center 52% / 68% 3px no-repeat,
-                linear-gradient(#ffffff, #ffffff) center 62% / 52% 3px no-repeat,
-                linear-gradient(rgba(60, 85, 140, 0.85), rgba(60, 85, 140, 0.85)) center 43% / 58% 1px no-repeat,
-                linear-gradient(rgba(60, 85, 140, 0.85), rgba(60, 85, 140, 0.85)) center 53% / 68% 1px no-repeat,
-                linear-gradient(rgba(60, 85, 140, 0.85), rgba(60, 85, 140, 0.85)) center 63% / 52% 1px no-repeat;
+                linear-gradient(165deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.88)) center 38% / 72% 54% no-repeat,
+                linear-gradient(#38bdf8, #38bdf8) center 42% / 60% 5px no-repeat,
+                linear-gradient(#38bdf8, #38bdf8) center 52% / 70% 5px no-repeat,
+                linear-gradient(#38bdf8, #38bdf8) center 62% / 54% 5px no-repeat,
+                linear-gradient(#0ea5e9, #0ea5e9) center 43.5% / 60% 2px no-repeat,
+                linear-gradient(#0ea5e9, #0ea5e9) center 53.5% / 70% 2px no-repeat,
+                linear-gradient(#0ea5e9, #0ea5e9) center 63.5% / 54% 2px no-repeat;
+            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35);
+            filter: drop-shadow(0 2px 6px rgba(14, 165, 233, 0.35));
         }
 
         /* --- ХРАНИТЕЛЬ: крупный щит с металлическим контуром --- */
@@ -1842,12 +1931,20 @@
             height: 48%;
             transform: none;
             clip-path: polygon(50% 0%, 100% 22%, 100% 78%, 50% 100%, 0% 78%, 0% 22%);
-            background: linear-gradient(155deg, rgba(255, 255, 255, 0.92) 0%, rgba(200, 218, 248, 0.75) 55%, rgba(150, 178, 228, 0.65) 100%);
+            background: linear-gradient(
+                155deg,
+                #f8fafc 0%,
+                #bfdbfe 38%,
+                #60a5fa 58%,
+                #2563eb 85%,
+                #1e40af 100%
+            );
             box-shadow:
-                inset 0 0 0 3px rgba(255, 255, 255, 0.65),
-                inset 0 0 0 5px rgba(40, 58, 110, 0.35),
-                0 0 0 2px rgba(20, 30, 65, 0.55),
-                0 10px 22px rgba(0, 15, 45, 0.45);
+                inset 0 0 0 3px rgba(255, 255, 255, 0.85),
+                inset 0 0 0 6px rgba(15, 23, 42, 0.45),
+                0 0 0 3px rgba(251, 191, 36, 0.55),
+                0 12px 26px rgba(0, 15, 45, 0.55);
+            filter: drop-shadow(0 4px 10px rgba(37, 99, 235, 0.45));
         }
 
         .shooting-stars-layer {
@@ -3590,6 +3687,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <div class="person-arm right"></div>
                                     <span class="person-accent"></span>
                                 </div>
+                                <div class="night-person-caption" id="nightPersonCaption" hidden aria-live="polite">
+                                    <span class="night-person-caption__kicker" data-i18n="night_scene.caption_kicker">Мой архетип</span>
+                                    <span class="night-person-caption__name" id="nightPersonCaptionName"></span>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -3736,6 +3837,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back': '← Назад',
             'goal.screen_title': 'Моя цель',
             'goal.archetype_fallback': 'Ваш архетип',
+            'night_scene.caption_kicker': 'Мой архетип',
             'value.screen_title': 'Ценность',
             'premium.back': '← Назад к платформе',
             'premium.main_value_title': 'Главная ценность',
@@ -3823,6 +3925,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back': '← Back',
             'goal.screen_title': 'My goal',
             'goal.archetype_fallback': 'Your archetype',
+            'night_scene.caption_kicker': 'My archetype',
             'value.screen_title': 'Value',
             'premium.back': '← Back to platform',
             'premium.main_value_title': 'Main value',
@@ -4999,6 +5102,8 @@ function resolveArchetypeKeyFromUser(user) {
 
 function syncNightPersonArchetype(user) {
     var el = document.getElementById('nightPerson');
+    var cap = document.getElementById('nightPersonCaption');
+    var capName = document.getElementById('nightPersonCaptionName');
     if (!el || typeof ARCHETYPE_SOURCE_RU === 'undefined') return;
     var prefix = 'night-person--';
     var keys = Object.keys(ARCHETYPE_SOURCE_RU);
@@ -5009,8 +5114,12 @@ function syncNightPersonArchetype(user) {
     var ak = user ? resolveArchetypeKeyFromUser(user) : null;
     if (ak && ARCHETYPE_SOURCE_RU[ak]) {
         el.classList.add(prefix + ak);
+        if (cap) cap.hidden = false;
+        if (capName) capName.textContent = fpArchetypeDisplayNameFromUser(user);
     } else {
         el.classList.add('night-person--default');
+        if (cap) cap.hidden = true;
+        if (capName) capName.textContent = '';
     }
 }
 
