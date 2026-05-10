@@ -3904,7 +3904,7 @@ let userScores = {
     axisC: { control: 0, connection: 0 }
 };
 
-const archetypeMap = {
+const ARCHETYPE_SOURCE_RU = {
     "amygdala-dopamine-control": {
         name: "ПРОВИДЕЦ",
         description: `
@@ -4010,6 +4010,151 @@ const archetypeMap = {
         `
     }
 };
+
+const ARCHETYPE_SOURCE_EN = {
+    "amygdala-dopamine-control": {
+        name: "SEER",
+        description: `
+            <h4>Your core: SEER</h4>
+            <p>You see the future in whole images and burn with new ideas, yet you need full control over how they are realized. Chaos and others editing your vision are your main stress.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Creating radically new things; seeing what does not yet exist</li>
+                <li>⚠️ <strong>Weak spot:</strong> Low tolerance for chaos and external control</li>
+                <li>💡 <strong>Growth edge:</strong> Delegate routine while keeping strategic control</li>
+                <li>🚀 <strong>Ideal environment:</strong> Autonomy, your own rules, clear boundaries of responsibility</li>
+            </ul>
+        `
+    },
+    "amygdala-dopamine-connection": {
+        name: "COMMUNICATOR",
+        description: `
+            <h4>Your core: COMMUNICATOR</h4>
+            <p>You weave connections and meaning, generate ideas easily, and draw energy from social interaction. Losing the group’s link or not being recognized feels like a core threat.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Shaping emotional climate, inspiring, uniting people</li>
+                <li>⚠️ <strong>Weak spot:</strong> Need for external feedback and approval</li>
+                <li>💡 <strong>Growth edge:</strong> Build depth in relationships; avoid isolation</li>
+                <li>🤝 <strong>Ideal environment:</strong> Public roles, a steady flow of social stimuli</li>
+            </ul>
+        `
+    },
+    "amygdala-serotonin-control": {
+        name: "NOMAD",
+        description: `
+            <h4>Your core: NOMAD</h4>
+            <p>You explore inner landscapes and meaning, building personal systems for harmony. Inner order matters, yet external control and imposed frames feel unbearable.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Deep grasp of complex ideas; self-sufficiency</li>
+                <li>⚠️ <strong>Weak spot:</strong> Sensitivity to pressure and “be like everyone else” demands</li>
+                <li>💡 <strong>Growth edge:</strong> Find niches where your autonomy is respected</li>
+                <li>🧘 <strong>Ideal environment:</strong> Flexible schedule, remote work, deep solo projects</li>
+            </ul>
+        `
+    },
+    "amygdala-serotonin-connection": {
+        name: "MEDIATOR",
+        description: `
+            <h4>Your core: MEDIATOR</h4>
+            <p>You sense hidden ties and the emotional climate in a system. You restore harmony and mutual understanding. Open conflict drains you; you value deep, predictable bonds.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Diplomacy, empathy, building trust</li>
+                <li>⚠️ <strong>Weak spot:</strong> Open conflict and hard decisions are heavy</li>
+                <li>💡 <strong>Growth edge:</strong> Avoid toxic spaces; protect your boundaries</li>
+                <li>⚖️ <strong>Ideal environment:</strong> Roles at the intersection of people (HR, coaching, therapy, diplomacy)</li>
+            </ul>
+        `
+    },
+    "hippocampus-dopamine-control": {
+        name: "STRATEGIST",
+        description: `
+            <h4>Your core: STRATEGIST</h4>
+            <p>You build multi-move logical schemes and love intellectual challenges. You advance toward new wins but feel unmoored when the system leaves your plan.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Analytical forecasting; risk thinking many steps ahead</li>
+                <li>⚠️ <strong>Weak spot:</strong> Less effective when spontaneity and illogical factors dominate</li>
+                <li>💡 <strong>Growth edge:</strong> Factor in the human side that logic alone cannot capture</li>
+                <li>📊 <strong>Ideal environment:</strong> Roles needing deep analysis and long-range planning</li>
+            </ul>
+        `
+    },
+    "hippocampus-dopamine-connection": {
+        name: "PIONEER",
+        description: `
+            <h4>Your core: PIONEER</h4>
+            <p>You conquer new ground with a clear plan, but you need a team as your anchor. Acting alone is hard. Your strength is organized expansion.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Leading a group toward a goal in new terrain—mixing calculation and ambition</li>
+                <li>⚠️ <strong>Weak spot:</strong> You lose drive without a like-minded team</li>
+                <li>💡 <strong>Growth edge:</strong> Stay centered in your network without losing connection</li>
+                <li>🏔️ <strong>Ideal environment:</strong> Expedition-style leadership, heading new directions</li>
+            </ul>
+        `
+    },
+    "hippocampus-serotonin-control": {
+        name: "ENGINEER",
+        description: `
+            <h4>Your core: ENGINEER</h4>
+            <p>You find harmony in precise calculations and tuned processes. You optimize everything. Approximation and creative mess unsettle you.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Building highly efficient, elegant systems</li>
+                <li>⚠️ <strong>Weak spot:</strong> Vague requirements and “creative chaos” are stressful</li>
+                <li>💡 <strong>Growth edge:</strong> Choose environments with clear quality criteria</li>
+                <li>⚙️ <strong>Ideal environment:</strong> Work with objective metrics; room to go deep on details</li>
+            </ul>
+        `
+    },
+    "hippocampus-serotonin-connection": {
+        name: "KEEPER",
+        description: `
+            <h4>Your core: KEEPER</h4>
+            <p>You build and protect stable systems for “your people.” You value tradition, loyalty, and predictability. Betrayal or group collapse hits you hardest.</p>
+            <ul class="result-list">
+                <li>🎯 <strong>Strength:</strong> Stability, continuity, safety</li>
+                <li>⚠️ <strong>Weak spot:</strong> Slow to adapt to rapid change and “revolutions”</li>
+                <li>💡 <strong>Growth edge:</strong> Evolve systems gently without losing their essence</li>
+                <li>🛡️ <strong>Ideal environment:</strong> Long-horizon stewardship and administration</li>
+            </ul>
+        `
+    }
+};
+
+(function registerArchetypeKeysToFpMsg() {
+    function registerBundle(bundle, lang) {
+        Object.keys(bundle).forEach(function (k) {
+            FP_MSG[lang]['archetype.' + k + '.name'] = bundle[k].name;
+            FP_MSG[lang]['archetype.' + k + '.html'] = bundle[k].description.replace(/\n\s+/g, '\n').trim();
+        });
+    }
+    registerBundle(ARCHETYPE_SOURCE_RU, 'ru');
+    registerBundle(ARCHETYPE_SOURCE_EN, 'en');
+    FP_MSG.ru['archetype.incomplete.name'] = 'Данные неполные';
+    FP_MSG.ru['archetype.incomplete.html'] = '<p>Попробуйте пройти тест ещё раз, отвечая на все вопросы.</p>';
+    FP_MSG.en['archetype.incomplete.name'] = 'Incomplete data';
+    FP_MSG.en['archetype.incomplete.html'] = '<p>Please retake the test and answer every question.</p>';
+})();
+
+function resolveArchetypeKeyFromUser(user) {
+    if (!user) return null;
+    var ak = user.archetype_key;
+    if (ak && ak !== 'legacy' && ARCHETYPE_SOURCE_RU[ak]) return ak;
+    var n = user.personality_type;
+    if (!n) return null;
+    var keys = Object.keys(ARCHETYPE_SOURCE_RU);
+    for (var i = 0; i < keys.length; i++) {
+        if (ARCHETYPE_SOURCE_RU[keys[i]].name === n) return keys[i];
+    }
+    return null;
+}
+
+function fpArchetypeDisplayNameFromUser(user) {
+    if (!user) return fpT('goal.archetype_fallback');
+    if (user.personality_type === FP_MSG.ru['archetype.incomplete.name']) {
+        return fpT('archetype.incomplete.name');
+    }
+    var key = resolveArchetypeKeyFromUser(user);
+    if (!key) return user.personality_type || fpT('goal.archetype_fallback');
+    return fpT('archetype.' + key + '.name');
+}
 
 function startTest() {
     if (!currentUser) {
@@ -4127,31 +4272,31 @@ async function showResult() {
     // 2. Формируем ключ для поиска архетипа
     const archetypeKey = `${axisAResult}-${axisBResult}-${axisCResult}`;
     
-    // 3. Находим архетип в карте
-    const userArchetype = archetypeMap[archetypeKey] || {
-        name: "Данные неполные",
-        description: "<p>Попробуйте пройти тест ещё раз, отвечая на все вопросы.</p>"
-    };
+    // 3. Находим архетип в карте (канонический текст храним по-русски)
+    const userArchetype = ARCHETYPE_SOURCE_RU[archetypeKey];
+    const bundleKey = userArchetype ? archetypeKey : 'incomplete';
+    const ruName = FP_MSG.ru['archetype.' + bundleKey + '.name'];
+    const ruHtml = FP_MSG.ru['archetype.' + bundleKey + '.html'];
 
     // 4. Сохраняем тип личности и полное описание (для профиля на платформе)
-    currentUser.personality_type = userArchetype.name;
-    currentUser.personality_description_html = userArchetype.description;
-    currentUser.archetype_key = archetypeKey;
+    currentUser.personality_type = ruName;
+    currentUser.personality_description_html = ruHtml;
+    currentUser.archetype_key = userArchetype ? archetypeKey : null;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    updateUserPersonalityInStore(currentUser.email, userArchetype.name, userArchetype.description, archetypeKey);
+    updateUserPersonalityInStore(currentUser.email, ruName, ruHtml, userArchetype ? archetypeKey : null);
     if (typeof savePlatformAuth === 'function') {
         savePlatformAuth(currentUser);
     }
     
     // 5. Сохраняем в базу пользователей (если есть такая функция)
     if (typeof updateUserPersonality === 'function') {
-        updateUserPersonality(currentUser.email, userArchetype.name);
+        updateUserPersonality(currentUser.email, ruName);
     }
 
-    // 6. Показываем результаты
+    // 6. Показываем результаты (локализовано под текущий язык)
     showScreen('result-screen');
-    document.getElementById('result-type').textContent = userArchetype.name;
-    document.getElementById('result-description').innerHTML = userArchetype.description;
+    document.getElementById('result-type').textContent = fpT('archetype.' + bundleKey + '.name');
+    document.getElementById('result-description').innerHTML = fpT('archetype.' + bundleKey + '.html');
 }
 
 // ========== КОНЕЦ НОВОЙ ЛОГИКИ ТЕСТА ==========
@@ -4250,34 +4395,33 @@ async function showResult() {
             
             if (currentUser.personality_type) {
                 const personalityType = currentUser.personality_type;
-                document.getElementById('personalityBadge').textContent = personalityType;
-                const archetypeSlug = (currentUser.archetype_key || 'legacy')
+                document.getElementById('personalityBadge').textContent = fpArchetypeDisplayNameFromUser(currentUser);
+                const resolvedKey = resolveArchetypeKeyFromUser(currentUser);
+                const archetypeSlug = (resolvedKey || currentUser.archetype_key || 'legacy')
                     .replace(/[^a-z0-9-]/gi, '-');
                 document.getElementById('personalityBadge').className =
                     `personality-badge archetype-${archetypeSlug}`;
 
                 const descEl = document.getElementById('personalityDescription');
-                let html = currentUser.personality_description_html;
-                if (!html && currentUser.archetype_key && archetypeMap[currentUser.archetype_key]) {
-                    html = archetypeMap[currentUser.archetype_key].description;
-                }
-                if (!html) {
-                    const found = Object.values(archetypeMap).find(function (a) {
-                        return a.name === personalityType;
-                    });
-                    if (found) html = found.description;
-                }
-                if (html) {
-                    descEl.innerHTML = html;
+                const ak = resolvedKey;
+                if (ak) {
+                    descEl.innerHTML = fpT('archetype.' + ak + '.html');
+                } else if (currentUser.personality_type === FP_MSG.ru['archetype.incomplete.name']) {
+                    descEl.innerHTML = fpT('archetype.incomplete.html');
                 } else {
-                    const descriptions = {
-                        'творческий': fpT('profile.desc.creative'),
-                        'коммуникабельный': fpT('profile.desc.communicative'),
-                        'стабильный': fpT('profile.desc.stable'),
-                        'технический': fpT('profile.desc.technical')
-                    };
-                    descEl.textContent =
-                        descriptions[personalityType] || fpT('profile.desc_fallback');
+                    let html = currentUser.personality_description_html;
+                    if (html) {
+                        descEl.innerHTML = html;
+                    } else {
+                        const descriptions = {
+                            'творческий': fpT('profile.desc.creative'),
+                            'коммуникабельный': fpT('profile.desc.communicative'),
+                            'стабильный': fpT('profile.desc.stable'),
+                            'технический': fpT('profile.desc.technical')
+                        };
+                        descEl.textContent =
+                            descriptions[personalityType] || fpT('profile.desc_fallback');
+                    }
                 }
             }
         }
@@ -4314,7 +4458,7 @@ function getCurrentArchetypeKey() {
 }
 
 function getCurrentArchetypeLabel() {
-    return currentUser?.personality_type || fpT('goal.archetype_fallback');
+    return fpArchetypeDisplayNameFromUser(currentUser);
 }
 
 function getArchetypeStrengths(categoryId) {
@@ -7309,13 +7453,28 @@ async function savePremiumAccess() {
 
     // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
     function getPersonalityTypeName(type) {
+        if (type === FP_MSG.ru['archetype.incomplete.name']) return fpT('archetype.incomplete.name');
+        var key = Object.keys(ARCHETYPE_SOURCE_RU).find(function (k) {
+            return ARCHETYPE_SOURCE_RU[k].name === type;
+        });
+        if (key) return fpT('archetype.' + key + '.name');
         const names = {
             'творческий': 'Творческий',
             'коммуникабельный': 'Коммуникабельный', 
             'стабильный': 'Стабильный',
             'технический': 'Технический'
         };
-        return names[type] || type;
+        var legacyRu = names[type];
+        if (legacyRu && getFpLang() === 'en') {
+            const legacyEn = {
+                'творческий': 'Creative',
+                'коммуникабельный': 'Communicative',
+                'стабильный': 'Stable',
+                'технический': 'Technical'
+            };
+            return legacyEn[type] || type;
+        }
+        return legacyRu || type;
     }
         </script>
     <script>
