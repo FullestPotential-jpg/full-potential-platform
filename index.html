@@ -2927,8 +2927,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentUser = null;
     let userAnswers = {};
     const validCodes = ['34193']; // Единственный рабочий код
-    let goalDraft = { category: '', time: '', text: '' };
-
     const FP_LANG_KEY = 'fp_ui_lang';
 
     const FP_MSG = {
@@ -3010,33 +3008,12 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.nav_btn': '⭐ Моя цель',
             'goal.back': '← Назад',
             'goal.screen_title': 'Моя цель',
-            'goal.step1': 'Шаг 1. Выберите категорию цели',
-            'goal.step2': 'Шаг 2. Выберите доступное время',
-            'goal.step3': 'Шаг 3. Моя цель',
-            'goal.placeholder': 'Напиши цель одним предложением',
-            'goal.create_plan': 'Сформировать план',
-            'goal.active_title': 'Активная цель',
-            'goal.your_goal': 'Твоя цель:',
-            'goal.change_goal': 'Изменить цель',
-            'goal.progress_label': 'Прогресс:',
             'goal.archetype_fallback': 'Ваш архетип',
-            'goal.confirm_reset': 'Сбросить текущую цель и выбрать новую?',
             'value.screen_title': 'Ценность',
             'premium.back': '← Назад к платформе',
             'premium.main_value_title': 'Главная ценность',
             'restart.confirm': 'Вы уверены, что хотите пройти тест заново?',
             'doc.title': 'Full Potentiall — платформа',
-            'goal.cat.career': 'Карьера',
-            'goal.cat.health': 'Здоровье',
-            'goal.cat.creativity': 'Творчество',
-            'goal.cat.relationships': 'Отношения',
-            'goal.cat.finance': 'Финансы',
-            'goal.cat.selfdev': 'Саморазвитие',
-            'goal.time.15m': '15 мин/день',
-            'goal.time.1-2h': '1–2 ч/день',
-            'goal.time.3-5h': '3–5 ч/неделю',
-            'goal.time.unlimited': 'Неограниченно',
-            'goal.plan_line2': 'Разбей цель на небольшие подзадачи и фиксируй минимум 1 выполненную подзадачу за сессию.'
         },
         en: {
             'auth.heading': 'Sign in to the platform',
@@ -3116,33 +3093,12 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.nav_btn': '⭐ My goal',
             'goal.back': '← Back',
             'goal.screen_title': 'My goal',
-            'goal.step1': 'Step 1. Choose goal category',
-            'goal.step2': 'Step 2. Choose available time',
-            'goal.step3': 'Step 3. My goal',
-            'goal.placeholder': 'Write your goal in one sentence',
-            'goal.create_plan': 'Build plan',
-            'goal.active_title': 'Active goal',
-            'goal.your_goal': 'Your goal:',
-            'goal.change_goal': 'Change goal',
-            'goal.progress_label': 'Progress:',
             'goal.archetype_fallback': 'Your archetype',
-            'goal.confirm_reset': 'Reset the current goal and choose a new one?',
             'value.screen_title': 'Value',
             'premium.back': '← Back to platform',
             'premium.main_value_title': 'Main value',
             'restart.confirm': 'Are you sure you want to retake the test?',
             'doc.title': 'Full Potentiall — platform',
-            'goal.cat.career': 'Career',
-            'goal.cat.health': 'Health',
-            'goal.cat.creativity': 'Creativity',
-            'goal.cat.relationships': 'Relationships',
-            'goal.cat.finance': 'Finance',
-            'goal.cat.selfdev': 'Self-development',
-            'goal.time.15m': '15 min/day',
-            'goal.time.1-2h': '1–2 h/day',
-            'goal.time.3-5h': '3–5 h/week',
-            'goal.time.unlimited': 'Unlimited',
-            'goal.plan_line2': 'Break the goal into small subtasks and complete at least one subtask per session.'
         }
     };
 
@@ -3209,189 +3165,6 @@ document.addEventListener('DOMContentLoaded', function() {
             renderGoalContent();
         }
     }
-
-    function getGoalCategoryLabel(id) {
-        return fpT('goal.cat.' + id);
-    }
-
-    function getGoalTimeLabel(id) {
-        return fpT('goal.time.' + id);
-    }
-
-    const GOAL_CATEGORIES = [
-        { id: 'career', label: 'Карьера' },
-        { id: 'health', label: 'Здоровье' },
-        { id: 'creativity', label: 'Творчество' },
-        { id: 'relationships', label: 'Отношения' },
-        { id: 'finance', label: 'Финансы' },
-        { id: 'selfdev', label: 'Саморазвитие' }
-    ];
-
-    const GOAL_TIMES = [
-        { id: '15m', label: '15 мин/день' },
-        { id: '1-2h', label: '1–2 ч/день' },
-        { id: '3-5h', label: '3–5 ч/неделю' },
-        { id: 'unlimited', label: 'Неограниченно' }
-    ];
-
-    const ARCHETYPE_STRENGTHS = {
-        'amygdala-dopamine-control': [
-            'видение будущего',
-            'стратегия',
-            'осознанность',
-            'креативность',
-            'воображение',
-            'вдохновение',
-            'стратегическое лидерство',
-            'инновации',
-            'видение трендов',
-            'анализ возможностей',
-            'долгосрочное планирование',
-            'риск-менеджмент',
-            'эмпатия',
-            'коммуникация',
-            'доверие',
-            'рефлексия',
-            'постановка целей',
-            'осознанный рост'
-        ],
-        'amygdala-dopamine-connection': [
-            'социальная харизма',
-            'нетворкинг',
-            'вдохновляющая коммуникация',
-            'эмоциональный интеллект',
-            'умение объединять людей',
-            'адаптивность',
-            'креативная подача'
-        ],
-        'amygdala-serotonin-control': [
-            'глубокий анализ',
-            'самостоятельность',
-            'концентрация',
-            'осмысленность решений',
-            'внимание к деталям',
-            'устойчивость к стрессу',
-            'внутренняя дисциплина'
-        ],
-        'amygdala-serotonin-connection': [
-            'эмпатия',
-            'бережная коммуникация',
-            'создание доверия',
-            'медиативность',
-            'умение слушать',
-            'поддержка команды',
-            'социальная чувствительность'
-        ],
-        'hippocampus-dopamine-control': [
-            'системное мышление',
-            'прогнозирование рисков',
-            'стратегическое планирование',
-            'принятие решений на данных',
-            'организация процессов',
-            'приоритизация',
-            'устойчивая продуктивность'
-        ],
-        'hippocampus-dopamine-connection': [
-            'командное лидерство',
-            'мотивация группы',
-            'структурная коммуникация',
-            'делегирование',
-            'инициативность',
-            'переговоры',
-            'ориентация на результат'
-        ],
-        'hippocampus-serotonin-control': [
-            'дисциплина',
-            'стандарты качества',
-            'системность',
-            'планомерность',
-            'надежность',
-            'точность',
-            'последовательность'
-        ],
-        'hippocampus-serotonin-connection': [
-            'поддержка устойчивости',
-            'долгосрочные отношения',
-            'забота о среде',
-            'дипломатичность',
-            'кооперация',
-            'доверительное взаимодействие',
-            'стабильная коммуникация'
-        ],
-        default: [
-            'дисциплинированно действовать',
-            'системно отслеживать прогресс',
-            'адаптировать план по результатам'
-        ]
-    };
-
-    const ARCHETYPE_CATEGORY_STRENGTHS = {
-        // Провидец
-        'amygdala-dopamine-control': {
-            health: ['видение будущего', 'стратегия', 'осознанность'],
-            creativity: ['креативность', 'воображение', 'вдохновение'],
-            relationships: ['эмпатия', 'коммуникация', 'доверие'],
-            career: ['стратегическое лидерство', 'инновации', 'видение трендов'],
-            finance: ['анализ возможностей', 'долгосрочное планирование', 'риск-менеджмент'],
-            selfdev: ['рефлексия', 'постановка целей', 'осознанный рост']
-        },
-        'amygdala-dopamine-connection': {
-            career: ['социальная харизма', 'нетворкинг', 'вдохновляющая коммуникация'],
-            health: ['адаптивность', 'инициативность', 'эмоциональный интеллект'],
-            creativity: ['креативная подача', 'вдохновляющая коммуникация', 'социальная харизма'],
-            relationships: ['эмоциональный интеллект', 'умение объединять людей', 'нетворкинг'],
-            finance: ['адаптивность', 'инициативность', 'нетворкинг'],
-            selfdev: ['рефлексия', 'эмоциональный интеллект', 'постановка целей']
-        },
-        'amygdala-serotonin-control': {
-            career: ['глубокий анализ', 'самостоятельность', 'внутренняя дисциплина'],
-            health: ['концентрация', 'осмысленность решений', 'устойчивость к стрессу'],
-            creativity: ['глубокий анализ', 'концентрация', 'внимание к деталям'],
-            relationships: ['эмпатия', 'осмысленность решений', 'умение слушать'],
-            finance: ['глубокий анализ', 'внимание к деталям', 'внутренняя дисциплина'],
-            selfdev: ['рефлексия', 'самостоятельность', 'осмысленность решений']
-        },
-        'amygdala-serotonin-connection': {
-            career: ['эмпатия', 'бережная коммуникация', 'создание доверия'],
-            health: ['социальная чувствительность', 'эмпатия', 'медиативность'],
-            creativity: ['эмпатия', 'бережная коммуникация', 'умение слушать'],
-            relationships: ['создание доверия', 'бережная коммуникация', 'медиативность'],
-            finance: ['доверие', 'дипломатичность', 'умение слушать'],
-            selfdev: ['рефлексия', 'эмпатия', 'социальная чувствительность']
-        },
-        'hippocampus-dopamine-control': {
-            career: ['стратегическое планирование', 'системное мышление', 'принятие решений на данных'],
-            health: ['приоритизация', 'организация процессов', 'устойчивая продуктивность'],
-            creativity: ['системное мышление', 'прогнозирование рисков', 'организация процессов'],
-            relationships: ['переговоры', 'системное мышление', 'принятие решений на данных'],
-            finance: ['прогнозирование рисков', 'стратегическое планирование', 'принятие решений на данных'],
-            selfdev: ['приоритизация', 'системное мышление', 'устойчивая продуктивность']
-        },
-        'hippocampus-dopamine-connection': {
-            career: ['командное лидерство', 'делегирование', 'ориентация на результат'],
-            health: ['инициативность', 'мотивация группы', 'структурная коммуникация'],
-            creativity: ['инициативность', 'командное лидерство', 'структурная коммуникация'],
-            relationships: ['переговоры', 'командное лидерство', 'мотивация группы'],
-            finance: ['ориентация на результат', 'делегирование', 'переговоры'],
-            selfdev: ['инициативность', 'рефлексия', 'постановка целей']
-        },
-        'hippocampus-serotonin-control': {
-            career: ['дисциплина', 'стандарты качества', 'системность'],
-            health: ['последовательность', 'дисциплина', 'планомерность'],
-            creativity: ['точность', 'стандарты качества', 'системность'],
-            relationships: ['надежность', 'последовательность', 'дисциплина'],
-            finance: ['системность', 'точность', 'планомерность'],
-            selfdev: ['дисциплина', 'последовательность', 'стандарты качества']
-        },
-        'hippocampus-serotonin-connection': {
-            career: ['долгосрочные отношения', 'кооперация', 'стабильная коммуникация'],
-            health: ['забота о среде', 'поддержка устойчивости', 'стабильная коммуникация'],
-            creativity: ['кооперация', 'забота о среде', 'доверительное взаимодействие'],
-            relationships: ['долгосрочные отношения', 'доверительное взаимодействие', 'дипломатичность'],
-            finance: ['поддержка устойчивости', 'кооперация', 'долгосрочные отношения'],
-            selfdev: ['рефлексия', 'поддержка устойчивости', 'забота о среде']
-        }
-    };
 
     let shootingStarTimer = null;
 
@@ -4435,133 +4208,6 @@ async function showResult() {
         }
     }
 
-function getGoalStorageKey() {
-    const email = currentUser?.email ? currentUser.email.toLowerCase() : 'guest';
-    return `fp_goal_plan_v1_${email}`;
-}
-
-function loadGoalState() {
-    try {
-        const raw = localStorage.getItem(getGoalStorageKey());
-        return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-        return null;
-    }
-}
-
-function saveGoalState(state) {
-    localStorage.setItem(getGoalStorageKey(), JSON.stringify(state));
-}
-
-function getCurrentArchetypeKey() {
-    return currentUser?.archetype_key || 'default';
-}
-
-function getCurrentArchetypeLabel() {
-    return fpArchetypeDisplayNameFromUser(currentUser);
-}
-
-function getArchetypeStrengths(categoryId) {
-    const key = getCurrentArchetypeKey();
-    const base = ARCHETYPE_STRENGTHS[key] || ARCHETYPE_STRENGTHS.default;
-    const categoryMapped = ARCHETYPE_CATEGORY_STRENGTHS[key]?.[categoryId];
-    if (Array.isArray(categoryMapped) && categoryMapped.length >= 3) {
-        return categoryMapped.slice(0, 3);
-    }
-    return base.slice(0, 3);
-}
-
-function buildStrengthActionStep(strength, categoryId, goalText, timeLabel) {
-    const en = getFpLang() === 'en';
-
-    const actionsByStrengthRu = {
-        'стратегия': `разбей цель "${goalText}" на 3 этапа (старт, прогресс, закрепление), и для каждого этапа запиши по 2 конкретных действия на эту неделю`,
-        'видение будущего': `опиши себя через 2 месяца после достижения "${goalText}" и выпиши 3 привычки этого будущего состояния; первую привычку внедри уже завтра`,
-        'осознанность': `каждый вечер делай короткий отчет (что сделал по цели, что помешало, что улучшить) и через 7 дней скорректируй план`,
-        'креативность': `придумай 5 нестандартных способов продвинуть цель "${goalText}", выбери 1 самый реалистичный и выполни его завтра`,
-        'воображение': `сделай визуальную карту результата (что, как и когда будет достигнуто) и преврати её в 3 задачи на ближайшие 3 дня`,
-        'вдохновение': `собери мини-плейлист/доску мотивации под цель "${goalText}" и запускай её перед каждой рабочей сессией "${timeLabel}"`,
-        'эмпатия': `попроси у 1 близкого человека обратную связь по твоему плану и внеси 1 полезную правку до конца дня`,
-        'коммуникация': `сформулируй цель в 2 предложениях и отправь ее человеку, который может поддержать; договорись о коротком чек-ине через 3 дня`,
-        'доверие': `выбери партнера по ответственности и договорись раз в неделю отправлять ему отчет о прогрессе`,
-        'стратегическое лидерство': `определи главный KPI цели "${goalText}" и назначь еженедельный обзор результата в конкретный день`,
-        'инновации': `протестируй 1 новый подход к цели за ближайшие 48 часов и зафиксируй, сработал он или нет`,
-        'видение трендов': `найди 3 актуальные практики по теме цели и внедри одну практику в план на эту неделю`,
-        'анализ возможностей': `выпиши 3 быстрые возможности для ускорения цели и выбери одну с максимальной отдачей`,
-        'долгосрочное планирование': `собери дорожную карту на 8 недель по цели "${goalText}" с контрольной точкой в конце каждой недели`,
-        'риск-менеджмент': `выпиши 3 риска, которые могут сорвать цель, и заранее добавь для каждого конкретный план "если-то"`,
-        'рефлексия': `заведи заметку "уроки цели" и каждый день записывай 1 вывод, который улучшит завтрашнее действие`,
-        'постановка целей': `перепиши цель "${goalText}" по формуле "результат + срок + метрика" и проверь ее достижимость`,
-        'осознанный рост': `выбери один навык, который усилит достижение цели, и запланируй 3 практики навыка на неделю`
-    };
-
-    const actionsByStrengthEn = {
-        'стратегия': `break "${goalText}" into 3 phases (start, progress, closure), and write 2 concrete actions per phase for this week`,
-        'видение будущего': `describe yourself two months after achieving "${goalText}", list 3 habits of that future self, and start the first habit tomorrow`,
-        'осознанность': `each evening write a short review (what you did, what blocked you, what to improve) and adjust the plan after 7 days`,
-        'креативность': `list 5 unconventional ways to advance "${goalText}", pick the most realistic one, and do it tomorrow`,
-        'воображение': `make a visual map of the outcome (what, how, when) and turn it into 3 tasks for the next 3 days`,
-        'вдохновение': `create a mini playlist/mood board for "${goalText}" and use it before each "${timeLabel}" work session`,
-        'эмпатия': `ask one close person for feedback on your plan and apply one useful tweak today`,
-        'коммуникация': `state your goal in two sentences, send it to someone who can support you, and agree on a quick check-in in 3 days`,
-        'доверие': `pick an accountability partner and send them a weekly progress update`,
-        'стратегическое лидерство': `define the main KPI for "${goalText}" and schedule a weekly review on a fixed weekday`,
-        'инновации': `test one new approach to the goal within 48 hours and note whether it worked`,
-        'видение трендов': `find 3 current practices related to your goal and add one to this week's plan`,
-        'анализ возможностей': `list 3 quick ways to accelerate the goal and pick the highest‑leverage one`,
-        'долгосрочное планирование': `build an 8‑week roadmap for "${goalText}" with a checkpoint at the end of each week`,
-        'риск-менеджмент': `list 3 risks that could derail the goal and add a concrete if‑then plan for each`,
-        'рефлексия': `keep a "goal lessons" note and write one takeaway daily to improve tomorrow`,
-        'постановка целей': `rewrite "${goalText}" as outcome + deadline + metric and sanity‑check feasibility`,
-        'осознанный рост': `pick one skill that boosts the goal and schedule 3 practice sessions this week`
-    };
-
-    const defaultByCategoryRu = {
-        career: `выдели ключевой рабочий результат на неделю по цели "${goalText}" и запланируй первый шаг на завтра`,
-        health: `подготовь конкретный режим на 7 дней (сон, активность, питание) и начни с первого дня завтра`,
-        creativity: `создай один черновик результата по цели "${goalText}" за ближайшие 24 часа`,
-        relationships: `назначь один честный разговор по теме цели и зафиксируй 2 договоренности`,
-        finance: `обнови бюджет под цель "${goalText}" и добавь одну финансовую привычку, которую начнешь завтра`,
-        selfdev: `определи один навык для роста в рамках цели и выполни первое практическое упражнение завтра`
-    };
-
-    const defaultByCategoryEn = {
-        career: `pick one key work outcome this week for "${goalText}" and schedule the first step for tomorrow`,
-        health: `draft a concrete 7‑day routine (sleep, activity, food) and start day one tomorrow`,
-        creativity: `create one rough draft toward "${goalText}" within 24 hours`,
-        relationships: `schedule one honest conversation about the goal and capture two agreements`,
-        finance: `refresh your budget for "${goalText}" and start one money habit tomorrow`,
-        selfdev: `pick one growth skill for this goal and do the first exercise tomorrow`
-    };
-
-    const actionsByStrength = en ? actionsByStrengthEn : actionsByStrengthRu;
-    const defaultByCategory = en ? defaultByCategoryEn : defaultByCategoryRu;
-    const fallback = en
-        ? `take one concrete step on "${goalText}" tomorrow and write down the result`
-        : `выполни конкретный шаг по цели "${goalText}" уже завтра и зафиксируй результат письменно`;
-    const action = actionsByStrength[strength] || defaultByCategory[categoryId] || fallback;
-    return en
-        ? `Your strength is "${strength}". Do this: ${action}.`
-        : `Твоя сильная сторона — ${strength}. Поэтому сделай ${action}.`;
-}
-
-function getGoalPlan(archetypeKey, categoryId, timeId, userGoalText) {
-    const categoryLabel = getGoalCategoryLabel(categoryId);
-    const timeLabel = getGoalTimeLabel(timeId);
-    const strengths = getArchetypeStrengths(categoryId);
-    const en = getFpLang() === 'en';
-    const line1 = en
-        ? `Every day, block "${timeLabel}" for "${userGoalText}" under "${categoryLabel}".`
-        : `Каждый день выделяй выбранное время "${timeLabel}" для цели "${userGoalText}" в категории "${categoryLabel}".`;
-    return [
-        line1,
-        fpT('goal.plan_line2'),
-        buildStrengthActionStep(strengths[0], categoryId, userGoalText, timeLabel),
-        buildStrengthActionStep(strengths[1], categoryId, userGoalText, timeLabel),
-        buildStrengthActionStep(strengths[2], categoryId, userGoalText, timeLabel)
-    ];
-}
-
 function openGoalScreen(event) {
     if (event) event.preventDefault();
     document.getElementById('platform-main').style.display = 'none';
@@ -4586,141 +4232,7 @@ function setGoalNavActive(isActive) {
 function renderGoalContent() {
     const container = document.getElementById('goal-content');
     if (!container) return;
-
-    const goalState = loadGoalState();
-    if (!goalState || !Array.isArray(goalState.steps) || !goalState.steps.length) {
-        renderGoalSetup(container);
-        return;
-    }
-    renderActiveGoal(container, goalState);
-}
-
-function renderGoalSetup(container) {
-    const categoryCards = GOAL_CATEGORIES.map(cat => `
-        <button type="button" onclick="selectGoalCategory('${cat.id}')"
-            style="padding: 14px 16px; border-radius: 12px; border: 2px solid ${goalDraft.category === cat.id ? '#4CAF50' : '#d9d9d9'}; background: ${goalDraft.category === cat.id ? '#eaf8ec' : '#fff'}; cursor: pointer; text-align: left; font-weight: 600;">
-            ${getGoalCategoryLabel(cat.id)}
-        </button>
-    `).join('');
-
-    const timeCards = GOAL_TIMES.map(time => `
-        <button type="button" onclick="selectGoalTime('${time.id}')"
-            style="padding: 14px 16px; border-radius: 12px; border: 2px solid ${goalDraft.time === time.id ? '#4CAF50' : '#d9d9d9'}; background: ${goalDraft.time === time.id ? '#eaf8ec' : '#fff'}; cursor: pointer; text-align: left; font-weight: 600;">
-            ${getGoalTimeLabel(time.id)}
-        </button>
-    `).join('');
-
-    container.innerHTML = `
-        <div style="max-width: 860px; margin: 0 auto;">
-            <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
-                <h3 style="margin: 0 0 12px 0; color: #1b2557;">${fpT('goal.step1')}</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-                    ${categoryCards}
-                </div>
-            </div>
-            <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
-                <h3 style="margin: 0 0 12px 0; color: #1b2557;">${fpT('goal.step2')}</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-                    ${timeCards}
-                </div>
-            </div>
-            <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
-                <h3 style="margin: 0 0 12px 0; color: #1b2557;">${fpT('goal.step3')}</h3>
-                <input type="text" id="goalTextInput" maxlength="180" value="${(goalDraft.text || '').replace(/"/g, '&quot;')}" oninput="updateGoalText(this.value)"
-                    placeholder="${fpT('goal.placeholder').replace(/"/g, '&quot;')}"
-                    style="width: 100%; box-sizing: border-box; padding: 13px 14px; border-radius: 12px; border: 2px solid #d9d9d9; font-size: 1rem;">
-            </div>
-            <button type="button" onclick="createGoalPlan()" ${(!goalDraft.category || !goalDraft.time || !goalDraft.text.trim()) ? 'disabled' : ''}
-                style="width: 100%; border: none; padding: 14px 20px; border-radius: 14px; font-size: 1rem; font-weight: 700; color: white; background: ${(!goalDraft.category || !goalDraft.time || !goalDraft.text.trim()) ? '#9ca3af' : 'linear-gradient(135deg, #0f1740, #1a2858)'}; cursor: ${(!goalDraft.category || !goalDraft.time || !goalDraft.text.trim()) ? 'not-allowed' : 'pointer'};">
-                ${fpT('goal.create_plan')}
-            </button>
-        </div>
-    `;
-}
-
-function renderActiveGoal(container, goalState) {
-    const categoryLabel = getGoalCategoryLabel(goalState.category);
-    const timeLabel = getGoalTimeLabel(goalState.time);
-    const completedCount = goalState.completed.filter(Boolean).length;
-    const progress = Math.round((completedCount / goalState.steps.length) * 100);
-
-    const stepsHtml = goalState.steps.map((step, index) => `
-        <label style="display: flex; align-items: flex-start; gap: 12px; background: #fff; border: 1px solid #ececec; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;">
-            <input type="checkbox" ${goalState.completed[index] ? 'checked' : ''} onchange="toggleGoalStep(${index})" style="margin-top: 4px;">
-            <span style="line-height: 1.5;">${step}</span>
-        </label>
-    `).join('');
-
-    container.innerHTML = `
-        <div style="max-width: 860px; margin: 0 auto;">
-            <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 18px;">
-                <div style="display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap;">
-                    <div>
-                        <h3 style="margin: 0 0 8px 0; color: #1b2557;">${fpT('goal.active_title')}</h3>
-                        <p style="margin: 0; color: #4b5563;">${categoryLabel} · ${timeLabel} · ${goalState.archetypeName}</p>
-                        <p style="margin: 8px 0 0 0; color: #111827; font-weight: 600;">${fpT('goal.your_goal')} ${goalState.goalText}</p>
-                    </div>
-                    <button type="button" onclick="changeGoal()" style="background: #fff; color: #0f1740; border: 2px solid #0f1740; border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 600;">
-                        ${fpT('goal.change_goal')}
-                    </button>
-                </div>
-                <div style="margin-top: 16px; background: #eef2ff; border-radius: 999px; height: 10px; overflow: hidden;">
-                    <div style="height: 100%; width: ${progress}%; background: linear-gradient(135deg, #4CAF50, #2e7d32);"></div>
-                </div>
-                <p style="margin: 8px 0 0 0; color: #4b5563;">${fpT('goal.progress_label')} ${completedCount}/${goalState.steps.length} (${progress}%)</p>
-            </div>
-            ${stepsHtml}
-        </div>
-    `;
-}
-
-function selectGoalCategory(categoryId) {
-    goalDraft.category = categoryId;
-    renderGoalContent();
-}
-
-function selectGoalTime(timeId) {
-    goalDraft.time = timeId;
-    renderGoalContent();
-}
-
-function updateGoalText(value) {
-    goalDraft.text = value || '';
-}
-
-function createGoalPlan() {
-    const goalText = (goalDraft.text || '').trim();
-    if (!goalDraft.category || !goalDraft.time || !goalText) return;
-    const archetypeKey = getCurrentArchetypeKey();
-    const plan = getGoalPlan(archetypeKey, goalDraft.category, goalDraft.time, goalText);
-    const goalState = {
-        category: goalDraft.category,
-        time: goalDraft.time,
-        goalText: goalText,
-        archetypeKey: archetypeKey,
-        archetypeName: getCurrentArchetypeLabel(),
-        steps: plan,
-        completed: plan.map(() => false),
-        updatedAt: Date.now()
-    };
-    saveGoalState(goalState);
-    renderGoalContent();
-}
-
-function toggleGoalStep(stepIndex) {
-    const goalState = loadGoalState();
-    if (!goalState || !Array.isArray(goalState.completed)) return;
-    goalState.completed[stepIndex] = !goalState.completed[stepIndex];
-    goalState.updatedAt = Date.now();
-    saveGoalState(goalState);
-    renderGoalContent();
-}
-
-function changeGoal() {
-    if (!confirm(fpT('goal.confirm_reset'))) return;
-    localStorage.removeItem(getGoalStorageKey());
-    goalDraft = { category: '', time: '', text: '' };
-    renderGoalContent();
+    container.innerHTML = '';
 }
 
     function showValueContent() {
