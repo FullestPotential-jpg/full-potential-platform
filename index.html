@@ -808,7 +808,7 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 16px 16px 12px;
+            padding: 44px 16px 12px;
             min-width: 300px;
             max-width: min(100vw - 24px, 360px);
             max-height: min(90vh, 560px);
@@ -818,6 +818,39 @@
             display: none;
             z-index: 1000;
             margin-top: 10px;
+        }
+
+        .profile-lang-switch {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 6px;
+            z-index: 3;
+        }
+
+        .profile-lang-btn {
+            min-width: 36px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #d9d9e3;
+            background: #f4f5f9;
+            color: #1a1a2e;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .profile-lang-btn:hover {
+            background: #e8eaf2;
+        }
+
+        .profile-lang-btn.is-active {
+            background: linear-gradient(135deg, #0f1740 0%, #1a2858 100%);
+            color: #fff;
+            border-color: transparent;
         }
         
         .profile-dropdown.active {
@@ -2563,19 +2596,19 @@ document.addEventListener('DOMContentLoaded', function() {
             <!-- ЭКРАН АВТОРИЗАЦИИ -->
             <div id="auth-screen" class="screen active">
                 <div class="email-section">
-                    <h2 class="question">Войдите в платформу</h2>
+                    <h2 class="question" data-i18n="auth.heading">Войдите в платформу</h2>
                     
                     <!-- ЛОГИН -->
                     <div id="login-section">
                         <div id="login-message" class="auth-message" style="display: none;"></div>
-                        <input type="email" id="login-email" class="email-input" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
-                        <input type="password" id="login-password" class="email-input" placeholder="пароль" required autocomplete="new-password">
+                        <input type="email" id="login-email" class="email-input" data-i18n-placeholder="auth.ph_email" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
+                        <input type="password" id="login-password" class="email-input" data-i18n-placeholder="auth.ph_password" placeholder="пароль" required autocomplete="new-password">
                         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                            <button onclick="login()" style="flex: 1;">Войти</button>
-                            <button onclick="showRegister()" style="flex: 1; background: #6c757d;">Регистрация</button>
+                            <button onclick="login()" style="flex: 1;" data-i18n="auth.login_btn">Войти</button>
+                            <button onclick="showRegister()" style="flex: 1; background: #6c757d;" data-i18n="auth.register_btn">Регистрация</button>
                         </div>
                         <!-- ДОБАВЛЕННЫЙ ТЕКСТ -->
-                        <div style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; padding: 0 10px;">
+                        <div style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; padding: 0 10px;" data-i18n="auth.remember">
                             Важно: запомните свой пароль
                         </div>
                     </div>
@@ -2583,14 +2616,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <!-- РЕГИСТРАЦИЯ -->
                     <div id="register-section" style="display: none;">
                         <div id="register-message" class="auth-message" style="display: none;"></div>
-                        <input type="email" id="reg-email" class="email-input" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
-                        <input type="password" id="reg-password" class="email-input" placeholder="придумайте пароль" required autocomplete="new-password">
+                        <input type="email" id="reg-email" class="email-input" data-i18n-placeholder="auth.ph_email" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
+                        <input type="password" id="reg-password" class="email-input" data-i18n-placeholder="auth.ph_password_create" placeholder="придумайте пароль" required autocomplete="new-password">
                         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                            <button onclick="register()" style="flex: 1;">Зарегистрироваться</button>
-                            <button onclick="showLogin()" style="flex: 1; background: #6c757d;">Назад</button>
+                            <button onclick="register()" style="flex: 1;" data-i18n="auth.submit_register">Зарегистрироваться</button>
+                            <button onclick="showLogin()" style="flex: 1; background: #6c757d;" data-i18n="nav.back">Назад</button>
                         </div>
                         <!-- ДОБАВЛЕННЫЙ ТЕКСТ -->
-                        <div style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; padding: 0 10px;">
+                        <div style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; padding: 0 10px;" data-i18n="auth.remember">
                             Важно: запомните свой пароль
                         </div>
                     </div>
@@ -2599,207 +2632,211 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <!-- ЭКРАН ПРИВЕТСТВИЯ -->
 <div id="intro-screen" class="screen">
-    <h2 class="question">Добро пожаловать в «Сканер Ядра»</h2>
-    <p>Этот тест определит ваш <strong>архетип ядра</strong> — неизменную основу вашей психики.</p>
-    <p><strong>Важно!</strong> Отвечайте быстро, первой реакцией. Выбирайте вариант, который описывает ваше <strong>естественное, интуитивное поведение</strong>, а не то, как «надо».</p>
-    <p>Тест состоит из 12 вопросов (3 блока). Будьте честны с собой.</p>
+    <h2 class="question" data-i18n="intro.title">Добро пожаловать в «Сканер Ядра»</h2>
+    <p data-i18n-html="intro.p1">Этот тест определит ваш <strong>архетип ядра</strong> — неизменную основу вашей психики.</p>
+    <p data-i18n-html="intro.p2"><strong>Важно!</strong> Отвечайте быстро, первой реакцией. Выбирайте вариант, который описывает ваше <strong>естественное, интуитивное поведение</strong>, а не то, как «надо».</p>
+    <p data-i18n="intro.p3">Тест состоит из 12 вопросов (3 блока). Будьте честны с собой.</p>
     <div class="navigation">
-        <button id="start-btn" onclick="startTest()">Начать сканирование</button>
+        <button id="start-btn" onclick="startTest()" data-i18n="intro.start">Начать сканирование</button>
     </div>
 </div>
 
 <!-- БЛОК А: Обработка информации -->
 <div id="question-1" class="screen">
-    <h3 class="question">1. Вам показали сложную абстрактную картину. Первый импульс — это...</h3>
+    <h3 class="question" data-i18n="q1.title">1. Вам показали сложную абстрактную картину. Первый импульс — это...</h3>
     <div class="options">
-        <div class="option" data-axis="A" data-value="amygdala">Почувствовать её общее настроение, уловить, на что она <em>похожа</em> в целом</div>
-        <div class="option" data-axis="A" data-value="hippocampus">Начать разбирать её на элементы, анализировать детали и композицию</div>
+        <div class="option" data-axis="A" data-value="amygdala" data-i18n-html="q1.o1">Почувствовать её общее настроение, уловить, на что она <em>похожа</em> в целом</div>
+        <div class="option" data-axis="A" data-value="hippocampus" data-i18n-html="q1.o2">Начать разбирать её на элементы, анализировать детали и композицию</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('intro-screen')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-2')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('intro-screen')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-2')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-2" class="screen">
-    <h3 class="question">2. Принимая важное решение, вы в основном полагаетесь на...</h3>
+    <h3 class="question" data-i18n="q2.title">2. Принимая важное решение, вы в основном полагаетесь на...</h3>
     <div class="options">
-        <div class="option" data-axis="A" data-value="amygdala">Интуитивное ощущение, внутреннее «чувство» правильного варианта</div>
-        <div class="option" data-axis="A" data-value="hippocampus">Список плюсов/минусов, логические доводы и прошлый опыт</div>
+        <div class="option" data-axis="A" data-value="amygdala" data-i18n="q2.o1">Интуитивное ощущение, внутреннее «чувство» правильного варианта</div>
+        <div class="option" data-axis="A" data-value="hippocampus" data-i18n="q2.o2">Список плюсов/минусов, логические доводы и прошлый опыт</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-1')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-3')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-1')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-3')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-3" class="screen">
-    <h3 class="question">3. Как вам проще усваивать новый сложный навык?</h3>
+    <h3 class="question" data-i18n="q3.title">3. Как вам проще усваивать новый сложный навык?</h3>
     <div class="options">
-        <div class="option" data-axis="A" data-value="amygdala">Через метафоры, аналогии и общее видение («как если бы это было...»)</div>
-        <div class="option" data-axis="A" data-value="hippocampus">Через пошаговые инструкции, чёткие правила и практические упражнения</div>
+        <div class="option" data-axis="A" data-value="amygdala" data-i18n="q3.o1">Через метафоры, аналогии и общее видение («как если бы это было...»)</div>
+        <div class="option" data-axis="A" data-value="hippocampus" data-i18n="q3.o2">Через пошаговые инструкции, чёткие правила и практические упражнения</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-2')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-4')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-2')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-4')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-4" class="screen">
-    <h3 class="question">4. В споре или дискуссии ваша сильная сторона — это...</h3>
+    <h3 class="question" data-i18n="q4.title">4. В споре или дискуссии ваша сильная сторона — это...</h3>
     <div class="options">
-        <div class="option" data-axis="A" data-value="amygdala">Умение уловить суть и показать оппоненту целостную картину</div>
-        <div class="option" data-axis="A" data-value="hippocampus">Умение последовательно разбирать аргументы, находя логические нестыковки</div>
+        <div class="option" data-axis="A" data-value="amygdala" data-i18n="q4.o1">Умение уловить суть и показать оппоненту целостную картину</div>
+        <div class="option" data-axis="A" data-value="hippocampus" data-i18n="q4.o2">Умение последовательно разбирать аргументы, находя логические нестыковки</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-3')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-5')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-3')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-5')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <!-- БЛОК Б: Источник энергии -->
 <div id="question-5" class="screen">
-    <h3 class="question">5. Неделя с чётким, повторяющимся графиком задач вызовет у вас скорее...</h3>
+    <h3 class="question" data-i18n="q5.title">5. Неделя с чётким, повторяющимся графиком задач вызовет у вас скорее...</h3>
     <div class="options">
-        <div class="option" data-axis="B" data-value="dopamine">Скуку, тоску и потерю мотивации уже к середине недели</div>
-        <div class="option" data-axis="B" data-value="serotonin">Спокойствие, удовлетворение и возможность углубиться в работу</div>
+        <div class="option" data-axis="B" data-value="dopamine" data-i18n="q5.o1">Скуку, тоску и потерю мотивации уже к середине недели</div>
+        <div class="option" data-axis="B" data-value="serotonin" data-i18n="q5.o2">Спокойствие, удовлетворение и возможность углубиться в работу</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-4')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-6')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-4')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-6')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-6" class="screen">
-    <h3 class="question">6. После какого дня вы чувствуете прилив сил?</h3>
+    <h3 class="question" data-i18n="q6.title">6. После какого дня вы чувствуете прилив сил?</h3>
     <div class="options">
-        <div class="option" data-axis="B" data-value="dopamine">День был хаотичным, но вы запустили новый, интересный проект</div>
-        <div class="option" data-axis="B" data-value="serotonin">День был спокойным, и вы навели идеальный порядок в важной для вас системе</div>
+        <div class="option" data-axis="B" data-value="dopamine" data-i18n="q6.o1">День был хаотичным, но вы запустили новый, интересный проект</div>
+        <div class="option" data-axis="B" data-value="serotonin" data-i18n="q6.o2">День был спокойным, и вы навели идеальный порядок в важной для вас системе</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-5')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-7')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-5')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-7')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-7" class="screen">
-    <h3 class="question">7. Ваша идеальная рабочая неделя содержит много...</h3>
+    <h3 class="question" data-i18n="q7.title">7. Ваша идеальная рабочая неделя содержит много...</h3>
     <div class="options">
-        <div class="option" data-axis="B" data-value="dopamine">Новых вызовов, разнообразия, моментов «эврики» и движения вперёд</div>
-        <div class="option" data-axis="B" data-value="serotonin">Отлаженных процессов, предсказуемости, глубокого погружения и завершённых циклов</div>
+        <div class="option" data-axis="B" data-value="dopamine" data-i18n="q7.o1">Новых вызовов, разнообразия, моментов «эврики» и движения вперёд</div>
+        <div class="option" data-axis="B" data-value="serotonin" data-i18n="q7.o2">Отлаженных процессов, предсказуемости, глубокого погружения и завершённых циклов</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-6')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-8')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-6')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-8')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-8" class="screen">
-    <h3 class="question">8. Что для вас ценнее в долгосрочной перспективе?</h3>
+    <h3 class="question" data-i18n="q8.title">8. Что для вас ценнее в долгосрочной перспективе?</h3>
     <div class="options">
-        <div class="option" data-axis="B" data-value="dopamine">Возможность постоянно развиваться, осваивать новое и не стоять на месте</div>
-        <div class="option" data-axis="B" data-value="serotonin">Создание устойчивой, гармоничной системы жизни, где всё на своих местах</div>
+        <div class="option" data-axis="B" data-value="dopamine" data-i18n="q8.o1">Возможность постоянно развиваться, осваивать новое и не стоять на месте</div>
+        <div class="option" data-axis="B" data-value="serotonin" data-i18n="q8.o2">Создание устойчивой, гармоничной системы жизни, где всё на своих местах</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-7')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-9')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-7')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-9')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <!-- БЛОК В: Базовая угроза -->
 <div id="question-9" class="screen">
-    <h3 class="question">9. Какая ситуация вызывает у вас более глубокий, почти физический дискомфорт?</h3>
+    <h3 class="question" data-i18n="q9.title">9. Какая ситуация вызывает у вас более глубокий, почти физический дискомфорт?</h3>
     <div class="options">
-        <div class="option" data-axis="C" data-value="control">Коллега вносит непредсказуемые изменения в ваш проект без согласования, руша план</div>
-        <div class="option" data-axis="C" data-value="connection">Ваша команда принимает важное решение без вас, исключая из общего круга</div>
+        <div class="option" data-axis="C" data-value="control" data-i18n="q9.o1">Коллега вносит непредсказуемые изменения в ваш проект без согласования, руша план</div>
+        <div class="option" data-axis="C" data-value="connection" data-i18n="q9.o2">Ваша команда принимает важное решение без вас, исключая из общего круга</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-8')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-10')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-8')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-10')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-10" class="screen">
-    <h3 class="question">10. В какой среде ваша продуктивность падает до нуля быстрее?</h3>
+    <h3 class="question" data-i18n="q10.title">10. В какой среде ваша продуктивность падает до нуля быстрее?</h3>
     <div class="options">
-        <div class="option" data-axis="C" data-value="control">Полный хаос, нет ясных правил, сроков, каждый действует как хочет</div>
-        <div class="option" data-axis="C" data-value="connection">Атмосфера холодной формальности, нет личных связей, вы — «винтик»</div>
+        <div class="option" data-axis="C" data-value="control" data-i18n="q10.o1">Полный хаос, нет ясных правил, сроков, каждый действует как хочет</div>
+        <div class="option" data-axis="C" data-value="connection" data-i18n="q10.o2">Атмосфера холодной формальности, нет личных связей, вы — «винтик»</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-9')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-11')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-9')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-11')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-11" class="screen">
-    <h3 class="question">11. Что подрывает ваше доверие к человеку или организации сильнее?</h3>
+    <h3 class="question" data-i18n="q11.title">11. Что подрывает ваше доверие к человеку или организации сильнее?</h3>
     <div class="options">
-        <div class="option" data-axis="C" data-value="control">Непоследовательность, нарушение договорённостей, скрытые мотивы</div>
-        <div class="option" data-axis="C" data-value="connection">Отстранённость, игнорирование вашего мнения, отсутствие обратной связи</div>
+        <div class="option" data-axis="C" data-value="control" data-i18n="q11.o1">Непоследовательность, нарушение договорённостей, скрытые мотивы</div>
+        <div class="option" data-axis="C" data-value="connection" data-i18n="q11.o2">Отстранённость, игнорирование вашего мнения, отсутствие обратной связи</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-10')">Назад</button>
-        <button class="next-btn" onclick="showScreen('question-12')" disabled>Далее</button>
+        <button class="prev-btn" onclick="showScreen('question-10')" data-i18n="nav.back">Назад</button>
+        <button class="next-btn" onclick="showScreen('question-12')" disabled data-i18n="nav.next">Далее</button>
     </div>
 </div>
 
 <div id="question-12" class="screen">
-    <h3 class="question">12. Какой тип критики вы переносите болезненнее?</h3>
+    <h3 class="question" data-i18n="q12.title">12. Какой тип критики вы переносите болезненнее?</h3>
     <div class="options">
-        <div class="option" data-axis="C" data-value="control">Критика вашего метода или подхода, указание на неэффективность системы</div>
-        <div class="option" data-axis="C" data-value="connection">Критика вас как личности, отвержение ваших ценностей или принадлежности к группе</div>
+        <div class="option" data-axis="C" data-value="control" data-i18n="q12.o1">Критика вашего метода или подхода, указание на неэффективность системы</div>
+        <div class="option" data-axis="C" data-value="connection" data-i18n="q12.o2">Критика вас как личности, отвержение ваших ценностей или принадлежности к группе</div>
     </div>
     <div class="navigation">
-        <button class="prev-btn" onclick="showScreen('question-11')">Назад</button>
-        <button id="submit-btn" onclick="showResult()" disabled>Узнать результат</button>
+        <button class="prev-btn" onclick="showScreen('question-11')" data-i18n="nav.back">Назад</button>
+        <button id="submit-btn" onclick="showResult()" disabled data-i18n="nav.result">Узнать результат</button>
     </div>
 </div>
 
 <!-- ЭКРАН РЕЗУЛЬТАТА -->
 <div id="result-screen" class="screen">
-    <h2 class="result-title">Ваш архетип ядра:</h2>
+    <h2 class="result-title" data-i18n="result.heading">Ваш архетип ядра:</h2>
     <div id="result-type" class="result-type"></div>
     <div id="result-description" class="result-description"></div>
     
     <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #0c1438 0%, #1a2858 100%); color: white; border-radius: 16px;">
-        <p style="margin: 0; opacity: 0.9;">Теперь у вас есть доступ к материалам для вашего архетипа.</p>
+        <p style="margin: 0; opacity: 0.9;" data-i18n="result.banner">Теперь у вас есть доступ к материалам для вашего архетипа.</p>
     </div>
     
     <div class="navigation" style="justify-content: center; margin-top: 30px; gap: 15px;">
-        <button onclick="goToPlatform()" style="background: #28a745;">Перейти на платформу</button>
-        <button id="restart-btn" onclick="restartTest()">Пройти тест снова</button>
+        <button onclick="goToPlatform()" style="background: #28a745;" data-i18n="result.goto_platform">Перейти на платформу</button>
+        <button id="restart-btn" onclick="restartTest()" data-i18n="result.retry">Пройти тест снова</button>
     </div>
 </div>
 
             <!-- ЭКРАН ПЛАТФОРМЫ -->
             <div id="platform-screen" class="screen">
                 <div class="platform-header">
-                    <div class="platform-logo">Платформа Полный Потенциал</div>
+                    <div class="platform-logo" data-i18n="platform.title">Платформа Полный Потенциал</div>
                     <div class="profile-menu">
-                        <div class="profile-icon" onclick="toggleProfileMenu()" title="Профиль">
+                        <div class="profile-icon" onclick="toggleProfileMenu()" data-i18n-title="platform.profile_tooltip" title="Профиль">
                             <svg class="profile-icon-person" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="12" cy="8" r="3.5" fill="none" stroke="#ffffff" stroke-width="1.65"/>
                                 <path fill="none" stroke="#ffffff" stroke-width="1.65" stroke-linecap="round" d="M5 20c0-3.5 3.5-5.5 7-5.5s7 2 7 5.5"/>
                             </svg>
                         </div>
                         <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-lang-switch" role="group" data-i18n-aria="platform.lang_group" aria-label="Язык интерфейса" onclick="event.stopPropagation()">
+                                <button type="button" class="profile-lang-btn" id="fpLangRu" data-fp-lang="ru" onclick="setFpLang('ru')" data-i18n-title="platform.lang_ru" title="Русский">RU</button>
+                                <button type="button" class="profile-lang-btn" id="fpLangEn" data-fp-lang="en" onclick="setFpLang('en')" data-i18n-title="platform.lang_en" title="English">EN</button>
+                            </div>
                             <div class="user-info">
                                 <div class="user-avatar" id="userAvatar">U</div>
                                 <div class="profile-name-block">
                                     <div class="profile-display-name" id="userDisplayName">ПОЛЬЗОВАТЕЛЬ</div>
                                     <div class="profile-email-sub" id="userEmailSub">user@example.com</div>
-                                    <button type="button" class="profile-nick-edit-link" id="editNicknameBtn" onclick="toggleNicknameEdit(event)">Изменить ник</button>
+                                    <button type="button" class="profile-nick-edit-link" id="editNicknameBtn" onclick="toggleNicknameEdit(event)" data-i18n="profile.edit_nick">Изменить ник</button>
                                     <div id="nicknameEditWrap" class="profile-nick-edit-wrap" style="display: none;">
-                                        <input type="text" id="userNicknameInput" class="profile-nick-input" maxlength="32" placeholder="Ваш ник (до 32 символов)" autocomplete="off" />
+                                        <input type="text" id="userNicknameInput" class="profile-nick-input" maxlength="32" data-i18n-placeholder="profile.nick_placeholder" placeholder="Ваш ник (до 32 символов)" autocomplete="off" />
                                         <div class="profile-nick-edit-buttons">
-                                            <button type="button" class="profile-nick-save" onclick="saveNickname()">Сохранить</button>
-                                            <button type="button" class="profile-nick-cancel" onclick="cancelNicknameEdit()">Отмена</button>
+                                            <button type="button" class="profile-nick-save" onclick="saveNickname()" data-i18n="profile.save">Сохранить</button>
+                                            <button type="button" class="profile-nick-cancel" onclick="cancelNicknameEdit()" data-i18n="profile.cancel">Отмена</button>
                                         </div>
                                     </div>
                                 </div>
                                 <div id="archetypeToggleRow" class="profile-archetype-toggle-row" style="display: none;">
                                     <button type="button" id="archetypeToggleBtn" class="profile-archetype-toggle" onclick="toggleProfileArchetypeSection(event)">
-                                        <span>Мой архетип</span>
+                                        <span data-i18n="profile.my_archetype">Мой архетип</span>
                                         <span class="chevron" aria-hidden="true">▼</span>
                                     </button>
                                     <div id="profileArchetypePanel" class="profile-archetype-panel">
@@ -2812,7 +2849,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                             <div class="profile-logout-wrap">
-                                <button type="button" class="profile-logout-btn" onclick="platformLogout()">Выйти из аккаунта</button>
+                                <button type="button" class="profile-logout-btn" onclick="platformLogout()" data-i18n="profile.logout">Выйти из аккаунта</button>
                             </div>
                         </div>
                     </div>
@@ -2836,15 +2873,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <div class="goal-entry-wrap">
-                    <button type="button" class="goal-entry-btn" id="goalNavItem" onclick="openGoalScreen(event)">
+                    <button type="button" class="goal-entry-btn" id="goalNavItem" onclick="openGoalScreen(event)" data-i18n-html="goal.nav_btn">
                         ⭐ Моя цель
                     </button>
                 </div>
 
                 <div id="goal-screen" style="display: none;">
                     <div class="platform-header">
-                        <button onclick="closeGoalScreen()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">← Назад</button>
-                        <div class="platform-logo">Моя цель</div>
+                        <button onclick="closeGoalScreen()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" data-i18n="goal.back">← Назад</button>
+                        <div class="platform-logo" data-i18n="goal.screen_title">Моя цель</div>
                         <div style="width: 45px;"></div>
                     </div>
                     <div class="platform-main-content">
@@ -2855,8 +2892,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <!-- ЭКРАН ЦЕННОСТИ (ВНУТРИ ПЛАТФОРМЫ) -->
                 <div id="platform-value-screen" style="display: none;">
                     <div class="platform-header">
-                        <button onclick="hideValueContent()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">← Назад</button>
-                        <div class="platform-logo">Ценность</div>
+                        <button onclick="hideValueContent()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" data-i18n="goal.back">← Назад</button>
+                        <div class="platform-logo" data-i18n="value.screen_title">Ценность</div>
                         <div style="width: 45px;"></div>
                     </div>
 
@@ -2871,8 +2908,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <!-- ЭКРАН PREMIUM КОНТЕНТА -->
             <div id="premium-screen" class="screen" style="display: none;">
                 <div class="platform-header">
-                    <button onclick="hidePremiumPage()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">← Назад к платформе</button>
-                    <div class="platform-logo">Главная ценность</div>
+                    <button onclick="hidePremiumPage()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" data-i18n="premium.back">← Назад к платформе</button>
+                    <div class="platform-logo" data-i18n="premium.main_value_title">Главная ценность</div>
                     <div style="width: 45px;"></div>
                 </div>
 
@@ -2891,6 +2928,295 @@ document.addEventListener('DOMContentLoaded', function() {
     let userAnswers = {};
     const validCodes = ['34193']; // Единственный рабочий код
     let goalDraft = { category: '', time: '', text: '' };
+
+    const FP_LANG_KEY = 'fp_ui_lang';
+
+    const FP_MSG = {
+        ru: {
+            'auth.heading': 'Войдите в платформу',
+            'auth.ph_email': 'ваш@email.com',
+            'auth.ph_password': 'пароль',
+            'auth.ph_password_create': 'придумайте пароль',
+            'auth.login_btn': 'Войти',
+            'auth.register_btn': 'Регистрация',
+            'auth.remember': 'Важно: запомните свой пароль',
+            'auth.submit_register': 'Зарегистрироваться',
+            'nav.back': 'Назад',
+            'nav.next': 'Далее',
+            'nav.result': 'Узнать результат',
+            'intro.title': 'Добро пожаловать в «Сканер Ядра»',
+            'intro.p1': 'Этот тест определит ваш <strong>архетип ядра</strong> — неизменную основу вашей психики.',
+            'intro.p2': '<strong>Важно!</strong> Отвечайте быстро, первой реакцией. Выбирайте вариант, который описывает ваше <strong>естественное, интуитивное поведение</strong>, а не то, как «надо».',
+            'intro.p3': 'Тест состоит из 12 вопросов (3 блока). Будьте честны с собой.',
+            'intro.start': 'Начать сканирование',
+            'q1.title': '1. Вам показали сложную абстрактную картину. Первый импульс — это...',
+            'q1.o1': 'Почувствовать её общее настроение, уловить, на что она <em>похожа</em> в целом',
+            'q1.o2': 'Начать разбирать её на элементы, анализировать детали и композицию',
+            'q2.title': '2. Принимая важное решение, вы в основном полагаетесь на...',
+            'q2.o1': 'Интуитивное ощущение, внутреннее «чувство» правильного варианта',
+            'q2.o2': 'Список плюсов/минусов, логические доводы и прошлый опыт',
+            'q3.title': '3. Как вам проще усваивать новый сложный навык?',
+            'q3.o1': 'Через метафоры, аналогии и общее видение («как если бы это было...»)',
+            'q3.o2': 'Через пошаговые инструкции, чёткие правила и практические упражнения',
+            'q4.title': '4. В споре или дискуссии ваша сильная сторона — это...',
+            'q4.o1': 'Умение уловить суть и показать оппоненту целостную картину',
+            'q4.o2': 'Умение последовательно разбирать аргументы, находя логические нестыковки',
+            'q5.title': '5. Неделя с чётким, повторяющимся графиком задач вызовет у вас скорее...',
+            'q5.o1': 'Скуку, тоску и потерю мотивации уже к середине недели',
+            'q5.o2': 'Спокойствие, удовлетворение и возможность углубиться в работу',
+            'q6.title': '6. После какого дня вы чувствуете прилив сил?',
+            'q6.o1': 'День был хаотичным, но вы запустили новый, интересный проект',
+            'q6.o2': 'День был спокойным, и вы навели идеальный порядок в важной для вас системе',
+            'q7.title': '7. Ваша идеальная рабочая неделя содержит много...',
+            'q7.o1': 'Новых вызовов, разнообразия, моментов «эврики» и движения вперёд',
+            'q7.o2': 'Отлаженных процессов, предсказуемости, глубокого погружения и завершённых циклов',
+            'q8.title': '8. Что для вас ценнее в долгосрочной перспективе?',
+            'q8.o1': 'Возможность постоянно развиваться, осваивать новое и не стоять на месте',
+            'q8.o2': 'Создание устойчивой, гармоничной системы жизни, где всё на своих местах',
+            'q9.title': '9. Какая ситуация вызывает у вас более глубокий, почти физический дискомфорт?',
+            'q9.o1': 'Коллега вносит непредсказуемые изменения в ваш проект без согласования, руша план',
+            'q9.o2': 'Ваша команда принимает важное решение без вас, исключая из общего круга',
+            'q10.title': '10. В какой среде ваша продуктивность падает до нуля быстрее?',
+            'q10.o1': 'Полный хаос, нет ясных правил, сроков, каждый действует как хочет',
+            'q10.o2': 'Атмосфера холодной формальности, нет личных связей, вы — «винтик»',
+            'q11.title': '11. Что подрывает ваше доверие к человеку или организации сильнее?',
+            'q11.o1': 'Непоследовательность, нарушение договорённостей, скрытые мотивы',
+            'q11.o2': 'Отстранённость, игнорирование вашего мнения, отсутствие обратной связи',
+            'q12.title': '12. Какой тип критики вы переносите болезненнее?',
+            'q12.o1': 'Критика вашего метода или подхода, указание на неэффективность системы',
+            'q12.o2': 'Критика вас как личности, отвержение ваших ценностей или принадлежности к группе',
+            'result.heading': 'Ваш архетип ядра:',
+            'result.banner': 'Теперь у вас есть доступ к материалам для вашего архетипа.',
+            'result.goto_platform': 'Перейти на платформу',
+            'result.retry': 'Пройти тест снова',
+            'platform.title': 'Платформа Полный Потенциал',
+            'platform.profile_tooltip': 'Профиль',
+            'platform.lang_group': 'Язык интерфейса',
+            'platform.lang_ru': 'Русский',
+            'platform.lang_en': 'English',
+            'profile.edit_nick': 'Изменить ник',
+            'profile.nick_placeholder': 'Ваш ник (до 32 символов)',
+            'profile.save': 'Сохранить',
+            'profile.cancel': 'Отмена',
+            'profile.my_archetype': 'Мой архетип',
+            'profile.status_free': 'Статус: Бесплатный доступ',
+            'profile.status_premium': 'Статус: <strong style="color: #FF9800;">Premium доступ активирован</strong>',
+            'profile.logout': 'Выйти из аккаунта',
+            'profile.desc_fallback': 'Информация о вашем типе личности',
+            'profile.desc.creative': 'Вы - генератор идей и инноватор. Ваша сила в творческом подходе и видении новых возможностей там, где другие видят препятствия.',
+            'profile.desc.communicative': 'Вы - душа компании и мотиватор. Ваша сила в умении создавать связи, вдохновлять людей и находить общий язык с кем угодно.',
+            'profile.desc.stable': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
+            'profile.desc.technical': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.',
+            'goal.nav_btn': '⭐ Моя цель',
+            'goal.back': '← Назад',
+            'goal.screen_title': 'Моя цель',
+            'goal.step1': 'Шаг 1. Выберите категорию цели',
+            'goal.step2': 'Шаг 2. Выберите доступное время',
+            'goal.step3': 'Шаг 3. Моя цель',
+            'goal.placeholder': 'Напиши цель одним предложением',
+            'goal.create_plan': 'Сформировать план',
+            'goal.active_title': 'Активная цель',
+            'goal.your_goal': 'Твоя цель:',
+            'goal.change_goal': 'Изменить цель',
+            'goal.progress_label': 'Прогресс:',
+            'goal.archetype_fallback': 'Ваш архетип',
+            'goal.confirm_reset': 'Сбросить текущую цель и выбрать новую?',
+            'value.screen_title': 'Ценность',
+            'premium.back': '← Назад к платформе',
+            'premium.main_value_title': 'Главная ценность',
+            'restart.confirm': 'Вы уверены, что хотите пройти тест заново?',
+            'doc.title': 'Full Potentiall — платформа',
+            'goal.cat.career': 'Карьера',
+            'goal.cat.health': 'Здоровье',
+            'goal.cat.creativity': 'Творчество',
+            'goal.cat.relationships': 'Отношения',
+            'goal.cat.finance': 'Финансы',
+            'goal.cat.selfdev': 'Саморазвитие',
+            'goal.time.15m': '15 мин/день',
+            'goal.time.1-2h': '1–2 ч/день',
+            'goal.time.3-5h': '3–5 ч/неделю',
+            'goal.time.unlimited': 'Неограниченно',
+            'goal.plan_line2': 'Разбей цель на небольшие подзадачи и фиксируй минимум 1 выполненную подзадачу за сессию.'
+        },
+        en: {
+            'auth.heading': 'Sign in to the platform',
+            'auth.ph_email': 'your@email.com',
+            'auth.ph_password': 'password',
+            'auth.ph_password_create': 'create a password',
+            'auth.login_btn': 'Sign in',
+            'auth.register_btn': 'Register',
+            'auth.remember': 'Important: remember your password',
+            'auth.submit_register': 'Create account',
+            'nav.back': 'Back',
+            'nav.next': 'Next',
+            'nav.result': 'See result',
+            'intro.title': 'Welcome to the Core Scanner',
+            'intro.p1': 'This test identifies your <strong>core archetype</strong> — the stable foundation of your psyche.',
+            'intro.p2': '<strong>Important!</strong> Answer quickly, with your first impulse. Choose the option that matches your <strong>natural, intuitive behavior</strong>, not what you think you “should” do.',
+            'intro.p3': 'The test has 12 questions (3 blocks). Be honest with yourself.',
+            'intro.start': 'Start scan',
+            'q1.title': '1. You see a complex abstract painting. Your first impulse is to...',
+            'q1.o1': 'Sense its overall mood and grasp what it <em>resembles</em> as a whole',
+            'q1.o2': 'Break it into pieces and analyze details and composition',
+            'q2.title': '2. When making an important decision, you mainly rely on...',
+            'q2.o1': 'Intuitive feeling — an inner sense of the right choice',
+            'q2.o2': 'Pros/cons lists, logical reasons, and past experience',
+            'q3.title': '3. How do you learn a difficult new skill most easily?',
+            'q3.o1': 'Through metaphors, analogies, and a big-picture view (“as if it were…”)',
+            'q3.o2': 'Through step-by-step instructions, clear rules, and exercises',
+            'q4.title': '4. In a debate, your strength is...',
+            'q4.o1': 'Grasping the essence and showing the whole picture to others',
+            'q4.o2': 'Walking through arguments step by step and spotting logical gaps',
+            'q5.title': '5. A week with a strict, repeating task schedule tends to bring you...',
+            'q5.o1': 'Boredom and fading motivation by mid-week',
+            'q5.o2': 'Calm, satisfaction, and the chance to go deeper',
+            'q6.title': '6. After which kind of day do you feel energized?',
+            'q6.o1': 'A chaotic day where you still launched a new, exciting project',
+            'q6.o2': 'A calm day where you brought perfect order to an important system',
+            'q7.title': '7. Your ideal workweek contains a lot of...',
+            'q7.o1': 'New challenges, variety, “aha” moments, and forward motion',
+            'q7.o2': 'Smooth processes, predictability, deep focus, and closed loops',
+            'q8.title': '8. What matters more to you long term?',
+            'q8.o1': 'Constant growth, learning new things, and never standing still',
+            'q8.o2': 'A stable, harmonious life system where everything has its place',
+            'q9.title': '9. Which situation feels more physically uncomfortable?',
+            'q9.o1': 'A colleague unpredictably changes your project without alignment, breaking the plan',
+            'q9.o2': 'Your team decides something important without you, excluding you from the circle',
+            'q10.title': '10. In which environment does your productivity crash fastest?',
+            'q10.o1': 'Total chaos — no clear rules or deadlines; everyone does what they want',
+            'q10.o2': 'Cold formality — no personal ties; you’re “just a cog”',
+            'q11.title': '11. What erodes your trust in a person or organization faster?',
+            'q11.o1': 'Inconsistency, broken agreements, hidden motives',
+            'q11.o2': 'Distance, ignoring your opinion, no feedback',
+            'q12.title': '12. Which criticism hurts you more?',
+            'q12.o1': 'Criticism of your method or approach — that the system is inefficient',
+            'q12.o2': 'Criticism of you as a person — rejection of your values or belonging',
+            'result.heading': 'Your core archetype:',
+            'result.banner': 'You now have access to materials for your archetype.',
+            'result.goto_platform': 'Go to platform',
+            'result.retry': 'Retake the test',
+            'platform.title': 'Full Potential Platform',
+            'platform.profile_tooltip': 'Profile',
+            'platform.lang_group': 'Interface language',
+            'platform.lang_ru': 'Russian',
+            'platform.lang_en': 'English',
+            'profile.edit_nick': 'Edit nickname',
+            'profile.nick_placeholder': 'Your nickname (up to 32 characters)',
+            'profile.save': 'Save',
+            'profile.cancel': 'Cancel',
+            'profile.my_archetype': 'My archetype',
+            'profile.status_free': 'Status: Free access',
+            'profile.status_premium': 'Status: <strong style="color: #FF9800;">Premium active</strong>',
+            'profile.logout': 'Log out',
+            'profile.desc_fallback': 'Information about your personality type',
+            'profile.desc.creative': 'You are a generator of ideas and innovations. Your strength is creative thinking and seeing new possibilities where others see obstacles.',
+            'profile.desc.communicative': 'You are the heart of the group and a motivator. Your strength is building connections, inspiring people, and finding common ground with anyone.',
+            'profile.desc.stable': 'You are a reliable organizer. Your strength is consistency, responsibility, and building stable systems.',
+            'profile.desc.technical': 'You are a strategist and analyst. Your strength is logical thinking, systems thinking, and solving complex problems.',
+            'goal.nav_btn': '⭐ My goal',
+            'goal.back': '← Back',
+            'goal.screen_title': 'My goal',
+            'goal.step1': 'Step 1. Choose goal category',
+            'goal.step2': 'Step 2. Choose available time',
+            'goal.step3': 'Step 3. My goal',
+            'goal.placeholder': 'Write your goal in one sentence',
+            'goal.create_plan': 'Build plan',
+            'goal.active_title': 'Active goal',
+            'goal.your_goal': 'Your goal:',
+            'goal.change_goal': 'Change goal',
+            'goal.progress_label': 'Progress:',
+            'goal.archetype_fallback': 'Your archetype',
+            'goal.confirm_reset': 'Reset the current goal and choose a new one?',
+            'value.screen_title': 'Value',
+            'premium.back': '← Back to platform',
+            'premium.main_value_title': 'Main value',
+            'restart.confirm': 'Are you sure you want to retake the test?',
+            'doc.title': 'Full Potentiall — platform',
+            'goal.cat.career': 'Career',
+            'goal.cat.health': 'Health',
+            'goal.cat.creativity': 'Creativity',
+            'goal.cat.relationships': 'Relationships',
+            'goal.cat.finance': 'Finance',
+            'goal.cat.selfdev': 'Self-development',
+            'goal.time.15m': '15 min/day',
+            'goal.time.1-2h': '1–2 h/day',
+            'goal.time.3-5h': '3–5 h/week',
+            'goal.time.unlimited': 'Unlimited',
+            'goal.plan_line2': 'Break the goal into small subtasks and complete at least one subtask per session.'
+        }
+    };
+
+    function getFpLang() {
+        try {
+            const v = localStorage.getItem(FP_LANG_KEY);
+            if (v === 'en' || v === 'ru') return v;
+        } catch (e) {}
+        return 'ru';
+    }
+
+    function fpT(key) {
+        const lang = getFpLang();
+        const pack = FP_MSG[lang] || FP_MSG.ru;
+        return (pack && pack[key]) || FP_MSG.ru[key] || key;
+    }
+
+    function syncFpLangButtons() {
+        const lang = getFpLang();
+        document.querySelectorAll('.profile-lang-btn').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-fp-lang') === lang);
+        });
+    }
+
+    function applyFpI18n() {
+        const lang = getFpLang();
+        document.documentElement.lang = lang === 'en' ? 'en' : 'ru';
+        syncFpLangButtons();
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+            const key = el.getAttribute('data-i18n');
+            if (key) el.textContent = fpT(key);
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+            const key = el.getAttribute('data-i18n-html');
+            if (key) el.innerHTML = fpT(key);
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (key) el.setAttribute('placeholder', fpT(key));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+            const key = el.getAttribute('data-i18n-title');
+            if (key) el.setAttribute('title', fpT(key));
+        });
+        document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+            const key = el.getAttribute('data-i18n-aria');
+            if (key) el.setAttribute('aria-label', fpT(key));
+        });
+        try {
+            document.title = fpT('doc.title');
+        } catch (e) {}
+    }
+
+    function setFpLang(lang) {
+        if (lang !== 'en' && lang !== 'ru') return;
+        try {
+            localStorage.setItem(FP_LANG_KEY, lang);
+        } catch (e) {}
+        applyFpI18n();
+        if (typeof updateProfileData === 'function') {
+            updateProfileData();
+        }
+        if (typeof renderGoalContent === 'function') {
+            renderGoalContent();
+        }
+    }
+
+    function getGoalCategoryLabel(id) {
+        return fpT('goal.cat.' + id);
+    }
+
+    function getGoalTimeLabel(id) {
+        return fpT('goal.time.' + id);
+    }
 
     const GOAL_CATEGORIES = [
         { id: 'career', label: 'Карьера' },
@@ -3106,6 +3432,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
+        applyFpI18n();
         initNightScene();
         // Принудительно очищаем поля при загрузке
         setTimeout(() => {
@@ -3907,11 +4234,11 @@ async function showResult() {
             // Обновляем статус в профиле
             const premiumStatus = document.getElementById('premium-status');
             if (hasPremium) {
-                premiumStatus.innerHTML = 'Статус: <strong style="color: #FF9800;">Premium доступ активирован</strong>';
+                premiumStatus.innerHTML = fpT('profile.status_premium');
                 premiumStatus.style.background = '#fff3e0';
                 premiumStatus.style.border = '1px solid #FF9800';
             } else {
-                premiumStatus.innerHTML = 'Статус: Бесплатный доступ';
+                premiumStatus.textContent = fpT('profile.status_free');
                 premiumStatus.style.background = '#f8f9fa';
                 premiumStatus.style.border = 'none';
             }
@@ -3944,20 +4271,20 @@ async function showResult() {
                     descEl.innerHTML = html;
                 } else {
                     const descriptions = {
-                        'творческий': 'Вы - генератор идей и инноватор. Ваша сила в творческом подходе и видении новых возможностей там, где другие видят препятствия.',
-                        'коммуникабельный': 'Вы - душа компании и мотиватор. Ваша сила в умении создавать связи, вдохновлять людей и находить общий язык с кем угодно.',
-                        'стабильный': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
-                        'технический': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.'
+                        'творческий': fpT('profile.desc.creative'),
+                        'коммуникабельный': fpT('profile.desc.communicative'),
+                        'стабильный': fpT('profile.desc.stable'),
+                        'технический': fpT('profile.desc.technical')
                     };
                     descEl.textContent =
-                        descriptions[personalityType] || 'Информация о вашем типе личности';
+                        descriptions[personalityType] || fpT('profile.desc_fallback');
                 }
             }
         }
     }
 
     function restartTest() {
-        if (confirm('Вы уверены, что хотите пройти тест заново?')) {
+        if (confirm(fpT('restart.confirm'))) {
             userAnswers = {};
             showScreen('question-1');
             updateProgress(0);
@@ -3987,7 +4314,7 @@ function getCurrentArchetypeKey() {
 }
 
 function getCurrentArchetypeLabel() {
-    return currentUser?.personality_type || 'Ваш архетип';
+    return currentUser?.personality_type || fpT('goal.archetype_fallback');
 }
 
 function getArchetypeStrengths(categoryId) {
@@ -4001,7 +4328,9 @@ function getArchetypeStrengths(categoryId) {
 }
 
 function buildStrengthActionStep(strength, categoryId, goalText, timeLabel) {
-    const actionsByStrength = {
+    const en = getFpLang() === 'en';
+
+    const actionsByStrengthRu = {
         'стратегия': `разбей цель "${goalText}" на 3 этапа (старт, прогресс, закрепление), и для каждого этапа запиши по 2 конкретных действия на эту неделю`,
         'видение будущего': `опиши себя через 2 месяца после достижения "${goalText}" и выпиши 3 привычки этого будущего состояния; первую привычку внедри уже завтра`,
         'осознанность': `каждый вечер делай короткий отчет (что сделал по цели, что помешало, что улучшить) и через 7 дней скорректируй план`,
@@ -4022,7 +4351,28 @@ function buildStrengthActionStep(strength, categoryId, goalText, timeLabel) {
         'осознанный рост': `выбери один навык, который усилит достижение цели, и запланируй 3 практики навыка на неделю`
     };
 
-    const defaultByCategory = {
+    const actionsByStrengthEn = {
+        'стратегия': `break "${goalText}" into 3 phases (start, progress, closure), and write 2 concrete actions per phase for this week`,
+        'видение будущего': `describe yourself two months after achieving "${goalText}", list 3 habits of that future self, and start the first habit tomorrow`,
+        'осознанность': `each evening write a short review (what you did, what blocked you, what to improve) and adjust the plan after 7 days`,
+        'креативность': `list 5 unconventional ways to advance "${goalText}", pick the most realistic one, and do it tomorrow`,
+        'воображение': `make a visual map of the outcome (what, how, when) and turn it into 3 tasks for the next 3 days`,
+        'вдохновение': `create a mini playlist/mood board for "${goalText}" and use it before each "${timeLabel}" work session`,
+        'эмпатия': `ask one close person for feedback on your plan and apply one useful tweak today`,
+        'коммуникация': `state your goal in two sentences, send it to someone who can support you, and agree on a quick check-in in 3 days`,
+        'доверие': `pick an accountability partner and send them a weekly progress update`,
+        'стратегическое лидерство': `define the main KPI for "${goalText}" and schedule a weekly review on a fixed weekday`,
+        'инновации': `test one new approach to the goal within 48 hours and note whether it worked`,
+        'видение трендов': `find 3 current practices related to your goal and add one to this week's plan`,
+        'анализ возможностей': `list 3 quick ways to accelerate the goal and pick the highest‑leverage one`,
+        'долгосрочное планирование': `build an 8‑week roadmap for "${goalText}" with a checkpoint at the end of each week`,
+        'риск-менеджмент': `list 3 risks that could derail the goal and add a concrete if‑then plan for each`,
+        'рефлексия': `keep a "goal lessons" note and write one takeaway daily to improve tomorrow`,
+        'постановка целей': `rewrite "${goalText}" as outcome + deadline + metric and sanity‑check feasibility`,
+        'осознанный рост': `pick one skill that boosts the goal and schedule 3 practice sessions this week`
+    };
+
+    const defaultByCategoryRu = {
         career: `выдели ключевой рабочий результат на неделю по цели "${goalText}" и запланируй первый шаг на завтра`,
         health: `подготовь конкретный режим на 7 дней (сон, активность, питание) и начни с первого дня завтра`,
         creativity: `создай один черновик результата по цели "${goalText}" за ближайшие 24 часа`,
@@ -4031,17 +4381,37 @@ function buildStrengthActionStep(strength, categoryId, goalText, timeLabel) {
         selfdev: `определи один навык для роста в рамках цели и выполни первое практическое упражнение завтра`
     };
 
-    const action = actionsByStrength[strength] || defaultByCategory[categoryId] || `выполни конкретный шаг по цели "${goalText}" уже завтра и зафиксируй результат письменно`;
-    return `Твоя сильная сторона — ${strength}. Поэтому сделай ${action}.`;
+    const defaultByCategoryEn = {
+        career: `pick one key work outcome this week for "${goalText}" and schedule the first step for tomorrow`,
+        health: `draft a concrete 7‑day routine (sleep, activity, food) and start day one tomorrow`,
+        creativity: `create one rough draft toward "${goalText}" within 24 hours`,
+        relationships: `schedule one honest conversation about the goal and capture two agreements`,
+        finance: `refresh your budget for "${goalText}" and start one money habit tomorrow`,
+        selfdev: `pick one growth skill for this goal and do the first exercise tomorrow`
+    };
+
+    const actionsByStrength = en ? actionsByStrengthEn : actionsByStrengthRu;
+    const defaultByCategory = en ? defaultByCategoryEn : defaultByCategoryRu;
+    const fallback = en
+        ? `take one concrete step on "${goalText}" tomorrow and write down the result`
+        : `выполни конкретный шаг по цели "${goalText}" уже завтра и зафиксируй результат письменно`;
+    const action = actionsByStrength[strength] || defaultByCategory[categoryId] || fallback;
+    return en
+        ? `Your strength is "${strength}". Do this: ${action}.`
+        : `Твоя сильная сторона — ${strength}. Поэтому сделай ${action}.`;
 }
 
 function getGoalPlan(archetypeKey, categoryId, timeId, userGoalText) {
-    const categoryLabel = GOAL_CATEGORIES.find(c => c.id === categoryId)?.label || categoryId;
-    const timeLabel = GOAL_TIMES.find(t => t.id === timeId)?.label || timeId;
+    const categoryLabel = getGoalCategoryLabel(categoryId);
+    const timeLabel = getGoalTimeLabel(timeId);
     const strengths = getArchetypeStrengths(categoryId);
+    const en = getFpLang() === 'en';
+    const line1 = en
+        ? `Every day, block "${timeLabel}" for "${userGoalText}" under "${categoryLabel}".`
+        : `Каждый день выделяй выбранное время "${timeLabel}" для цели "${userGoalText}" в категории "${categoryLabel}".`;
     return [
-        `Каждый день выделяй выбранное время "${timeLabel}" для цели "${userGoalText}" в категории "${categoryLabel}".`,
-        'Разбей цель на небольшие подзадачи и фиксируй минимум 1 выполненную подзадачу за сессию.',
+        line1,
+        fpT('goal.plan_line2'),
         buildStrengthActionStep(strengths[0], categoryId, userGoalText, timeLabel),
         buildStrengthActionStep(strengths[1], categoryId, userGoalText, timeLabel),
         buildStrengthActionStep(strengths[2], categoryId, userGoalText, timeLabel)
@@ -4085,48 +4455,48 @@ function renderGoalSetup(container) {
     const categoryCards = GOAL_CATEGORIES.map(cat => `
         <button type="button" onclick="selectGoalCategory('${cat.id}')"
             style="padding: 14px 16px; border-radius: 12px; border: 2px solid ${goalDraft.category === cat.id ? '#4CAF50' : '#d9d9d9'}; background: ${goalDraft.category === cat.id ? '#eaf8ec' : '#fff'}; cursor: pointer; text-align: left; font-weight: 600;">
-            ${cat.label}
+            ${getGoalCategoryLabel(cat.id)}
         </button>
     `).join('');
 
     const timeCards = GOAL_TIMES.map(time => `
         <button type="button" onclick="selectGoalTime('${time.id}')"
             style="padding: 14px 16px; border-radius: 12px; border: 2px solid ${goalDraft.time === time.id ? '#4CAF50' : '#d9d9d9'}; background: ${goalDraft.time === time.id ? '#eaf8ec' : '#fff'}; cursor: pointer; text-align: left; font-weight: 600;">
-            ${time.label}
+            ${getGoalTimeLabel(time.id)}
         </button>
     `).join('');
 
     container.innerHTML = `
         <div style="max-width: 860px; margin: 0 auto;">
             <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
-                <h3 style="margin: 0 0 12px 0; color: #1b2557;">Шаг 1. Выберите категорию цели</h3>
+                <h3 style="margin: 0 0 12px 0; color: #1b2557;">${fpT('goal.step1')}</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
                     ${categoryCards}
                 </div>
             </div>
             <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
-                <h3 style="margin: 0 0 12px 0; color: #1b2557;">Шаг 2. Выберите доступное время</h3>
+                <h3 style="margin: 0 0 12px 0; color: #1b2557;">${fpT('goal.step2')}</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
                     ${timeCards}
                 </div>
             </div>
             <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 20px;">
-                <h3 style="margin: 0 0 12px 0; color: #1b2557;">Шаг 3. Моя цель</h3>
+                <h3 style="margin: 0 0 12px 0; color: #1b2557;">${fpT('goal.step3')}</h3>
                 <input type="text" id="goalTextInput" maxlength="180" value="${(goalDraft.text || '').replace(/"/g, '&quot;')}" oninput="updateGoalText(this.value)"
-                    placeholder="Напиши цель одним предложением"
+                    placeholder="${fpT('goal.placeholder').replace(/"/g, '&quot;')}"
                     style="width: 100%; box-sizing: border-box; padding: 13px 14px; border-radius: 12px; border: 2px solid #d9d9d9; font-size: 1rem;">
             </div>
             <button type="button" onclick="createGoalPlan()" ${(!goalDraft.category || !goalDraft.time || !goalDraft.text.trim()) ? 'disabled' : ''}
                 style="width: 100%; border: none; padding: 14px 20px; border-radius: 14px; font-size: 1rem; font-weight: 700; color: white; background: ${(!goalDraft.category || !goalDraft.time || !goalDraft.text.trim()) ? '#9ca3af' : 'linear-gradient(135deg, #0f1740, #1a2858)'}; cursor: ${(!goalDraft.category || !goalDraft.time || !goalDraft.text.trim()) ? 'not-allowed' : 'pointer'};">
-                Сформировать план
+                ${fpT('goal.create_plan')}
             </button>
         </div>
     `;
 }
 
 function renderActiveGoal(container, goalState) {
-    const categoryLabel = GOAL_CATEGORIES.find(c => c.id === goalState.category)?.label || goalState.category;
-    const timeLabel = GOAL_TIMES.find(t => t.id === goalState.time)?.label || goalState.time;
+    const categoryLabel = getGoalCategoryLabel(goalState.category);
+    const timeLabel = getGoalTimeLabel(goalState.time);
     const completedCount = goalState.completed.filter(Boolean).length;
     const progress = Math.round((completedCount / goalState.steps.length) * 100);
 
@@ -4142,18 +4512,18 @@ function renderActiveGoal(container, goalState) {
             <div style="background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 18px;">
                 <div style="display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap;">
                     <div>
-                        <h3 style="margin: 0 0 8px 0; color: #1b2557;">Активная цель</h3>
+                        <h3 style="margin: 0 0 8px 0; color: #1b2557;">${fpT('goal.active_title')}</h3>
                         <p style="margin: 0; color: #4b5563;">${categoryLabel} · ${timeLabel} · ${goalState.archetypeName}</p>
-                        <p style="margin: 8px 0 0 0; color: #111827; font-weight: 600;">Твоя цель: ${goalState.goalText}</p>
+                        <p style="margin: 8px 0 0 0; color: #111827; font-weight: 600;">${fpT('goal.your_goal')} ${goalState.goalText}</p>
                     </div>
                     <button type="button" onclick="changeGoal()" style="background: #fff; color: #0f1740; border: 2px solid #0f1740; border-radius: 12px; padding: 10px 14px; cursor: pointer; font-weight: 600;">
-                        Изменить цель
+                        ${fpT('goal.change_goal')}
                     </button>
                 </div>
                 <div style="margin-top: 16px; background: #eef2ff; border-radius: 999px; height: 10px; overflow: hidden;">
                     <div style="height: 100%; width: ${progress}%; background: linear-gradient(135deg, #4CAF50, #2e7d32);"></div>
                 </div>
-                <p style="margin: 8px 0 0 0; color: #4b5563;">Прогресс: ${completedCount}/${goalState.steps.length} (${progress}%)</p>
+                <p style="margin: 8px 0 0 0; color: #4b5563;">${fpT('goal.progress_label')} ${completedCount}/${goalState.steps.length} (${progress}%)</p>
             </div>
             ${stepsHtml}
         </div>
@@ -4203,7 +4573,7 @@ function toggleGoalStep(stepIndex) {
 }
 
 function changeGoal() {
-    if (!confirm('Сбросить текущую цель и выбрать новую?')) return;
+    if (!confirm(fpT('goal.confirm_reset'))) return;
     localStorage.removeItem(getGoalStorageKey());
     goalDraft = { category: '', time: '', text: '' };
     renderGoalContent();
