@@ -3233,6 +3233,34 @@ document.addEventListener('DOMContentLoaded', function() {
         return star;
     }
 
+    /** Пересечение луча O + t*v (t ∈ ℝ) с ось-выровненным прямоугольником в координатах viewport */
+    function fpRayAabbHit(Ox, Oy, vx, vy, left, top, right, bottom) {
+        let tMin = -Infinity;
+        let tMax = Infinity;
+
+        const clip = function (p, d, lo, hi) {
+            if (Math.abs(d) < 1e-12) {
+                return p >= lo - 1e-9 && p <= hi + 1e-9;
+            }
+            const inv = 1 / d;
+            let t1 = (lo - p) * inv;
+            let t2 = (hi - p) * inv;
+            if (t1 > t2) {
+                const z = t1;
+                t1 = t2;
+                t2 = z;
+            }
+            tMin = Math.max(tMin, t1);
+            tMax = Math.min(tMax, t2);
+            return tMax >= tMin;
+        };
+
+        if (!clip(Ox, vx, left, right)) return null;
+        if (!clip(Oy, vy, top, bottom)) return null;
+        if (tMax < 0) return null;
+        return { tEnter: tMin, tExit: tMax };
+    }
+
     function spawnShootingStar() {
         if (fpShootingStarsReducedMotion()) return;
 
@@ -3281,45 +3309,128 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        /* Вторая по счёту звезда: та же скорость и угол; часть пути в шапке, часть — у луны */
-        const heroDurFrac = 0.34 + Math.random() * 0.08;
-        const durHero = dur * heroDurFrac;
-        const durNight = dur - durHero;
-        const speed = travel / dur;
-        const travelHero = Math.max(44, speed * durHero);
-        const travelNight = Math.max(64, speed * durNight);
+        /* Связная пара: один луч в viewport — шапка и блок с луной на одной прямой */
+        const vx = Math.cos(theta);
+        const vy = Math.sin(theta);
+        const streakCy = 0.5;
 
-        const leftPctH = 0.03 + Math.random() * 0.72;
-        const topPctH = 0.05 + Math.random() * 0.38;
-
-        if (heroLayer) {
-            fpAppendShootingStar(heroLayer, {
+        if (!heroLayer || !heroLayer.isConnected) {
+            fpAppendShootingStar(nightLayer, {
                 faint,
                 angleDeg,
-                travel: travelHero,
-                dur: durHero,
-                leftPx: leftPctH * wHero,
-                topPx: topPctH * hHero
+                travel,
+                dur,
+                leftPx: (0.03 + Math.random() * 0.72) * wNight,
+                topPx: (0.05 + Math.random() * 0.38) * hNight
             });
+            return;
         }
+
+        const heroRect = heroLayer.getBoundingClientRect();
+        const nightRect = nightLayer.getBoundingClientRect();
+
+        if (
+            heroRect.width < 24 ||
+            heroRect.height < 24 ||
+            nightRect.width < 24 ||
+            nightRect.height < 24
+        ) {
+            fpAppendShootingStar(nightLayer, {
+                faint,
+                angleDeg,
+                travel,
+                dur,
+                leftPx: (0.03 + Math.random() * 0.72) * wNight,
+                topPx: (0.05 + Math.random() * 0.38) * hNight
+            });
+            return;
+        }
+
+        let geoOk = false;
+        let P0x = 0;
+        let P0y = 0;
+        let tHeroExit = 0;
+        let tNightEnter = 0;
+        let tNightExit = 0;
+
+        for (let attempt = 0; attempt < 22; attempt++) {
+            P0x = heroRect.left + (0.04 + Math.random() * 0.74) * heroRect.width;
+            P0y = heroRect.top + (0.06 + Math.random() * 0.4) * heroRect.height;
+
+            if (
+                P0x < heroRect.left ||
+                P0x > heroRect.right ||
+                P0y < heroRect.top ||
+                P0y > heroRect.bottom
+            ) {
+                continue;
+            }
+
+            const hHit = fpRayAabbHit(P0x, P0y, vx, vy, heroRect.left, heroRect.top, heroRect.right, heroRect.bottom);
+            const nHit = fpRayAabbHit(P0x, P0y, vx, vy, nightRect.left, nightRect.top, nightRect.right, nightRect.bottom);
+
+            if (!hHit || !nHit) continue;
+
+            tHeroExit = hHit.tExit;
+            tNightEnter = nHit.tEnter;
+            tNightExit = nHit.tExit;
+
+            if (tHeroExit < 12 || tNightExit < tNightEnter + 36) continue;
+            if (tNightEnter + 2 < tHeroExit) continue;
+
+            geoOk = true;
+            break;
+        }
+
+        if (!geoOk) {
+            fpAppendShootingStar(nightLayer, {
+                faint,
+                angleDeg,
+                travel,
+                dur,
+                leftPx: (0.03 + Math.random() * 0.72) * wNight,
+                topPx: (0.05 + Math.random() * 0.38) * hNight
+            });
+            return;
+        }
+
+        const travelNightSeg = tNightExit - tNightEnter;
+        const gapAlongRay = Math.max(0, tNightEnter - tHeroExit);
+        const totalRay = tNightExit;
+
+        const durHero = dur * (tHeroExit / totalRay);
+        const durGap = dur * (gapAlongRay / totalRay);
+        const durNight = dur * (travelNightSeg / totalRay);
+
+        const heroLeftPx = P0x - heroRect.left;
+        const heroTopPx = P0y - heroRect.top - streakCy;
+
+        fpAppendShootingStar(heroLayer, {
+            faint,
+            angleDeg,
+            travel: tHeroExit,
+            dur: durHero,
+            leftPx: heroLeftPx,
+            topPx: heroTopPx
+        });
+
+        const delayMs = Math.max(0, (durHero + durGap) * 1000 - 14);
 
         window.setTimeout(() => {
             const nl = document.getElementById('shootingStarsLayer');
-            const ns = document.getElementById('nightScene');
-            if (!nl || !ns) return;
-            const wN = ns.offsetWidth || 320;
-            const hN = ns.offsetHeight || 190;
-            const leftPctN = Math.min(0.85, Math.max(0.03, leftPctH + (Math.random() - 0.5) * 0.16));
-            const topPctN = 0.035 + Math.random() * 0.12;
+            if (!nl) return;
+            const nRect = nl.getBoundingClientRect();
+            const nx = P0x + vx * tNightEnter;
+            const ny = P0y + vy * tNightEnter;
             fpAppendShootingStar(nl, {
                 faint,
                 angleDeg,
-                travel: travelNight,
+                travel: travelNightSeg,
                 dur: durNight,
-                leftPx: leftPctN * wN,
-                topPx: topPctN * hN
+                leftPx: nx - nRect.left,
+                topPx: ny - nRect.top - streakCy
             });
-        }, Math.max(0, durHero * 1000 - 16));
+        }, delayMs);
     }
 
     function scheduleShootingStar() {
