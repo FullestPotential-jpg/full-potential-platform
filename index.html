@@ -1217,53 +1217,82 @@
         }
         .shooting-star {
             position: absolute;
-            width: clamp(120px, 23vw, 260px);
-            height: 2px;
+            width: clamp(72px, 16vw, 200px);
+            height: 1px;
             border-radius: 999px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.74) 35%, rgba(255,255,255,0) 100%);
-            filter: drop-shadow(0 0 6px rgba(255,255,255,0.65));
+            /* Хвост слева (разреженная плазма), яркая голова справа — как у метеора */
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(200, 225, 255, 0.18) 38%,
+                rgba(230, 242, 255, 0.55) 72%,
+                rgba(255, 255, 255, 0.92) 92%,
+                #ffffff 100%
+            );
+            box-shadow:
+                0 0 8px rgba(200, 230, 255, 0.45),
+                0 0 2px rgba(255, 255, 255, 0.85);
+            filter: blur(0.25px);
             transform-origin: left center;
-            animation: shootingStarPath 4s cubic-bezier(0.18, 0.62, 0.23, 0.99) forwards;
+            animation: shootingStarPath var(--dur, 0.85s) linear forwards;
             opacity: 0;
             will-change: transform, opacity;
+        }
+        .shooting-star.shooting-star--faint {
+            width: clamp(56px, 12vw, 140px);
+            filter: blur(0.4px);
+            box-shadow: 0 0 3px rgba(220, 235, 255, 0.22);
+        }
+        .shooting-star.shooting-star--faint::before {
+            width: 2.5px;
+            height: 2.5px;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.45);
         }
         .shooting-star::before {
             content: '';
             position: absolute;
-            right: -2px;
+            right: -1px;
             top: 50%;
-            width: 5px;
-            height: 5px;
+            width: 3px;
+            height: 3px;
             transform: translateY(-50%);
             border-radius: 50%;
-            background: #ffffff;
-            box-shadow: 0 0 10px rgba(255,255,255,0.95), 0 0 20px rgba(255,255,255,0.55);
+            background: radial-gradient(circle at 30% 30%, #ffffff 0%, rgba(200, 230, 255, 0.9) 55%, transparent 72%);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.95), 0 0 14px rgba(186, 210, 255, 0.65);
         }
         @keyframes skyDrift {
             0% { transform: translateX(0); }
             50% { transform: translateX(-1.2%); }
             100% { transform: translateX(0); }
         }
+        /* Движение вдоль оси хвоста: почти равномерная скорость, короткая вспышка и быстрое угасание */
         @keyframes shootingStarPath {
             0% {
                 opacity: 0;
-                transform: translate(0, 0) rotate(var(--angle, -28deg)) scaleX(0.18);
+                transform: rotate(var(--angle, 32deg)) translateX(0) scaleX(0.35);
             }
-            12% {
+            4% {
                 opacity: 1;
-                transform: translate(0, 0) rotate(var(--angle, -28deg)) scaleX(1);
+                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.06)) scaleX(1);
             }
-            58% {
-                opacity: 0.9;
-                transform: translate(var(--dx, 220px), var(--dy, 140px)) rotate(var(--angle, -28deg)) scaleX(1);
+            62% {
+                opacity: 0.92;
+                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.78)) scaleX(1);
             }
             82% {
-                opacity: 0.45;
-                transform: translate(calc(var(--dx, 220px) * 1.08), calc(var(--dy, 140px) * 1.08)) rotate(var(--angle, -28deg)) scaleX(0.96);
+                opacity: 0.35;
+                transform: rotate(var(--angle, 32deg)) translateX(calc(var(--travel, 220px) * 0.94)) scaleX(0.92);
             }
             100% {
                 opacity: 0;
-                transform: translate(calc(var(--dx, 220px) * 1.12), calc(var(--dy, 140px) * 1.12)) rotate(var(--angle, -28deg)) scaleX(0.9);
+                transform: rotate(var(--angle, 32deg)) translateX(var(--travel, 220px)) scaleX(0.82);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .shooting-star {
+                animation: none !important;
+                opacity: 0 !important;
             }
         }
         
@@ -3168,30 +3197,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let shootingStarTimer = null;
 
+    function fpShootingStarsReducedMotion() {
+        try {
+            return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        } catch (e) {
+            return false;
+        }
+    }
+
     function spawnShootingStar() {
         const layer = document.getElementById('shootingStarsLayer');
-        if (!layer) return;
+        if (!layer || fpShootingStarsReducedMotion()) return;
+
+        const scene = document.getElementById('nightScene');
+        const w = scene ? scene.offsetWidth || 320 : 320;
+        const h = scene ? scene.offsetHeight || 190 : 190;
+
+        const faint = Math.random() < 0.26;
         const star = document.createElement('div');
-        star.className = 'shooting-star';
-        star.style.left = `${Math.random() * 56 + 6}%`;
-        star.style.top = `${Math.random() * 26 + 8}%`;
-        const angle = -(22 + Math.random() * 14); // -22..-36
-        const dx = 190 + Math.random() * 110;
-        const dy = 110 + Math.random() * 90;
-        star.style.setProperty('--angle', `${angle}deg`);
-        star.style.setProperty('--dx', `${dx}px`);
-        star.style.setProperty('--dy', `${dy}px`);
+        star.className = 'shooting-star' + (faint ? ' shooting-star--faint' : '');
+
+        /* Старт в верхней части «неба», как при входе в атмосферу */
+        const leftPct = 0.03 + Math.random() * 0.72;
+        const topPct = 0.05 + Math.random() * 0.38;
+        star.style.left = `${leftPct * w}px`;
+        star.style.top = `${topPct * h}px`;
+
+        /* Угол к горизонту ~18°–62° (чаще «классический» наклон метеора) */
+        const thetaDeg = 18 + Math.pow(Math.random(), 0.85) * 44;
+        const theta = (thetaDeg * Math.PI) / 180;
+
+        /* Длина пробега: заметная доля ширины сцены — быстрый зип при коротком --dur */
+        const travelScale = faint ? 0.52 + Math.random() * 0.28 : 0.62 + Math.random() * 0.42;
+        const travel = Math.max(110, w * travelScale * (0.75 + Math.random() * 0.55));
+
+        const dx = Math.cos(theta) * travel;
+        const dy = Math.sin(theta) * travel;
+        const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+        /* Реальные болиды очень быстрые: ~0.35–0.95 с на экране */
+        const dur = faint
+            ? 0.32 + Math.random() * 0.38
+            : 0.48 + Math.random() * 0.52;
+
+        star.style.setProperty('--angle', `${angleDeg}deg`);
+        star.style.setProperty('--travel', `${travel}px`);
+        star.style.setProperty('--dur', `${dur}s`);
+
         layer.appendChild(star);
-        setTimeout(() => star.remove(), 4100);
+        window.setTimeout(() => star.remove(), Math.ceil((dur + 0.12) * 1000));
     }
 
     function scheduleShootingStar() {
         if (shootingStarTimer) clearTimeout(shootingStarTimer);
-        const nextMs = 7600 + Math.floor(Math.random() * 900); // ~8 секунд
-        shootingStarTimer = setTimeout(() => {
+        if (fpShootingStarsReducedMotion()) return;
+
+        /* Редкие события: преимущественно длинные паузы, иногда чуть чаще */
+        const u = Math.random();
+        const gapMs = 3800 + Math.pow(u, 1.55) * 58000;
+
+        shootingStarTimer = window.setTimeout(() => {
             spawnShootingStar();
+            /* Редкий «двойной» метеор за 1–2 с — как краткий активный участок */
+            if (Math.random() < 0.07) {
+                window.setTimeout(spawnShootingStar, 160 + Math.random() * 520);
+            }
             scheduleShootingStar();
-        }, nextMs);
+        }, gapMs);
     }
 
     function initNightScene() {
@@ -3199,6 +3271,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const scene = document.getElementById('nightScene');
         if (!scene) return;
         window.__nightSceneInitialized = true;
+        if (fpShootingStarsReducedMotion()) return;
         spawnShootingStar();
         scheduleShootingStar();
     }
