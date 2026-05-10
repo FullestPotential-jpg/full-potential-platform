@@ -776,6 +776,60 @@
             );
             box-shadow: 0 0 12px rgba(140, 175, 255, 0.45);
         }
+        /* Шапка платформы: слоган между логотипом и профилем */
+        #platform-screen > .platform-header {
+            justify-content: flex-start;
+            gap: 12px 16px;
+        }
+        #platform-screen > .platform-header > .platform-logo--brand {
+            flex-shrink: 0;
+        }
+        .platform-header-tagline {
+            flex: 1;
+            min-width: 0;
+            margin: 0;
+            padding: 8px 14px;
+            text-align: center;
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-size: clamp(0.92rem, 2.4vw, 1.12rem);
+            font-weight: 600;
+            font-style: italic;
+            letter-spacing: 0.04em;
+            line-height: 1.35;
+            color: #3d4a7a;
+            background: linear-gradient(
+                105deg,
+                rgba(248, 250, 255, 0.55) 0%,
+                rgba(225, 232, 252, 0.85) 42%,
+                rgba(235, 240, 255, 0.75) 100%
+            );
+            border: 1px solid rgba(130, 150, 210, 0.28);
+            border-radius: 999px;
+            box-shadow:
+                0 2px 10px rgba(20, 28, 66, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.65);
+        }
+        #platform-screen > .platform-header > .profile-menu {
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        /* Подсказка над кнопкой «Моя цель» */
+        .platform-goal-hint {
+            margin: 0 20px 12px;
+            padding: 14px 18px;
+            text-align: center;
+            font-size: clamp(0.88rem, 2.6vw, 1.02rem);
+            font-weight: 600;
+            line-height: 1.5;
+            letter-spacing: 0.02em;
+            color: var(--fp-night-text);
+            background: linear-gradient(145deg, #f8faff 0%, #e8eefc 52%, #dde6fa 100%);
+            border: 1px solid rgba(130, 150, 210, 0.32);
+            border-radius: 16px;
+            box-shadow:
+                0 6px 18px rgba(12, 18, 52, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        }
         .goal-entry-wrap {
             padding: 14px 20px 6px;
         }
@@ -2059,6 +2113,23 @@
         min-height: 0;
         aspect-ratio: 2.12 / 1;
         max-height: 168px;
+    }
+
+    #platform-screen > .platform-header {
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+    #platform-screen > .platform-header > .platform-header-tagline {
+        order: 3;
+        flex: 1 1 100%;
+        padding: 10px 14px;
+        font-size: clamp(0.84rem, 3.4vw, 1rem);
+    }
+
+    .platform-goal-hint {
+        margin-left: 12px;
+        margin-right: 12px;
+        padding: 12px 14px;
     }
 }
 
@@ -3413,6 +3484,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div id="platform-screen" class="screen">
                 <div class="platform-header">
                     <div class="platform-logo platform-logo--brand" data-i18n="platform.title">Полный Потенциал</div>
+                    <p class="platform-header-tagline" data-i18n="platform.tagline">Адаптируем цель под тебя</p>
                     <div class="profile-menu">
                         <div class="profile-icon" onclick="toggleProfileMenu()" data-i18n-title="platform.profile_tooltip" title="Профиль">
                             <svg class="profile-icon-person" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -3482,6 +3554,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </section>
                 </div>
+
+                <p class="platform-goal-hint" data-i18n="goal.block_hint">Напиши цель — ИИ распишет шаги под твой тип личности</p>
 
                 <div class="goal-entry-wrap">
                     <button type="button" class="goal-entry-btn" id="goalNavItem" onclick="openGoalScreen(event)" data-i18n-html="goal.nav_btn">
@@ -3599,6 +3673,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'result.goto_platform': 'Перейти на платформу',
             'result.retry': 'Пройти тест снова',
             'platform.title': 'Полный Потенциал',
+            'platform.tagline': 'Адаптируем цель под тебя',
             'platform.profile_tooltip': 'Профиль',
             'platform.lang_group': 'Язык интерфейса',
             'platform.lang_ru': 'Русский',
@@ -3616,6 +3691,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'profile.desc.communicative': 'Вы - душа компании и мотиватор. Ваша сила в умении создавать связи, вдохновлять людей и находить общий язык с кем угодно.',
             'profile.desc.stable': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
             'profile.desc.technical': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.',
+            'goal.block_hint': 'Напиши цель — ИИ распишет шаги под твой тип личности',
             'goal.nav_btn': '⭐ Моя цель',
             'goal.back': '← Назад',
             'goal.screen_title': 'Моя цель',
@@ -3684,6 +3760,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'result.goto_platform': 'Go to platform',
             'result.retry': 'Retake the test',
             'platform.title': 'Full Potentiall',
+            'platform.tagline': 'We tailor your goal to you',
             'platform.profile_tooltip': 'Profile',
             'platform.lang_group': 'Interface language',
             'platform.lang_ru': 'Russian',
@@ -3701,6 +3778,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'profile.desc.communicative': 'You are the heart of the group and a motivator. Your strength is building connections, inspiring people, and finding common ground with anyone.',
             'profile.desc.stable': 'You are a reliable organizer. Your strength is consistency, responsibility, and building stable systems.',
             'profile.desc.technical': 'You are a strategist and analyst. Your strength is logical thinking, systems thinking, and solving complex problems.',
+            'goal.block_hint': 'Write your goal — AI will outline steps for your personality type',
             'goal.nav_btn': '⭐ My goal',
             'goal.back': '← Back',
             'goal.screen_title': 'My goal',
