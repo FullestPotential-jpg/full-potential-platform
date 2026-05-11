@@ -5023,7 +5023,25 @@ document.addEventListener('DOMContentLoaded', function() {
         if (looksLikeNetwork || /502|503|504/.test(raw)) {
             return pauseHint;
         }
-        return pauseHint + ' Технические детали: ' + raw.slice(0, 160);
+        var code = '';
+        try {
+            if (err && err.code != null) code = String(err.code);
+        } catch (e2) {}
+        var schemaHint =
+            'Ошибка на стороне базы (часто после обновления схемы). Администратору: в Supabase → SQL Editor выполните актуальный скрипт supabase/platform_accounts.sql (там есть ALTER TABLE для колонок архетипа).';
+        if (
+            low.indexOf('column') !== -1 && low.indexOf('does not exist') !== -1 ||
+            low.indexOf('42703') !== -1
+        ) {
+            return schemaHint + ' Детали: ' + raw.slice(0, 220);
+        }
+        if (/401|403|jwt|permission denied/i.test(raw)) {
+            return 'Доступ к API отклонён (ключ или политика). Проверьте anon key в index.html и настройки проекта. Детали: ' + raw.slice(0, 200);
+        }
+        if (/404|pgrst202|function .* does not exist/i.test(raw)) {
+            return 'На сервере не найдена нужная функция (RPC). Администратору: выполните supabase/platform_accounts.sql и проверьте имя функции. Детали: ' + raw.slice(0, 200);
+        }
+        return 'Сервер вернул ошибку при запросе. ' + (code ? 'Код: ' + code + '. ' : '') + 'Детали: ' + raw.slice(0, 240);
     }
 
     function generateDefaultNickname(email) {
@@ -5148,6 +5166,24 @@ async function saveUser(email, password, personality_type = null, serverUserId =
     localStorage.setItem('platformUsers', JSON.stringify(users));
 }
 
+async function syncArchetypeToServerIfPossible(email, personality_type, personality_description_html, archetype_key) {
+    try {
+        if (!window.supabaseClient) return;
+        const found = findUserByEmail(email);
+        const passwordHash = found && found.user ? found.user.password_hash : null;
+        if (!passwordHash) return;
+        await window.supabaseClient.rpc('platform_accounts_update_archetype', {
+            p_email: normalizeEmail(email),
+            p_hash: passwordHash,
+            p_personality_type: personality_type,
+            p_personality_description_html: personality_description_html,
+            p_archetype_key: archetype_key
+        });
+    } catch (e) {
+        console.warn('[archetype] не удалось синхронизировать архетип на сервер:', e);
+    }
+}
+
 function updateUserPersonalityInStore(email, personality_type, personality_description_html, archetype_key) {
     const found = findUserByEmail(email);
     if (!found) return;
@@ -5263,6 +5299,7 @@ async function login() {
     let found = findUserByEmail(email);
     let user = found ? found.user : null;
     let resolvedId = user && user.server_user_id ? user.server_user_id : null;
+    let serverProfile = null;
 
     if (found) {
         const ok = await verifyStoredPassword(email, password, user);
@@ -5279,6 +5316,7 @@ async function login() {
                 p_hash: h
             });
             if (!srvErr && srvData && srvData.ok && srvData.id) {
+                serverProfile = srvData;
                 user.server_user_id = srvData.id;
                 const users = getStoredUsers();
                 users[found.key] = user;
@@ -5305,10 +5343,21 @@ async function login() {
             showAuthMessage('login-message', 'Аккаунт не найден или неверный пароль', 'error');
             return;
         }
+        serverProfile = loginData;
         resolvedId = loginData.id;
-        await saveUser(email, password, null, resolvedId);
+        const srvPersonalityType = loginData.personality_type || null;
+        await saveUser(email, password, srvPersonalityType, resolvedId);
         found = findUserByEmail(email);
         user = found.user;
+
+        // Если сервер вернул профиль, сохраняем его в локальный store
+        if (serverProfile && (serverProfile.personality_description_html || serverProfile.archetype_key)) {
+            user.personality_description_html = serverProfile.personality_description_html || null;
+            user.archetype_key = serverProfile.archetype_key || null;
+            const users2 = getStoredUsers();
+            users2[found.key] = user;
+            localStorage.setItem('platformUsers', JSON.stringify(users2));
+        }
     }
 
     const nick = ensureNicknameInStore(found.key);
@@ -5316,9 +5365,9 @@ async function login() {
     currentUser = { 
         email: email,
         nickname: nick,
-        personality_type: user.personality_type,
-        personality_description_html: user.personality_description_html || null,
-        archetype_key: user.archetype_key || null,
+        personality_type: (serverProfile && serverProfile.personality_type) ? serverProfile.personality_type : user.personality_type,
+        personality_description_html: (serverProfile && serverProfile.personality_description_html) ? serverProfile.personality_description_html : (user.personality_description_html || null),
+        archetype_key: (serverProfile && serverProfile.archetype_key) ? serverProfile.archetype_key : (user.archetype_key || null),
         id: resolvedId || Date.now(),
         created: user.created
     };
@@ -5846,6 +5895,14 @@ async function showResult() {
     if (typeof savePlatformAuth === 'function') {
         savePlatformAuth(currentUser);
     }
+
+    // Синхронизация архетипа в Supabase, чтобы вход с другого устройства не вёл обратно на тест
+    await syncArchetypeToServerIfPossible(
+        currentUser.email,
+        ruName,
+        ruHtml,
+        userArchetype ? archetypeKey : null
+    );
     
     // 5. Сохраняем в базу пользователей (если есть такая функция)
     if (typeof updateUserPersonality === 'function') {
