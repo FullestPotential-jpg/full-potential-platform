@@ -4748,10 +4748,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error(parseErr);
             }
             if (!j || !j.diag) {
+                console.error('[fp-password-reset] нет поля diag в ответе:', j);
                 showAuthMessage('forgot-message', fpT('auth.reset_redeploy_function'), 'error');
                 return;
             }
             var d = j.diag;
+            console.log('[fp-password-reset] ответ Edge Function (смотрите diag.step):', j);
             if (!d.supabase_url || !d.service_role_key) {
                 showAuthMessage('forgot-message', fpT('auth.reset_diag_service'), 'error');
                 return;
