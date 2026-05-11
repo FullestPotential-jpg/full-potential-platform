@@ -4753,7 +4753,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             var d = j.diag;
-            console.log('[fp-password-reset] ответ Edge Function (смотрите diag.step):', j);
+            console.log('[fp-password-reset] полный ответ:', j);
+            console.log(
+                '[fp-password-reset] кратко (скопируйте эту строку):',
+                JSON.stringify({
+                    step: d.step,
+                    mail_accepted_by_resend: d.mail_accepted_by_resend,
+                    resend_api_key: d.resend_api_key,
+                    password_reset_site_url: d.password_reset_site_url,
+                    password_reset_site_url_effective: d.password_reset_site_url_effective,
+                    supabase_url: d.supabase_url,
+                    service_role_key: d.service_role_key,
+                    rpc_http: d.rpc_http,
+                })
+            );
             if (!d.supabase_url || !d.service_role_key) {
                 showAuthMessage('forgot-message', fpT('auth.reset_diag_service'), 'error');
                 return;
