@@ -3921,7 +3921,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'auth.reset_email_sent':
                 'Запрос принят. Письмо приходит только на тот же адрес, с которым вы регистрировались; обычно в течение нескольких минут. Проверьте «Спам». Если письма нет — чаще всего адрес не совпал с базой или не настроена почта на сервере (Resend / домен).',
             'auth.reset_email_sent_confirmed':
-                'Сервер передал письмо в Resend. Проверьте «Входящие» и «Спам» в течение нескольких минут. Если пусто — в панели Resend должна появиться запись; иначе смотрите логи функции в Supabase.',
+                'Сервер передал письмо в Resend. Проверьте «Входящие» и «Спам» в течение нескольких минут. Если пусто — в панели Resend должна появиться запись; иначе смотрите логи функции в Supabase. На бесплатном Resend без своего домена письма часто уходят только на адрес, который вы подтвердили в аккаунте Resend.',
             'auth.reset_email_neutral':
                 'Запрос принят. На этот адрес письмо не отправлялось (его нет в базе регистрации или ответ базы неожиданный). Проверьте написание email — точно как при регистрации.',
             'auth.reset_redeploy_function':
@@ -4051,7 +4051,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'auth.reset_email_sent':
                 'Request received. A message is only sent to the address you used to register; it usually arrives within a few minutes. Check spam. If nothing arrives, the address may not match your account or outbound email may not be configured (Resend / domain).',
             'auth.reset_email_sent_confirmed':
-                'The server handed the message to Resend. Check inbox and spam within a few minutes. If nothing appears, look for the send in the Resend dashboard; otherwise check Supabase function logs.',
+                'The server handed the message to Resend. Check inbox and spam within a few minutes. If nothing appears, look for the send in the Resend dashboard; otherwise check Supabase function logs. On Resend without a verified domain, mail often only reaches addresses you verified in the Resend account.',
             'auth.reset_email_neutral':
                 'Request accepted. No email was sent to this address (it is not in the registration database, or the database returned an unexpected response). Check the spelling — exactly as when you registered.',
             'auth.reset_redeploy_function':
@@ -4734,7 +4734,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ email: email }),
             });
             if (!res.ok) {
-                showAuthMessage('forgot-message', fpT('auth.reset_email_error'), 'error');
+                if (res.status === 404) {
+                    showAuthMessage('forgot-message', fpT('auth.reset_redeploy_function'), 'error');
+                } else {
+                    showAuthMessage('forgot-message', fpT('auth.reset_email_error'), 'error');
+                }
                 return;
             }
             var j = {};
@@ -4756,10 +4760,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 showAuthMessage('forgot-message', fpT('auth.reset_diag_resend'), 'error');
                 return;
             }
-            if (!d.password_reset_site_url) {
-                showAuthMessage('forgot-message', fpT('auth.reset_diag_site'), 'error');
-                return;
-            }
+            // PASSWORD_RESET_SITE_URL в diag — только факт секрета в Edge; ссылка может быть собрана из Referer.
+            // Ошибку «нет адреса сайта» показываем только по шагу no_site_url ниже.
             if (d.step === 'invalid_email') {
                 showAuthMessage('forgot-message', fpT('auth.email_invalid'), 'error');
                 return;
@@ -8850,89 +8852,6 @@ function showBottomNavigation() {
 }
 // ===== ФУНКЦИИ ДЛЯ ЧАТА =====
 
-function hideCommunityChat() {
-    const chat = document.getElementById('communityChat');
-    const overlay = document.getElementById('chatOverlay');
-    
-    if (chat && overlay) {
-        chat.style.display = 'none';
-        overlay.style.display = 'none';
-        // Останавливаем real-time
-        if (window.chatSubscription) {
-            window.supabaseClient.removeChannel(window.chatSubscription);
-        }
-    }
-}
-
-// Отправка сообщения в Supabase
-async function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const text = input.value.trim();
-    
-    if (!text) return;
-    
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser) {
-        alert('Сначала войдите в платформу!');
-        return;
-    }
-    
-    const username = currentUser.email.split('@')[0];
-    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
-    const newMessage = {
-        id: Date.now(),
-        type: 'outgoing',
-        author: username,
-        text: text,
-        time: time,
-        userId: currentUser.email,
-        timestamp: Date.now()
-    };
-    if (!messages[currentChat.id]) messages[currentChat.id] = [];
-    messages[currentChat.id].push(newMessage);
-    updateChatMessages();
-    
-    input.value = '';
-    
-    // 2. Отправляем на сервер (Supabase) - ДЛЯ ВСЕХ ЧАТОВ
-    try {
-        const { data, error } = await supabase
-            .from('chat_messages')
-            .insert([
-                {
-                    chat_id: currentChat.id,
-                    author: username,
-                    text: text,
-                    user_email: currentUser.email,
-                    message_type: 'private'
-                }
-            ]);
-            
-        if (error) throw error;
-        console.log('✅ Сообщение отправлено на Supabase');
-        
-        // 3. Обновляем сообщения с сервера (чтобы получить ID)
-        setTimeout(loadChatMessages, 500);
-        
-    } catch (error) {
-        console.error('❌ Ошибка отправки на сервер:', error);
-        
-        // Сохраняем для повторной отправки
-        const failedMessage = {
-            chat_id: currentChat.id,
-            author: username,
-            text: text,
-            user_email: currentUser.email,
-            message_type: 'private',
-            timestamp: Date.now(),
-            retryCount: 0
-        };
-        
-        saveFailedMessage(failedMessage);
-    }
-}
-
 // Сохранить неудачное сообщение
 function saveFailedMessage(message) {
     const failedMessages = JSON.parse(localStorage.getItem('failed_messages') || '[]');
@@ -8958,7 +8877,9 @@ async function retryFailedMessages() {
         }
         
         try {
-            const { error } = await supabase
+            const client = window.supabaseClient;
+            if (!client) continue;
+            const { error } = await client
                 .from('chat_messages')
                 .insert([{
                     chat_id: msg.chat_id,
@@ -8989,9 +8910,14 @@ setInterval(retryFailedMessages, 30000);
 // Загрузка сообщений из Supabase
 async function loadChatMessages() {
     if (!currentChat.id) return;
+    const client = window.supabaseClient;
+    if (!client) {
+        console.warn('Supabase client недоступен, пропускаем загрузку сообщений');
+        return;
+    }
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     try {
-        const { data, error } = await supabase
+        const { data, error } = await client
             .from('chat_messages')
             .select('*')
             .eq('chat_id', currentChat.id)
@@ -9087,8 +9013,10 @@ function createMessageElement(msg) {
     const currentUsername = currentUser ? currentUser.email.split('@')[0] : 'Участник';
     const isMyMessage = msg.author === currentUsername;
     
-    // Форматируем время
-    const messageTime = new Date(msg.created_at);
+    // Форматируем время (строка с сервера или локальная метка)
+    const messageTime = msg.created_at
+        ? new Date(msg.created_at)
+        : (msg.timestamp ? new Date(msg.timestamp) : new Date());
     const timeString = formatMessageTime(messageTime);
     
     if (msg.type === 'system') {
@@ -9152,6 +9080,15 @@ function startRealtimeMessages() {
     }
     
     console.log('✅ Supabase client доступен');
+
+    if (window.chatSubscription) {
+        try {
+            window.supabaseClient.removeChannel(window.chatSubscription);
+        } catch (e) {
+            console.warn('Не удалось снять предыдущую подписку чата:', e);
+        }
+        window.chatSubscription = null;
+    }
     
     window.chatSubscription = window.supabaseClient
         .channel('public:chat_messages')
@@ -9179,6 +9116,12 @@ function addNewMessageToChat(message) {
     console.log('🆕 Добавляем сообщение в чат:', message);
     
     const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages || !currentChat || !currentChat.id) return;
+    if (message.chat_id != null && message.chat_id !== currentChat.id) {
+        console.log('⏭️ Сообщение для другого чата, пропускаем');
+        return;
+    }
+
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const currentUsername = currentUser ? currentUser.email.split('@')[0] : 'Участник';
     
@@ -9337,6 +9280,14 @@ function hideCommunityChat() {
     console.log("Закрываем чат");
     document.getElementById('chatOverlay').style.display = 'none';
     document.getElementById('communityChat').style.display = 'none';
+    if (window.chatSubscription && window.supabaseClient) {
+        try {
+            window.supabaseClient.removeChannel(window.chatSubscription);
+        } catch (e) {
+            console.warn('Не удалось отписаться от чата:', e);
+        }
+        window.chatSubscription = null;
+    }
 }
 
 function openChatScreen(chatId, chatName = 'Чат') {
@@ -9357,6 +9308,9 @@ function openChatScreen(chatId, chatName = 'Чат') {
     document.getElementById('chatScreen').style.display = 'flex';
     
     updateChatMessages();
+    if (typeof loadChatMessages === 'function') {
+        loadChatMessages();
+    }
     
     setTimeout(() => {
         document.getElementById('messageInput').focus();
@@ -9394,14 +9348,19 @@ function updateChatMessages() {
     container.scrollTop = container.scrollHeight;
 }
 
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById('messageInput');
     const text = input.value.trim();
     
     if (!text) return;
-    
+
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const username = currentUser ? currentUser.email.split('@')[0] : 'Участник';
+    if (!currentUser) {
+        alert('Сначала войдите в платформу!');
+        return;
+    }
+
+    const username = currentUser.email.split('@')[0];
     const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     
     const newMessage = {
@@ -9409,7 +9368,8 @@ function sendMessage() {
         type: 'outgoing',
         author: username,
         text: text,
-        time: time
+        time: time,
+        userId: currentUser.email
     };
     
     if (!messages[currentChat.id]) {
@@ -9417,7 +9377,7 @@ function sendMessage() {
     }
     messages[currentChat.id].push(newMessage);
     
-    if (currentChat.id.startsWith('private_') && personalChats[currentChat.id]) {
+    if (currentChat.id && currentChat.id.startsWith('private_') && personalChats[currentChat.id]) {
         personalChats[currentChat.id].lastMessage = text;
         personalChats[currentChat.id].lastMessageTime = time;
         saveChatsToStorage();
@@ -9426,7 +9386,39 @@ function sendMessage() {
     input.value = '';
     updateChatMessages();
     
-    console.log('Сообщение отправлено в', currentChat.name);
+    const client = window.supabaseClient;
+    if (!client) {
+        console.warn('Supabase client недоступен, сообщение только локально');
+        return;
+    }
+
+    try {
+        const { error } = await client.from('chat_messages').insert([{
+            chat_id: currentChat.id,
+            author: username,
+            text: text,
+            user_email: currentUser.email,
+            message_type: 'private'
+        }]);
+        if (error) throw error;
+        console.log('✅ Сообщение отправлено на Supabase');
+        setTimeout(function () {
+            if (typeof loadChatMessages === 'function') loadChatMessages();
+        }, 400);
+    } catch (error) {
+        console.error('❌ Ошибка отправки на сервер:', error);
+        if (typeof saveFailedMessage === 'function') {
+            saveFailedMessage({
+                chat_id: currentChat.id,
+                author: username,
+                text: text,
+                user_email: currentUser.email,
+                message_type: 'private',
+                timestamp: Date.now(),
+                retryCount: 0
+            });
+        }
+    }
 }
 async function checkForNewMessages() {
     return;
@@ -9737,15 +9729,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Восстановление сессии: см. restoreSessionFromStorage() в основном скрипте (вызывается при DOMContentLoaded)
     // Проверяем новые сообщения каждые 2 секунды
     setInterval(checkForNewMessages, 2000);
-    // Запускаем подписку Supabase если она доступна
-if (typeof supabase !== 'undefined') {
-    setupRealtimeSubscription();
-} else {
-    console.log('ℹ️ Supabase не доступен, используем localStorage синхронизацию');
-}
+    // Real-time чата подключается при открытии окна сообщений (showCommunityChat → startRealtimeMessages)
+    function setupRealtimeSubscription() {}
+    if (typeof supabase !== 'undefined') {
+        setupRealtimeSubscription();
+    } else {
+        console.log('ℹ️ Supabase не доступен, используем localStorage синхронизацию');
+    }
     </script>
     
 </body>
 </html>
-
-    
