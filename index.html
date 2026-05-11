@@ -2455,6 +2455,42 @@
                 margin: 10px auto;
                 padding: 12px;
             }
+            .auth-hint {
+                text-align: center;
+                margin: 10px auto 0;
+                padding: 0 14px;
+                font-size: 0.88rem;
+                color: #666;
+                line-height: 1.45;
+                max-width: 400px;
+            }
+            .auth-text-link {
+                display: block;
+                margin: 14px auto 0;
+                text-align: center;
+                background: none;
+                border: none;
+                color: #3949ab;
+                font-size: 0.9rem;
+                cursor: pointer;
+                text-decoration: underline;
+                padding: 6px;
+                font-family: inherit;
+            }
+            .auth-text-link:hover {
+                color: #1a237e;
+            }
+            .auth-actions-row {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            .email-input[readonly] {
+                background: #f1f3f9;
+                color: #374151;
+            }
             
             /* Кнопки горизонтально */
             #login-section > div,
@@ -2467,10 +2503,18 @@
             }
             
             #login-section button,
-            #register-section button {
+            #register-section button,
+            #forgot-password-section .auth-actions-row button,
+            #reset-password-section .auth-actions-row button {
                 flex: 1;
                 max-width: 180px;
                 padding: 12px 20px;
+            }
+            #forgot-password-section .auth-actions-row,
+            #reset-password-section .auth-actions-row {
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
             }
         }
 
@@ -3448,6 +3492,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
+    window.fpSupabaseUrl = supabaseUrl;
+    window.fpSupabaseAnonKey = supabaseKey;
     window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
     console.log('✅ Supabase инициализирован');
 });
@@ -3471,10 +3517,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <!-- ЭКРАН АВТОРИЗАЦИИ -->
             <div id="auth-screen" class="screen active">
                 <div class="email-section">
-                    <h2 class="question" data-i18n="auth.heading">Войдите в платформу</h2>
-                    
                     <!-- ЛОГИН -->
                     <div id="login-section">
+                        <h2 class="question" data-i18n="auth.heading">Войдите в платформу</h2>
                         <div id="login-message" class="auth-message" style="display: none;"></div>
                         <input type="email" id="login-email" class="email-input" data-i18n-placeholder="auth.ph_email" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
                         <input type="password" id="login-password" class="email-input" data-i18n-placeholder="auth.ph_password" placeholder="пароль" required autocomplete="current-password">
@@ -3482,7 +3527,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button onclick="login()" style="flex: 1;" data-i18n="auth.login_btn">Войти</button>
                             <button onclick="showRegister()" style="flex: 1; background: #6c757d;" data-i18n="auth.register_btn">Регистрация</button>
                         </div>
-                        <!-- ДОБАВЛЕННЫЙ ТЕКСТ -->
+                        <button type="button" class="auth-text-link" onclick="showForgotPassword()" data-i18n="auth.forgot_link">Забыли пароль?</button>
                         <div style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; padding: 0 10px;" data-i18n="auth.remember">
                             Важно: запомните свой пароль
                         </div>
@@ -3490,6 +3535,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     <!-- РЕГИСТРАЦИЯ -->
                     <div id="register-section" style="display: none;">
+                        <h2 class="question" data-i18n="auth.register_heading">Регистрация</h2>
                         <div id="register-message" class="auth-message" style="display: none;"></div>
                         <input type="email" id="reg-email" class="email-input" data-i18n-placeholder="auth.ph_email" placeholder="ваш@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
                         <input type="password" id="reg-password" class="email-input" data-i18n-placeholder="auth.ph_password_create" placeholder="придумайте пароль" required autocomplete="new-password">
@@ -3497,9 +3543,35 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button onclick="register()" style="flex: 1;" data-i18n="auth.submit_register">Зарегистрироваться</button>
                             <button onclick="showLogin()" style="flex: 1; background: #6c757d;" data-i18n="nav.back">Назад</button>
                         </div>
-                        <!-- ДОБАВЛЕННЫЙ ТЕКСТ -->
                         <div style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; padding: 0 10px;" data-i18n="auth.remember">
                             Важно: запомните свой пароль
+                        </div>
+                    </div>
+
+                    <!-- ВОССТАНОВЛЕНИЕ ПАРОЛЯ -->
+                    <div id="forgot-password-section" style="display: none;">
+                        <h2 class="question" data-i18n="auth.forgot_heading">Восстановление пароля</h2>
+                        <div id="forgot-message" class="auth-message" style="display: none;"></div>
+                        <p class="auth-hint" data-i18n="auth.forgot_hint">Укажите email — мы отправим ссылку для нового пароля (действует 1 час).</p>
+                        <input type="email" id="forgot-email" class="email-input" data-i18n-placeholder="auth.ph_email" placeholder="ваш@email.com" autocomplete="email" inputmode="email" spellcheck="false">
+                        <div class="auth-actions-row">
+                            <button type="button" onclick="fpRequestPasswordResetEmail()" data-i18n="auth.forgot_send">Отправить ссылку</button>
+                            <button type="button" onclick="showLogin()" style="background: #6c757d;" data-i18n="nav.back">Назад</button>
+                        </div>
+                    </div>
+
+                    <!-- НОВЫЙ ПАРОЛЬ ПО ССЫЛКЕ ИЗ ПИСЬМА -->
+                    <div id="reset-password-section" style="display: none;">
+                        <h2 class="question" data-i18n="auth.reset_heading">Новый пароль</h2>
+                        <div id="reset-message" class="auth-message" style="display: none;"></div>
+                        <p class="auth-hint" data-i18n="auth.reset_hint">Придумайте новый пароль для входа.</p>
+                        <input type="text" id="reset-email-display" class="email-input" readonly autocomplete="username" spellcheck="false" aria-readonly="true">
+                        <input type="hidden" id="reset-token-field" value="">
+                        <input type="password" id="reset-password-new" class="email-input" data-i18n-placeholder="auth.ph_password_create" placeholder="новый пароль" autocomplete="new-password">
+                        <input type="password" id="reset-password-repeat" class="email-input" data-i18n-placeholder="auth.ph_password_repeat" placeholder="повторите пароль" autocomplete="new-password">
+                        <div class="auth-actions-row">
+                            <button type="button" onclick="fpSubmitPasswordReset()" data-i18n="auth.reset_save">Сохранить пароль</button>
+                            <button type="button" onclick="fpCancelPasswordReset()" style="background: #6c757d;" data-i18n="nav.back">Назад</button>
                         </div>
                     </div>
                 </div>            
@@ -3824,12 +3896,32 @@ document.addEventListener('DOMContentLoaded', function() {
         ru: {
             'auth.heading': 'Войдите в платформу',
             'auth.ph_email': 'ваш@email.com',
+            'auth.email_invalid': 'Введите корректный адрес email',
             'auth.ph_password': 'пароль',
             'auth.ph_password_create': 'придумайте пароль',
             'auth.login_btn': 'Войти',
             'auth.register_btn': 'Регистрация',
             'auth.remember': 'Важно: запомните свой пароль',
             'auth.submit_register': 'Зарегистрироваться',
+            'auth.register_heading': 'Регистрация',
+            'auth.forgot_link': 'Забыли пароль?',
+            'auth.forgot_heading': 'Восстановление пароля',
+            'auth.forgot_hint':
+                'Укажите email — мы отправим ссылку для нового пароля (действует 1 час).',
+            'auth.forgot_send': 'Отправить ссылку',
+            'auth.reset_heading': 'Новый пароль',
+            'auth.reset_hint': 'Придумайте новый пароль для входа.',
+            'auth.ph_password_repeat': 'повторите пароль',
+            'auth.reset_save': 'Сохранить пароль',
+            'auth.reset_email_sent':
+                'Если этот email зарегистрирован, мы отправили письмо со ссылкой. Проверьте почту и папку «Спам».',
+            'auth.reset_email_error':
+                'Не удалось отправить письмо. Попробуйте позже или проверьте настройки сайта.',
+            'auth.reset_password_short': 'Пароль слишком короткий (минимум 6 символов).',
+            'auth.reset_password_mismatch': 'Пароли не совпадают.',
+            'auth.reset_bad_token': 'Ссылка недействительна или устарела. Запросите новую.',
+            'auth.reset_success': 'Пароль обновлён.',
+            'auth.reset_login_with_new': 'Войдите с новым паролем.',
             'nav.back': 'Назад',
             'nav.next': 'Далее',
             'nav.result': 'Узнать результат',
@@ -3918,12 +4010,32 @@ document.addEventListener('DOMContentLoaded', function() {
         en: {
             'auth.heading': 'Sign in to the platform',
             'auth.ph_email': 'your@email.com',
+            'auth.email_invalid': 'Enter a valid email address',
             'auth.ph_password': 'password',
             'auth.ph_password_create': 'create a password',
             'auth.login_btn': 'Sign in',
             'auth.register_btn': 'Register',
             'auth.remember': 'Important: remember your password',
             'auth.submit_register': 'Create account',
+            'auth.register_heading': 'Create account',
+            'auth.forgot_link': 'Forgot password?',
+            'auth.forgot_heading': 'Reset password',
+            'auth.forgot_hint':
+                'Enter your email — we’ll send a link to set a new password (valid for 1 hour).',
+            'auth.forgot_send': 'Send link',
+            'auth.reset_heading': 'New password',
+            'auth.reset_hint': 'Choose a new password to sign in.',
+            'auth.ph_password_repeat': 'repeat password',
+            'auth.reset_save': 'Save password',
+            'auth.reset_email_sent':
+                'If this email is registered, we sent a message with a link. Check inbox and spam.',
+            'auth.reset_email_error':
+                'Could not send the email. Try again later or check site configuration.',
+            'auth.reset_password_short': 'Password is too short (minimum 6 characters).',
+            'auth.reset_password_mismatch': 'Passwords do not match.',
+            'auth.reset_bad_token': 'This link is invalid or expired. Request a new one.',
+            'auth.reset_success': 'Password updated.',
+            'auth.reset_login_with_new': 'Sign in with your new password.',
             'nav.back': 'Back',
             'nav.next': 'Next',
             'nav.result': 'See result',
@@ -4433,8 +4545,15 @@ document.addEventListener('DOMContentLoaded', function() {
             fpBindNightPersonArchetypeInteractions();
         }
 
+        window.addEventListener('hashchange', function () {
+            if (typeof fpApplyPasswordResetFromHash === 'function') fpApplyPasswordResetFromHash();
+        });
+
         setTimeout(function () {
             restoreSessionFromStorage();
+            if (typeof fpApplyPasswordResetFromHash === 'function') {
+                fpApplyPasswordResetFromHash();
+            }
         }, 0);
         
         // Инициализация обработчиков выбора ответов
@@ -4469,29 +4588,181 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('login-password').value = '';
         document.getElementById('reg-email').value = '';
         document.getElementById('reg-password').value = '';
+        var fe = document.getElementById('forgot-email');
+        if (fe) fe.value = '';
+        var rn = document.getElementById('reset-password-new');
+        var rr = document.getElementById('reset-password-repeat');
+        if (rn) rn.value = '';
+        if (rr) rr.value = '';
+        var rt = document.getElementById('reset-token-field');
+        var rd = document.getElementById('reset-email-display');
+        if (rt) rt.value = '';
+        if (rd) rd.value = '';
     }
 
     // Функции авторизации
+    function fpHideAllAuthSubsections() {
+        ['login-section', 'register-section', 'forgot-password-section', 'reset-password-section'].forEach(
+            function (id) {
+                var el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            }
+        );
+    }
+
     function showRegister() {
-        document.getElementById('login-section').style.display = 'none';
+        fpHideAllAuthSubsections();
         document.getElementById('register-section').style.display = 'block';
         clearAuthMessages();
-        // Очищаем поля при переключении на регистрацию
         document.getElementById('reg-password').value = '';
         document.getElementById('reg-email').value = '';
     }
 
     function showLogin() {
-        document.getElementById('register-section').style.display = 'none';
+        fpHideAllAuthSubsections();
         document.getElementById('login-section').style.display = 'block';
         clearAuthMessages();
-        // Очищаем поля при переключении на логин
         document.getElementById('login-password').value = '';
     }
 
+    function showForgotPassword() {
+        fpHideAllAuthSubsections();
+        document.getElementById('forgot-password-section').style.display = 'block';
+        clearAuthMessages();
+        var fromLogin = document.getElementById('login-email').value.trim();
+        var fe = document.getElementById('forgot-email');
+        if (fe && fromLogin) fe.value = fromLogin;
+    }
+
+    function fpCancelPasswordReset() {
+        try {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (e) {}
+        showLogin();
+    }
+
+    function fpParsePasswordResetHash() {
+        var raw = window.location.hash.replace(/^#/, '');
+        if (!raw || raw.indexOf('fp-reset?') !== 0) return null;
+        var q = raw.slice('fp-reset?'.length);
+        try {
+            var params = new URLSearchParams(q);
+            var email = params.get('email');
+            var token = params.get('token');
+            if (!email || !token) return null;
+            return { email: email, token: token };
+        } catch (err) {
+            return null;
+        }
+    }
+
+    function fpShowPasswordResetPanel(payload) {
+        fpHideAllAuthSubsections();
+        document.getElementById('reset-password-section').style.display = 'block';
+        clearAuthMessages();
+        document.getElementById('reset-email-display').value = normalizeEmail(payload.email);
+        document.getElementById('reset-token-field').value = payload.token;
+        document.getElementById('reset-password-new').value = '';
+        document.getElementById('reset-password-repeat').value = '';
+    }
+
+    function fpApplyPasswordResetFromHash() {
+        var parsed = fpParsePasswordResetHash();
+        if (!parsed) return;
+        if (typeof showScreen === 'function') showScreen('auth-screen');
+        fpShowPasswordResetPanel(parsed);
+    }
+
+    async function fpRequestPasswordResetEmail() {
+        var emailRaw = document.getElementById('forgot-email').value;
+        var email = normalizeEmail(emailRaw);
+        if (!email || !isValidEmail(email)) {
+            showAuthMessage('forgot-message', fpT('auth.email_invalid'), 'error');
+            return;
+        }
+        var base = window.fpSupabaseUrl;
+        var key = window.fpSupabaseAnonKey;
+        if (!base || !key || !window.supabaseClient) {
+            showAuthMessage('forgot-message', fpT('auth.reset_email_error'), 'error');
+            return;
+        }
+        try {
+            var res = await fetch(base.replace(/\/$/, '') + '/functions/v1/password-reset-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + key,
+                    apikey: key,
+                },
+                body: JSON.stringify({ email: email }),
+            });
+            if (!res.ok) {
+                showAuthMessage('forgot-message', fpT('auth.reset_email_error'), 'error');
+                return;
+            }
+            showAuthMessage('forgot-message', fpT('auth.reset_email_sent'), 'success');
+        } catch (err) {
+            console.error(err);
+            showAuthMessage('forgot-message', fpT('auth.reset_email_error'), 'error');
+        }
+    }
+
+    async function fpSubmitPasswordReset() {
+        var email = normalizeEmail(document.getElementById('reset-email-display').value);
+        var token = document.getElementById('reset-token-field').value.trim();
+        var p1 = document.getElementById('reset-password-new').value;
+        var p2 = document.getElementById('reset-password-repeat').value;
+        if (!email || !token) {
+            showAuthMessage('reset-message', fpT('auth.reset_bad_token'), 'error');
+            return;
+        }
+        if (!p1 || p1.length < 6) {
+            showAuthMessage('reset-message', fpT('auth.reset_password_short'), 'error');
+            return;
+        }
+        if (p1 !== p2) {
+            showAuthMessage('reset-message', fpT('auth.reset_password_mismatch'), 'error');
+            return;
+        }
+        if (!window.supabaseClient) {
+            showAuthMessage('reset-message', fpT('auth.reset_email_error'), 'error');
+            return;
+        }
+        var hash = await hashPlatformPassword(email, p1);
+        var rpc = await window.supabaseClient.rpc('platform_accounts_password_reset_complete', {
+            p_email: email,
+            p_token: token,
+            p_hash: hash,
+        });
+        if (rpc.error || !rpc.data || rpc.data.ok !== true) {
+            showAuthMessage('reset-message', fpT('auth.reset_bad_token'), 'error');
+            return;
+        }
+        var found = findUserByEmail(email);
+        if (found && found.user) {
+            found.user.password_hash = hash;
+            delete found.user.password;
+            var users = getStoredUsers();
+            users[found.key] = found.user;
+            localStorage.setItem('platformUsers', JSON.stringify(users));
+        }
+        try {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (e2) {}
+        showAuthMessage('reset-message', fpT('auth.reset_success'), 'success');
+        window.setTimeout(function () {
+            showLogin();
+            document.getElementById('login-email').value = email;
+            clearAuthMessages();
+            showAuthMessage('login-message', fpT('auth.reset_login_with_new'), 'success');
+        }, 850);
+    }
+
     function clearAuthMessages() {
-        document.getElementById('login-message').style.display = 'none';
-        document.getElementById('register-message').style.display = 'none';
+        ['login-message', 'register-message', 'forgot-message', 'reset-message'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
     }
 
     function showAuthMessage(elementId, message, type) {
