@@ -3917,6 +3917,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Запрос принят. Письмо приходит только на тот же адрес, с которым вы регистрировались; обычно в течение нескольких минут. Проверьте «Спам». Если письма нет — чаще всего адрес не совпал с базой или не настроена почта на сервере (Resend / домен).',
             'auth.reset_email_error':
                 'Не удалось связаться с сервером. Попробуйте позже.',
+            'auth.reset_diag_service':
+                'На сервере не настроен доступ к базе для этой операции. Администратору: проверьте ключ service role в Edge Functions (SUPABASE_SERVICE_ROLE_KEY или SUPABASE_SECRET_KEYS).',
+            'auth.reset_diag_resend':
+                'Почта с сервера не настроена: нет ключа Resend. Администратору: в Supabase → Edge Functions → Secrets добавьте RESEND_API_KEY.',
+            'auth.reset_diag_site':
+                'Не задан адрес сайта для ссылки в письме. Администратору: секрет PASSWORD_RESET_SITE_URL (например https://fullpotentiall.ru).',
+            'auth.reset_diag_resend_api':
+                'Сервис Resend отклонил отправку (ключ, отправитель From или домен). Смотрите логи функции password-reset-request в Supabase.',
             'auth.reset_password_short': 'Пароль слишком короткий (минимум 6 символов).',
             'auth.reset_password_mismatch': 'Пароли не совпадают.',
             'auth.reset_bad_token': 'Ссылка недействительна или устарела. Запросите новую.',
@@ -4031,6 +4039,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Request received. A message is only sent to the address you used to register; it usually arrives within a few minutes. Check spam. If nothing arrives, the address may not match your account or outbound email may not be configured (Resend / domain).',
             'auth.reset_email_error':
                 'Could not reach the server. Try again later.',
+            'auth.reset_diag_service':
+                'Server database access for this action is not configured. Admin: check the service role key in Edge Functions (SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEYS).',
+            'auth.reset_diag_resend':
+                'Outbound email is not configured: missing Resend key. Admin: add RESEND_API_KEY in Supabase → Edge Functions → Secrets.',
+            'auth.reset_diag_site':
+                'Site URL for the reset link is not set. Admin: set PASSWORD_RESET_SITE_URL secret (e.g. https://your-domain.com).',
+            'auth.reset_diag_resend_api':
+                'Resend rejected the send (API key, From address, or domain). Check password-reset-request logs in Supabase.',
             'auth.reset_password_short': 'Password is too short (minimum 6 characters).',
             'auth.reset_password_mismatch': 'Passwords do not match.',
             'auth.reset_bad_token': 'This link is invalid or expired. Request a new one.',
@@ -4699,6 +4715,31 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!res.ok) {
                 showAuthMessage('forgot-message', fpT('auth.reset_email_error'), 'error');
                 return;
+            }
+            var j = {};
+            try {
+                j = await res.json();
+            } catch (parseErr) {
+                console.error(parseErr);
+            }
+            var d = j.diag;
+            if (d) {
+                if (!d.supabase_url || !d.service_role_key) {
+                    showAuthMessage('forgot-message', fpT('auth.reset_diag_service'), 'error');
+                    return;
+                }
+                if (!d.resend_api_key) {
+                    showAuthMessage('forgot-message', fpT('auth.reset_diag_resend'), 'error');
+                    return;
+                }
+                if (!d.password_reset_site_url) {
+                    showAuthMessage('forgot-message', fpT('auth.reset_diag_site'), 'error');
+                    return;
+                }
+                if (d.step === 'resend_rejected') {
+                    showAuthMessage('forgot-message', fpT('auth.reset_diag_resend_api'), 'error');
+                    return;
+                }
             }
             showAuthMessage('forgot-message', fpT('auth.reset_email_sent'), 'success');
         } catch (err) {
