@@ -5278,7 +5278,37 @@ async function login() {
     let serverProfile = null;
 
     if (found) {
-        const ok = await verifyStoredPassword(email, password, user);
+        let ok = await verifyStoredPassword(email, password, user);
+        // Локальный кэш мог устареть (например после сброса пароля на сервере) — проверяем сервер и синхронизируем хэш
+        if (!ok && window.supabaseClient) {
+            const hTry = await hashPlatformPassword(email, password);
+            const { data: srvTry, error: srvTryErr } = await window.supabaseClient.rpc('platform_accounts_verify_login', {
+                p_email: email,
+                p_hash: hTry
+            });
+            if (srvTryErr) {
+                console.error(srvTryErr);
+                showAuthMessage('login-message', fpSupabaseRpcAuthHint(srvTryErr), 'error');
+                return;
+            }
+            if (srvTry && srvTry.ok === true && srvTry.id) {
+                serverProfile = srvTry;
+                resolvedId = srvTry.id;
+                user.password_hash = hTry;
+                delete user.password;
+                if (!user.server_user_id) user.server_user_id = srvTry.id;
+                if (srvTry.personality_type) user.personality_type = srvTry.personality_type;
+                if (srvTry.personality_description_html || srvTry.archetype_key) {
+                    user.personality_description_html = srvTry.personality_description_html || null;
+                    user.archetype_key = srvTry.archetype_key || null;
+                }
+                const usersSync = getStoredUsers();
+                usersSync[found.key] = user;
+                localStorage.setItem('platformUsers', JSON.stringify(usersSync));
+                user = found.user;
+                ok = true;
+            }
+        }
         if (!ok) {
             showAuthMessage('login-message', 'Неверный пароль', 'error');
             return;
