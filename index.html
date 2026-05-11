@@ -3897,7 +3897,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let userAnswers = {};
     const validCodes = ['34193']; // Единственный рабочий код
     const FP_LANG_KEY = 'fp_ui_lang';
-
     const FP_MSG = {
         ru: {
             'auth.heading': 'Войдите в платформу',
@@ -4766,7 +4765,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             if (d.step === 'rpc_http_error') {
-                showAuthMessage('forgot-message', fpT('auth.reset_rpc_http'), 'error');
+                var rpcParts = [fpT('auth.reset_rpc_http')];
+                if (d.rpc_http) rpcParts.push('HTTP ' + String(d.rpc_http));
+                if (d.rpc_hint) rpcParts.push(String(d.rpc_hint).substring(0, 280));
+                showAuthMessage('forgot-message', rpcParts.join('\n'), 'error');
                 return;
             }
             if (d.step === 'resend_rejected') {
@@ -9745,3 +9747,5 @@ if (typeof supabase !== 'undefined') {
     
 </body>
 </html>
+
+    
