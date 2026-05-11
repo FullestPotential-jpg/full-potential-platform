@@ -725,6 +725,12 @@
             border: 1px solid #f5c6cb;
         }
 
+        .auth-message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
         /* СТИЛИ ПЛАТФОРМЫ */
         .platform-header {
             background: white;
@@ -3915,6 +3921,14 @@ document.addEventListener('DOMContentLoaded', function() {
             'auth.reset_save': 'Сохранить пароль',
             'auth.reset_email_sent':
                 'Запрос принят. Письмо приходит только на тот же адрес, с которым вы регистрировались; обычно в течение нескольких минут. Проверьте «Спам». Если письма нет — чаще всего адрес не совпал с базой или не настроена почта на сервере (Resend / домен).',
+            'auth.reset_email_sent_confirmed':
+                'Сервер передал письмо в Resend. Проверьте «Входящие» и «Спам» в течение нескольких минут. Если пусто — в панели Resend должна появиться запись; иначе смотрите логи функции в Supabase.',
+            'auth.reset_email_neutral':
+                'Запрос принят. На этот адрес письмо не отправлялось (его нет в базе регистрации или ответ базы неожиданный). Проверьте написание email — точно как при регистрации.',
+            'auth.reset_redeploy_function':
+                'Сайт обновлён, а сервер сброса пароля — нет. Администратору: выполните deploy функции password-reset-request (Supabase CLI), затем снова нажмите «Отправить».',
+            'auth.reset_rpc_http':
+                'База не выдала токен сброса (ошибка доступа). Администратору: логи Edge Function password-reset-request и права на RPC platform_accounts_password_reset_issue для service_role.',
             'auth.reset_email_error':
                 'Не удалось связаться с сервером. Попробуйте позже.',
             'auth.reset_diag_service':
@@ -4037,6 +4051,14 @@ document.addEventListener('DOMContentLoaded', function() {
             'auth.reset_save': 'Save password',
             'auth.reset_email_sent':
                 'Request received. A message is only sent to the address you used to register; it usually arrives within a few minutes. Check spam. If nothing arrives, the address may not match your account or outbound email may not be configured (Resend / domain).',
+            'auth.reset_email_sent_confirmed':
+                'The server handed the message to Resend. Check inbox and spam within a few minutes. If nothing appears, look for the send in the Resend dashboard; otherwise check Supabase function logs.',
+            'auth.reset_email_neutral':
+                'Request accepted. No email was sent to this address (it is not in the registration database, or the database returned an unexpected response). Check the spelling — exactly as when you registered.',
+            'auth.reset_redeploy_function':
+                'The site was updated but the password-reset server was not. Admin: deploy the password-reset-request Edge Function (Supabase CLI), then try again.',
+            'auth.reset_rpc_http':
+                'The database did not issue a reset token (access error). Admin: check password-reset-request Edge logs and service_role access to platform_accounts_password_reset_issue.',
             'auth.reset_email_error':
                 'Could not reach the server. Try again later.',
             'auth.reset_diag_service':
@@ -4722,25 +4744,48 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (parseErr) {
                 console.error(parseErr);
             }
-            var d = j.diag;
-            if (d) {
-                if (!d.supabase_url || !d.service_role_key) {
-                    showAuthMessage('forgot-message', fpT('auth.reset_diag_service'), 'error');
-                    return;
-                }
-                if (!d.resend_api_key) {
-                    showAuthMessage('forgot-message', fpT('auth.reset_diag_resend'), 'error');
-                    return;
-                }
-                if (!d.password_reset_site_url) {
-                    showAuthMessage('forgot-message', fpT('auth.reset_diag_site'), 'error');
-                    return;
-                }
-                if (d.step === 'resend_rejected') {
-                    showAuthMessage('forgot-message', fpT('auth.reset_diag_resend_api'), 'error');
-                    return;
-                }
+            if (!j || !j.diag) {
+                showAuthMessage('forgot-message', fpT('auth.reset_redeploy_function'), 'error');
+                return;
             }
+            var d = j.diag;
+            if (!d.supabase_url || !d.service_role_key) {
+                showAuthMessage('forgot-message', fpT('auth.reset_diag_service'), 'error');
+                return;
+            }
+            if (!d.resend_api_key) {
+                showAuthMessage('forgot-message', fpT('auth.reset_diag_resend'), 'error');
+                return;
+            }
+            if (!d.password_reset_site_url) {
+                showAuthMessage('forgot-message', fpT('auth.reset_diag_site'), 'error');
+                return;
+            }
+            if (d.step === 'invalid_email') {
+                showAuthMessage('forgot-message', fpT('auth.email_invalid'), 'error');
+                return;
+            }
+            if (d.step === 'rpc_http_error') {
+                showAuthMessage('forgot-message', fpT('auth.reset_rpc_http'), 'error');
+                return;
+            }
+            if (d.step === 'resend_rejected') {
+                showAuthMessage('forgot-message', fpT('auth.reset_diag_resend_api'), 'error');
+                return;
+            }
+            if (d.step === 'sent' && d.mail_accepted_by_resend === true) {
+                showAuthMessage('forgot-message', fpT('auth.reset_email_sent_confirmed'), 'success');
+                return;
+            }
+            if (d.step === 'no_account_or_no_token') {
+                showAuthMessage('forgot-message', fpT('auth.reset_email_neutral'), 'warning');
+                return;
+            }
+            if (d.step === 'no_site_url') {
+                showAuthMessage('forgot-message', fpT('auth.reset_diag_site'), 'error');
+                return;
+            }
+            console.warn('[fp-reset] неожиданный diag.step', d.step, d);
             showAuthMessage('forgot-message', fpT('auth.reset_email_sent'), 'success');
         } catch (err) {
             console.error(err);
