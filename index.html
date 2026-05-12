@@ -5182,7 +5182,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         setTimeout(function () {
-            restoreSessionFromStorage();
+            Promise.resolve(restoreSessionFromStorage()).catch(function (e) {
+                console.error(e);
+            });
             if (typeof fpApplyPasswordResetFromHash === 'function') {
                 fpApplyPasswordResetFromHash();
             }
@@ -5658,6 +5660,80 @@ document.addEventListener('DOMContentLoaded', function() {
         return /^[a-zA-Zа-яА-ЯёЁ0-9\s.\-_]+$/u.test(t);
     }
 
+    /** Слияние ответа platform_accounts_verify_login в объект пользователя (локальный store или currentUser). */
+    function applyServerProfileToStoredUser(userOrCurrent, serverProfile) {
+        if (!userOrCurrent || !serverProfile || serverProfile.ok !== true) return;
+        if (serverProfile.personality_type) {
+            userOrCurrent.personality_type = serverProfile.personality_type;
+        }
+        if (serverProfile.personality_description_html || serverProfile.archetype_key) {
+            userOrCurrent.personality_description_html = serverProfile.personality_description_html || null;
+            userOrCurrent.archetype_key = serverProfile.archetype_key || null;
+        }
+        const sn = serverProfile.nickname != null ? sanitizeNickname(String(serverProfile.nickname)) : '';
+        if (sn && isValidNickname(sn)) {
+            userOrCurrent.nickname = sn;
+        }
+    }
+
+    let fpLastPlatformProfileFetch = 0;
+    const FP_PLATFORM_PROFILE_MIN_INTERVAL_MS = 20000;
+
+    async function refreshPlatformProfileFromServer(force) {
+        try {
+            if (!window.supabaseClient || !currentUser || !currentUser.email) return;
+            const now = Date.now();
+            if (!force && now - fpLastPlatformProfileFetch < FP_PLATFORM_PROFILE_MIN_INTERVAL_MS) return;
+            const found = findUserByEmail(currentUser.email);
+            if (!found || !found.user.password_hash) return;
+            const { data, error } = await window.supabaseClient.rpc('platform_accounts_verify_login', {
+                p_email: normalizeEmail(currentUser.email),
+                p_hash: found.user.password_hash
+            });
+            if (error || !data || !data.ok) return;
+            applyServerProfileToStoredUser(found.user, data);
+            const users = getStoredUsers();
+            users[found.key] = found.user;
+            localStorage.setItem('platformUsers', JSON.stringify(users));
+            applyServerProfileToStoredUser(currentUser, data);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            if (typeof savePlatformAuth === 'function') {
+                savePlatformAuth(currentUser);
+            }
+            fpLastPlatformProfileFetch = Date.now();
+        } catch (e) {
+            console.warn('[profile] не удалось подтянуть профиль с сервера:', e);
+        }
+    }
+
+    async function syncNicknameToServerIfPossible(email, nickname) {
+        try {
+            if (!window.supabaseClient) return { ok: false };
+            const found = findUserByEmail(email);
+            const passwordHash = found && found.user ? found.user.password_hash : null;
+            if (!passwordHash) return { ok: false };
+            const nick = sanitizeNickname(nickname);
+            if (!isValidNickname(nick)) return { ok: false };
+            const { data, error } = await window.supabaseClient.rpc('platform_accounts_update_nickname', {
+                p_email: normalizeEmail(email),
+                p_hash: passwordHash,
+                p_nickname: nick
+            });
+            if (error) {
+                console.warn('[nickname] RPC:', error);
+                return { ok: false, error: error };
+            }
+            if (data && data.ok === false) {
+                console.warn('[nickname] отклонено:', data);
+                return { ok: false, data: data };
+            }
+            return { ok: true };
+        } catch (e) {
+            console.warn('[nickname] не удалось синхронизировать ник на сервер:', e);
+            return { ok: false, error: e };
+        }
+    }
+
     function findUserByEmail(email) {
         const key = normalizeEmail(email);
         const users = getStoredUsers();
@@ -5714,17 +5790,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (wrap) wrap.style.display = 'none';
     }
 
-    function saveNickname() {
+    async function saveNickname() {
         if (!currentUser) return;
         const nick = sanitizeNickname(document.getElementById('userNicknameInput').value);
         if (!isValidNickname(nick)) {
             alert('Ник: от 1 до 32 символов. Допустимы буквы, цифры, пробел, точка, дефис и подчёркивание.');
             return;
         }
+        const syncRes = await syncNicknameToServerIfPossible(currentUser.email, nick);
+        if (!syncRes.ok) {
+            alert('Не удалось сохранить ник на сервере. Проверьте сеть и попробуйте снова.');
+            return;
+        }
         currentUser.nickname = nick;
         persistUserNickname();
         cancelNicknameEdit();
-        updateProfileData();
+        fpLastPlatformProfileFetch = Date.now();
+        await updateProfileData();
     }
 
     function getStoredUsers() {
@@ -5858,6 +5940,11 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
     
     savePlatformAuth(currentUser);
     
+    const nickSyncRes = await syncNicknameToServerIfPossible(email, nick);
+    if (!nickSyncRes.ok) {
+        console.warn('[nickname] не удалось записать ник на сервер при регистрации; синхронизация при следующем входе');
+    }
+
     showAuthMessage('register-message', 'Регистрация успешна!', 'success');
     clearAuthFields();
     
@@ -5986,6 +6073,13 @@ async function login() {
         }
     }
 
+    if (serverProfile && serverProfile.ok === true && user && found) {
+        applyServerProfileToStoredUser(user, serverProfile);
+        const usersMerge = getStoredUsers();
+        usersMerge[found.key] = user;
+        localStorage.setItem('platformUsers', JSON.stringify(usersMerge));
+    }
+
     const nick = ensureNicknameInStore(found.key);
 
     currentUser = { 
@@ -6003,6 +6097,15 @@ async function login() {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     
     savePlatformAuth(currentUser);
+
+    const srvNickMerged = serverProfile && serverProfile.nickname != null ? sanitizeNickname(String(serverProfile.nickname)) : '';
+    if (!srvNickMerged || !isValidNickname(srvNickMerged)) {
+        const pushNick = await syncNicknameToServerIfPossible(email, currentUser.nickname);
+        if (!pushNick.ok) {
+            console.warn('[nickname] не удалось записать ник на сервер при входе');
+        }
+    }
+    fpLastPlatformProfileFetch = Date.now();
     
     showAuthMessage('login-message', 'Вход успешен!', 'success');
     clearAuthFields();
@@ -6422,7 +6525,7 @@ function updateProgress(percent) {
 }
 
 /** После перезагрузки страницы — вернуть пользователя на intro или платформу, не на экран входа */
-function restoreSessionFromStorage() {
+async function restoreSessionFromStorage() {
     if (typeof checkPlatformAuth === 'function') {
         checkPlatformAuth();
     }
@@ -6445,9 +6548,11 @@ function restoreSessionFromStorage() {
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
     }
 
-    if (user.personality_type) {
+    await refreshPlatformProfileFromServer(true);
+
+    if (currentUser && currentUser.personality_type) {
         showScreen('platform-screen');
-        updateProfileData();
+        await updateProfileData();
     } else {
         showScreen('intro-screen');
     }
@@ -6592,6 +6697,7 @@ async function showResult() {
     // Обновляем данные профиля при переходе на платформу
     async function updateProfileData() {
         if (currentUser) {
+            await refreshPlatformProfileFromServer(false);
             const goalScreen = document.getElementById('goal-screen');
             const platformMain = document.getElementById('platform-main');
             if (goalScreen) goalScreen.style.display = 'none';
