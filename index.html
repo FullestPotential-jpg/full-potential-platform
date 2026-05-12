@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#0c1028">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="https://fullestpotential-jpg.github.io/full-potential-platform/icon-192.png">
     <title>Full Potentiall — платформа</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -133,7 +134,8 @@
     background: none;
     border: none;
     color: white;
-    font-size: 24px;
+    font-size: 0;
+    line-height: 0;
     cursor: pointer;
     padding: 0;
     width: 40px;
@@ -143,6 +145,11 @@
     justify-content: center;
     border-radius: 50%;
     transition: background 0.3s;
+}
+
+.chat-close svg {
+    width: 20px;
+    height: 20px;
 }
 
 .chat-close:hover {
@@ -291,7 +298,12 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s;
-    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.send-btn svg {
+    width: 20px;
+    height: 20px;
 }
 
 .send-btn:hover {
@@ -841,6 +853,9 @@
         }
         .goal-entry-btn {
             width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             border: 1px solid rgba(130, 150, 210, 0.32);
             border-radius: 16px;
             padding: 16px 18px;
@@ -863,6 +878,20 @@
         .goal-entry-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 11px 24px rgba(8, 12, 42, 0.38), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .goal-entry-btn__ic {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+        }
+        .goal-entry-btn__ic svg {
+            display: block;
+        }
+        .goal-entry-btn__txt {
+            flex: 1;
+            min-width: 0;
         }
         
         .profile-menu {
@@ -2993,12 +3022,21 @@
     background: none;
     border: none;
     color: white;
-    font-size: 22px;
+    font-size: 0;
+    line-height: 0;
     cursor: pointer;
-    padding: 5px 10px;
-    margin-right: 10px;
+    padding: 8px;
+    margin-right: 6px;
     border-radius: 50%;
     transition: background 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.new-chat-btn svg {
+    width: 22px;
+    height: 22px;
 }
 
 .new-chat-btn:hover {
@@ -3182,7 +3220,8 @@
 .modal-close {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 0;
+    line-height: 0;
     cursor: pointer;
     color: #666;
     padding: 0;
@@ -3195,9 +3234,26 @@
     transition: all 0.3s;
 }
 
+.modal-close svg {
+    width: 20px;
+    height: 20px;
+}
+
 .modal-close:hover {
     background: rgba(0, 0, 0, 0.1);
     color: #333;
+}
+
+.fp-modal-illus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+.fp-modal-illus svg {
+    opacity: 0.92;
+    filter: drop-shadow(0 8px 18px rgba(26, 50, 104, 0.14));
 }
 
 .modal-content {
@@ -3335,13 +3391,22 @@
 .back-btn {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 0;
+    line-height: 0;
     color: white;
     cursor: pointer;
     padding: 8px;
     margin-right: 10px;
     border-radius: 50%;
     transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-btn svg {
+    width: 22px;
+    height: 22px;
 }
 
 .back-btn:hover {
@@ -3361,7 +3426,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     color: #ffffff;
     margin-right: 12px;
     overflow: hidden;
@@ -3509,6 +3576,21 @@
     font-size: 64px;
     margin-bottom: 20px;
     opacity: 0.5;
+}
+
+.empty-icon.empty-icon--svg {
+    font-size: 0;
+    margin-bottom: 18px;
+    opacity: 1;
+}
+
+.empty-icon.empty-icon--svg svg {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto;
+    display: block;
+    opacity: 0.9;
+    filter: drop-shadow(0 10px 24px rgba(26, 50, 104, 0.14));
 }
 
 .empty-state h4 {
@@ -3995,8 +4077,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="profile-menu">
                         <div class="profile-icon" onclick="toggleProfileMenu()" data-i18n-title="platform.profile_tooltip" title="Профиль">
                             <svg class="profile-icon-person" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="8" r="3.5" fill="none" stroke="#ffffff" stroke-width="1.65"/>
-                                <path fill="none" stroke="#ffffff" stroke-width="1.65" stroke-linecap="round" d="M5 20c0-3.5 3.5-5.5 7-5.5s7 2 7 5.5"/>
+                                <defs>
+                                    <linearGradient id="fpProfStroke" x1="5" y1="4" x2="19" y2="22" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#ffffff"/>
+                                        <stop offset="1" stop-color="#b8c8ff"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="12" cy="9" r="3.35" fill="none" stroke="url(#fpProfStroke)" stroke-width="1.75" stroke-linecap="round"/>
+                                <path fill="none" stroke="url(#fpProfStroke)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" d="M6.15 20.25c.48-3.32 3.15-5.4 5.85-5.4s5.37 2.08 5.85 5.4"/>
                             </svg>
                         </div>
                         <div class="profile-dropdown" id="profileDropdown">
@@ -4072,8 +4160,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p class="platform-goal-hint" data-i18n="goal.block_hint">Напиши цель — ИИ распишет шаги под твой архетип</p>
 
                 <div class="goal-entry-wrap">
-                    <button type="button" class="goal-entry-btn" id="goalNavItem" onclick="openGoalScreen(event)" data-i18n-html="goal.nav_btn">
-                        ⭐ Моя цель
+                    <button type="button" class="goal-entry-btn" id="goalNavItem" onclick="openGoalScreen(event)">
+                        <span class="goal-entry-btn__ic" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="fpGoalStarFill" x1="5" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#fff8e0"/>
+                                        <stop offset="0.5" stop-color="#e8c170"/>
+                                        <stop offset="1" stop-color="#b8924a"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 3.15 14.42 9.2h6.48l-5.23 3.8 2 6.15L12 16.85 8.33 19.15l2-6.15L5.1 9.2h6.48L12 3.15z" fill="url(#fpGoalStarFill)" stroke="rgba(255,255,255,0.35)" stroke-width="0.45" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="goal-entry-btn__txt" data-i18n="goal.nav_btn_label">Моя цель</span>
                     </button>
                 </div>
 
@@ -4231,7 +4331,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'profile.desc.stable': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
             'profile.desc.technical': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.',
             'goal.block_hint': 'Напиши цель — ИИ распишет шаги под твой архетип',
-            'goal.nav_btn': '⭐ Моя цель',
+            'goal.nav_btn_label': 'Моя цель',
+            'chat.empty_hint': 'Начните общение — кнопка с карандашом вверху справа.',
             'goal.back': '← Назад',
             'goal.screen_title': 'Моя цель',
             'goal.archetype_fallback': 'Ваш архетип',
@@ -4351,7 +4452,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'profile.desc.stable': 'You are a reliable organizer. Your strength is consistency, responsibility, and building stable systems.',
             'profile.desc.technical': 'You are a strategist and analyst. Your strength is logical thinking, systems thinking, and solving complex problems.',
             'goal.block_hint': 'Write your goal — AI will outline steps for your archetype',
-            'goal.nav_btn': '⭐ My goal',
+            'goal.nav_btn_label': 'My goal',
+            'chat.empty_hint': 'Start a conversation — use the pencil button at the top right.',
             'goal.back': '← Back',
             'goal.screen_title': 'My goal',
             'goal.archetype_fallback': 'Your archetype',
@@ -9957,10 +10059,12 @@ function addNewMessageToChat(message) {
         <div class="chat-header">
             <h3>Сообщения</h3>
             <div>
-                <button class="new-chat-btn" onclick="startNewChat()" title="Новый чат">
-                    ✏️
+                <button type="button" class="new-chat-btn" onclick="startNewChat()" title="Новый чат">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 20h9" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/><path d="M16.5 3.5a2.121 2.121 0 013 3L8 18l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="1.85" stroke-linejoin="round"/></svg>
                 </button>
-                <button class="chat-close" onclick="hideCommunityChat()">✕</button>
+                <button type="button" class="chat-close" onclick="hideCommunityChat()" aria-label="Закрыть">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                </button>
             </div>
         </div>
         
@@ -9976,9 +10080,21 @@ function addNewMessageToChat(message) {
                 <!-- Если нет личных чатов -->
                 <div id="noChatsMessage" class="no-chats-message">
                     <div class="empty-state">
-                        <div class="empty-icon">💬</div>
+                        <div class="empty-icon empty-icon--svg" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="fpEmptyListBubble" x1="12" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#5a6fa8"/>
+                                        <stop offset="1" stop-color="#1a3268"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M14 18c0-3.3 2.7-6 6-6h18c3.3 0 6 2.7 6 6v14c0 3.3-2.7 6-6 6H26l-8 6v-6h-4c-3.3 0-6-2.7-6-6V18z" fill="url(#fpEmptyListBubble)" opacity="0.35"/>
+                                <path d="M22 14h20c4.4 0 8 3.6 8 8v12c0 4.4-3.6 8-8 8h-6l-7 5v-5h-7c-4.4 0-8-3.6-8-8V22c0-4.4 3.6-8 8-8z" fill="url(#fpEmptyListBubble)" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+                                <circle cx="30" cy="26" r="2.2" fill="#fff"/><circle cx="38" cy="26" r="2.2" fill="#fff"/><circle cx="46" cy="26" r="2.2" fill="#fff"/>
+                            </svg>
+                        </div>
                         <h4>Нет личных чатов</h4>
-                        <p>Начните общение, нажав ✏️</p>
+                        <p data-i18n="chat.empty_hint">Начните общение — кнопка с карандашом вверху справа.</p>
                     </div>
                 </div>
             </div>
@@ -9988,15 +10104,19 @@ function addNewMessageToChat(message) {
     <!-- ЭКРАН 2: КОНКРЕТНЫЙ ДИАЛОГ -->
     <div class="chat-screen" id="chatScreen" style="display:none;">
         <div class="chat-header">
-            <button class="back-btn" onclick="backToChatsList()">←</button>
+            <button type="button" class="back-btn" onclick="backToChatsList()" aria-label="Назад">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14.5 7.5L9 12l5.5 4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
             <div class="chat-info-header">
-                    <div class="header-avatar" id="headerAvatar">👤</div>
+                    <div class="header-avatar" id="headerAvatar">…</div>
                 <div>
                         <div class="header-name" id="headerName">Чат</div>
                         <div class="header-status" id="headerStatus">был(а) недавно</div>
                 </div>
             </div>
-            <button class="chat-close" onclick="hideCommunityChat()">✕</button>
+            <button type="button" class="chat-close" onclick="hideCommunityChat()" aria-label="Закрыть">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
         </div>
         
         <div class="chat-messages-container">
@@ -10008,8 +10128,8 @@ function addNewMessageToChat(message) {
         <div class="chat-input-area">
             <input type="text" class="chat-input" id="messageInput" 
                    placeholder="Введите сообщение..." onkeypress="handleChatKeyPress(event)">
-            <button class="send-btn" onclick="sendMessage()">
-                <span style="font-size: 16px;">↑</span>
+            <button type="button" class="send-btn" onclick="sendMessage()" aria-label="Отправить">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M22 2l-7 20-4-9-9-4 20-7z" fill="currentColor"/></svg>
             </button>
         </div>
     </div>
@@ -10020,7 +10140,9 @@ function addNewMessageToChat(message) {
     <div class="modal">
         <div class="modal-header">
             <h3>Новый чат</h3>
-            <button class="modal-close" onclick="closeNewChatModal()">✕</button>
+            <button type="button" class="modal-close" onclick="closeNewChatModal()" aria-label="Закрыть">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
         </div>
         <div class="modal-content">
             <input type="text" id="searchUserInput" placeholder="Начните вводить имя или email..." 
@@ -10028,7 +10150,13 @@ function addNewMessageToChat(message) {
             <div id="usersList" class="users-list">
                 <div class="no-users-placeholder">
                     <div style="text-align: center; padding: 40px 20px; color: #666;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                        <div class="fp-modal-illus" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="58" height="58" xmlns="http://www.w3.org/2000/svg" fill="none">
+                                <circle cx="24" cy="22" r="9" stroke="#1a3268" stroke-width="2.4"/>
+                                <circle cx="42" cy="22" r="9" stroke="#1a3268" stroke-width="2.4"/>
+                                <path d="M12 52c0-10 8.8-18 20-18s20 8 20 18" stroke="#5a6fa8" stroke-width="2.4" stroke-linecap="round" opacity="0.95"/>
+                            </svg>
+                        </div>
                         <h4 style="margin-bottom: 10px;">Начните общение</h4>
                         <p>Введите имя или email пользователя чтобы найти его</p>
                     </div>
@@ -10390,7 +10518,12 @@ function searchUsers(query) {
         usersList.innerHTML = `
             <div class="no-users">
                 <div style="text-align: center; padding: 40px 20px; color: #666;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                    <div class="fp-modal-illus" aria-hidden="true">
+                        <svg viewBox="0 0 64 64" width="58" height="58" xmlns="http://www.w3.org/2000/svg" fill="none">
+                            <circle cx="27" cy="27" r="12" stroke="#1a3268" stroke-width="2.8"/>
+                            <path d="M37 37l14 14" stroke="#1a3268" stroke-width="2.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <h4 style="margin-bottom: 10px;">Пользователи не найдены</h4>
                     <p>Попробуйте другой запрос</p>
                 </div>
@@ -10432,7 +10565,9 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal">
         <div class="modal-header">
             <h3>Новый чат</h3>
-            <button class="modal-close" onclick="closeNewChatModal()">✕</button>
+            <button type="button" class="modal-close" onclick="closeNewChatModal()" aria-label="Закрыть">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
         </div>
         <div class="modal-content">
             <input type="text" id="searchUserInput" placeholder="Начните вводить имя или email..." 
@@ -10440,7 +10575,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <div id="usersList" class="users-list">
                 <div class="no-users-placeholder">
                     <div style="text-align: center; padding: 40px 20px; color: #666;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                        <div class="fp-modal-illus" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="58" height="58" xmlns="http://www.w3.org/2000/svg" fill="none">
+                                <circle cx="24" cy="22" r="9" stroke="#1a3268" stroke-width="2.4"/>
+                                <circle cx="42" cy="22" r="9" stroke="#1a3268" stroke-width="2.4"/>
+                                <path d="M12 52c0-10 8.8-18 20-18s20 8 20 18" stroke="#5a6fa8" stroke-width="2.4" stroke-linecap="round" opacity="0.95"/>
+                            </svg>
+                        </div>
                         <h4 style="margin-bottom: 10px;">Начните общение</h4>
                         <p>Введите имя или email пользователя чтобы найти его</p>
                     </div>
@@ -10458,7 +10599,9 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal">
         <div class="modal-header">
             <h3>Новый чат</h3>
-            <button class="modal-close" onclick="closeNewChatModal()">✕</button>
+            <button type="button" class="modal-close" onclick="closeNewChatModal()" aria-label="Закрыть">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
         </div>
         <div class="modal-content">
             <input type="text" id="searchUserInput" placeholder="Начните вводить имя или email..." 
