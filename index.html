@@ -1602,8 +1602,14 @@
             transform: translateX(-50%);
             width: 32%;
             aspect-ratio: 1;
-            border-radius: 50%;
-            background: #f1d6be;
+            border-radius: 48% 52% 50% 50% / 46% 48% 54% 52%;
+            background:
+                radial-gradient(ellipse 95% 88% at 38% 32%, rgba(255, 235, 220, 0.95) 0%, transparent 52%),
+                radial-gradient(ellipse 80% 75% at 62% 70%, rgba(210, 170, 145, 0.35) 0%, transparent 55%),
+                linear-gradient(168deg, #f5e0d0 0%, #ebcfb8 48%, #deb99f 100%);
+            box-shadow:
+                inset 2px -3px 8px rgba(120, 80, 65, 0.12),
+                inset -1px 4px 6px rgba(255, 255, 255, 0.35);
         }
         .night-person .person-torso {
             position: absolute;
@@ -1612,31 +1618,49 @@
             transform: translateX(-50%);
             width: 62%;
             height: 62%;
-            border-radius: 44% 44% 24% 24%;
-            background: #ffffff;
-            box-shadow: 0 -3px 0 rgba(255,255,255,0.45) inset, 0 0 10px rgba(255,255,255,0.22);
+            border-radius: 47% 45% 40% 42% / 36% 34% 30% 32%;
+            background:
+                radial-gradient(ellipse 85% 55% at 45% 12%, rgba(255, 255, 255, 0.75) 0%, transparent 58%),
+                linear-gradient(175deg, #ffffff 0%, #f3f5fb 55%, #e4e9f4 100%);
+            box-shadow:
+                inset 0 5px 14px rgba(255, 255, 255, 0.55),
+                inset 0 -8px 16px rgba(80, 95, 130, 0.08),
+                0 3px 10px rgba(0, 12, 40, 0.12);
         }
         .night-person.night-person--default .person-torso {
-            background: linear-gradient(180deg, #f4f6ff 0%, #dce3f5 100%);
+            background:
+                radial-gradient(ellipse 90% 50% at 42% 10%, rgba(255, 255, 255, 0.85) 0%, transparent 55%),
+                linear-gradient(178deg, #f6f8ff 0%, #e2e8f8 52%, #cfd9ee 100%);
             box-shadow:
-                0 -3px 0 rgba(255, 255, 255, 0.5) inset,
-                0 0 0 2px rgba(28, 40, 85, 0.55),
-                0 4px 12px rgba(0, 12, 40, 0.35);
+                inset 0 6px 12px rgba(255, 255, 255, 0.5),
+                inset 0 -6px 14px rgba(28, 40, 85, 0.07),
+                0 0 0 1px rgba(28, 40, 85, 0.22),
+                0 5px 14px rgba(0, 12, 40, 0.28);
         }
         .night-person.night-person--default .person-arm {
-            box-shadow: 0 0 0 2px rgba(28, 40, 85, 0.45);
-            background: linear-gradient(180deg, #eef2fb, #d5dff0);
+            box-shadow:
+                inset 2px 0 6px rgba(255, 255, 255, 0.35),
+                0 0 0 1px rgba(28, 40, 85, 0.2);
+            background: linear-gradient(118deg, #f2f5fc 0%, #dbe4f4 55%, #c9d4ea 100%);
         }
         .night-person.night-person--default .person-head {
-            box-shadow: 0 0 0 2px rgba(28, 40, 85, 0.38);
+            box-shadow:
+                inset 2px -3px 8px rgba(120, 80, 65, 0.1),
+                inset -1px 4px 6px rgba(255, 255, 255, 0.38),
+                0 0 0 1px rgba(28, 40, 85, 0.2);
         }
         .night-person .person-arm {
             position: absolute;
             top: 34%;
             width: 26%;
             height: 34%;
-            border-radius: 12px;
-            background: #ffffff;
+            border-radius: 44% 44% 48% 48% / 58% 58% 36% 36%;
+            background:
+                radial-gradient(ellipse 70% 45% at 35% 18%, rgba(255, 255, 255, 0.55) 0%, transparent 65%),
+                linear-gradient(165deg, #ffffff 0%, #eef1f8 100%);
+            box-shadow:
+                inset 0 3px 6px rgba(255, 255, 255, 0.45),
+                inset 0 -4px 8px rgba(60, 70, 95, 0.06);
             transform-origin: top center;
         }
         .night-person .person-arm.left {
@@ -1647,6 +1671,7 @@
             right: 14%;
             transform: rotate(52deg);
         }
+        .night-person .person-head::before,
         .night-person .person-head::after,
         .night-person .person-torso::before {
             content: none;
@@ -1664,57 +1689,71 @@
             z-index: 3;
         }
 
-        /* --- ПРОВИДЕЦ: крупная «искра», шарф с обводкой --- */
+        /* --- ПРОВИДЕЦ: мягкий профиль, шёлковый шарф, тёплая «искра» --- */
         .night-person.night-person--amygdala-dopamine-control {
             width: clamp(28px, 6.2%, 50px);
         }
         .night-person.night-person--amygdala-dopamine-control .person-head {
-            transform: translateX(-50%) rotate(-10deg);
-            background: linear-gradient(145deg, #f5e6d8 0%, #edd8c8 100%);
+            transform: translateX(-50%) rotate(-8deg);
+            border-radius: 46% 54% 52% 48% / 44% 46% 56% 54%;
+            background:
+                radial-gradient(ellipse 55% 70% at 12% 42%, rgba(190, 165, 220, 0.35) 0%, transparent 65%),
+                radial-gradient(ellipse 70% 65% at 72% 28%, rgba(200, 175, 235, 0.22) 0%, transparent 60%),
+                radial-gradient(ellipse 95% 90% at 35% 30%, rgba(255, 240, 228, 0.9) 0%, transparent 50%),
+                linear-gradient(152deg, #f7ebe3 0%, #e8d4c8 55%, #ddc4b6 100%);
             box-shadow:
-                0 -4px 0 rgba(210, 185, 240, 0.35) inset,
-                0 0 0 1px rgba(40, 35, 70, 0.25);
+                inset 3px -4px 10px rgba(90, 60, 110, 0.08),
+                inset -2px 5px 8px rgba(255, 255, 255, 0.4),
+                0 0 0 1px rgba(55, 45, 85, 0.12);
         }
         .night-person.night-person--amygdala-dopamine-control .person-head::after {
             display: block;
             content: '';
             position: absolute;
-            top: -22%;
-            right: 4%;
-            width: 52%;
+            top: -18%;
+            right: 2%;
+            width: 56%;
             aspect-ratio: 1;
             border-radius: 50%;
-            background: radial-gradient(circle at 42% 38%, #ffffff 0 35%, rgba(230, 210, 255, 0.95) 38%, rgba(200, 175, 250, 0.55) 55%, transparent 62%);
+            background: radial-gradient(circle at 40% 36%, rgba(255, 255, 255, 0.95) 0 28%, rgba(235, 215, 255, 0.75) 42%, rgba(180, 150, 235, 0.35) 58%, transparent 68%);
             box-shadow:
-                0 0 0 2px rgba(255, 255, 255, 0.75),
-                0 0 10px rgba(255, 220, 255, 0.9);
+                0 0 0 1px rgba(255, 255, 255, 0.5),
+                0 4px 14px rgba(140, 100, 200, 0.35);
+            filter: blur(0.15px);
         }
         .night-person.night-person--amygdala-dopamine-control .person-torso {
-            background: linear-gradient(180deg, #faf6ff 0%, #ebe4ff 72%, #dfd5ff 100%);
-            border-radius: 46% 42% 28% 30%;
+            background:
+                radial-gradient(ellipse 75% 40% at 48% 8%, rgba(255, 255, 255, 0.65) 0%, transparent 55%),
+                linear-gradient(178deg, #fdf8ff 0%, #ebe2fb 50%, #ddd0f5 100%);
+            border-radius: 44% 48% 32% 34% / 34% 36% 28% 30%;
             box-shadow:
-                0 -4px 0 rgba(255, 255, 255, 0.5) inset,
-                0 0 0 1px rgba(70, 60, 110, 0.18);
+                inset 0 8px 18px rgba(255, 255, 255, 0.55),
+                inset -6px -4px 14px rgba(100, 80, 140, 0.07),
+                0 0 0 1px rgba(80, 65, 120, 0.1);
         }
         .night-person.night-person--amygdala-dopamine-control .person-torso::before {
             display: block;
             content: '';
             position: absolute;
-            left: -12%;
-            top: 6%;
-            width: 44%;
-            height: 56%;
-            border-radius: 60% 20% 40% 40%;
-            background: linear-gradient(160deg, rgba(238, 225, 255, 0.95), rgba(195, 175, 235, 0.65));
-            transform: rotate(-18deg);
+            left: -18%;
+            top: 4%;
+            width: 48%;
+            height: 58%;
+            border-radius: 62% 28% 42% 46%;
+            background: linear-gradient(155deg, rgba(245, 235, 255, 0.98), rgba(200, 175, 235, 0.45));
+            transform: rotate(-20deg);
             z-index: -1;
             box-shadow:
-                inset 0 0 0 2px rgba(255, 255, 255, 0.65),
-                0 2px 8px rgba(0, 0, 0, 0.22);
+                inset 2px 2px 8px rgba(255, 255, 255, 0.5),
+                inset -2px -4px 10px rgba(80, 60, 120, 0.08),
+                0 4px 12px rgba(40, 30, 70, 0.15);
         }
         .night-person.night-person--amygdala-dopamine-control .person-arm {
-            background: linear-gradient(180deg, #f6f2ff, #e8defa);
-            box-shadow: 0 0 0 1px rgba(80, 70, 120, 0.12);
+            background: linear-gradient(158deg, #faf4ff 0%, #e4daf5 70%, #d8cbf0 100%);
+            box-shadow:
+                inset 2px 0 8px rgba(255, 255, 255, 0.4),
+                inset 0 -3px 8px rgba(90, 75, 130, 0.08),
+                0 0 0 1px rgba(90, 75, 130, 0.08);
         }
         .night-person.night-person--amygdala-dopamine-control .person-arm.left {
             transform: rotate(-76deg);
@@ -1726,60 +1765,93 @@
             opacity: 1;
             z-index: 4;
             background:
-                radial-gradient(circle at 72% 14%, #fffef0 0 2px, #fbbf24 3px 4px, #7c3aed 5px 8px, transparent 9px),
-                radial-gradient(circle at 86% 28%, #ffffff 0 2px, #6366f1 3px 6px, #312e81 7px, transparent 10px),
-                radial-gradient(circle at 92% 42%, #fef3c7 0 2px, #a855f7 3px 7px, transparent 9px);
-            filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.75));
+                radial-gradient(circle at 70% 12%, rgba(255, 252, 240, 0.95) 0 3px, rgba(251, 191, 36, 0.85) 5px 8px, rgba(124, 58, 237, 0.45) 12px 18px, transparent 22px),
+                radial-gradient(circle at 84% 26%, rgba(255, 255, 255, 0.9) 0 3px, rgba(99, 102, 241, 0.7) 6px 12px, transparent 20px),
+                radial-gradient(circle at 90% 40%, rgba(254, 243, 199, 0.9) 0 4px, rgba(168, 85, 247, 0.5) 10px 16px, transparent 22px);
+            filter: drop-shadow(0 2px 8px rgba(140, 90, 200, 0.4));
         }
 
-        /* --- КОММУНИКАТОР: крупные узлы и жирная «связь» --- */
+        /* --- КОММУНИКАТОР: открытая осанка, мягкий свитер, «сеть» как световые пятна --- */
+        .night-person.night-person--amygdala-dopamine-connection .person-head {
+            border-radius: 50% 48% 52% 50% / 47% 50% 53% 50%;
+            background:
+                radial-gradient(ellipse 90% 85% at 40% 28%, rgba(255, 236, 224, 0.95) 0%, transparent 52%),
+                radial-gradient(ellipse 70% 60% at 65% 75%, rgba(210, 175, 155, 0.28) 0%, transparent 55%),
+                linear-gradient(168deg, #f3e4d8 0%, #e6d0c2 100%);
+            box-shadow:
+                inset 2px -3px 8px rgba(100, 70, 55, 0.08),
+                inset -1px 4px 7px rgba(255, 255, 255, 0.42),
+                0 0 0 1px rgba(70, 90, 120, 0.1);
+        }
         .night-person.night-person--amygdala-dopamine-connection .person-torso {
             width: 66%;
-            border-radius: 42% 42% 26% 26%;
-            background: linear-gradient(180deg, #ffffff 0%, #f0f6ff 100%);
-            box-shadow: 0 0 0 1px rgba(60, 90, 140, 0.18);
+            border-radius: 46% 44% 38% 40% / 32% 30% 28% 30%;
+            background:
+                radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255, 255, 255, 0.85) 0%, transparent 55%),
+                radial-gradient(ellipse 55% 70% at 8% 40%, rgba(200, 230, 255, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 70% at 92% 40%, rgba(200, 230, 255, 0.3) 0%, transparent 60%),
+                linear-gradient(178deg, #ffffff 0%, #e8f2ff 45%, #d7e8fb 100%);
+            box-shadow:
+                inset 0 6px 16px rgba(255, 255, 255, 0.55),
+                inset 0 -6px 12px rgba(60, 100, 150, 0.06),
+                0 0 0 1px rgba(60, 95, 145, 0.1);
+        }
+        .night-person.night-person--amygdala-dopamine-connection .person-arm {
+            background: linear-gradient(145deg, #f8fbff 0%, #dceaf8 100%);
+            box-shadow:
+                inset 2px 0 6px rgba(255, 255, 255, 0.45),
+                0 0 0 1px rgba(70, 110, 160, 0.08);
         }
         .night-person.night-person--amygdala-dopamine-connection .person-arm.left {
             left: 10%;
-            transform: rotate(-62deg);
+            transform: rotate(-58deg);
         }
         .night-person.night-person--amygdala-dopamine-connection .person-arm.right {
             right: 10%;
-            transform: rotate(62deg);
+            transform: rotate(58deg);
         }
         .night-person.night-person--amygdala-dopamine-connection .person-accent {
             opacity: 1;
             z-index: 4;
             background:
-                radial-gradient(circle at 26% 54%, #ffffff 0 3px, #38bdf8 4px 7px, #1d4ed8 8px 10px, transparent 11px),
-                radial-gradient(circle at 50% 46%, #ffffff 0 3px, #38bdf8 4px 7px, #1d4ed8 8px 10px, transparent 11px),
-                radial-gradient(circle at 74% 54%, #ffffff 0 3px, #38bdf8 4px 7px, #1d4ed8 8px 10px, transparent 11px),
-                radial-gradient(ellipse 68% 120% at 50% 52%, #bae6fd 0%, #38bdf8 42%, #1d4ed8 100%) center 52% / 62% 9px no-repeat,
-                radial-gradient(ellipse 70% 130% at 50% 52%, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.88) 55%, transparent 58%) center 52% / 66% 11px no-repeat;
-            filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.55));
+                radial-gradient(circle at 26% 54%, rgba(255, 255, 255, 0.95) 0 4px, rgba(56, 189, 248, 0.55) 8px 14px, rgba(29, 78, 216, 0.25) 16px 22px, transparent 28px),
+                radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.95) 0 4px, rgba(56, 189, 248, 0.55) 8px 14px, rgba(29, 78, 216, 0.25) 16px 22px, transparent 28px),
+                radial-gradient(circle at 74% 54%, rgba(255, 255, 255, 0.95) 0 4px, rgba(56, 189, 248, 0.55) 8px 14px, rgba(29, 78, 216, 0.25) 16px 22px, transparent 28px),
+                radial-gradient(ellipse 72% 140% at 50% 52%, rgba(186, 230, 253, 0.75) 0%, rgba(56, 189, 248, 0.35) 45%, transparent 72%);
+            filter: drop-shadow(0 3px 10px rgba(56, 189, 248, 0.35));
         }
 
-        /* --- НОМАД: читаемый капюшон + поясная сумка с контуром --- */
+        /* --- НОМАД: тканевый капюшон (градиент), куртка с бликом, кожаная сумка --- */
         .night-person.night-person--amygdala-serotonin-control .person-head {
             width: 40%;
-            border-radius: 48% 48% 42% 42%;
+            border-radius: 50% 48% 46% 48% / 42% 44% 48% 46%;
+            background:
+                radial-gradient(ellipse 120% 85% at 50% -8%, rgba(72, 82, 130, 0.95) 0%, rgba(52, 62, 108, 0.88) 38%, transparent 58%),
+                radial-gradient(ellipse 90% 70% at 50% 88%, rgba(0, 0, 0, 0.18) 0%, transparent 45%),
+                radial-gradient(ellipse 85% 80% at 48% 45%, rgba(235, 220, 208, 0.95) 0%, rgba(205, 188, 175, 0.85) 45%, rgba(175, 155, 140, 0.9) 100%);
             box-shadow:
-                0 0 0 2px rgba(255, 255, 255, 0.35),
-                0 0 0 5px rgba(45, 55, 105, 0.85),
-                0 -11px 0 11px rgba(65, 75, 125, 0.92);
-            background: #dbc8b8;
+                inset 0 -12px 18px rgba(30, 35, 65, 0.35),
+                inset 4px 8px 14px rgba(255, 255, 255, 0.12),
+                0 0 0 1px rgba(35, 42, 80, 0.25);
         }
         .night-person.night-person--amygdala-serotonin-control .person-torso {
             width: 56%;
-            border-radius: 38% 38% 22% 22%;
-            background: linear-gradient(180deg, #dce2f4 0%, #b8c4e8 100%);
+            border-radius: 42% 40% 36% 38% / 30% 28% 26% 28%;
+            background:
+                radial-gradient(ellipse 70% 50% at 30% 15%, rgba(255, 255, 255, 0.45) 0%, transparent 55%),
+                linear-gradient(172deg, #e4eaf8 0%, #c5d0eb 55%, #a8b6de 100%);
             box-shadow:
-                0 4px 12px rgba(20, 28, 60, 0.35),
-                0 0 0 1px rgba(40, 50, 95, 0.22);
+                inset 0 5px 14px rgba(255, 255, 255, 0.35),
+                inset 0 -8px 16px rgba(25, 35, 70, 0.12),
+                0 5px 14px rgba(15, 22, 50, 0.22),
+                0 0 0 1px rgba(40, 50, 95, 0.12);
         }
         .night-person.night-person--amygdala-serotonin-control .person-arm {
-            background: linear-gradient(180deg, #dce2f4, #aab8de);
-            box-shadow: 0 0 0 1px rgba(55, 65, 115, 0.15);
+            background: linear-gradient(160deg, #dde4f6 0%, #a8b4d8 100%);
+            box-shadow:
+                inset 2px 0 8px rgba(255, 255, 255, 0.3),
+                inset 0 -4px 8px rgba(40, 50, 90, 0.1),
+                0 0 0 1px rgba(55, 65, 115, 0.1);
         }
         .night-person.night-person--amygdala-serotonin-control .person-arm.left {
             transform: rotate(-28deg);
@@ -1792,60 +1864,76 @@
             z-index: 2;
             bottom: 6%;
             height: 32%;
-            border-radius: 48% 48% 14px 14px;
+            border-radius: 46% 48% 38% 36% / 28% 28% 22% 22%;
             width: 72%;
             left: 50%;
             transform: translateX(-50%);
             background:
-                radial-gradient(ellipse 90% 85% at 78% 36%, #fcd34d 0%, #f59e0b 55%, #b45309 100%) 78% 26% / 20% 24% no-repeat,
-                linear-gradient(180deg, rgba(42, 52, 98, 0.95), rgba(22, 28, 58, 0.98));
+                radial-gradient(ellipse 95% 90% at 78% 38%, #fde68a 0%, #d97706 55%, #92400e 100%) 78% 26% / 22% 26% no-repeat,
+                linear-gradient(175deg, rgba(48, 58, 105, 0.96) 0%, rgba(24, 30, 58, 0.99) 100%);
             box-shadow:
-                inset 0 0 0 2px rgba(255, 255, 255, 0.55),
-                inset 0 -4px 0 rgba(0, 0, 0, 0.25),
-                0 0 0 2px rgba(15, 23, 42, 0.65),
-                0 6px 14px rgba(0, 0, 0, 0.45);
+                inset 2px 2px 8px rgba(255, 255, 255, 0.25),
+                inset 0 -6px 12px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(20, 28, 55, 0.4),
+                0 8px 18px rgba(0, 0, 0, 0.35);
         }
 
-        /* --- ПОСРЕДНИК: чаши + ось — крупнее --- */
+        /* --- ПОСРЕДНИК: спокойное лицо, драпировка, мягкие чаши весов --- */
         .night-person.night-person--amygdala-serotonin-connection .person-head {
-            border-radius: 50%;
-            background: #ecd9cb;
-            box-shadow: 0 0 0 1px rgba(60, 45, 40, 0.15);
+            border-radius: 49% 51% 50% 50% / 46% 48% 54% 52%;
+            background:
+                radial-gradient(ellipse 92% 88% at 38% 30%, rgba(255, 242, 232, 0.95) 0%, transparent 52%),
+                linear-gradient(168deg, #f0dfd4 0%, #e2cdc0 100%);
+            box-shadow:
+                inset 2px -3px 8px rgba(90, 65, 55, 0.07),
+                inset -1px 4px 7px rgba(255, 255, 255, 0.38),
+                0 0 0 1px rgba(60, 48, 42, 0.1);
         }
         .night-person.night-person--amygdala-serotonin-connection .person-torso {
             width: 60%;
-            border-radius: 48% 48% 36% 36%;
-            background: linear-gradient(180deg, #fefeff 0%, #eef2fb 85%);
+            border-radius: 46% 48% 40% 38% / 34% 32% 30% 32%;
+            background:
+                radial-gradient(ellipse 75% 48% at 48% 8%, rgba(255, 255, 255, 0.75) 0%, transparent 55%),
+                linear-gradient(178deg, #ffffff 0%, #eef2fb 50%, #e0e7f4 100%);
             box-shadow:
-                0 2px 10px rgba(100, 120, 180, 0.18),
-                0 0 0 1px rgba(90, 110, 160, 0.14);
+                inset 0 7px 16px rgba(255, 255, 255, 0.5),
+                inset -4px -2px 12px rgba(100, 120, 175, 0.06),
+                0 3px 12px rgba(80, 100, 150, 0.12),
+                0 0 0 1px rgba(90, 110, 160, 0.1);
+        }
+        .night-person.night-person--amygdala-serotonin-connection .person-arm {
+            background: linear-gradient(155deg, #ffffff 0%, #e8edf7 100%);
+            box-shadow:
+                inset 2px 0 6px rgba(255, 255, 255, 0.4),
+                0 0 0 1px rgba(95, 115, 165, 0.08);
         }
         .night-person.night-person--amygdala-serotonin-connection .person-arm.left {
-            transform: rotate(-44deg);
+            transform: rotate(-42deg);
         }
         .night-person.night-person--amygdala-serotonin-connection .person-arm.right {
-            transform: rotate(44deg);
+            transform: rotate(42deg);
         }
         .night-person.night-person--amygdala-serotonin-connection .person-accent {
             opacity: 1;
             z-index: 4;
             background:
-                radial-gradient(circle at 34% 56%, #f8fafc 0 5px, #64748b 6px 8px, #334155 9px 11px, transparent 13px),
-                radial-gradient(circle at 66% 56%, #f8fafc 0 5px, #64748b 6px 8px, #334155 9px 11px, transparent 13px),
-                radial-gradient(ellipse 52% 160% at 50% 58%, #f1f5f9 0%, #cbd5e1 45%, #94a3b8 100%) center 58% / 26% 8px no-repeat,
-                radial-gradient(ellipse 90% 150% at 50% 62%, #e2e8f0 0%, #94a3b8 50%, #64748b 100%) center 62% / 46% 8px no-repeat,
-                radial-gradient(ellipse 92% 170% at 50% 63%, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.85) 52%, transparent 56%) center 63% / 48% 10px no-repeat;
-            filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.5));
+                radial-gradient(ellipse 70% 85% at 34% 56%, rgba(248, 250, 252, 0.95) 0 18%, rgba(148, 163, 184, 0.55) 42%, rgba(51, 65, 85, 0.35) 58%, transparent 72%),
+                radial-gradient(ellipse 70% 85% at 66% 56%, rgba(248, 250, 252, 0.95) 0 18%, rgba(148, 163, 184, 0.55) 42%, rgba(51, 65, 85, 0.35) 58%, transparent 72%),
+                radial-gradient(ellipse 55% 180% at 50% 60%, rgba(241, 245, 249, 0.9) 0%, rgba(148, 163, 184, 0.4) 50%, transparent 78%);
+            filter: drop-shadow(0 3px 8px rgba(51, 65, 85, 0.25));
         }
 
-        /* --- СТРАТЕГ: округлые линзы и переносица (без «коробок» на лбу) --- */
+        /* --- СТРАТЕГ: пиджак с лёгкими плечами, естественные очки --- */
         .night-person.night-person--hippocampus-dopamine-control .person-head {
             width: 32%;
-            border-radius: 48% 48% 44% 44%;
-            background: linear-gradient(165deg, #efe0d6 0%, #e8d5c8 55%, #dcc9be 100%);
+            border-radius: 48% 50% 47% 49% / 45% 46% 52% 50%;
+            background:
+                radial-gradient(ellipse 90% 85% at 36% 28%, rgba(255, 240, 228, 0.92) 0%, transparent 52%),
+                linear-gradient(168deg, #efe0d6 0%, #e8d5c8 52%, #d9c8bc 100%);
             box-shadow:
-                0 0 0 1px rgba(55, 45, 40, 0.14),
-                inset 0 -3px 6px rgba(90, 70, 60, 0.08);
+                inset 2px -3px 8px rgba(85, 65, 55, 0.09),
+                inset -1px 4px 6px rgba(255, 255, 255, 0.35),
+                0 0 0 1px rgba(55, 45, 40, 0.1);
         }
         .night-person.night-person--hippocampus-dopamine-control .person-head::after {
             display: block;
@@ -1858,20 +1946,31 @@
             height: 48%;
             pointer-events: none;
             background:
-                radial-gradient(ellipse 46% 92% at 24% 50%, rgba(207, 250, 254, 0.95) 0%, rgba(34, 211, 238, 0.35) 58%, rgba(14, 165, 233, 0.12) 74%, transparent 76%),
-                radial-gradient(ellipse 46% 92% at 76% 50%, rgba(207, 250, 254, 0.95) 0%, rgba(34, 211, 238, 0.35) 58%, rgba(14, 165, 233, 0.12) 74%, transparent 76%),
-                radial-gradient(ellipse 52% 100% at 24% 50%, transparent 54%, rgba(12, 18, 40, 0.9) 58%, rgba(12, 18, 40, 0.9) 66%, transparent 70%),
-                radial-gradient(ellipse 52% 100% at 76% 50%, transparent 54%, rgba(12, 18, 40, 0.9) 58%, rgba(12, 18, 40, 0.9) 66%, transparent 70%),
-                linear-gradient(90deg, transparent 40%, rgba(12, 18, 40, 0.82) 45%, rgba(12, 18, 40, 0.82) 55%, transparent 60%) center 50% / 100% 18% no-repeat;
-            filter: drop-shadow(0 1px 3px rgba(34, 211, 238, 0.4));
+                radial-gradient(ellipse 46% 92% at 24% 50%, rgba(207, 250, 254, 0.92) 0%, rgba(34, 211, 238, 0.32) 58%, rgba(14, 165, 233, 0.1) 74%, transparent 76%),
+                radial-gradient(ellipse 46% 92% at 76% 50%, rgba(207, 250, 254, 0.92) 0%, rgba(34, 211, 238, 0.32) 58%, rgba(14, 165, 233, 0.1) 74%, transparent 76%),
+                radial-gradient(ellipse 52% 100% at 24% 50%, transparent 54%, rgba(12, 18, 40, 0.88) 58%, rgba(12, 18, 40, 0.88) 66%, transparent 70%),
+                radial-gradient(ellipse 52% 100% at 76% 50%, transparent 54%, rgba(12, 18, 40, 0.88) 58%, rgba(12, 18, 40, 0.88) 66%, transparent 70%),
+                radial-gradient(ellipse 28% 45% at 50% 50%, rgba(12, 18, 40, 0.78) 0%, transparent 85%);
+            filter: drop-shadow(0 1px 4px rgba(34, 211, 238, 0.35));
         }
         .night-person.night-person--hippocampus-dopamine-control .person-torso {
-            width: 58%;
-            border-radius: 18px 18px 14px 14px;
-            background: linear-gradient(180deg, #f4f6fb 0%, #dde5f5 100%);
+            width: 60%;
+            border-radius: 38% 38% 32% 34% / 30% 28% 38% 40%;
+            background:
+                radial-gradient(ellipse 95% 55% at 50% 0%, rgba(255, 255, 255, 0.65) 0%, transparent 52%),
+                radial-gradient(ellipse 45% 80% at 0% 35%, rgba(180, 195, 230, 0.35) 0%, transparent 55%),
+                radial-gradient(ellipse 45% 80% at 100% 35%, rgba(180, 195, 230, 0.35) 0%, transparent 55%),
+                linear-gradient(178deg, #f6f8fd 0%, #d8e0f2 100%);
             box-shadow:
-                inset 0 0 0 2px rgba(80, 100, 160, 0.22),
-                0 0 0 1px rgba(255, 255, 255, 0.5);
+                inset 0 6px 14px rgba(255, 255, 255, 0.45),
+                inset 0 -10px 18px rgba(60, 80, 130, 0.08),
+                0 0 0 1px rgba(70, 90, 140, 0.12);
+        }
+        .night-person.night-person--hippocampus-dopamine-control .person-arm {
+            background: linear-gradient(165deg, #f0f4fb 0%, #d2dcf0 100%);
+            box-shadow:
+                inset 2px 0 6px rgba(255, 255, 255, 0.35),
+                0 0 0 1px rgba(75, 95, 140, 0.08);
         }
         .night-person.night-person--hippocampus-dopamine-control .person-arm.left {
             transform: rotate(-82deg);
@@ -1885,31 +1984,47 @@
             opacity: 0;
         }
 
-        /* --- ПИОНЕР: рюкзак крупнее, обводка и «молния» --- */
+        /* --- ПИОНЕР: лёгкий наклон, объёмный рюкзак из ткани --- */
         .night-person.night-person--hippocampus-dopamine-connection {
-            transform: translateX(-50%) skewX(-4deg);
+            transform: translateX(-50%) skewX(-2deg);
             transform-origin: center bottom;
         }
         .night-person.night-person--hippocampus-dopamine-connection .person-head {
-            transform: translateX(-50%) skewX(4deg);
-            background: #eedbc8;
-            box-shadow: 0 0 0 1px rgba(60, 48, 38, 0.15);
+            transform: translateX(-50%) skewX(2deg);
+            border-radius: 48% 52% 50% 48% / 46% 48% 54% 52%;
+            background:
+                radial-gradient(ellipse 88% 82% at 38% 28%, rgba(255, 236, 220, 0.95) 0%, transparent 52%),
+                linear-gradient(165deg, #f2e0d0 0%, #e4cdb8 100%);
+            box-shadow:
+                inset 2px -3px 8px rgba(95, 72, 55, 0.08),
+                inset -1px 4px 6px rgba(255, 255, 255, 0.38),
+                0 0 0 1px rgba(60, 48, 38, 0.1);
         }
         .night-person.night-person--hippocampus-dopamine-connection .person-torso {
-            transform: translateX(-50%) skewX(4deg);
-            background: linear-gradient(180deg, #ffffff 0%, #e8eefc 100%);
+            transform: translateX(-50%) skewX(2deg);
+            border-radius: 44% 46% 38% 36% / 32% 30% 28% 30%;
+            background:
+                radial-gradient(ellipse 80% 45% at 48% 6%, rgba(255, 255, 255, 0.8) 0%, transparent 55%),
+                linear-gradient(178deg, #ffffff 0%, #e8eefc 100%);
             z-index: 1;
-            box-shadow: 0 0 0 1px rgba(70, 95, 140, 0.16);
+            box-shadow:
+                inset 0 6px 14px rgba(255, 255, 255, 0.5),
+                inset 0 -6px 12px rgba(70, 95, 140, 0.06),
+                0 0 0 1px rgba(70, 95, 140, 0.1);
         }
         .night-person.night-person--hippocampus-dopamine-connection .person-arm {
             transform-origin: top center;
             z-index: 2;
+            background: linear-gradient(150deg, #ffffff 0%, #e4ebf8 100%);
+            box-shadow:
+                inset 2px 0 6px rgba(255, 255, 255, 0.4),
+                0 0 0 1px rgba(80, 105, 150, 0.08);
         }
         .night-person.night-person--hippocampus-dopamine-connection .person-arm.left {
-            transform: skewX(4deg) rotate(-48deg);
+            transform: skewX(2deg) rotate(-48deg);
         }
         .night-person.night-person--hippocampus-dopamine-connection .person-arm.right {
-            transform: skewX(4deg) rotate(48deg);
+            transform: skewX(2deg) rotate(48deg);
         }
         .night-person.night-person--hippocampus-dopamine-connection .person-accent {
             opacity: 1;
@@ -1918,71 +2033,99 @@
             width: 52%;
             height: 44%;
             transform: none;
-            border-radius: 12px 10px 16px 12px;
+            border-radius: 42% 38% 48% 44% / 36% 34% 40% 38%;
             z-index: 0;
             background:
-                radial-gradient(ellipse 85% 100% at 44% 50%, #fef3c7 0%, #f59e0b 45%, #b45309 100%) 44% 36% / 12% 54% no-repeat,
-                linear-gradient(180deg, #cbd5f5 0%, #818cf8 45%, #4338ca 100%);
+                radial-gradient(ellipse 90% 100% at 44% 50%, rgba(254, 243, 199, 0.98) 0%, rgba(245, 158, 11, 0.75) 40%, rgba(120, 53, 15, 0.45) 100%) 44% 36% / 14% 56% no-repeat,
+                radial-gradient(ellipse 120% 80% at 70% 30%, rgba(255, 255, 255, 0.35) 0%, transparent 55%),
+                linear-gradient(168deg, #d8def8 0%, #818cf8 48%, #4338ca 100%);
             box-shadow:
-                0 0 0 2px rgba(255, 255, 255, 0.75),
-                0 0 0 4px rgba(15, 23, 42, 0.65),
-                inset -4px 0 0 rgba(255, 255, 255, 0.35),
-                0 8px 18px rgba(0, 12, 40, 0.4);
+                inset 3px 3px 10px rgba(255, 255, 255, 0.35),
+                inset -6px -4px 14px rgba(30, 27, 75, 0.25),
+                0 0 0 1px rgba(25, 25, 60, 0.35),
+                0 10px 22px rgba(0, 12, 40, 0.32);
         }
 
-        /* --- ИНЖЕНЕР: яркие линии чертежа --- */
+        /* --- ИНЖЕНЕР: жилет с карманом, приглушённая схема на планшете --- */
         .night-person.night-person--hippocampus-serotonin-control .person-head {
-            border-radius: 40%;
-            background: #dcccb8;
-            box-shadow: 0 0 0 1px rgba(55, 48, 38, 0.14);
+            border-radius: 47% 49% 48% 46% / 44% 46% 52% 50%;
+            background:
+                radial-gradient(ellipse 88% 82% at 38% 28%, rgba(255, 235, 218, 0.9) 0%, transparent 52%),
+                linear-gradient(168deg, #e5d5c4 0%, #d4c2ae 100%);
+            box-shadow:
+                inset 2px -3px 8px rgba(80, 60, 45, 0.08),
+                inset -1px 4px 6px rgba(255, 255, 255, 0.32),
+                0 0 0 1px rgba(55, 48, 38, 0.1);
         }
         .night-person.night-person--hippocampus-serotonin-control .person-torso {
             width: 54%;
-            border-radius: 6px 6px 10px 10px;
-            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f4 100%);
+            border-radius: 40% 38% 36% 42% / 28% 26% 32% 34%;
+            background:
+                radial-gradient(ellipse 75% 50% at 50% 8%, rgba(255, 255, 255, 0.55) 0%, transparent 52%),
+                linear-gradient(178deg, #f4f7fb 0%, #d9e2ef 55%, #c5d0e3 100%);
             box-shadow:
-                inset 0 -6px 0 rgba(180, 195, 225, 0.35),
-                0 0 0 1px rgba(70, 85, 125, 0.2);
+                inset 0 5px 12px rgba(255, 255, 255, 0.45),
+                inset 0 -8px 14px rgba(100, 120, 160, 0.1),
+                0 0 0 1px rgba(70, 85, 125, 0.12);
         }
         .night-person.night-person--hippocampus-serotonin-control .person-arm.left {
             transform: rotate(-22deg);
-            border-radius: 6px;
         }
         .night-person.night-person--hippocampus-serotonin-control .person-arm.right {
             transform: rotate(22deg);
-            border-radius: 6px;
+        }
+        .night-person.night-person--hippocampus-serotonin-control .person-arm {
+            background: linear-gradient(158deg, #f1f5f9 0%, #d8e2ee 100%);
+            box-shadow:
+                inset 2px 0 6px rgba(255, 255, 255, 0.4),
+                0 0 0 1px rgba(80, 95, 125, 0.08);
         }
         .night-person.night-person--hippocampus-serotonin-control .person-accent {
             opacity: 1;
             z-index: 4;
-            border-radius: 10px;
+            border-radius: 42% 44% 40% 42% / 38% 40% 36% 38%;
             background:
-                linear-gradient(165deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.88)) center 38% / 72% 54% no-repeat,
-                radial-gradient(ellipse 100% 80% at 50% 42%, #38bdf8 0%, #38bdf8 48%, transparent 52%) center 42% / 60% 7px no-repeat,
-                radial-gradient(ellipse 100% 80% at 50% 52%, #38bdf8 0%, #38bdf8 48%, transparent 52%) center 52% / 70% 7px no-repeat,
-                radial-gradient(ellipse 100% 80% at 50% 62%, #38bdf8 0%, #38bdf8 48%, transparent 52%) center 62% / 54% 7px no-repeat,
-                radial-gradient(ellipse 100% 60% at 50% 43.5%, #0ea5e9 0%, transparent 70%) center 43.5% / 60% 4px no-repeat,
-                radial-gradient(ellipse 100% 60% at 50% 53.5%, #0ea5e9 0%, transparent 70%) center 53.5% / 70% 4px no-repeat,
-                radial-gradient(ellipse 100% 60% at 50% 63.5%, #0ea5e9 0%, transparent 70%) center 63.5% / 54% 4px no-repeat;
-            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35);
-            filter: drop-shadow(0 2px 6px rgba(14, 165, 233, 0.35));
+                linear-gradient(168deg, rgba(22, 32, 52, 0.88), rgba(35, 48, 72, 0.82)) center 38% / 74% 56% no-repeat,
+                radial-gradient(ellipse 100% 85% at 50% 42%, rgba(56, 189, 248, 0.45) 0%, rgba(56, 189, 248, 0.15) 48%, transparent 55%) center 42% / 62% 8px no-repeat,
+                radial-gradient(ellipse 100% 85% at 50% 52%, rgba(56, 189, 248, 0.45) 0%, rgba(56, 189, 248, 0.15) 48%, transparent 55%) center 52% / 72% 8px no-repeat,
+                radial-gradient(ellipse 100% 85% at 50% 62%, rgba(56, 189, 248, 0.45) 0%, rgba(56, 189, 248, 0.15) 48%, transparent 55%) center 62% / 56% 8px no-repeat;
+            box-shadow:
+                inset 0 0 0 1px rgba(56, 189, 248, 0.22),
+                inset 2px 3px 8px rgba(255, 255, 255, 0.06);
+            filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.28));
         }
 
-        /* --- ХРАНИТЕЛЬ: крупный щит с металлическим контуром --- */
+        /* --- ХРАНИТЕЛЬ: устойчивая стойка, щит с мягким металлическим бликом --- */
         .night-person.night-person--hippocampus-serotonin-connection {
             width: clamp(30px, 6.5%, 52px);
         }
         .night-person.night-person--hippocampus-serotonin-connection .person-head {
-            background: #e6d2c2;
-            box-shadow: 0 0 0 1px rgba(58, 44, 38, 0.14);
+            border-radius: 49% 51% 50% 48% / 46% 48% 54% 52%;
+            background:
+                radial-gradient(ellipse 90% 85% at 36% 28%, rgba(255, 238, 226, 0.94) 0%, transparent 52%),
+                linear-gradient(168deg, #ead8ca 0%, #dcc4b4 100%);
+            box-shadow:
+                inset 2px -3px 8px rgba(85, 62, 50, 0.07),
+                inset -1px 4px 6px rgba(255, 255, 255, 0.36),
+                0 0 0 1px rgba(58, 44, 38, 0.1);
         }
         .night-person.night-person--hippocampus-serotonin-connection .person-torso {
             width: 70%;
-            border-radius: 36% 36% 22% 22%;
-            background: linear-gradient(180deg, #fdfefe 0%, #e8edf7 100%);
+            border-radius: 42% 40% 34% 36% / 30% 28% 26% 28%;
+            background:
+                radial-gradient(ellipse 80% 48% at 48% 6%, rgba(255, 255, 255, 0.7) 0%, transparent 55%),
+                linear-gradient(178deg, #feffff 0%, #e8edf7 100%);
             box-shadow:
-                0 6px 14px rgba(40, 55, 100, 0.18),
-                0 0 0 1px rgba(80, 95, 140, 0.18);
+                inset 0 7px 16px rgba(255, 255, 255, 0.48),
+                inset 0 -6px 14px rgba(50, 65, 110, 0.07),
+                0 6px 16px rgba(40, 55, 100, 0.14),
+                0 0 0 1px rgba(80, 95, 140, 0.12);
+        }
+        .night-person.night-person--hippocampus-serotonin-connection .person-arm {
+            background: linear-gradient(155deg, #ffffff 0%, #e6ecf7 100%);
+            box-shadow:
+                inset 2px 0 8px rgba(255, 255, 255, 0.38),
+                0 0 0 1px rgba(85, 100, 145, 0.08);
         }
         .night-person.night-person--hippocampus-serotonin-connection .person-arm.left {
             transform: rotate(-58deg);
@@ -2005,21 +2148,23 @@
             width: 48%;
             height: 48%;
             transform: none;
-            clip-path: polygon(50% 0%, 100% 22%, 100% 78%, 50% 100%, 0% 78%, 0% 22%);
-            background: linear-gradient(
-                155deg,
-                #f8fafc 0%,
-                #bfdbfe 38%,
-                #60a5fa 58%,
-                #2563eb 85%,
-                #1e40af 100%
-            );
+            clip-path: polygon(50% 2%, 94% 26%, 94% 74%, 50% 98%, 6% 74%, 6% 26%);
+            background:
+                radial-gradient(ellipse 55% 42% at 32% 26%, rgba(255, 255, 255, 0.8) 0%, transparent 58%),
+                linear-gradient(
+                    158deg,
+                    #f8fafc 0%,
+                    #bfdbfe 34%,
+                    #60a5fa 55%,
+                    #2563eb 82%,
+                    #1e3a8a 100%
+                );
             box-shadow:
-                inset 0 0 0 3px rgba(255, 255, 255, 0.85),
-                inset 0 0 0 6px rgba(15, 23, 42, 0.45),
-                0 0 0 3px rgba(251, 191, 36, 0.55),
-                0 12px 26px rgba(0, 15, 45, 0.55);
-            filter: drop-shadow(0 4px 10px rgba(37, 99, 235, 0.45));
+                inset 0 0 0 2px rgba(255, 255, 255, 0.65),
+                inset 0 0 0 5px rgba(15, 23, 42, 0.32),
+                0 0 0 2px rgba(251, 191, 36, 0.45),
+                0 12px 26px rgba(0, 15, 45, 0.45);
+            filter: drop-shadow(0 4px 12px rgba(37, 99, 235, 0.38));
         }
 
         .shooting-stars-layer {
