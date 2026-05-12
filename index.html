@@ -2254,6 +2254,52 @@
                 animation: none !important;
                 opacity: 0 !important;
             }
+            .goal-orbit-meteor {
+                display: none !important;
+            }
+        }
+
+        /* Метеоры к кнопке «Моя цель» (viewport, не перехватывает клики) */
+        .platform-shooting-stars-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 450;
+            overflow: hidden;
+        }
+        .goal-orbit-meteor {
+            position: absolute;
+            width: clamp(64px, 15vw, 160px);
+            height: 1px;
+            left: 0;
+            top: 0;
+            border-radius: 0;
+            transform-origin: left center;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(224, 238, 255, 0.32) 38%,
+                rgba(242, 248, 255, 0.82) 72%,
+                #ffffff 94%,
+                #ffffff 100%
+            );
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.38);
+            will-change: transform, left, top;
+            backface-visibility: hidden;
+        }
+        .goal-orbit-meteor::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 2px;
+            height: 2px;
+            transform: translate(50%, -50%);
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow:
+                0 0 1px rgba(255, 255, 255, 1),
+                0 0 4px rgba(200, 225, 255, 0.65);
         }
         
         .module-card {
@@ -3911,6 +3957,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <!-- ЭКРАН ПЛАТФОРМЫ -->
             <div id="platform-screen" class="screen">
+                <div class="platform-shooting-stars-layer" id="platformShootingStarsLayer" aria-hidden="true"></div>
                 <div class="platform-header">
                     <div class="platform-logo platform-logo--brand" data-i18n="platform.title">Полный Потенциал</div>
                     <p class="platform-header-tagline" data-i18n="platform.tagline">Адаптируем цель под тебя</p>
@@ -4358,6 +4405,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let shootingStarTimer = null;
     let fpShootingStarSeq = 0;
+    /** Счётчик траекторий, которые пересекают кнопку «Моя цель»; каждая вторая — орбита */
+    let fpGoalMeteorQualifyCount = 0;
+    let fpGoalOrbitAnimating = false;
 
     function fpShootingStarsReducedMotion() {
         try {
@@ -4433,6 +4483,277 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!clip(Oy, vy, top, bottom)) return null;
         if (tMax < 0) return null;
         return { tEnter: tMin, tExit: tMax };
+    }
+
+    function fpClamp(n, a, b) {
+        return Math.max(a, Math.min(b, n));
+    }
+
+    /** Контур скруглённого прямоугольника (углы как в Canvas: +у вниз, положительный угол — по часовой) */
+    function fpRoundedRectPerimeterPts(L, T, W, H, R, segLen) {
+        R = fpClamp(R, 0, Math.min(W, H) / 2 - 0.5);
+        const pts = [];
+        const line = function (x1, y1, x2, y2) {
+            const d = Math.hypot(x2 - x1, y2 - y1);
+            const n = Math.max(1, Math.ceil(d / segLen));
+            for (let i = 0; i < n; i++) {
+                const u = i / n;
+                pts.push({ x: x1 + (x2 - x1) * u, y: y1 + (y2 - y1) * u });
+            }
+        };
+        const arc = function (cx, cy, a0, a1) {
+            const span = a1 - a0;
+            const n = Math.max(4, Math.ceil((Math.abs(span) * R) / segLen));
+            for (let i = 1; i <= n; i++) {
+                const t = i / n;
+                const a = a0 + span * t;
+                pts.push({ x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) });
+            }
+        };
+        if (R < 1.5) {
+            line(L, T, L + W, T);
+            line(L + W, T, L + W, T + H);
+            line(L + W, T + H, L, T + H);
+            line(L, T + H, L, T);
+            return pts;
+        }
+        const r = R;
+        const Rg = L + W;
+        const B = T + H;
+        line(L + r, T, Rg - r, T);
+        arc(Rg - r, T + r, -Math.PI / 2, 0);
+        line(Rg, T + r, Rg, B - r);
+        arc(Rg - r, B - r, 0, Math.PI / 2);
+        line(Rg - r, B, L + r, B);
+        arc(L + r, B - r, Math.PI / 2, Math.PI);
+        line(L, B - r, L, T + r);
+        arc(L + r, T + r, Math.PI, 1.5 * Math.PI);
+        return pts;
+    }
+
+    function fpNearestPathIndex(pts, x, y) {
+        let best = 0;
+        let bestD = Infinity;
+        for (let i = 0; i < pts.length; i++) {
+            const d = Math.hypot(pts[i].x - x, pts[i].y - y);
+            if (d < bestD) {
+                bestD = d;
+                best = i;
+            }
+        }
+        return best;
+    }
+
+    function fpPolylineFromLoop(pts, startIdx, dir) {
+        const n = pts.length;
+        const out = [];
+        for (let k = 0; k <= n; k++) {
+            out.push(pts[(startIdx + dir * k + n * 64) % n]);
+        }
+        return out;
+    }
+
+    function fpEaseOutQuad(t) {
+        return 1 - (1 - t) * (1 - t);
+    }
+
+    function fpPlaceMeteorHead(el, headX, headY, angleRad) {
+        const w = el.offsetWidth || 90;
+        el.style.left = headX - Math.cos(angleRad) * w + 'px';
+        el.style.top = headY - Math.sin(angleRad) * w + 'px';
+        el.style.transform = 'rotate(' + angleRad + 'rad)';
+    }
+
+    function fpAnimateHeadAlongPolyline(el, points, durationMs, easing, done) {
+        if (points.length < 2) {
+            done();
+            return;
+        }
+        const segLens = [];
+        let total = 0;
+        for (let i = 1; i < points.length; i++) {
+            const d = Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+            segLens.push(d);
+            total += d;
+        }
+        if (total < 1e-6) {
+            done();
+            return;
+        }
+        const t0 = performance.now();
+        function frame(now) {
+            let u = (now - t0) / durationMs;
+            if (u >= 1) {
+                const pLast = points[points.length - 1];
+                const pPrev = points[points.length - 2];
+                const ang = Math.atan2(pLast.y - pPrev.y, pLast.x - pPrev.x);
+                fpPlaceMeteorHead(el, pLast.x, pLast.y, ang);
+                done();
+                return;
+            }
+            u = easing ? easing(u) : u;
+            let dist = u * total;
+            let acc = 0;
+            let i = 0;
+            for (; i < segLens.length; i++) {
+                if (acc + segLens[i] >= dist) break;
+                acc += segLens[i];
+            }
+            const sl = segLens[i] > 1e-6 ? segLens[i] : 1;
+            const segT = (dist - acc) / sl;
+            const p0 = points[i];
+            const p1 = points[i + 1];
+            const x = p0.x + (p1.x - p0.x) * segT;
+            const y = p0.y + (p1.y - p0.y) * segT;
+            const ang = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+            fpPlaceMeteorHead(el, x, y, ang);
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    }
+
+    function fpRunGoalMeteorAnimation(opts) {
+        const layer = opts.layer;
+        const sx = opts.sx;
+        const sy = opts.sy;
+        const ex = opts.ex;
+        const ey = opts.ey;
+        const vx = opts.vx;
+        const vy = opts.vy;
+        const br = opts.btnRect;
+        const cornerR = opts.cornerR;
+        const doOrbit = opts.doOrbit;
+
+        const el = document.createElement('div');
+        el.className = 'goal-orbit-meteor';
+        el.setAttribute('aria-hidden', 'true');
+        layer.appendChild(el);
+
+        const layerRect = layer.getBoundingClientRect();
+        function toLayer(wx, wy) {
+            return { x: wx - layerRect.left, y: wy - layerRect.top };
+        }
+
+        const path = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, 9);
+        const startIdx = fpNearestPathIndex(path, ex, ey);
+        const n = path.length;
+        const iPrev = (startIdx - 1 + n) % n;
+        const iNext = (startIdx + 1) % n;
+        const tCwX = path[iNext].x - path[startIdx].x;
+        const tCwY = path[iNext].y - path[startIdx].y;
+        const tCcwX = path[startIdx].x - path[iPrev].x;
+        const tCcwY = path[startIdx].y - path[iPrev].y;
+        const dotCw = vx * tCwX + vy * tCwY;
+        const dotCcw = vx * tCcwX + vy * tCcwY;
+        const dir = dotCw >= dotCcw ? 1 : -1;
+
+        const pStart = toLayer(sx, sy);
+        const pHit = toLayer(ex, ey);
+        const approachLen = Math.hypot(pHit.x - pStart.x, pHit.y - pStart.y);
+        const dur1 = fpClamp(approachLen / 520, 0.32, 0.62) * 1000;
+
+        function finish() {
+            el.remove();
+            fpGoalOrbitAnimating = false;
+        }
+
+        const angApproach = Math.atan2(pHit.y - pStart.y, pHit.x - pStart.x);
+        fpPlaceMeteorHead(el, pStart.x, pStart.y, angApproach);
+        void el.offsetWidth;
+
+        fpAnimateHeadAlongPolyline(
+            el,
+            [pStart, pHit],
+            dur1,
+            fpEaseOutQuad,
+            function afterApproach() {
+                if (!doOrbit) {
+                    const tExtra = (Math.max(layerRect.width, layerRect.height) + 120) / Math.hypot(vx, vy);
+                    const exitWx = ex + vx * tExtra;
+                    const exitWy = ey + vy * tExtra;
+                    const pExit = toLayer(exitWx, exitWy);
+                    const durPass = fpClamp(Math.hypot(pExit.x - pHit.x, pExit.y - pHit.y) / 640, 0.28, 0.55) * 1000;
+                    fpAnimateHeadAlongPolyline(el, [pHit, pExit], durPass, null, finish);
+                    return;
+                }
+
+                const loopWorld = fpPolylineFromLoop(path, startIdx, dir);
+                const loopLayer = loopWorld.map(function (p) {
+                    return toLayer(p.x, p.y);
+                });
+                const dur2 = 1120;
+
+                fpAnimateHeadAlongPolyline(el, loopLayer, dur2, null, function afterOrbit() {
+                    const last = loopLayer[loopLayer.length - 1];
+                    const targetX = layerRect.width + 80;
+                    const targetY = last.y + (Math.random() - 0.5) * 36;
+                    const angOut = Math.atan2(targetY - last.y, targetX - last.x);
+                    fpPlaceMeteorHead(el, last.x, last.y, angOut);
+                    fpAnimateHeadAlongPolyline(
+                        el,
+                        [last, { x: targetX, y: targetY }],
+                        480,
+                        fpEaseOutQuad,
+                        finish
+                    );
+                });
+            }
+        );
+    }
+
+    function fpTrySpawnGoalOrbitMeteor() {
+        if (fpShootingStarsReducedMotion()) return;
+        const ps = document.getElementById('platform-screen');
+        const pm = document.getElementById('platform-main');
+        const btn = document.getElementById('goalNavItem');
+        const layer = document.getElementById('platformShootingStarsLayer');
+        if (!ps || !ps.classList.contains('active') || !pm || !btn || !layer) return;
+        if (window.getComputedStyle(pm).display === 'none') return;
+        if (fpGoalOrbitAnimating) return;
+
+        const br = btn.getBoundingClientRect();
+        if (br.width < 8 || br.height < 8) return;
+
+        const cs = window.getComputedStyle(btn);
+        let cornerR = 16;
+        const brParse = cs.borderRadius.match(/([\d.]+)px/);
+        if (brParse) cornerR = parseFloat(brParse[1], 10);
+
+        for (let attempt = 0; attempt < 32; attempt++) {
+            const thetaDeg = 20 + Math.random() * 50;
+            const theta = (thetaDeg * Math.PI) / 180;
+            const vx = Math.cos(theta);
+            const vy = Math.sin(theta);
+            if (vy < 0.18) continue;
+
+            const sy = -35 - Math.random() * 140;
+            const sx = -100 + Math.random() * (window.innerWidth + 200);
+
+            const hit = fpRayAabbHit(sx, sy, vx, vy, br.left, br.top, br.right, br.bottom);
+            if (!hit || hit.tEnter < 2) continue;
+
+            const tHit = hit.tEnter;
+            const ex = sx + vx * tHit;
+            const ey = sy + vy * tHit;
+
+            fpGoalMeteorQualifyCount += 1;
+            const doOrbit = fpGoalMeteorQualifyCount % 2 === 0;
+
+            fpGoalOrbitAnimating = true;
+            fpRunGoalMeteorAnimation({
+                layer: layer,
+                sx: sx,
+                sy: sy,
+                ex: ex,
+                ey: ey,
+                vx: vx,
+                vy: vy,
+                btnRect: br,
+                cornerR: cornerR,
+                doOrbit: doOrbit
+            });
+            return;
+        }
     }
 
     /** Дополнительный метеор только над блоком с луной (не ломает чередование hero + ночь) */
@@ -4667,6 +4988,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         shootingStarTimer = window.setTimeout(() => {
             spawnShootingStar();
+            /* Метеор к кнопке «Моя цель»: каждая вторая подходящая траектория обводит кнопку */
+            if (Math.random() < 0.48) {
+                window.setTimeout(fpTrySpawnGoalOrbitMeteor, 120 + Math.random() * 900);
+            }
             /* Вторая вспышка на блоке с луной — не в московское окно hero→night */
             if (!fpMskHeroThroughNightWindow() && Math.random() < 0.32) {
                 window.setTimeout(spawnExtraNightMeteor, 200 + Math.random() * 750);
@@ -4690,6 +5015,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!fpShootingStarsReducedMotion() && !fpMskHeroThroughNightWindow()) spawnExtraNightMeteor();
         }, 650 + Math.random() * 1100);
         scheduleShootingStar();
+        window.setTimeout(function () {
+            if (!fpShootingStarsReducedMotion()) fpTrySpawnGoalOrbitMeteor();
+        }, 2600);
     }
 
     // Инициализация при загрузке страницы
