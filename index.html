@@ -4405,8 +4405,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let shootingStarTimer = null;
     let fpShootingStarSeq = 0;
-    /** Счётчик траекторий, которые пересекают кнопку «Моя цель»; каждая вторая — орбита */
-    let fpGoalMeteorQualifyCount = 0;
     let fpGoalOrbitAnimating = false;
 
     function fpShootingStarsReducedMotion() {
@@ -4439,8 +4437,124 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function fpReadGoalButtonCornerR(btn) {
+        const cs = window.getComputedStyle(btn);
+        let cornerR = 16;
+        const m = cs.borderRadius.match(/([\d.]+)px/);
+        if (m) cornerR = parseFloat(m[1], 10);
+        return cornerR;
+    }
+
+    /** Платформа открыта, кнопка «Моя цель» видна — можно перехватывать метеоры */
+    function fpGoalOrbitUiContext() {
+        const ps = document.getElementById('platform-screen');
+        const pm = document.getElementById('platform-main');
+        const btn = document.getElementById('goalNavItem');
+        const orbitLayer = document.getElementById('platformShootingStarsLayer');
+        if (!ps || !ps.classList.contains('active') || !pm || !btn || !orbitLayer) return null;
+        if (window.getComputedStyle(pm).display === 'none') return null;
+        const br = btn.getBoundingClientRect();
+        if (br.width < 8 || br.height < 8) return null;
+        return {
+            btn: btn,
+            br: br,
+            orbitLayer: orbitLayer,
+            cornerR: fpReadGoalButtonCornerR(btn)
+        };
+    }
+
+    /** Отрезок [P0,P1] пересекает или лежит внутри прямоугольника (viewport) */
+    function fpSegmentIntersectsRect(x0, y0, x1, y1, L, T, R, B) {
+        function ins(x, y) {
+            return x >= L && x <= R && y >= T && y <= B;
+        }
+        if (ins(x0, y0) || ins(x1, y1)) return true;
+        const n = 40;
+        for (let i = 1; i < n; i++) {
+            const u = i / n;
+            const x = x0 + (x1 - x0) * u;
+            const y = y0 + (y1 - y0) * u;
+            if (ins(x, y)) return true;
+        }
+        return false;
+    }
+
+    function fpMeteorPathCrossesGoalButton(meteorLayer, leftPx, topPx, angleDeg, travel, btnRect) {
+        const lr = meteorLayer.getBoundingClientRect();
+        const rad = (angleDeg * Math.PI) / 180;
+        const c = Math.cos(rad);
+        const s = Math.sin(rad);
+        const x0 = lr.left + leftPx;
+        const y0 = lr.top + topPx;
+        const x1 = x0 + c * travel;
+        const y1 = y0 + s * travel;
+        const pad = 4;
+        return fpSegmentIntersectsRect(
+            x0,
+            y0,
+            x1,
+            y1,
+            btnRect.left - pad,
+            btnRect.top - pad,
+            btnRect.right + pad,
+            btnRect.bottom + pad
+        );
+    }
+
+    /**
+     * Подобрать старт луча с тем же углом, что у перехваченного метеора, чтобы войти в кнопку, и запустить орбиту.
+     * @returns {boolean} удалось запустить
+     */
+    function fpSpawnGoalOrbitWithAngle(angleDeg, ctx) {
+        if (!ctx || fpGoalOrbitAnimating) return false;
+        const br = ctx.br;
+        const rad = (angleDeg * Math.PI) / 180;
+        const vx = Math.cos(rad);
+        const vy = Math.sin(rad);
+        if (Math.abs(vy) < 1e-6) return false;
+
+        for (let attempt = 0; attempt < 48; attempt++) {
+            const sy = -40 - Math.random() * 160;
+            const sx = -120 + Math.random() * (window.innerWidth + 240);
+            const hit = fpRayAabbHit(sx, sy, vx, vy, br.left, br.top, br.right, br.bottom);
+            if (!hit || hit.tEnter < 2) continue;
+
+            const tHit = hit.tEnter;
+            const ex = sx + vx * tHit;
+            const ey = sy + vy * tHit;
+
+            fpGoalOrbitAnimating = true;
+            fpRunGoalMeteorAnimation({
+                layer: ctx.orbitLayer,
+                sx: sx,
+                sy: sy,
+                ex: ex,
+                ey: ey,
+                vx: vx,
+                vy: vy,
+                btnRect: br,
+                cornerR: ctx.cornerR
+            });
+            return true;
+        }
+        return false;
+    }
+
     function fpAppendShootingStar(layer, opts) {
         if (!layer || fpShootingStarsReducedMotion()) return null;
+        const lid = layer.id || '';
+        if (lid === 'shootingStarsLayer' || lid === 'heroShootingStarsLayer') {
+            const gctx = fpGoalOrbitUiContext();
+            if (
+                gctx &&
+                fpMeteorPathCrossesGoalButton(layer, opts.leftPx, opts.topPx, opts.angleDeg, opts.travel, gctx.br)
+            ) {
+                if (!fpGoalOrbitAnimating) {
+                    fpSpawnGoalOrbitWithAngle(opts.angleDeg, gctx);
+                }
+                return null;
+            }
+        }
         const faint = opts.faint;
         const angleDeg = opts.angleDeg;
         const travel = opts.travel;
@@ -4622,7 +4736,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const vy = opts.vy;
         const br = opts.btnRect;
         const cornerR = opts.cornerR;
-        const doOrbit = opts.doOrbit;
 
         const el = document.createElement('div');
         el.className = 'goal-orbit-meteor';
@@ -4667,16 +4780,6 @@ document.addEventListener('DOMContentLoaded', function() {
             dur1,
             fpEaseOutQuad,
             function afterApproach() {
-                if (!doOrbit) {
-                    const tExtra = (Math.max(layerRect.width, layerRect.height) + 120) / Math.hypot(vx, vy);
-                    const exitWx = ex + vx * tExtra;
-                    const exitWy = ey + vy * tExtra;
-                    const pExit = toLayer(exitWx, exitWy);
-                    const durPass = fpClamp(Math.hypot(pExit.x - pHit.x, pExit.y - pHit.y) / 640, 0.28, 0.55) * 1000;
-                    fpAnimateHeadAlongPolyline(el, [pHit, pExit], durPass, null, finish);
-                    return;
-                }
-
                 const loopWorld = fpPolylineFromLoop(path, startIdx, dir);
                 const loopLayer = loopWorld.map(function (p) {
                     return toLayer(p.x, p.y);
@@ -4703,22 +4806,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function fpTrySpawnGoalOrbitMeteor() {
         if (fpShootingStarsReducedMotion()) return;
-        const ps = document.getElementById('platform-screen');
-        const pm = document.getElementById('platform-main');
-        const btn = document.getElementById('goalNavItem');
-        const layer = document.getElementById('platformShootingStarsLayer');
-        if (!ps || !ps.classList.contains('active') || !pm || !btn || !layer) return;
-        if (window.getComputedStyle(pm).display === 'none') return;
-        if (fpGoalOrbitAnimating) return;
+        const ctx = fpGoalOrbitUiContext();
+        if (!ctx || fpGoalOrbitAnimating) return;
 
-        const br = btn.getBoundingClientRect();
-        if (br.width < 8 || br.height < 8) return;
-
-        const cs = window.getComputedStyle(btn);
-        let cornerR = 16;
-        const brParse = cs.borderRadius.match(/([\d.]+)px/);
-        if (brParse) cornerR = parseFloat(brParse[1], 10);
-
+        const br = ctx.br;
         for (let attempt = 0; attempt < 32; attempt++) {
             const thetaDeg = 20 + Math.random() * 50;
             const theta = (thetaDeg * Math.PI) / 180;
@@ -4736,12 +4827,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const ex = sx + vx * tHit;
             const ey = sy + vy * tHit;
 
-            fpGoalMeteorQualifyCount += 1;
-            const doOrbit = fpGoalMeteorQualifyCount % 2 === 0;
-
             fpGoalOrbitAnimating = true;
             fpRunGoalMeteorAnimation({
-                layer: layer,
+                layer: ctx.orbitLayer,
                 sx: sx,
                 sy: sy,
                 ex: ex,
@@ -4749,8 +4837,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 vx: vx,
                 vy: vy,
                 btnRect: br,
-                cornerR: cornerR,
-                doOrbit: doOrbit
+                cornerR: ctx.cornerR
             });
             return;
         }
