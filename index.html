@@ -2305,6 +2305,32 @@
                 0 0 1px rgba(255, 255, 255, 1),
                 0 0 4px rgba(200, 225, 255, 0.65);
         }
+        /* Каждая 10-я «обычная» звезда: ярче, голубее, чуть крупнее хвост и головка */
+        .goal-orbit-meteor.goal-orbit-meteor--blue-bright {
+            width: clamp(82px, 18vw, 198px);
+            height: 1px;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(14, 165, 233, 0.35) 22%,
+                rgba(56, 189, 248, 0.72) 48%,
+                rgba(186, 230, 253, 0.98) 78%,
+                #e0f2fe 92%,
+                #bae6fd 100%
+            );
+            box-shadow:
+                0 0 8px rgba(56, 189, 248, 0.75),
+                0 0 0 1px rgba(186, 230, 253, 0.55);
+        }
+        .goal-orbit-meteor.goal-orbit-meteor--blue-bright::before {
+            width: 3px;
+            height: 3px;
+            background: #f0f9ff;
+            box-shadow:
+                0 0 2px rgba(255, 255, 255, 1),
+                0 0 10px rgba(34, 211, 238, 0.9),
+                0 0 18px rgba(59, 130, 246, 0.55);
+        }
         
         .module-card {
             background: white;
@@ -4743,7 +4769,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const cornerR = opts.cornerR;
 
         const el = document.createElement('div');
-        el.className = 'goal-orbit-meteor';
+        el.className = 'goal-orbit-meteor' + (opts.blueBright ? ' goal-orbit-meteor--blue-bright' : '');
         el.setAttribute('aria-hidden', 'true');
         layer.appendChild(el);
 
@@ -4789,7 +4815,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const loopLayer = loopWorld.map(function (p) {
                     return toLayer(p.x, p.y);
                 });
-                const dur2 = 1120;
+                const dur2 = opts.blueBright ? 1320 : 1120;
 
                 fpAnimateHeadAlongPolyline(el, loopLayer, dur2, null, function afterOrbit() {
                     const last = loopLayer[loopLayer.length - 1];
@@ -4809,13 +4835,21 @@ document.addEventListener('DOMContentLoaded', function() {
         );
     }
 
-    function fpTrySpawnGoalOrbitMeteor() {
-        if (fpShootingStarsReducedMotion()) return;
+    /**
+     * Метеор к кнопке «Моя цель»: подобрать траекторию, попасть в кнопку, обойти контур на 360°.
+     * @param {{ blueBright?: boolean }} [options]
+     * @returns {boolean} удалось запустить
+     */
+    function fpTrySpawnGoalOrbitMeteor(options) {
+        options = options || {};
+        const blueBright = !!options.blueBright;
+        if (fpShootingStarsReducedMotion()) return false;
         const ctx = fpGoalOrbitUiContext();
-        if (!ctx || fpGoalOrbitAnimating) return;
+        if (!ctx || fpGoalOrbitAnimating) return false;
 
         const br = ctx.br;
-        for (let attempt = 0; attempt < 32; attempt++) {
+        const attempts = blueBright ? 56 : 32;
+        for (let attempt = 0; attempt < attempts; attempt++) {
             const thetaDeg = 20 + Math.random() * 50;
             const theta = (thetaDeg * Math.PI) / 180;
             const vx = Math.cos(theta);
@@ -4842,10 +4876,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 vx: vx,
                 vy: vy,
                 btnRect: br,
-                cornerR: ctx.cornerR
+                cornerR: ctx.cornerR,
+                blueBright: blueBright
             });
-            return;
+            return true;
         }
+        return false;
     }
 
     /** Дополнительный метеор только над блоком с луной (не ломает чередование hero + ночь) */
@@ -4895,6 +4931,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!mskGeoRetryOpts.fpRetryGeo) {
             fpShootingStarSeq += 1;
+        }
+
+        /* Каждая 10-я по счёту «обычная» вспышка — одна яркая голубая к кнопке с полным кругом по контуру */
+        if (!mskGeoRetryOpts.fpRetryGeo && fpShootingStarSeq % 10 === 0) {
+            if (fpTrySpawnGoalOrbitMeteor({ blueBright: true })) {
+                return;
+            }
         }
 
         const linked = mskNight || fpShootingStarSeq % 2 === 0;
@@ -5108,7 +5151,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 650 + Math.random() * 1100);
         scheduleShootingStar();
         window.setTimeout(function () {
-            if (!fpShootingStarsReducedMotion()) fpTrySpawnGoalOrbitMeteor();
+            if (!fpShootingStarsReducedMotion()) fpTrySpawnGoalOrbitMeteor({});
         }, 2600);
     }
 
