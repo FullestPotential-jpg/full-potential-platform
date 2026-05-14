@@ -747,8 +747,9 @@
             transform-origin: 50% 40%;
             will-change: transform;
             filter:
-                drop-shadow(0 0 18px rgba(120, 230, 255, 0.65))
-                drop-shadow(0 0 42px rgba(60, 160, 255, 0.45));
+                drop-shadow(0 0 22px rgba(130, 240, 255, 0.75))
+                drop-shadow(0 0 48px rgba(50, 150, 230, 0.45))
+                drop-shadow(0 0 80px rgba(20, 80, 160, 0.25));
         }
         .mss-rocket__svg {
             display: block;
@@ -756,7 +757,129 @@
             height: auto;
         }
         .mss-rocket__trail {
+            transform-origin: 50% 8%;
+        }
+        .mss-trail-fx {
             transform-origin: 50% 0%;
+        }
+        @keyframes mss-flame-flicker {
+            0%,
+            100% {
+                opacity: 0.94;
+                filter: brightness(1) saturate(1.05) drop-shadow(0 0 10px rgba(160, 240, 255, 0.55));
+            }
+            25% {
+                opacity: 1;
+                filter: brightness(1.22) saturate(1.15) drop-shadow(0 0 18px rgba(255, 255, 255, 0.65));
+            }
+            50% {
+                opacity: 0.88;
+                filter: brightness(0.9) saturate(1.12) drop-shadow(0 0 8px rgba(80, 190, 255, 0.45));
+            }
+            75% {
+                opacity: 1;
+                filter: brightness(1.12) saturate(1.2) drop-shadow(0 0 14px rgba(200, 250, 255, 0.7));
+            }
+        }
+        @keyframes mss-trail-core-pulse {
+            0%,
+            100% {
+                opacity: 0.86;
+                filter: brightness(1);
+            }
+            50% {
+                opacity: 1;
+                filter: brightness(1.2) saturate(1.08);
+            }
+        }
+        .mss-trail-sparks circle,
+        .mss-star-sparkles circle {
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+        @keyframes mss-spark-twinkle {
+            0%,
+            100% {
+                opacity: 0.15;
+                transform: scale(0.6);
+            }
+            40% {
+                opacity: 1;
+                transform: scale(1.15);
+            }
+            70% {
+                opacity: 0.45;
+                transform: scale(0.85);
+            }
+        }
+        .mss-star-shimmer-rect {
+            transform-box: fill-box;
+            transform-origin: 50% 40%;
+        }
+        @keyframes mss-star-shimmer-slide {
+            0%,
+            100% {
+                transform: translate(-16px, -5px) rotate(-10deg);
+                opacity: 0.32;
+            }
+            50% {
+                transform: translate(20px, 8px) rotate(-10deg);
+                opacity: 0.58;
+            }
+        }
+        @keyframes mss-star-body-pulse {
+            0%,
+            100% {
+                filter: brightness(1) contrast(1.02);
+            }
+            50% {
+                filter: brightness(1.06) contrast(1.05);
+            }
+        }
+        .mobile-star-splash--on .mss-trail-fx {
+            animation: mss-flame-flicker 0.11s ease-in-out infinite;
+        }
+        .mobile-star-splash--on .mss-trail-core {
+            animation: mss-trail-core-pulse 0.08s ease-in-out infinite alternate;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle {
+            animation: mss-spark-twinkle 0.22s ease-in-out infinite;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(2) {
+            animation-delay: 0.05s;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(3) {
+            animation-delay: 0.11s;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(4) {
+            animation-delay: 0.03s;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(5) {
+            animation-delay: 0.14s;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(6) {
+            animation-delay: 0.08s;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(7) {
+            animation-delay: 0.17s;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(8) {
+            animation-delay: 0.02s;
+        }
+        .mobile-star-splash--on .mss-star-shimmer-rect {
+            animation: mss-star-shimmer-slide 0.55s ease-in-out infinite;
+        }
+        .mobile-star-splash--on .mss-star-body {
+            animation: mss-star-body-pulse 0.45s ease-in-out infinite;
+        }
+        .mobile-star-splash--on .mss-star-sparkles circle:nth-child(odd) {
+            animation: mss-spark-twinkle 0.38s ease-in-out infinite alternate;
+        }
+        .mobile-star-splash--on .mss-star-sparkles circle:nth-child(even) {
+            animation: mss-spark-twinkle 0.42s ease-in-out infinite alternate-reverse;
+        }
+        .mobile-star-splash--on .mss-star-sparkles circle:nth-child(3n) {
+            animation-duration: 0.5s;
         }
         @keyframes mss-trail-hover {
             0%,
@@ -3941,46 +4064,121 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="mobile-star-splash__veil"></div>
         <div class="mobile-star-splash__scene" aria-hidden="true">
             <div class="mss-rocket" id="fpMssRocket">
-                <svg class="mss-rocket__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 268" focusable="false">
+                <svg class="mss-rocket__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">
                     <defs>
-                        <linearGradient id="mssTrailGrad" x1="100" y1="108" x2="100" y2="262" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98"/>
-                            <stop offset="22%" stop-color="#c8f8ff" stop-opacity="0.92"/>
-                            <stop offset="55%" stop-color="#4ad4ff" stop-opacity="0.55"/>
-                            <stop offset="100%" stop-color="#1a6cff" stop-opacity="0"/>
+                        <clipPath id="mssStarClip">
+                            <polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"/>
+                        </clipPath>
+                        <linearGradient id="mssTrailOuterG" x1="100" y1="94" x2="100" y2="282" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#7af6ff" stop-opacity="0.5"/>
+                            <stop offset="38%" stop-color="#28b8ff" stop-opacity="0.28"/>
+                            <stop offset="100%" stop-color="#003878" stop-opacity="0"/>
                         </linearGradient>
-                        <radialGradient id="mssStarFace" cx="38%" cy="32%" r="72%">
+                        <linearGradient id="mssTrailGrad" x1="100" y1="92" x2="100" y2="278" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                            <stop offset="10%" stop-color="#f4feff" stop-opacity="0.98"/>
+                            <stop offset="26%" stop-color="#9cf0ff" stop-opacity="0.82"/>
+                            <stop offset="48%" stop-color="#30c8ff" stop-opacity="0.45"/>
+                            <stop offset="100%" stop-color="#0060c8" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="mssTrailCoreG" x1="100" y1="92" x2="100" y2="252" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                            <stop offset="28%" stop-color="#e8ffff" stop-opacity="0.95"/>
+                            <stop offset="100%" stop-color="#5ee8ff" stop-opacity="0"/>
+                        </linearGradient>
+                        <radialGradient id="mssStarBodyG" cx="34%" cy="26%" r="78%">
                             <stop offset="0%" stop-color="#ffffff"/>
-                            <stop offset="35%" stop-color="#d4fcff"/>
-                            <stop offset="72%" stop-color="#38d4ff"/>
-                            <stop offset="100%" stop-color="#0a8ecf"/>
+                            <stop offset="22%" stop-color="#e8fdff"/>
+                            <stop offset="50%" stop-color="#4adfff"/>
+                            <stop offset="82%" stop-color="#0590c8"/>
+                            <stop offset="100%" stop-color="#024a72"/>
                         </radialGradient>
-                        <radialGradient id="mssStarShade" cx="62%" cy="68%" r="55%">
-                            <stop offset="0%" stop-color="#00b4e6" stop-opacity="0.45"/>
-                            <stop offset="100%" stop-color="#0060a0" stop-opacity="0"/>
-                        </radialGradient>
-                        <filter id="mssStarGlow" x="-55%" y="-55%" width="210%" height="210%">
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="b"/>
+                        <linearGradient id="mssStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                            <stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>
+                            <stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>
+                        </linearGradient>
+                        <linearGradient id="mssShimmerGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+                            <stop offset="0%" stop-color="transparent"/>
+                            <stop offset="42%" stop-color="rgba(255,255,255,0.62)"/>
+                            <stop offset="58%" stop-color="rgba(180,245,255,0.45)"/>
+                            <stop offset="100%" stop-color="transparent"/>
+                        </linearGradient>
+                        <filter id="mssTrailBlur" x="-35%" y="-8%" width="170%" height="115%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="2.8" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <filter id="mssStarGlow" x="-70%" y="-70%" width="240%" height="240%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/>
                             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                         </filter>
                     </defs>
                     <g class="mss-rocket__trail">
-                        <path
-                            d="M100 104 L118 108 L112 262 L88 262 L82 108 Z"
-                            fill="url(#mssTrailGrad)"
-                            opacity="0.96"/>
+                        <g class="mss-trail-fx">
+                            <path
+                                d="M100 92 Q148 100 138 148 L118 282 Q100 292 82 282 L62 148 Q52 100 100 92 Z"
+                                fill="url(#mssTrailOuterG)"
+                                opacity="0.82"
+                                filter="url(#mssTrailBlur)"/>
+                            <path
+                                d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z"
+                                fill="url(#mssTrailGrad)"
+                                opacity="0.98"/>
+                            <path
+                                class="mss-trail-core"
+                                d="M100 90 Q120 94 116 128 L104 256 Q100 262 96 256 L84 128 Q80 94 100 90 Z"
+                                fill="url(#mssTrailCoreG)"
+                                opacity="0.94"/>
+                            <g class="mss-trail-sparks" fill="#ffffff">
+                                <circle cx="93" cy="128" r="1.35"/>
+                                <circle cx="107" cy="152" r="1.05"/>
+                                <circle cx="96" cy="188" r="1.25"/>
+                                <circle cx="104" cy="208" r="0.95"/>
+                                <circle cx="90" cy="228" r="1.05"/>
+                                <circle cx="110" cy="244" r="1.15"/>
+                                <circle cx="100" cy="172" r="1.35"/>
+                                <circle cx="98" cy="262" r="0.8"/>
+                            </g>
+                        </g>
                     </g>
-                    <g filter="url(#mssStarGlow)">
-                        <polygon
-                            points="100,22 112,54 148,58 122,82 130,118 100,98 70,118 78,82 52,58 88,54"
-                            fill="url(#mssStarFace)"/>
-                        <polygon
-                            points="100,22 112,54 148,58 122,82 130,118 100,98 70,118 78,82 52,58 88,54"
-                            fill="url(#mssStarShade)"/>
-                    </g>
-                    <g fill="#ffffff" opacity="0.85">
-                        <circle cx="86" cy="62" r="1.1"/><circle cx="104" cy="48" r="0.85"/><circle cx="118" cy="70" r="0.75"/>
-                        <circle cx="94" cy="78" r="0.65"/><circle cx="76" cy="52" r="0.55"/><circle cx="112" cy="88" r="0.6"/>
+                    <g class="mss-star-stack">
+                        <g filter="url(#mssStarGlow)">
+                            <g transform="translate(100 70) scale(1.045) translate(-100 -70)">
+                                <polygon
+                                    points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"
+                                    fill="#012d4a"
+                                    opacity="0.72"/>
+                            </g>
+                            <polygon
+                                class="mss-star-body"
+                                points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"
+                                fill="url(#mssStarBodyG)"/>
+                            <polygon
+                                points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"
+                                fill="none"
+                                stroke="url(#mssStarEdgeG)"
+                                stroke-width="1.15"
+                                stroke-linejoin="round"
+                                opacity="0.88"/>
+                            <g clip-path="url(#mssStarClip)">
+                                <rect
+                                    class="mss-star-shimmer-rect"
+                                    x="-30"
+                                    y="-5"
+                                    width="200"
+                                    height="140"
+                                    fill="url(#mssShimmerGrad)"
+                                    opacity="0.42"
+                                    style="mix-blend-mode: screen"/>
+                            </g>
+                        </g>
+                        <g class="mss-star-sparkles" fill="#ffffff">
+                            <circle cx="88" cy="48" r="0.9"/><circle cx="104" cy="38" r="0.65"/><circle cx="118" cy="56" r="0.75"/>
+                            <circle cx="96" cy="62" r="0.55"/><circle cx="112" cy="72" r="0.5"/><circle cx="82" cy="58" r="0.45"/>
+                            <circle cx="124" cy="68" r="0.55"/><circle cx="74" cy="72" r="0.4"/><circle cx="108" cy="88" r="0.48"/>
+                            <circle cx="94" cy="92" r="0.42"/><circle cx="100" cy="52" r="0.38"/><circle cx="130" cy="82" r="0.5"/>
+                            <circle cx="68" cy="88" r="0.42"/><circle cx="118" cy="98" r="0.36"/>
+                        </g>
                     </g>
                 </svg>
             </div>
