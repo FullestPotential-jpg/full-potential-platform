@@ -691,7 +691,7 @@
             margin: 0 auto;
         }
 
-        /* Заставка: пересекающиеся звёздные лучи — только телефоны (≤768px), ~1.5 с */
+        /* Заставка (только телефон): большая голубая звезда-ракета — ~0.4 с «висит», ~1 с взлёт, конец у верхнего края */
         html.fp-mobile-splash-lock,
         html.fp-mobile-splash-lock body {
             overflow: hidden;
@@ -708,7 +708,7 @@
             justify-content: center;
             pointer-events: none;
             opacity: 1;
-            transition: opacity 0.45s ease;
+            transition: opacity 0.32s ease;
         }
         @media (max-width: 768px) {
             .mobile-star-splash:not([hidden]) {
@@ -732,173 +732,76 @@
                 radial-gradient(ellipse 60% 40% at 88% 20%, rgba(255, 200, 150, 0.12) 0%, transparent 50%),
                 linear-gradient(168deg, #030510 0%, #0a0f28 38%, #101a48 100%);
         }
-        .mobile-star-splash__rays {
+        .mobile-star-splash__scene {
             position: absolute;
-            inset: -15%;
-            overflow: visible;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
         }
-        .mss-streak {
+        .mss-rocket {
             position: absolute;
             left: 50%;
-            top: 50%;
-            width: min(110vw, 480px);
-            height: 2px;
-            margin-left: calc(min(110vw, 480px) / -2);
-            margin-top: -1px;
-            border-radius: 999px;
-            opacity: 0;
-            transform-origin: center center;
-            background: linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(255, 255, 255, 0.06) 18%,
-                rgba(255, 252, 240, 0.98) 50%,
-                rgba(170, 200, 255, 0.85) 82%,
-                transparent 100%
-            );
-            box-shadow:
-                0 0 10px 2px rgba(255, 255, 255, 0.5),
-                0 0 22px rgba(130, 170, 255, 0.5),
-                0 0 36px rgba(255, 185, 120, 0.22);
+            top: 74%;
+            width: min(58vw, 248px);
+            transform: translate(-50%, -50%);
+            transform-origin: 50% 40%;
+            will-change: transform;
+            filter:
+                drop-shadow(0 0 18px rgba(120, 230, 255, 0.65))
+                drop-shadow(0 0 42px rgba(60, 160, 255, 0.45));
         }
-        @keyframes mss-streak-move {
-            0% {
-                opacity: 0;
-                transform: translate(var(--sx), var(--sy)) rotate(var(--ang)) scaleX(0.45);
+        .mss-rocket__svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .mss-rocket__trail {
+            transform-origin: 50% 0%;
+        }
+        @keyframes mss-trail-hover {
+            0%,
+            100% {
+                transform: scaleY(1);
+                opacity: 0.92;
             }
-            14% {
+            50% {
+                transform: scaleY(1.14);
                 opacity: 1;
             }
+        }
+        @keyframes mss-trail-launch {
+            0% {
+                transform: scaleY(1);
+            }
             100% {
-                opacity: 0.9;
-                transform: translate(var(--ex), var(--ey)) rotate(var(--ang)) scaleX(1.08);
+                transform: scaleY(1.35);
             }
         }
-        .mobile-star-splash--on .mss-streak:nth-child(1) {
-            --sx: -42vw;
-            --sy: -36vh;
-            --ex: 48vw;
-            --ey: 52vh;
-            --ang: 36deg;
-            animation: mss-streak-move 1.48s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0s;
+        .mobile-star-splash--on .mss-rocket__trail {
+            animation:
+                mss-trail-hover 0.1s ease-in-out 4 alternate,
+                mss-trail-launch 1s cubic-bezier(0.25, 0.85, 0.35, 1) 0.4s forwards;
         }
-        .mobile-star-splash--on .mss-streak:nth-child(2) {
-            --sx: 44vw;
-            --sy: -38vh;
-            --ex: -46vw;
-            --ey: 55vh;
-            --ang: -34deg;
-            animation: mss-streak-move 1.48s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.06s;
+        /* 0.4 с ≈ 28.571% от 1.4 с — микроцикл «в полёте», затем ускорение вверх до вылета */
+        @keyframes mss-rocket-launch {
+            0% {
+                transform: translate(-50%, calc(-50% + 1vh)) scale(1);
+            }
+            9.5% {
+                transform: translate(-50%, calc(-50% - 0.9vh)) scale(1.03);
+            }
+            19% {
+                transform: translate(-50%, calc(-50% + 0.75vh)) scale(0.98);
+            }
+            28.571% {
+                transform: translate(-50%, calc(-50% - 0.35vh)) scale(1);
+            }
+            100% {
+                transform: translate(-50%, calc(-50% - 128vh)) scale(0.94);
+            }
         }
-        .mobile-star-splash--on .mss-streak:nth-child(3) {
-            --sx: -48vw;
-            --sy: 8vh;
-            --ex: 55vw;
-            --ey: -12vh;
-            --ang: -22deg;
-            animation: mss-streak-move 1.45s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.12s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(4) {
-            --sx: 40vw;
-            --sy: 42vh;
-            --ex: -50vw;
-            --ey: -35vh;
-            --ang: 28deg;
-            animation: mss-streak-move 1.5s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.04s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(5) {
-            --sx: -8vw;
-            --sy: -45vh;
-            --ex: 12vw;
-            --ey: 58vh;
-            --ang: 72deg;
-            animation: mss-streak-move 1.42s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.18s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(6) {
-            --sx: 35vw;
-            --sy: 48vh;
-            --ex: -38vw;
-            --ey: -40vh;
-            --ang: -58deg;
-            animation: mss-streak-move 1.46s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.1s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(7) {
-            --sx: -35vw;
-            --sy: 35vh;
-            --ex: 42vw;
-            --ey: -28vh;
-            --ang: 18deg;
-            animation: mss-streak-move 1.52s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.02s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(8) {
-            --sx: 28vw;
-            --sy: -22vh;
-            --ex: -32vw;
-            --ey: 30vh;
-            --ang: -48deg;
-            animation: mss-streak-move 1.44s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.14s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(9) {
-            --sx: -20vw;
-            --sy: -18vh;
-            --ex: 28vw;
-            --ey: 22vh;
-            --ang: 52deg;
-            animation: mss-streak-move 1.4s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.2s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(10) {
-            --sx: 22vw;
-            --sy: 18vh;
-            --ex: -25vw;
-            --ey: -20vh;
-            --ang: -26deg;
-            animation: mss-streak-move 1.47s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.08s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(11) {
-            --sx: -52vw;
-            --sy: -5vh;
-            --ex: 58vw;
-            --ey: 8vh;
-            --ang: 8deg;
-            animation: mss-streak-move 1.5s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.16s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(12) {
-            --sx: 18vw;
-            --sy: -48vh;
-            --ex: -22vw;
-            --ey: 50vh;
-            --ang: 62deg;
-            animation: mss-streak-move 1.43s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.11s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(13) {
-            --sx: -28vw;
-            --sy: 40vh;
-            --ex: 32vw;
-            --ey: -36vh;
-            --ang: -18deg;
-            animation: mss-streak-move 1.49s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.07s;
-        }
-        .mobile-star-splash--on .mss-streak:nth-child(14) {
-            --sx: 45vw;
-            --sy: 12vh;
-            --ex: -48vw;
-            --ey: -8vh;
-            --ang: 12deg;
-            animation: mss-streak-move 1.46s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
-            animation-delay: 0.13s;
+        .mobile-star-splash--on .mss-rocket {
+            animation: mss-rocket-launch 1.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
         }
         @media (prefers-reduced-motion: reduce) {
             .mobile-star-splash {
@@ -4033,15 +3936,54 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </head>
 <body>
-    <!-- Заставка: пересекающиеся «звёзды» только на телефоне, ~1.5 с -->
+    <!-- Заставка (телефон): голубая звезда-ракета — ~0.4 с цикл, ~1 с взлёт; конец по animationend -->
     <div id="mobileStarSplash" class="mobile-star-splash" aria-hidden="true" hidden>
         <div class="mobile-star-splash__veil"></div>
-        <div class="mobile-star-splash__rays" aria-hidden="true">
-            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
-            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
-            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
-            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
-            <span class="mss-streak"></span><span class="mss-streak"></span>
+        <div class="mobile-star-splash__scene" aria-hidden="true">
+            <div class="mss-rocket" id="fpMssRocket">
+                <svg class="mss-rocket__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 268" focusable="false">
+                    <defs>
+                        <linearGradient id="mssTrailGrad" x1="100" y1="108" x2="100" y2="262" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98"/>
+                            <stop offset="22%" stop-color="#c8f8ff" stop-opacity="0.92"/>
+                            <stop offset="55%" stop-color="#4ad4ff" stop-opacity="0.55"/>
+                            <stop offset="100%" stop-color="#1a6cff" stop-opacity="0"/>
+                        </linearGradient>
+                        <radialGradient id="mssStarFace" cx="38%" cy="32%" r="72%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="35%" stop-color="#d4fcff"/>
+                            <stop offset="72%" stop-color="#38d4ff"/>
+                            <stop offset="100%" stop-color="#0a8ecf"/>
+                        </radialGradient>
+                        <radialGradient id="mssStarShade" cx="62%" cy="68%" r="55%">
+                            <stop offset="0%" stop-color="#00b4e6" stop-opacity="0.45"/>
+                            <stop offset="100%" stop-color="#0060a0" stop-opacity="0"/>
+                        </radialGradient>
+                        <filter id="mssStarGlow" x="-55%" y="-55%" width="210%" height="210%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <g class="mss-rocket__trail">
+                        <path
+                            d="M100 104 L118 108 L112 262 L88 262 L82 108 Z"
+                            fill="url(#mssTrailGrad)"
+                            opacity="0.96"/>
+                    </g>
+                    <g filter="url(#mssStarGlow)">
+                        <polygon
+                            points="100,22 112,54 148,58 122,82 130,118 100,98 70,118 78,82 52,58 88,54"
+                            fill="url(#mssStarFace)"/>
+                        <polygon
+                            points="100,22 112,54 148,58 122,82 130,118 100,98 70,118 78,82 52,58 88,54"
+                            fill="url(#mssStarShade)"/>
+                    </g>
+                    <g fill="#ffffff" opacity="0.85">
+                        <circle cx="86" cy="62" r="1.1"/><circle cx="104" cy="48" r="0.85"/><circle cx="118" cy="70" r="0.75"/>
+                        <circle cx="94" cy="78" r="0.65"/><circle cx="76" cy="52" r="0.55"/><circle cx="112" cy="88" r="0.6"/>
+                    </g>
+                </svg>
+            </div>
         </div>
     </div>
     <script>
@@ -4050,29 +3992,41 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!window.matchMedia || !window.matchMedia('(max-width: 768px)').matches) return;
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
             var el = document.getElementById('mobileStarSplash');
+            var rocket = document.getElementById('fpMssRocket');
             if (!el) return;
             document.documentElement.classList.add('fp-mobile-splash-lock');
             el.removeAttribute('hidden');
             el.classList.add('mobile-star-splash--on');
-            window.setTimeout(function () {
+
+            function cleanup() {
+                el.setAttribute('hidden', '');
+                el.classList.remove('mobile-star-splash--on', 'mobile-star-splash--exit');
+                document.documentElement.classList.remove('fp-mobile-splash-lock');
+            }
+            function fadeOut() {
+                if (el.hasAttribute('hidden')) return;
                 el.classList.add('mobile-star-splash--exit');
-                function cleanup() {
-                    el.setAttribute('hidden', '');
-                    el.classList.remove('mobile-star-splash--on', 'mobile-star-splash--exit');
-                    document.documentElement.classList.remove('fp-mobile-splash-lock');
-                }
-                function onEnd(ev) {
+                function onFade(ev) {
                     if (ev && ev.propertyName !== 'opacity') return;
-                    el.removeEventListener('transitionend', onEnd);
+                    el.removeEventListener('transitionend', onFade);
                     cleanup();
                 }
-                el.addEventListener('transitionend', onEnd);
+                el.addEventListener('transitionend', onFade);
                 window.setTimeout(function () {
                     if (el.hasAttribute('hidden')) return;
-                    el.removeEventListener('transitionend', onEnd);
+                    el.removeEventListener('transitionend', onFade);
                     cleanup();
-                }, 700);
-            }, 1500);
+                }, 500);
+            }
+            function onRocketAnim(ev) {
+                if (!ev || ev.target !== rocket || ev.animationName !== 'mss-rocket-launch') return;
+                rocket.removeEventListener('animationend', onRocketAnim);
+                fadeOut();
+            }
+            if (rocket) {
+                rocket.addEventListener('animationend', onRocketAnim);
+            }
+            window.setTimeout(fadeOut, 2000);
         }
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fpMobileStarSplashRun);
