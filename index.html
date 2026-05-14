@@ -691,6 +691,221 @@
             margin: 0 auto;
         }
 
+        /* Заставка: пересекающиеся звёздные лучи — только телефоны (≤768px), ~1.5 с */
+        html.fp-mobile-splash-lock,
+        html.fp-mobile-splash-lock body {
+            overflow: hidden;
+            height: 100%;
+            touch-action: none;
+        }
+        .mobile-star-splash {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100050;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.45s ease;
+        }
+        @media (max-width: 768px) {
+            .mobile-star-splash:not([hidden]) {
+                display: flex;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-star-splash {
+                display: none !important;
+            }
+        }
+        .mobile-star-splash--exit {
+            opacity: 0;
+        }
+        .mobile-star-splash__veil {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 130% 90% at 50% 35%, rgba(40, 60, 140, 0.45) 0%, transparent 58%),
+                radial-gradient(ellipse 70% 45% at 15% 85%, rgba(100, 160, 255, 0.2) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 40% at 88% 20%, rgba(255, 200, 150, 0.12) 0%, transparent 50%),
+                linear-gradient(168deg, #030510 0%, #0a0f28 38%, #101a48 100%);
+        }
+        .mobile-star-splash__rays {
+            position: absolute;
+            inset: -15%;
+            overflow: visible;
+        }
+        .mss-streak {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(110vw, 480px);
+            height: 2px;
+            margin-left: calc(min(110vw, 480px) / -2);
+            margin-top: -1px;
+            border-radius: 999px;
+            opacity: 0;
+            transform-origin: center center;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.06) 18%,
+                rgba(255, 252, 240, 0.98) 50%,
+                rgba(170, 200, 255, 0.85) 82%,
+                transparent 100%
+            );
+            box-shadow:
+                0 0 10px 2px rgba(255, 255, 255, 0.5),
+                0 0 22px rgba(130, 170, 255, 0.5),
+                0 0 36px rgba(255, 185, 120, 0.22);
+        }
+        @keyframes mss-streak-move {
+            0% {
+                opacity: 0;
+                transform: translate(var(--sx), var(--sy)) rotate(var(--ang)) scaleX(0.45);
+            }
+            14% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.9;
+                transform: translate(var(--ex), var(--ey)) rotate(var(--ang)) scaleX(1.08);
+            }
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(1) {
+            --sx: -42vw;
+            --sy: -36vh;
+            --ex: 48vw;
+            --ey: 52vh;
+            --ang: 36deg;
+            animation: mss-streak-move 1.48s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(2) {
+            --sx: 44vw;
+            --sy: -38vh;
+            --ex: -46vw;
+            --ey: 55vh;
+            --ang: -34deg;
+            animation: mss-streak-move 1.48s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.06s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(3) {
+            --sx: -48vw;
+            --sy: 8vh;
+            --ex: 55vw;
+            --ey: -12vh;
+            --ang: -22deg;
+            animation: mss-streak-move 1.45s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.12s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(4) {
+            --sx: 40vw;
+            --sy: 42vh;
+            --ex: -50vw;
+            --ey: -35vh;
+            --ang: 28deg;
+            animation: mss-streak-move 1.5s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.04s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(5) {
+            --sx: -8vw;
+            --sy: -45vh;
+            --ex: 12vw;
+            --ey: 58vh;
+            --ang: 72deg;
+            animation: mss-streak-move 1.42s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.18s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(6) {
+            --sx: 35vw;
+            --sy: 48vh;
+            --ex: -38vw;
+            --ey: -40vh;
+            --ang: -58deg;
+            animation: mss-streak-move 1.46s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.1s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(7) {
+            --sx: -35vw;
+            --sy: 35vh;
+            --ex: 42vw;
+            --ey: -28vh;
+            --ang: 18deg;
+            animation: mss-streak-move 1.52s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.02s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(8) {
+            --sx: 28vw;
+            --sy: -22vh;
+            --ex: -32vw;
+            --ey: 30vh;
+            --ang: -48deg;
+            animation: mss-streak-move 1.44s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.14s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(9) {
+            --sx: -20vw;
+            --sy: -18vh;
+            --ex: 28vw;
+            --ey: 22vh;
+            --ang: 52deg;
+            animation: mss-streak-move 1.4s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.2s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(10) {
+            --sx: 22vw;
+            --sy: 18vh;
+            --ex: -25vw;
+            --ey: -20vh;
+            --ang: -26deg;
+            animation: mss-streak-move 1.47s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.08s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(11) {
+            --sx: -52vw;
+            --sy: -5vh;
+            --ex: 58vw;
+            --ey: 8vh;
+            --ang: 8deg;
+            animation: mss-streak-move 1.5s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.16s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(12) {
+            --sx: 18vw;
+            --sy: -48vh;
+            --ex: -22vw;
+            --ey: 50vh;
+            --ang: 62deg;
+            animation: mss-streak-move 1.43s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.11s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(13) {
+            --sx: -28vw;
+            --sy: 40vh;
+            --ex: 32vw;
+            --ey: -36vh;
+            --ang: -18deg;
+            animation: mss-streak-move 1.49s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.07s;
+        }
+        .mobile-star-splash--on .mss-streak:nth-child(14) {
+            --sx: 45vw;
+            --sy: 12vh;
+            --ex: -48vw;
+            --ey: -8vh;
+            --ang: 12deg;
+            animation: mss-streak-move 1.46s cubic-bezier(0.28, 0.55, 0.42, 1) forwards;
+            animation-delay: 0.13s;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .mobile-star-splash {
+                display: none !important;
+            }
+        }
+
         #auth-screen .question {
             color: #2c3e50;
             margin-bottom: 22px;
@@ -3818,6 +4033,54 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </head>
 <body>
+    <!-- Заставка: пересекающиеся «звёзды» только на телефоне, ~1.5 с -->
+    <div id="mobileStarSplash" class="mobile-star-splash" aria-hidden="true" hidden>
+        <div class="mobile-star-splash__veil"></div>
+        <div class="mobile-star-splash__rays" aria-hidden="true">
+            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
+            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
+            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
+            <span class="mss-streak"></span><span class="mss-streak"></span><span class="mss-streak"></span>
+            <span class="mss-streak"></span><span class="mss-streak"></span>
+        </div>
+    </div>
+    <script>
+    (function () {
+        function fpMobileStarSplashRun() {
+            if (!window.matchMedia || !window.matchMedia('(max-width: 768px)').matches) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            var el = document.getElementById('mobileStarSplash');
+            if (!el) return;
+            document.documentElement.classList.add('fp-mobile-splash-lock');
+            el.removeAttribute('hidden');
+            el.classList.add('mobile-star-splash--on');
+            window.setTimeout(function () {
+                el.classList.add('mobile-star-splash--exit');
+                function cleanup() {
+                    el.setAttribute('hidden', '');
+                    el.classList.remove('mobile-star-splash--on', 'mobile-star-splash--exit');
+                    document.documentElement.classList.remove('fp-mobile-splash-lock');
+                }
+                function onEnd(ev) {
+                    if (ev && ev.propertyName !== 'opacity') return;
+                    el.removeEventListener('transitionend', onEnd);
+                    cleanup();
+                }
+                el.addEventListener('transitionend', onEnd);
+                window.setTimeout(function () {
+                    if (el.hasAttribute('hidden')) return;
+                    el.removeEventListener('transitionend', onEnd);
+                    cleanup();
+                }, 700);
+            }, 1500);
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fpMobileStarSplashRun);
+        } else {
+            fpMobileStarSplashRun();
+        }
+    })();
+    </script>
     <div class="container" id="main-container">
         <header class="hero-header">
             <div class="stars-layer" aria-hidden="true"></div>
