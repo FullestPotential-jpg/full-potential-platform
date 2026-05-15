@@ -1137,9 +1137,8 @@
             background: rgba(255, 255, 255, 0.97);
             border: 1px solid rgba(130, 150, 210, 0.14);
             box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
-            transition:
-                row-gap 0.42s cubic-bezier(0.4, 0, 0.2, 1),
-                padding 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: row-gap 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+            align-items: start;
         }
         #platform-main {
             margin-top: 4px;
@@ -1147,11 +1146,6 @@
         #platform-screen.platform-screen--goal-open > .platform-header {
             border-radius: 20px;
             row-gap: 0;
-            padding: 10px 20px 9px;
-        }
-        #platform-screen.platform-screen--goal-open > .platform-header > .platform-logo--brand {
-            padding-bottom: 5px;
-            font-size: clamp(1.32rem, 3.5vw, 1.62rem);
         }
         #goal-screen > .platform-header {
             box-sizing: border-box;
@@ -1204,7 +1198,6 @@
             grid-row: 1;
             justify-self: start;
             align-self: center;
-            transition: padding-bottom 0.42s cubic-bezier(0.4, 0, 0.2, 1), font-size 0.42s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #platform-screen > .platform-header > .platform-header-tagline-slot {
             grid-column: 1 / -1;
@@ -3170,11 +3163,7 @@
     }
     #platform-screen.platform-screen--goal-open > .platform-header {
         border-radius: 18px;
-        padding: 8px 12px 7px;
-    }
-    #platform-screen.platform-screen--goal-open > .platform-header > .platform-logo--brand {
-        padding-bottom: 4px;
-        font-size: clamp(1.22rem, 4.8vw, 1.48rem);
+        row-gap: 0;
     }
     #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
         padding: 10px 14px;
@@ -3184,7 +3173,8 @@
         transition: grid-template-rows 0.36s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #platform-screen > .platform-header {
-        transition: row-gap 0.36s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+        align-items: start;
+        transition: row-gap 0.36s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #goal-screen > .platform-header {
         width: calc(100% - 24px);
