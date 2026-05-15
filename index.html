@@ -781,11 +781,46 @@
                 radial-gradient(ellipse 60% 40% at 88% 20%, rgba(255, 200, 150, 0.12) 0%, transparent 50%),
                 linear-gradient(168deg, #030510 0%, #0a0f28 38%, #101a48 100%);
         }
+        .mobile-star-splash--on .mobile-star-splash__veil::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 50% at 50% 78%, rgba(80, 180, 255, 0.14) 0%, transparent 70%);
+            animation: mss-veil-glow 0.85s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes mss-veil-glow {
+            0% { opacity: 0.55; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.04); }
+        }
         .mobile-star-splash__scene {
             position: absolute;
             inset: 0;
             overflow: hidden;
             z-index: 1;
+        }
+        .mss-ambient-stars {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .mss-ambient-stars span {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 6px rgba(180, 220, 255, 0.8);
+            animation: mss-ambient-twinkle 2.4s ease-in-out infinite;
+        }
+        .mss-ambient-stars span:nth-child(1) { width: 2px; height: 2px; left: 12%; top: 18%; animation-delay: 0s; }
+        .mss-ambient-stars span:nth-child(2) { width: 1.5px; height: 1.5px; left: 78%; top: 12%; animation-delay: 0.4s; }
+        .mss-ambient-stars span:nth-child(3) { width: 2px; height: 2px; left: 88%; top: 42%; animation-delay: 0.9s; }
+        .mss-ambient-stars span:nth-child(4) { width: 1px; height: 1px; left: 22%; top: 55%; animation-delay: 1.2s; }
+        .mss-ambient-stars span:nth-child(5) { width: 2px; height: 2px; left: 65%; top: 28%; animation-delay: 0.2s; }
+        .mss-ambient-stars span:nth-child(6) { width: 1.5px; height: 1.5px; left: 45%; top: 8%; animation-delay: 1.6s; }
+        @keyframes mss-ambient-twinkle {
+            0%, 100% { opacity: 0.25; transform: scale(0.8); }
+            50% { opacity: 0.95; transform: scale(1.2); }
         }
         .mss-rocket {
             position: absolute;
@@ -814,21 +849,31 @@
         @keyframes mss-flame-flicker {
             0%,
             100% {
-                opacity: 0.94;
+                opacity: 0.92;
                 filter: brightness(1) saturate(1.05) drop-shadow(0 0 10px rgba(160, 240, 255, 0.55));
             }
-            25% {
+            18% {
                 opacity: 1;
-                filter: brightness(1.22) saturate(1.15) drop-shadow(0 0 18px rgba(255, 255, 255, 0.65));
+                filter: brightness(1.28) saturate(1.18) drop-shadow(0 0 20px rgba(255, 255, 255, 0.72));
             }
-            50% {
-                opacity: 0.88;
-                filter: brightness(0.9) saturate(1.12) drop-shadow(0 0 8px rgba(80, 190, 255, 0.45));
+            42% {
+                opacity: 0.86;
+                filter: brightness(0.88) saturate(1.1) drop-shadow(0 0 7px rgba(80, 190, 255, 0.4));
             }
-            75% {
-                opacity: 1;
-                filter: brightness(1.12) saturate(1.2) drop-shadow(0 0 14px rgba(200, 250, 255, 0.7));
+            63% {
+                opacity: 0.98;
+                filter: brightness(1.15) saturate(1.22) drop-shadow(0 0 16px rgba(220, 250, 255, 0.68));
             }
+            82% {
+                opacity: 0.9;
+                filter: brightness(1.05) saturate(1.08) drop-shadow(0 0 11px rgba(140, 220, 255, 0.5));
+            }
+        }
+        @keyframes mss-flame-sway {
+            0%, 100% { transform: scaleX(1) scaleY(1) skewX(0deg); }
+            20% { transform: scaleX(1.05) scaleY(1.03) skewX(-1.8deg); }
+            45% { transform: scaleX(0.97) scaleY(1.06) skewX(1.4deg); }
+            70% { transform: scaleX(1.03) scaleY(0.98) skewX(-0.9deg); }
         }
         @keyframes mss-trail-core-pulse {
             0%,
@@ -861,6 +906,29 @@
                 transform: scale(0.85);
             }
         }
+        @keyframes mss-spark-drift {
+            0% {
+                opacity: 0.85;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--drift-x, 4px), 22px) scale(0.35);
+            }
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle {
+            animation:
+                mss-spark-twinkle 0.18s ease-in-out infinite,
+                mss-spark-drift 0.55s ease-out infinite;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(1) { --drift-x: -5px; }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(2) { --drift-x: 6px; }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(3) { --drift-x: -3px; }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(4) { --drift-x: 4px; }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(5) { --drift-x: -6px; }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(6) { --drift-x: 5px; }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(7) { --drift-x: -2px; }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(8) { --drift-x: 3px; }
         .mss-star-shimmer-rect {
             transform-box: fill-box;
             transform-origin: 50% 40%;
@@ -886,34 +954,60 @@
             }
         }
         .mobile-star-splash--on .mss-trail-fx {
-            animation: mss-flame-flicker 0.11s ease-in-out infinite;
+            animation:
+                mss-flame-flicker 0.09s ease-in-out infinite,
+                mss-flame-sway 0.14s ease-in-out infinite;
         }
         .mobile-star-splash--on .mss-trail-core {
-            animation: mss-trail-core-pulse 0.08s ease-in-out infinite alternate;
-        }
-        .mobile-star-splash--on .mss-trail-sparks circle {
-            animation: mss-spark-twinkle 0.22s ease-in-out infinite;
+            animation: mss-trail-core-pulse 0.07s ease-in-out infinite alternate;
         }
         .mobile-star-splash--on .mss-trail-sparks circle:nth-child(2) {
-            animation-delay: 0.05s;
+            animation-delay: 0.05s, 0.08s;
         }
         .mobile-star-splash--on .mss-trail-sparks circle:nth-child(3) {
-            animation-delay: 0.11s;
+            animation-delay: 0.11s, 0.16s;
         }
         .mobile-star-splash--on .mss-trail-sparks circle:nth-child(4) {
-            animation-delay: 0.03s;
+            animation-delay: 0.03s, 0.04s;
         }
         .mobile-star-splash--on .mss-trail-sparks circle:nth-child(5) {
-            animation-delay: 0.14s;
+            animation-delay: 0.14s, 0.22s;
         }
         .mobile-star-splash--on .mss-trail-sparks circle:nth-child(6) {
-            animation-delay: 0.08s;
+            animation-delay: 0.08s, 0.12s;
         }
         .mobile-star-splash--on .mss-trail-sparks circle:nth-child(7) {
-            animation-delay: 0.17s;
+            animation-delay: 0.17s, 0.28s;
         }
         .mobile-star-splash--on .mss-trail-sparks circle:nth-child(8) {
-            animation-delay: 0.02s;
+            animation-delay: 0.02s, 0.06s;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(9) {
+            animation-delay: 0.09s, 0.14s;
+            --drift-x: -4px;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(10) {
+            animation-delay: 0.06s, 0.19s;
+            --drift-x: 5px;
+        }
+        .mobile-star-splash--on .mss-trail-sparks circle:nth-child(11) {
+            animation-delay: 0.13s, 0.25s;
+            --drift-x: -2px;
+        }
+        .mobile-star-splash--on .mss-star-stack {
+            transform-origin: 50% 42%;
+            animation: mss-star-hover-tilt 1.45s ease-in-out forwards;
+        }
+        @keyframes mss-star-hover-tilt {
+            0%, 28.571% {
+                transform: rotate(0deg) translateY(0);
+            }
+            8% { transform: rotate(0.6deg) translateY(-1px); }
+            16% { transform: rotate(-0.5deg) translateY(1px); }
+            24% { transform: rotate(0.35deg) translateY(-0.5px); }
+            38% { transform: rotate(-1.2deg) translateY(-3px); }
+            55% { transform: rotate(0.4deg) translateY(-1px); }
+            100% { transform: rotate(0.15deg) translateY(0); }
         }
         .mobile-star-splash--on .mss-star-shimmer-rect {
             animation: mss-star-shimmer-slide 0.55s ease-in-out infinite;
@@ -933,47 +1027,75 @@
         @keyframes mss-trail-hover {
             0%,
             100% {
-                transform: scaleY(1);
-                opacity: 0.92;
+                transform: scaleY(1) scaleX(1);
+                opacity: 0.9;
             }
-            50% {
-                transform: scaleY(1.14);
+            33% {
+                transform: scaleY(1.1) scaleX(1.04);
                 opacity: 1;
+            }
+            66% {
+                transform: scaleY(1.18) scaleX(0.96);
+                opacity: 0.95;
             }
         }
         @keyframes mss-trail-launch {
             0% {
-                transform: scaleY(1);
+                transform: scaleY(1) scaleX(1);
+            }
+            25% {
+                transform: scaleY(1.22) scaleX(1.06);
             }
             100% {
-                transform: scaleY(1.35);
+                transform: scaleY(1.42) scaleX(0.94);
             }
         }
         .mobile-star-splash--on .mss-rocket__trail {
             animation:
-                mss-trail-hover 0.1s ease-in-out 4 alternate,
-                mss-trail-launch 1s cubic-bezier(0.25, 0.85, 0.35, 1) 0.4s forwards;
+                mss-trail-hover 0.12s ease-in-out 4 alternate,
+                mss-trail-launch 1.05s cubic-bezier(0.2, 0.9, 0.25, 1) 0.4s forwards;
         }
-        /* 0.4 с ≈ 28.571% от 1.4 с — микроцикл «в полёте», затем ускорение вверх до вылета */
+        /* ~0.4 с дрожание на старте, затем разгон с лёгким покачиванием */
         @keyframes mss-rocket-launch {
             0% {
-                transform: translate(-50%, calc(-50% + 1vh)) scale(1);
+                transform: translate(-50%, calc(-50% + 0.5vh)) rotate(-0.35deg) scale(1);
+                filter:
+                    drop-shadow(0 0 22px rgba(130, 240, 255, 0.75))
+                    drop-shadow(0 0 48px rgba(50, 150, 230, 0.45));
             }
-            9.5% {
-                transform: translate(-50%, calc(-50% - 0.9vh)) scale(1.03);
+            7% {
+                transform: translate(calc(-50% + 0.35vw), calc(-50% - 0.65vh)) rotate(0.4deg) scale(1.02);
             }
-            19% {
-                transform: translate(-50%, calc(-50% + 0.75vh)) scale(0.98);
+            14% {
+                transform: translate(calc(-50% - 0.28vw), calc(-50% + 0.55vh)) rotate(-0.32deg) scale(0.99);
+            }
+            21% {
+                transform: translate(calc(-50% + 0.2vw), calc(-50% - 0.45vh)) rotate(0.25deg) scale(1.01);
             }
             28.571% {
-                transform: translate(-50%, calc(-50% - 0.35vh)) scale(1);
+                transform: translate(-50%, calc(-50% - 0.15vh)) rotate(0deg) scale(1);
+            }
+            38% {
+                transform: translate(calc(-50% + 0.22vw), calc(-50% - 14vh)) rotate(0.2deg) scale(0.99);
+                filter:
+                    drop-shadow(0 0 28px rgba(150, 250, 255, 0.85))
+                    drop-shadow(0 0 56px rgba(60, 170, 255, 0.55));
+            }
+            58% {
+                transform: translate(calc(-50% - 0.18vw), calc(-50% - 52vh)) rotate(-0.12deg) scale(0.97);
+            }
+            78% {
+                transform: translate(calc(-50% + 0.1vw), calc(-50% - 92vh)) rotate(0.08deg) scale(0.94);
             }
             100% {
-                transform: translate(-50%, calc(-50% - 128vh)) scale(0.94);
+                transform: translate(-50%, calc(-50% - 132vh)) rotate(0deg) scale(0.88);
+                filter:
+                    drop-shadow(0 0 18px rgba(120, 220, 255, 0.5))
+                    drop-shadow(0 0 36px rgba(40, 130, 220, 0.3));
             }
         }
         .mobile-star-splash--on .mss-rocket {
-            animation: mss-rocket-launch 1.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
+            animation: mss-rocket-launch 1.45s cubic-bezier(0.18, 0.82, 0.22, 1) forwards;
         }
         @media (prefers-reduced-motion: reduce) {
             .mobile-star-splash {
@@ -4112,6 +4234,9 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="mobileStarSplash" class="mobile-star-splash" aria-hidden="true">
         <div class="mobile-star-splash__veil"></div>
         <div class="mobile-star-splash__scene" aria-hidden="true">
+            <div class="mss-ambient-stars" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
             <div class="mss-rocket" id="fpMssRocket">
                 <svg class="mss-rocket__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">
                     <defs>
@@ -4187,6 +4312,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <circle cx="110" cy="244" r="1.15"/>
                                 <circle cx="100" cy="172" r="1.35"/>
                                 <circle cx="98" cy="262" r="0.8"/>
+                                <circle cx="88" cy="145" r="0.7" opacity="0.85"/>
+                                <circle cx="112" cy="198" r="0.65" opacity="0.8"/>
+                                <circle cx="95" cy="235" r="0.55" opacity="0.75"/>
                             </g>
                         </g>
                     </g>
@@ -4278,7 +4406,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (rocket) {
                 rocket.addEventListener('animationend', onRocketAnim);
             }
-            window.setTimeout(fadeOut, 2000);
+            window.setTimeout(fadeOut, 2200);
         }
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fpMobileStarSplashRun);
