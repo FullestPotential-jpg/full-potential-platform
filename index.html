@@ -1112,6 +1112,29 @@
         #platform-screen > .platform-header {
             justify-content: flex-start;
             gap: 12px 16px;
+            box-sizing: border-box;
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            margin: 12px auto 0;
+            padding: 16px 24px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(130, 150, 210, 0.14);
+            box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
+        }
+        #platform-screen.platform-screen--goal-open > .platform-header {
+            border-radius: 20px;
+        }
+        #goal-screen > .platform-header {
+            box-sizing: border-box;
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            margin: 10px auto 0;
+            padding: 14px 24px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(130, 150, 210, 0.14);
+            box-shadow: 0 2px 12px rgba(12, 18, 52, 0.07);
         }
         #platform-screen > .platform-header > .platform-logo--brand {
             flex-shrink: 0;
@@ -2996,12 +3019,10 @@
     #platform-screen > .platform-header {
         flex-wrap: wrap;
         row-gap: 10px;
-        margin: 10px 12px 0;
+        width: calc(100% - 24px);
+        margin: 10px auto 0;
         padding: 14px 12px 12px;
         border-radius: 18px;
-        background: rgba(255, 255, 255, 0.97);
-        border: 1px solid rgba(130, 150, 210, 0.14);
-        box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
     }
     #platform-screen.platform-screen--goal-open > .platform-header {
         border-radius: 18px;
@@ -3013,12 +3034,10 @@
         font-size: clamp(0.84rem, 3.4vw, 1rem);
     }
     #goal-screen > .platform-header {
-        margin: 8px 12px 0;
+        width: calc(100% - 24px);
+        margin: 8px auto 0;
         padding: 12px 10px;
         border-radius: 18px;
-        background: rgba(255, 255, 255, 0.97);
-        border: 1px solid rgba(130, 150, 210, 0.14);
-        box-shadow: 0 2px 12px rgba(12, 18, 52, 0.07);
     }
 
     .platform-goal-hint {
