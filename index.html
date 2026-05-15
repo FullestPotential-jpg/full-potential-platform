@@ -1193,6 +1193,7 @@
             box-shadow: 0 11px 24px rgba(8, 12, 42, 0.38), inset 0 1px 0 rgba(255,255,255,0.1);
         }
         .goal-entry-btn__ic {
+            --fp-goal-glow: 0;
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -1202,14 +1203,47 @@
         .goal-entry-btn__ic svg {
             display: block;
         }
-        .goal-entry-btn__ic--lit {
+        .goal-entry-btn__ic--active {
             filter:
-                drop-shadow(0 0 10px rgba(56, 189, 248, 0.95))
-                drop-shadow(0 0 22px rgba(34, 211, 238, 0.85))
-                drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+                drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35))
+                drop-shadow(0 0 calc(8px + 22px * var(--fp-goal-glow)) rgba(56, 189, 248, calc(0.95 * var(--fp-goal-glow))))
+                drop-shadow(0 0 calc(18px + 38px * var(--fp-goal-glow)) rgba(34, 211, 238, calc(0.84 * var(--fp-goal-glow))))
+                drop-shadow(0 0 calc(4px + 16px * var(--fp-goal-glow)) rgba(224, 242, 254, calc(0.68 * var(--fp-goal-glow))));
         }
-        .goal-entry-btn__ic--lit svg {
-            filter: brightness(1.4) saturate(1.15);
+        .goal-entry-btn__ic--active svg {
+            filter:
+                brightness(calc(1 + 0.45 * var(--fp-goal-glow)))
+                saturate(calc(1 + 0.22 * var(--fp-goal-glow)));
+        }
+        .goal-entry-btn__ic--active.goal-entry-btn__ic--shimmer {
+            animation: fp-goal-star-glow-shimmer 1.28s ease-in-out infinite;
+        }
+        .goal-entry-btn__ic--active.goal-entry-btn__ic--shimmer svg {
+            animation: fp-goal-star-svg-shimmer 1.28s ease-in-out infinite;
+        }
+        @keyframes fp-goal-star-glow-shimmer {
+            0%, 100% {
+                filter:
+                    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35))
+                    drop-shadow(0 0 30px rgba(56, 189, 248, 0.96))
+                    drop-shadow(0 0 56px rgba(34, 211, 238, 0.86))
+                    drop-shadow(0 0 18px rgba(224, 242, 254, 0.72));
+            }
+            50% {
+                filter:
+                    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35))
+                    drop-shadow(0 0 40px rgba(110, 220, 255, 1))
+                    drop-shadow(0 0 72px rgba(56, 235, 255, 0.98))
+                    drop-shadow(0 0 28px rgba(240, 252, 255, 0.9));
+            }
+        }
+        @keyframes fp-goal-star-svg-shimmer {
+            0%, 100% {
+                filter: brightness(1.46) saturate(1.24);
+            }
+            50% {
+                filter: brightness(1.64) saturate(1.34);
+            }
         }
         .goal-entry-btn__txt {
             flex: 1;
@@ -5182,19 +5216,91 @@ document.addEventListener('DOMContentLoaded', function() {
         return cornerR;
     }
 
-    /** Подсветка звезды на кнопке «Моя цель» после попадания метеора */
-    function fpPulseGoalNavStar(durationMs) {
+    /** Плавное сияние звезды на «Моя цель» после попадания метеора */
+    function fpPulseGoalNavStar(holdMs) {
         const btn = document.getElementById('goalNavItem');
         if (!btn) return;
         const ic = btn.querySelector('.goal-entry-btn__ic');
         if (!ic) return;
-        const ms = durationMs || 3000;
-        ic.classList.add('goal-entry-btn__ic--lit');
-        if (fpPulseGoalNavStar._timer) clearTimeout(fpPulseGoalNavStar._timer);
-        fpPulseGoalNavStar._timer = window.setTimeout(function () {
-            ic.classList.remove('goal-entry-btn__ic--lit');
-            fpPulseGoalNavStar._timer = null;
-        }, ms);
+
+        const HOLD = holdMs || 4000;
+        const FADE_IN = 900;
+        const FADE_OUT = 950;
+
+        if (typeof fpPulseGoalNavStar._cancel === 'function') {
+            fpPulseGoalNavStar._cancel();
+        }
+
+        let rafId = null;
+        const timers = [];
+
+        function cancelRun() {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = null;
+            for (let i = 0; i < timers.length; i++) clearTimeout(timers[i]);
+            timers.length = 0;
+        }
+
+        function setGlow(v) {
+            ic.style.setProperty('--fp-goal-glow', String(v));
+        }
+
+        function easeOutCubic(t) {
+            return 1 - (1 - t) * (1 - t) * (1 - t);
+        }
+
+        function easeInOutSmooth(t) {
+            return t * t * (3 - 2 * t);
+        }
+
+        ic.classList.remove('goal-entry-btn__ic--shimmer');
+        ic.classList.add('goal-entry-btn__ic--active');
+        setGlow(0);
+
+        function fadeIn(now) {
+            const t0 = fadeIn._t0 || (fadeIn._t0 = now);
+            const p = Math.min(1, (now - t0) / FADE_IN);
+            setGlow(easeOutCubic(p));
+            if (p < 1) {
+                rafId = requestAnimationFrame(fadeIn);
+                return;
+            }
+            rafId = null;
+            fadeIn._t0 = null;
+            setGlow(1);
+            ic.classList.add('goal-entry-btn__ic--shimmer');
+            timers.push(
+                window.setTimeout(function () {
+                    ic.classList.remove('goal-entry-btn__ic--shimmer');
+                    fadeOut._t0 = null;
+                    rafId = requestAnimationFrame(fadeOut);
+                }, HOLD)
+            );
+        }
+
+        function fadeOut(now) {
+            const t0 = fadeOut._t0 || (fadeOut._t0 = now);
+            const p = Math.min(1, (now - t0) / FADE_OUT);
+            setGlow(1 - easeInOutSmooth(p));
+            if (p < 1) {
+                rafId = requestAnimationFrame(fadeOut);
+                return;
+            }
+            rafId = null;
+            fadeOut._t0 = null;
+            ic.classList.remove('goal-entry-btn__ic--active', 'goal-entry-btn__ic--shimmer');
+            ic.style.removeProperty('--fp-goal-glow');
+            fpPulseGoalNavStar._cancel = null;
+        }
+
+        fpPulseGoalNavStar._cancel = function () {
+            cancelRun();
+            ic.classList.remove('goal-entry-btn__ic--active', 'goal-entry-btn__ic--shimmer');
+            ic.style.removeProperty('--fp-goal-glow');
+            fpPulseGoalNavStar._cancel = null;
+        };
+
+        rafId = requestAnimationFrame(fadeIn);
     }
 
     /** Платформа открыта, кнопка «Моя цель» видна — можно перехватывать метеоры */
@@ -5532,7 +5638,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dur1,
             fpEaseOutQuad,
             function afterApproach() {
-                fpPulseGoalNavStar(3000);
+                fpPulseGoalNavStar(4000);
                 const loopWorld = fpPolylineFromLoop(path, startIdx, dir);
                 const loopLayer = loopWorld.map(function (p) {
                     return toLayer(p.x, p.y);
