@@ -578,6 +578,10 @@
         /* Иначе выпадающее меню профиля обрезается снизу (ноутбук / телефон) */
         .content:has(#platform-screen.active) {
             overflow: visible;
+            background: #080c1c;
+        }
+        #platform-screen.active {
+            background: #080c1c;
         }
         
         .screen {
@@ -1119,13 +1123,16 @@
             box-sizing: border-box;
             width: calc(100% - 40px);
             max-width: 1200px;
-            margin: 12px auto 0;
+            margin: 12px auto 16px;
             padding: 16px 24px;
             border-radius: 20px;
             background: rgba(255, 255, 255, 0.97);
             border: 1px solid rgba(130, 150, 210, 0.14);
             box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
             transition: row-gap 0.42s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #platform-main {
+            margin-top: 4px;
         }
         #platform-screen.platform-screen--goal-open > .platform-header {
             border-radius: 20px;
@@ -1204,9 +1211,6 @@
         .platform-goal-hint {
             margin: 0 20px 12px;
             padding: 14px 18px;
-            transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateY(0);
-            will-change: transform;
             text-align: center;
             font-size: clamp(0.88rem, 2.6vw, 1.02rem);
             font-weight: 600;
@@ -1221,10 +1225,16 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.85);
         }
         #platform-screen.platform-screen--goal-open .platform-goal-hint {
-            transform: translateY(var(--fp-tagline-slot, 0px));
+            display: none;
         }
         .goal-entry-wrap {
             padding: 14px 20px 6px;
+            transition: padding 0.38s cubic-bezier(0.4, 0, 0.2, 1), margin 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #platform-screen.platform-screen--goal-open .goal-entry-wrap {
+            padding-top: 4px;
+            padding-bottom: 8px;
+            margin-top: 0;
         }
         .goal-entry-btn {
             width: 100%;
@@ -2772,10 +2782,6 @@
             #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
                 grid-template-rows: 0fr !important;
             }
-            .platform-goal-hint {
-                transition: none !important;
-                transform: none !important;
-            }
         }
 
         /* Метеоры к кнопке «Моя цель» (viewport, не перехватывает клики) */
@@ -3066,10 +3072,13 @@
 
     #platform-screen > .platform-header {
         width: calc(100% - 24px);
-        margin: 10px auto 0;
+        margin: 10px auto 14px;
         padding: 14px 12px 12px;
         border-radius: 18px;
         row-gap: 10px;
+    }
+    #platform-main {
+        margin-top: 6px;
     }
     #platform-screen.platform-screen--goal-open > .platform-header {
         border-radius: 18px;
@@ -3083,9 +3092,6 @@
     }
     #platform-screen > .platform-header {
         transition: row-gap 0.36s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.36s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .platform-goal-hint {
-        transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #goal-screen > .platform-header {
         width: calc(100% - 24px);
@@ -7711,10 +7717,7 @@ async function showResult() {
         updateProfileData();
         showScreen('platform-screen');
         const platformScreen = document.getElementById('platform-screen');
-        if (platformScreen) {
-            platformScreen.classList.remove('platform-screen--goal-open');
-            platformScreen.style.removeProperty('--fp-tagline-slot');
-        }
+        if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
         document.getElementById('goal-screen').style.display = 'none';
         document.getElementById('platform-main').style.display = 'block';
         setGoalNavActive(false);
@@ -7854,21 +7857,10 @@ async function showResult() {
         }
     }
 
-function fpTaglineSlotHeightPx() {
-    const slot = document.querySelector('#platform-screen > .platform-header > .platform-header-tagline-slot');
-    if (!slot) return 0;
-    const header = slot.closest('.platform-header');
-    const rowGap = header ? parseFloat(window.getComputedStyle(header).rowGap, 10) || 10 : 10;
-    return slot.offsetHeight + rowGap;
-}
-
 function openGoalScreen(event) {
     if (event) event.preventDefault();
     const platformScreen = document.getElementById('platform-screen');
-    if (platformScreen) {
-        platformScreen.style.setProperty('--fp-tagline-slot', fpTaglineSlotHeightPx() + 'px');
-        platformScreen.classList.add('platform-screen--goal-open');
-    }
+    if (platformScreen) platformScreen.classList.add('platform-screen--goal-open');
     document.getElementById('platform-main').style.display = 'none';
     document.getElementById('goal-screen').style.display = 'block';
     setGoalNavActive(true);
@@ -7877,10 +7869,7 @@ function openGoalScreen(event) {
 
 function closeGoalScreen() {
     const platformScreen = document.getElementById('platform-screen');
-    if (platformScreen) {
-        platformScreen.classList.remove('platform-screen--goal-open');
-        platformScreen.style.removeProperty('--fp-tagline-slot');
-    }
+    if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
     document.getElementById('goal-screen').style.display = 'none';
     document.getElementById('platform-main').style.display = 'block';
     setGoalNavActive(false);
