@@ -2996,12 +2996,29 @@
     #platform-screen > .platform-header {
         flex-wrap: wrap;
         row-gap: 10px;
+        margin: 10px 12px 0;
+        padding: 14px 12px 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid rgba(130, 150, 210, 0.14);
+        box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
+    }
+    #platform-screen.platform-screen--goal-open > .platform-header {
+        border-radius: 18px;
     }
     #platform-screen > .platform-header > .platform-header-tagline {
         order: 3;
         flex: 1 1 100%;
         padding: 10px 14px;
         font-size: clamp(0.84rem, 3.4vw, 1rem);
+    }
+    #goal-screen > .platform-header {
+        margin: 8px 12px 0;
+        padding: 12px 10px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid rgba(130, 150, 210, 0.14);
+        box-shadow: 0 2px 12px rgba(12, 18, 52, 0.07);
     }
 
     .platform-goal-hint {
@@ -7618,6 +7635,8 @@ async function showResult() {
     function goToPlatform() {
         updateProfileData();
         showScreen('platform-screen');
+        const platformScreen = document.getElementById('platform-screen');
+        if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
         document.getElementById('goal-screen').style.display = 'none';
         document.getElementById('platform-main').style.display = 'block';
         setGoalNavActive(false);
@@ -7755,6 +7774,8 @@ async function showResult() {
 
 function openGoalScreen(event) {
     if (event) event.preventDefault();
+    const platformScreen = document.getElementById('platform-screen');
+    if (platformScreen) platformScreen.classList.add('platform-screen--goal-open');
     document.getElementById('platform-main').style.display = 'none';
     document.getElementById('goal-screen').style.display = 'block';
     setGoalNavActive(true);
@@ -7762,6 +7783,8 @@ function openGoalScreen(event) {
 }
 
 function closeGoalScreen() {
+    const platformScreen = document.getElementById('platform-screen');
+    if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
     document.getElementById('goal-screen').style.display = 'none';
     document.getElementById('platform-main').style.display = 'block';
     setGoalNavActive(false);
