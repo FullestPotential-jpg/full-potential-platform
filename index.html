@@ -47,6 +47,13 @@
             display: none !important;
         }
     </style>
+    <script>
+    try {
+        if (localStorage.getItem('fpPlatformTheme') === 'dark') {
+            document.documentElement.classList.add('fp-platform-dark');
+        }
+    } catch (e) {}
+    </script>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0c1028">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -578,9 +585,10 @@
         /* Иначе выпадающее меню профиля обрезается снизу (ноутбук / телефон) */
         .content:has(#platform-screen.active) {
             overflow: visible;
-            background: #080c1c;
         }
-        #platform-screen.active {
+        /* Тёмная тема платформы (включается в профиле) */
+        html.fp-platform-dark .content:has(#platform-screen.active),
+        html.fp-platform-dark #platform-screen.active {
             background: #080c1c;
         }
         
@@ -1129,7 +1137,9 @@
             background: rgba(255, 255, 255, 0.97);
             border: 1px solid rgba(130, 150, 210, 0.14);
             box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
-            transition: row-gap 0.42s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+            transition:
+                row-gap 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.42s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #platform-main {
             margin-top: 4px;
@@ -1137,7 +1147,11 @@
         #platform-screen.platform-screen--goal-open > .platform-header {
             border-radius: 20px;
             row-gap: 0;
-            padding-bottom: 14px;
+            padding: 10px 20px 9px;
+        }
+        #platform-screen.platform-screen--goal-open > .platform-header > .platform-logo--brand {
+            padding-bottom: 5px;
+            font-size: clamp(1.32rem, 3.5vw, 1.62rem);
         }
         #goal-screen > .platform-header {
             box-sizing: border-box;
@@ -1155,6 +1169,7 @@
             grid-row: 1;
             justify-self: start;
             align-self: center;
+            transition: padding-bottom 0.42s cubic-bezier(0.4, 0, 0.2, 1), font-size 0.42s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #platform-screen > .platform-header > .platform-header-tagline-slot {
             grid-column: 1 / -1;
@@ -1442,6 +1457,15 @@
             margin-top: 10px;
         }
 
+        .profile-theme-switch {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            gap: 6px;
+            z-index: 3;
+        }
+
         .profile-lang-switch {
             position: absolute;
             top: 12px;
@@ -1449,6 +1473,31 @@
             display: flex;
             gap: 6px;
             z-index: 3;
+        }
+
+        .profile-theme-btn {
+            min-width: 36px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #d9d9e3;
+            background: #f4f5f9;
+            color: #1a1a2e;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .profile-theme-btn:hover {
+            background: #e8eaf2;
+        }
+
+        .profile-theme-btn.is-active {
+            background: linear-gradient(135deg, #0f1740 0%, #1a2858 100%);
+            color: #fff;
+            border-color: transparent;
         }
 
         .profile-lang-btn {
@@ -3082,6 +3131,11 @@
     }
     #platform-screen.platform-screen--goal-open > .platform-header {
         border-radius: 18px;
+        padding: 8px 12px 7px;
+    }
+    #platform-screen.platform-screen--goal-open > .platform-header > .platform-logo--brand {
+        padding-bottom: 4px;
+        font-size: clamp(1.22rem, 4.8vw, 1.48rem);
     }
     #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
         padding: 10px 14px;
@@ -4874,6 +4928,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             </svg>
                         </div>
                         <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-theme-switch" role="group" data-i18n-aria="platform.theme_group" aria-label="Тема оформления" onclick="event.stopPropagation()">
+                                <button type="button" class="profile-theme-btn" id="fpThemeLight" data-fp-theme="light" onclick="setFpPlatformTheme('light')" data-i18n="platform.theme_light_btn" data-i18n-title="platform.theme_light" title="Светлая тема">Светлая</button>
+                                <button type="button" class="profile-theme-btn" id="fpThemeDark" data-fp-theme="dark" onclick="setFpPlatformTheme('dark')" data-i18n="platform.theme_dark_btn" data-i18n-title="platform.theme_dark" title="Тёмная тема">Тёмная</button>
+                            </div>
                             <div class="profile-lang-switch" role="group" data-i18n-aria="platform.lang_group" aria-label="Язык интерфейса" onclick="event.stopPropagation()">
                                 <button type="button" class="profile-lang-btn" id="fpLangRu" data-fp-lang="ru" onclick="setFpLang('ru')" data-i18n-title="platform.lang_ru" title="Русский">RU</button>
                                 <button type="button" class="profile-lang-btn" id="fpLangEn" data-fp-lang="en" onclick="setFpLang('en')" data-i18n-title="platform.lang_en" title="English">EN</button>
@@ -5112,6 +5170,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'platform.lang_group': 'Язык интерфейса',
             'platform.lang_ru': 'Русский',
             'platform.lang_en': 'English',
+            'platform.theme_group': 'Тема оформления',
+            'platform.theme_light': 'Светлая тема',
+            'platform.theme_dark': 'Тёмная тема',
+            'platform.theme_light_btn': 'Светлая',
+            'platform.theme_dark_btn': 'Тёмная',
             'profile.edit_nick': 'Изменить ник',
             'profile.nick_placeholder': 'Ваш ник (до 32 символов)',
             'profile.save': 'Сохранить',
@@ -5233,6 +5296,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'platform.lang_group': 'Interface language',
             'platform.lang_ru': 'Russian',
             'platform.lang_en': 'English',
+            'platform.theme_group': 'Theme',
+            'platform.theme_light': 'Light theme',
+            'platform.theme_dark': 'Dark theme',
+            'platform.theme_light_btn': 'Light',
+            'platform.theme_dark_btn': 'Dark',
             'profile.edit_nick': 'Edit nickname',
             'profile.nick_placeholder': 'Your nickname (up to 32 characters)',
             'profile.save': 'Save',
@@ -5281,6 +5349,37 @@ document.addEventListener('DOMContentLoaded', function() {
         return (pack && pack[key]) || FP_MSG.ru[key] || key;
     }
 
+    const FP_PLATFORM_THEME_KEY = 'fpPlatformTheme';
+
+    function fpGetPlatformTheme() {
+        try {
+            return localStorage.getItem(FP_PLATFORM_THEME_KEY) === 'dark' ? 'dark' : 'light';
+        } catch (e) {
+            return 'light';
+        }
+    }
+
+    function syncFpThemeButtons() {
+        const theme = fpGetPlatformTheme();
+        document.querySelectorAll('.profile-theme-btn').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-fp-theme') === theme);
+        });
+    }
+
+    function fpApplyPlatformTheme(theme) {
+        theme = theme === 'dark' ? 'dark' : 'light';
+        try {
+            localStorage.setItem(FP_PLATFORM_THEME_KEY, theme);
+        } catch (e) {}
+        document.documentElement.classList.toggle('fp-platform-dark', theme === 'dark');
+        syncFpThemeButtons();
+    }
+
+    function setFpPlatformTheme(theme) {
+        if (theme !== 'dark' && theme !== 'light') return;
+        fpApplyPlatformTheme(theme);
+    }
+
     function syncFpLangButtons() {
         const lang = getFpLang();
         document.querySelectorAll('.profile-lang-btn').forEach(function (btn) {
@@ -5292,6 +5391,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const lang = getFpLang();
         document.documentElement.lang = lang === 'en' ? 'en' : 'ru';
         syncFpLangButtons();
+        syncFpThemeButtons();
         document.querySelectorAll('[data-i18n]').forEach(function (el) {
             const key = el.getAttribute('data-i18n');
             if (key) el.textContent = fpT(key);
@@ -6218,6 +6318,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
+        fpApplyPlatformTheme(fpGetPlatformTheme());
         applyFpI18n();
         initNightScene();
 
