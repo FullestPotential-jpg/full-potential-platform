@@ -5234,7 +5234,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let shootingStarTimer = null;
     let fpShootingStarSeq = 0;
+    let fpBlueGoalStarSeq = 0;
+    let fpBlueStarPending = false;
     let fpGoalOrbitAnimating = false;
+
+    function fpIsMobileViewport() {
+        try {
+            return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+        } catch (e) {
+            return window.innerWidth <= 768;
+        }
+    }
 
     function fpShootingStarsReducedMotion() {
         try {
@@ -5751,16 +5761,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!ctx || fpGoalOrbitAnimating) return false;
 
         const br = ctx.br;
-        const attempts = blueBright ? 56 : 32;
-        for (let attempt = 0; attempt < attempts; attempt++) {
-            const thetaDeg = 20 + Math.random() * 50;
-            const theta = (thetaDeg * Math.PI) / 180;
-            const vx = Math.cos(theta);
-            const vy = Math.sin(theta);
-            if (vy < 0.18) continue;
+        const mobile = fpIsMobileViewport();
+        const attempts = blueBright ? (mobile ? 96 : 56) : mobile ? 48 : 32;
+        const minVy = mobile ? 0.1 : 0.18;
+        const sxPad = mobile ? 150 : 100;
+        const sxSpan = Math.max(window.innerWidth + (mobile ? 340 : 200), mobile ? 560 : 400);
 
-            const sy = -35 - Math.random() * 140;
-            const sx = -100 + Math.random() * (window.innerWidth + 200);
+        for (let attempt = 0; attempt < attempts; attempt++) {
+            let sx;
+            let sy;
+            let vx;
+            let vy;
+
+            if (blueBright && mobile && attempt % 5 === 0) {
+                const cx = (br.left + br.right) * 0.5;
+                sx = cx + (Math.random() - 0.5) * Math.max(96, br.width * 1.4);
+                sy = br.top - 24 - Math.random() * Math.max(140, window.innerHeight * 0.22);
+                const dx = cx - sx;
+                const dy = br.top + br.height * 0.42 - sy;
+                const len = Math.hypot(dx, dy) || 1;
+                vx = dx / len;
+                vy = dy / len;
+            } else {
+                const thetaDeg = 20 + Math.random() * 50;
+                const theta = (thetaDeg * Math.PI) / 180;
+                vx = Math.cos(theta);
+                vy = Math.sin(theta);
+                sy = (mobile ? -18 : -35) - Math.random() * (mobile ? 220 : 140);
+                sx = -sxPad + Math.random() * sxSpan;
+            }
+
+            if (vy < minVy) continue;
 
             const hit = fpRayAabbHit(sx, sy, vx, vy, br.left, br.top, br.right, br.bottom);
             if (!hit || hit.tEnter < 2) continue;
@@ -5785,6 +5816,35 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         }
         return false;
+    }
+
+    /** Каждая 5-я вспышка на экране платформы — яркая голубая к «Моя цель» */
+    function fpMaybeSpawnBlueGoalMeteor() {
+        if (fpShootingStarsReducedMotion()) return false;
+        const ctx = fpGoalOrbitUiContext();
+        if (!ctx || fpGoalOrbitAnimating) return false;
+
+        fpBlueGoalStarSeq += 1;
+        if (fpBlueGoalStarSeq % 5 !== 0) return false;
+
+        if (fpTrySpawnGoalOrbitMeteor({ blueBright: true })) {
+            fpBlueStarPending = false;
+            return true;
+        }
+
+        fpBlueStarPending = true;
+        window.setTimeout(function () {
+            fpFlushPendingBlueGoalMeteor();
+        }, fpIsMobileViewport() ? 260 + Math.random() * 320 : 420 + Math.random() * 480);
+        return false;
+    }
+
+    function fpFlushPendingBlueGoalMeteor() {
+        if (!fpBlueStarPending || fpShootingStarsReducedMotion()) return;
+        if (!fpGoalOrbitUiContext() || fpGoalOrbitAnimating) return;
+        if (fpTrySpawnGoalOrbitMeteor({ blueBright: true })) {
+            fpBlueStarPending = false;
+        }
     }
 
     /** Дополнительный метеор только над блоком с луной (не ломает чередование hero + ночь) */
@@ -5834,11 +5894,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!mskGeoRetryOpts.fpRetryGeo) {
             fpShootingStarSeq += 1;
-        }
-
-        /* Каждая 5-я по счёту «обычная» вспышка — одна яркая голубая к кнопке с полным кругом по контуру */
-        if (!mskGeoRetryOpts.fpRetryGeo && fpShootingStarSeq % 5 === 0) {
-            if (fpTrySpawnGoalOrbitMeteor({ blueBright: true })) {
+            if (fpMaybeSpawnBlueGoalMeteor()) {
                 return;
             }
         }
@@ -6026,6 +6082,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         shootingStarTimer = window.setTimeout(() => {
             spawnShootingStar();
+            if (fpBlueStarPending) {
+                window.setTimeout(fpFlushPendingBlueGoalMeteor, 80 + Math.random() * 220);
+            }
             /* Метеор к кнопке «Моя цель»: каждая вторая подходящая траектория обводит кнопку */
             if (Math.random() < 0.48) {
                 window.setTimeout(fpTrySpawnGoalOrbitMeteor, 120 + Math.random() * 900);
@@ -7415,6 +7474,10 @@ function showScreen(screenId) {
         screen.classList.remove('active');
     });
     document.getElementById(screenId).classList.add('active');
+
+    if (screenId === 'platform-screen') {
+        window.setTimeout(fpFlushPendingBlueGoalMeteor, 350);
+    }
     
     // Обновляем прогресс
     const questionNumber = parseInt(screenId.split('-')[1]);
