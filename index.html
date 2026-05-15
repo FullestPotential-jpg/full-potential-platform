@@ -1163,39 +1163,6 @@
             box-shadow:
                 0 2px 10px rgba(20, 28, 66, 0.06),
                 inset 0 1px 0 rgba(255, 255, 255, 0.65);
-            overflow: hidden;
-            max-height: 5rem;
-            transition:
-                opacity 0.45s ease,
-                max-height 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-                max-width 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-                margin 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-                padding 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-                border-width 0.45s ease,
-                border-color 0.45s ease,
-                background 0.45s ease,
-                box-shadow 0.45s ease;
-        }
-        #platform-screen > .platform-header {
-            transition: padding 0.48s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        #platform-screen.platform-screen--goal-open > .platform-header {
-            padding-top: 14px;
-            padding-bottom: 14px;
-        }
-        #platform-screen.platform-screen--goal-open .platform-header-tagline {
-            opacity: 0;
-            max-height: 0;
-            max-width: 0;
-            flex: 0 0 0;
-            min-width: 0;
-            margin: 0;
-            padding: 0;
-            border-width: 0;
-            border-color: transparent;
-            background: transparent;
-            box-shadow: none;
-            pointer-events: none;
         }
         #platform-screen > .platform-header > .profile-menu {
             flex-shrink: 0;
@@ -1204,7 +1171,6 @@
         /* Подсказка над кнопкой «Моя цель» */
         .platform-goal-hint {
             margin: 0 20px 12px;
-            transition: margin-top 0.48s cubic-bezier(0.22, 1, 0.36, 1);
             padding: 14px 18px;
             text-align: center;
             font-size: clamp(0.88rem, 2.6vw, 1.02rem);
@@ -1218,9 +1184,6 @@
             box-shadow:
                 0 6px 18px rgba(12, 18, 52, 0.08),
                 inset 0 1px 0 rgba(255, 255, 255, 0.85);
-        }
-        #platform-screen.platform-screen--goal-open .platform-goal-hint {
-            margin-top: var(--fp-tagline-slot, 0px);
         }
         .goal-entry-wrap {
             padding: 14px 20px 6px;
@@ -7692,10 +7655,7 @@ async function showResult() {
         updateProfileData();
         showScreen('platform-screen');
         const platformScreen = document.getElementById('platform-screen');
-        if (platformScreen) {
-            platformScreen.classList.remove('platform-screen--goal-open');
-            platformScreen.style.removeProperty('--fp-tagline-slot');
-        }
+        if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
         document.getElementById('goal-screen').style.display = 'none';
         document.getElementById('platform-main').style.display = 'block';
         setGoalNavActive(false);
@@ -7831,29 +7791,10 @@ async function showResult() {
         }
     }
 
-function fpTaglineCollapseOffsetPx() {
-    const tagline = document.querySelector('#platform-screen > .platform-header > .platform-header-tagline');
-    if (!tagline) return 0;
-    const header = tagline.closest('.platform-header');
-    const logo = header && header.querySelector('.platform-logo--brand');
-    if (!logo) return tagline.offsetHeight;
-    const tagRect = tagline.getBoundingClientRect();
-    const logoRect = logo.getBoundingClientRect();
-    if (tagRect.top > logoRect.bottom + 4) {
-        const cs = window.getComputedStyle(header);
-        const rowGap = parseFloat(cs.rowGap, 10) || 10;
-        return tagline.offsetHeight + rowGap;
-    }
-    return 0;
-}
-
 function openGoalScreen(event) {
     if (event) event.preventDefault();
     const platformScreen = document.getElementById('platform-screen');
-    if (platformScreen) {
-        platformScreen.style.setProperty('--fp-tagline-slot', fpTaglineCollapseOffsetPx() + 'px');
-        platformScreen.classList.add('platform-screen--goal-open');
-    }
+    if (platformScreen) platformScreen.classList.add('platform-screen--goal-open');
     document.getElementById('platform-main').style.display = 'none';
     document.getElementById('goal-screen').style.display = 'block';
     setGoalNavActive(true);
@@ -7862,10 +7803,7 @@ function openGoalScreen(event) {
 
 function closeGoalScreen() {
     const platformScreen = document.getElementById('platform-screen');
-    if (platformScreen) {
-        platformScreen.classList.remove('platform-screen--goal-open');
-        platformScreen.style.removeProperty('--fp-tagline-slot');
-    }
+    if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
     document.getElementById('goal-screen').style.display = 'none';
     document.getElementById('platform-main').style.display = 'block';
     setGoalNavActive(false);
