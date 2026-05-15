@@ -3280,7 +3280,7 @@
 
 .chat-avatar-small {
     width: 40px;
-    height: 40px;
+    height: 40px;     
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -4117,42 +4117,34 @@ document.addEventListener('DOMContentLoaded', function() {
                         <clipPath id="mssStarClip">
                             <polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"/>
                         </clipPath>
-                        <linearGradient id="mssTrailOuterG" x1="100" y1="88" x2="100" y2="285" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#a8f8ff" stop-opacity="0.55"/>
-                            <stop offset="35%" stop-color="#3cc8ff" stop-opacity="0.32"/>
-                            <stop offset="100%" stop-color="#004080" stop-opacity="0"/>
-                        </linearGradient>
-                        <linearGradient id="mssTrailGrad" x1="100" y1="86" x2="100" y2="280" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#ffffff"/>
-                            <stop offset="8%" stop-color="#f8feff"/>
-                            <stop offset="22%" stop-color="#b8f4ff"/>
-                            <stop offset="42%" stop-color="#48d4ff"/>
-                            <stop offset="68%" stop-color="#1a90e0"/>
+                        <linearGradient id="mssTrailOuterG" x1="100" y1="94" x2="100" y2="282" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#7af6ff" stop-opacity="0.5"/>
+                            <stop offset="38%" stop-color="#28b8ff" stop-opacity="0.28"/>
                             <stop offset="100%" stop-color="#003878" stop-opacity="0"/>
                         </linearGradient>
-                        <linearGradient id="mssTrailCoreG" x1="100" y1="86" x2="100" y2="248" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#ffffff"/>
-                            <stop offset="18%" stop-color="#ffffff" stop-opacity="0.98"/>
-                            <stop offset="45%" stop-color="#e0ffff"/>
-                            <stop offset="100%" stop-color="#7ae8ff" stop-opacity="0"/>
-                        </linearGradient>
-                        <linearGradient id="mssFacetTL" x1="30%" y1="0%" x2="70%" y2="100%">
-                            <stop offset="0%" stop-color="#ffffff"/>
-                            <stop offset="55%" stop-color="#b8f8ff"/>
-                            <stop offset="100%" stop-color="#5ed8ff"/>
-                        </linearGradient>
-                        <linearGradient id="mssFacetTR" x1="70%" y1="0%" x2="30%" y2="100%">
-                            <stop offset="0%" stop-color="#d8fcff"/>
-                            <stop offset="100%" stop-color="#28b8e8"/>
-                        </linearGradient>
-                        <linearGradient id="mssFacetBot" x1="50%" y1="0%" x2="50%" y2="100%">
-                            <stop offset="0%" stop-color="#1a9ed4"/>
-                            <stop offset="100%" stop-color="#024a78"/>
-                        </linearGradient>
-                        <linearGradient id="mssStarEdgeG" x1="20%" y1="5%" x2="80%" y2="95%" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="mssTrailGrad" x1="100" y1="92" x2="100" y2="278" gradientUnits="userSpaceOnUse">
                             <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-                            <stop offset="40%" stop-color="#d0f8ff" stop-opacity="0.85"/>
-                            <stop offset="100%" stop-color="#00a0d8" stop-opacity="0.5"/>
+                            <stop offset="10%" stop-color="#f4feff" stop-opacity="0.98"/>
+                            <stop offset="26%" stop-color="#9cf0ff" stop-opacity="0.82"/>
+                            <stop offset="48%" stop-color="#30c8ff" stop-opacity="0.45"/>
+                            <stop offset="100%" stop-color="#0060c8" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="mssTrailCoreG" x1="100" y1="92" x2="100" y2="252" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                            <stop offset="28%" stop-color="#e8ffff" stop-opacity="0.95"/>
+                            <stop offset="100%" stop-color="#5ee8ff" stop-opacity="0"/>
+                        </linearGradient>
+                        <radialGradient id="mssStarBodyG" cx="34%" cy="26%" r="78%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="22%" stop-color="#e8fdff"/>
+                            <stop offset="50%" stop-color="#4adfff"/>
+                            <stop offset="82%" stop-color="#0590c8"/>
+                            <stop offset="100%" stop-color="#024a72"/>
+                        </radialGradient>
+                        <linearGradient id="mssStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                            <stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>
+                            <stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>
                         </linearGradient>
                         <linearGradient id="mssShimmerGrad" x1="0%" y1="50%" x2="100%" y2="50%">
                             <stop offset="0%" stop-color="transparent"/>
@@ -4172,19 +4164,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     <g class="mss-rocket__trail">
                         <g class="mss-trail-fx">
                             <path
-                                d="M100 88 Q155 98 142 152 L120 284 Q100 294 80 284 L58 152 Q45 98 100 88 Z"
+                                d="M100 92 Q148 100 138 148 L118 282 Q100 292 82 282 L62 148 Q52 100 100 92 Z"
                                 fill="url(#mssTrailOuterG)"
-                                opacity="0.78"
+                                opacity="0.82"
                                 filter="url(#mssTrailBlur)"/>
                             <path
-                                d="M100 86 Q142 92 132 140 L108 274 Q100 282 92 274 L68 140 Q58 92 100 86 Z"
+                                d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z"
                                 fill="url(#mssTrailGrad)"
-                                opacity="0.97"/>
+                                opacity="0.98"/>
                             <path
                                 class="mss-trail-core"
-                                d="M100 86 Q118 90 114 122 L102 258 Q100 264 98 258 L86 122 Q82 90 100 86 Z"
+                                d="M100 90 Q120 94 116 128 L104 256 Q100 262 96 256 L84 128 Q80 94 100 90 Z"
                                 fill="url(#mssTrailCoreG)"
-                                opacity="0.96"/>
+                                opacity="0.94"/>
                             <g class="mss-trail-sparks" fill="#ffffff">
                                 <circle cx="93" cy="128" r="1.35"/>
                                 <circle cx="107" cy="152" r="1.05"/>
@@ -4199,24 +4191,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     </g>
                     <g class="mss-star-stack">
                         <g filter="url(#mssStarGlow)">
-                            <polygon
-                                points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"
-                                fill="#011e38"
-                                opacity="0.85"
-                                transform="translate(0 2)"/>
-                            <g clip-path="url(#mssStarClip)">
-                                <polygon points="100,20 113,53 100,99 69,120 77,82 50,58" fill="url(#mssFacetTL)"/>
-                                <polygon points="100,20 150,58 123,82 131,120 100,99 113,53" fill="url(#mssFacetTR)"/>
-                                <polygon points="100,99 69,120 77,82 50,58 87,53 113,53 150,58 123,82 131,120" fill="url(#mssFacetBot)"/>
+                            <g transform="translate(100 70) scale(1.045) translate(-100 -70)">
+                                <polygon
+                                    points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"
+                                    fill="#012d4a"
+                                    opacity="0.72"/>
                             </g>
                             <polygon
                                 class="mss-star-body"
                                 points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"
+                                fill="url(#mssStarBodyG)"/>
+                            <polygon
+                                points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"
                                 fill="none"
                                 stroke="url(#mssStarEdgeG)"
-                                stroke-width="1.2"
+                                stroke-width="1.15"
                                 stroke-linejoin="round"
-                                opacity="0.92"/>
+                                opacity="0.88"/>
                             <g clip-path="url(#mssStarClip)">
                                 <rect
                                     class="mss-star-shimmer-rect"
