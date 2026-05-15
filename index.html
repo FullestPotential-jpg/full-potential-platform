@@ -23,13 +23,27 @@
             #mobileStarSplash.mobile-star-splash {
                 display: none !important;
             }
+            #desktopStarSplash.mobile-star-splash:not(.mobile-star-splash--closed) {
+                position: fixed !important;
+                inset: 0 !important;
+                z-index: 2147483646 !important;
+                display: flex !important;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: center;
+                pointer-events: none;
+                opacity: 1;
+                background: #030510;
+            }
         }
         @media (prefers-reduced-motion: reduce) {
-            #mobileStarSplash.mobile-star-splash {
+            #mobileStarSplash.mobile-star-splash,
+            #desktopStarSplash.mobile-star-splash {
                 display: none !important;
             }
         }
-        #mobileStarSplash.mobile-star-splash.mobile-star-splash--closed {
+        #mobileStarSplash.mobile-star-splash.mobile-star-splash--closed,
+        #desktopStarSplash.mobile-star-splash.mobile-star-splash--closed {
             display: none !important;
         }
     </style>
@@ -737,9 +751,11 @@
             margin: 0 auto;
         }
 
-        /* Заставка (только телефон): большая голубая звезда-ракета — ~0.4 с «висит», ~1 с взлёт, конец у верхнего края */
+        /* Заставка: голубая звезда-ракета — ~0.4 с «висит», ~1 с взлёт (телефон и ПК) */
         html.fp-mobile-splash-lock,
-        html.fp-mobile-splash-lock body {
+        html.fp-mobile-splash-lock body,
+        html.fp-entry-splash-lock,
+        html.fp-entry-splash-lock body {
             overflow: hidden;
             height: 100%;
             touch-action: none;
@@ -762,9 +778,16 @@
             }
         }
         @media (min-width: 769px) {
-            .mobile-star-splash {
+            #mobileStarSplash.mobile-star-splash {
                 display: none !important;
             }
+            #desktopStarSplash.mobile-star-splash:not(.mobile-star-splash--closed) {
+                display: flex;
+            }
+        }
+        #desktopStarSplash .mss-rocket {
+            width: min(28vw, 280px);
+            top: 70%;
         }
         .mobile-star-splash--closed {
             display: none !important;
@@ -1178,6 +1201,15 @@
         }
         .goal-entry-btn__ic svg {
             display: block;
+        }
+        .goal-entry-btn__ic--lit {
+            filter:
+                drop-shadow(0 0 10px rgba(56, 189, 248, 0.95))
+                drop-shadow(0 0 22px rgba(34, 211, 238, 0.85))
+                drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+        }
+        .goal-entry-btn__ic--lit svg {
+            filter: brightness(1.4) saturate(1.15);
         }
         .goal-entry-btn__txt {
             flex: 1;
@@ -4232,13 +4264,103 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+    <!-- Заставка (ПК): та же анимация, что на телефоне -->
+    <div id="desktopStarSplash" class="mobile-star-splash" aria-hidden="true">
+        <div class="mobile-star-splash__veil"></div>
+        <div class="mobile-star-splash__scene" aria-hidden="true">
+            <div class="mss-rocket" id="fpDesktopMssRocket">
+                <svg class="mss-rocket__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">
+                    <defs>
+                        <clipPath id="dskStarClip">
+                            <polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"/>
+                        </clipPath>
+                        <linearGradient id="dskTrailOuterG" x1="100" y1="94" x2="100" y2="282" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#7af6ff" stop-opacity="0.5"/>
+                            <stop offset="38%" stop-color="#28b8ff" stop-opacity="0.28"/>
+                            <stop offset="100%" stop-color="#003878" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="dskTrailGrad" x1="100" y1="92" x2="100" y2="278" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                            <stop offset="10%" stop-color="#f4feff" stop-opacity="0.98"/>
+                            <stop offset="26%" stop-color="#9cf0ff" stop-opacity="0.82"/>
+                            <stop offset="48%" stop-color="#30c8ff" stop-opacity="0.45"/>
+                            <stop offset="100%" stop-color="#0060c8" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="dskTrailCoreG" x1="100" y1="92" x2="100" y2="252" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                            <stop offset="28%" stop-color="#e8ffff" stop-opacity="0.95"/>
+                            <stop offset="100%" stop-color="#5ee8ff" stop-opacity="0"/>
+                        </linearGradient>
+                        <radialGradient id="dskStarBodyG" cx="34%" cy="26%" r="78%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="22%" stop-color="#e8fdff"/>
+                            <stop offset="50%" stop-color="#4adfff"/>
+                            <stop offset="82%" stop-color="#0590c8"/>
+                            <stop offset="100%" stop-color="#024a72"/>
+                        </radialGradient>
+                        <linearGradient id="dskStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                            <stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>
+                            <stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>
+                        </linearGradient>
+                        <linearGradient id="dskShimmerGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+                            <stop offset="0%" stop-color="transparent"/>
+                            <stop offset="42%" stop-color="rgba(255,255,255,0.62)"/>
+                            <stop offset="58%" stop-color="rgba(180,245,255,0.45)"/>
+                            <stop offset="100%" stop-color="transparent"/>
+                        </linearGradient>
+                        <filter id="dskTrailBlur" x="-35%" y="-8%" width="170%" height="115%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="2.8" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <filter id="dskStarGlow" x="-70%" y="-70%" width="240%" height="240%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <g class="mss-rocket__trail">
+                        <g class="mss-trail-fx">
+                            <path d="M100 92 Q148 100 138 148 L118 282 Q100 292 82 282 L62 148 Q52 100 100 92 Z" fill="url(#dskTrailOuterG)" opacity="0.82" filter="url(#dskTrailBlur)"/>
+                            <path d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z" fill="url(#dskTrailGrad)" opacity="0.98"/>
+                            <path class="mss-trail-core" d="M100 90 Q120 94 116 128 L104 256 Q100 262 96 256 L84 128 Q80 94 100 90 Z" fill="url(#dskTrailCoreG)" opacity="0.94"/>
+                            <g class="mss-trail-sparks" fill="#ffffff">
+                                <circle cx="93" cy="128" r="1.35"/><circle cx="107" cy="152" r="1.05"/>
+                                <circle cx="96" cy="188" r="1.25"/><circle cx="104" cy="208" r="0.95"/>
+                                <circle cx="90" cy="228" r="1.05"/><circle cx="110" cy="244" r="1.15"/>
+                                <circle cx="100" cy="172" r="1.35"/><circle cx="98" cy="262" r="0.8"/>
+                            </g>
+                        </g>
+                    </g>
+                    <g class="mss-star-stack">
+                        <g filter="url(#dskStarGlow)">
+                            <g transform="translate(100 70) scale(1.045) translate(-100 -70)">
+                                <polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="#012d4a" opacity="0.72"/>
+                            </g>
+                            <polygon class="mss-star-body" points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="url(#dskStarBodyG)"/>
+                            <polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="none" stroke="url(#dskStarEdgeG)" stroke-width="1.15" stroke-linejoin="round" opacity="0.88"/>
+                            <g clip-path="url(#dskStarClip)">
+                                <rect class="mss-star-shimmer-rect" x="-30" y="-5" width="200" height="140" fill="url(#dskShimmerGrad)" opacity="0.42" style="mix-blend-mode: screen"/>
+                            </g>
+                        </g>
+                        <g class="mss-star-sparkles" fill="#ffffff">
+                            <circle cx="88" cy="48" r="0.9"/><circle cx="104" cy="38" r="0.65"/><circle cx="118" cy="56" r="0.75"/>
+                            <circle cx="96" cy="62" r="0.55"/><circle cx="112" cy="72" r="0.5"/><circle cx="82" cy="58" r="0.45"/>
+                            <circle cx="124" cy="68" r="0.55"/><circle cx="74" cy="72" r="0.4"/><circle cx="108" cy="88" r="0.48"/>
+                            <circle cx="94" cy="92" r="0.42"/><circle cx="100" cy="52" r="0.38"/><circle cx="130" cy="82" r="0.5"/>
+                            <circle cx="68" cy="88" r="0.42"/><circle cx="118" cy="98" r="0.36"/>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
     <script>
     (function () {
-        function fpMobileStarSplashRun() {
-            var el = document.getElementById('mobileStarSplash');
-            var rocket = document.getElementById('fpMssRocket');
+        function fpEntryStarSplashRun(splashId, rocketId, mediaQuery) {
+            var el = document.getElementById(splashId);
+            var rocket = document.getElementById(rocketId);
             if (!el) return;
-            if (!window.matchMedia || !window.matchMedia('(max-width: 768px)').matches) {
+            if (!window.matchMedia || !window.matchMedia(mediaQuery).matches) {
                 el.classList.add('mobile-star-splash--closed');
                 return;
             }
@@ -4246,13 +4368,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.classList.add('mobile-star-splash--closed');
                 return;
             }
-            document.documentElement.classList.add('fp-mobile-splash-lock');
+            document.documentElement.classList.add('fp-mobile-splash-lock', 'fp-entry-splash-lock');
             el.classList.add('mobile-star-splash--on');
 
             function cleanup() {
                 el.classList.add('mobile-star-splash--closed');
                 el.classList.remove('mobile-star-splash--on', 'mobile-star-splash--exit');
-                document.documentElement.classList.remove('fp-mobile-splash-lock');
+                document.documentElement.classList.remove('fp-mobile-splash-lock', 'fp-entry-splash-lock');
             }
             function fadeOut() {
                 if (el.classList.contains('mobile-star-splash--closed')) return;
@@ -4279,10 +4401,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             window.setTimeout(fadeOut, 2000);
         }
+        function fpRunEntrySplashes() {
+            fpEntryStarSplashRun('mobileStarSplash', 'fpMssRocket', '(max-width: 768px)');
+            fpEntryStarSplashRun('desktopStarSplash', 'fpDesktopMssRocket', '(min-width: 769px)');
+        }
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', fpMobileStarSplashRun);
+            document.addEventListener('DOMContentLoaded', fpRunEntrySplashes);
         } else {
-            fpMobileStarSplashRun();
+            fpRunEntrySplashes();
         }
     })();
     </script>
@@ -4633,13 +4759,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="goal-entry-btn__ic" aria-hidden="true">
                             <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
-                                    <linearGradient id="fpGoalStarFill" x1="5" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="#fff8e0"/>
-                                        <stop offset="0.5" stop-color="#e8c170"/>
-                                        <stop offset="1" stop-color="#b8924a"/>
+                                    <radialGradient id="fpGoalStarBodyG" cx="34%" cy="26%" r="78%">
+                                        <stop offset="0%" stop-color="#ffffff"/>
+                                        <stop offset="22%" stop-color="#e8fdff"/>
+                                        <stop offset="50%" stop-color="#4adfff"/>
+                                        <stop offset="82%" stop-color="#0590c8"/>
+                                        <stop offset="100%" stop-color="#024a72"/>
+                                    </radialGradient>
+                                    <linearGradient id="fpGoalStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                                        <stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>
+                                        <stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>
                                     </linearGradient>
                                 </defs>
-                                <path d="M12 3.15 14.42 9.2h6.48l-5.23 3.8 2 6.15L12 16.85 8.33 19.15l2-6.15L5.1 9.2h6.48L12 3.15z" fill="url(#fpGoalStarFill)" stroke="rgba(255,255,255,0.35)" stroke-width="0.45" stroke-linejoin="round"/>
+                                <polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="#012d4a" opacity="0.55" transform="translate(12 12) scale(1.04) translate(-12 -12)"/>
+                                <polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="url(#fpGoalStarBodyG)"/>
+                                <polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="none" stroke="url(#fpGoalStarEdgeG)" stroke-width="0.4" stroke-linejoin="round" opacity="0.9"/>
                             </svg>
                         </span>
                         <span class="goal-entry-btn__txt" data-i18n="goal.nav_btn_label">Моя цель</span>
@@ -5047,6 +5182,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return cornerR;
     }
 
+    /** Подсветка звезды на кнопке «Моя цель» после попадания метеора */
+    function fpPulseGoalNavStar(durationMs) {
+        const btn = document.getElementById('goalNavItem');
+        if (!btn) return;
+        const ic = btn.querySelector('.goal-entry-btn__ic');
+        if (!ic) return;
+        const ms = durationMs || 3000;
+        ic.classList.add('goal-entry-btn__ic--lit');
+        if (fpPulseGoalNavStar._timer) clearTimeout(fpPulseGoalNavStar._timer);
+        fpPulseGoalNavStar._timer = window.setTimeout(function () {
+            ic.classList.remove('goal-entry-btn__ic--lit');
+            fpPulseGoalNavStar._timer = null;
+        }, ms);
+    }
+
     /** Платформа открыта, кнопка «Моя цель» видна — можно перехватывать метеоры */
     function fpGoalOrbitUiContext() {
         const ps = document.getElementById('platform-screen');
@@ -5382,6 +5532,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dur1,
             fpEaseOutQuad,
             function afterApproach() {
+                fpPulseGoalNavStar(3000);
                 const loopWorld = fpPolylineFromLoop(path, startIdx, dir);
                 const loopLayer = loopWorld.map(function (p) {
                     return toLayer(p.x, p.y);
