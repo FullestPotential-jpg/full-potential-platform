@@ -1164,6 +1164,41 @@
             border: 1px solid rgba(130, 150, 210, 0.14);
             box-shadow: 0 2px 12px rgba(12, 18, 52, 0.07);
         }
+        .goal-screen-back-btn {
+            flex: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            min-width: auto;
+            padding: 10px 16px;
+            border: 1px solid rgba(130, 150, 210, 0.32);
+            border-radius: 14px;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            background-color: #0a0e28;
+            background-image:
+                radial-gradient(1px 1px at 18% 28%, rgba(255,255,255,0.92), transparent),
+                radial-gradient(1px 1px at 72% 68%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1.5px 1.5px at 48% 42%, rgba(255,255,255,0.78), transparent),
+                linear-gradient(165deg, #060818 0%, #0f1438 52%, #141e48 100%);
+            box-shadow: 0 6px 16px rgba(8, 12, 42, 0.32), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .goal-screen-back-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(8, 12, 42, 0.38), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .goal-screen-back-btn__arrow {
+            display: block;
+            font-size: 1.35rem;
+            line-height: 1;
+            letter-spacing: 0;
+        }
+        .goal-screen-back-btn__label {
+            display: none;
+        }
         #platform-screen > .platform-header > .platform-logo--brand {
             grid-column: 1;
             grid-row: 1;
@@ -1445,7 +1480,7 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 44px 16px 12px;
+            padding: 48px 16px 12px;
             min-width: 300px;
             max-width: min(100vw - 24px, 360px);
             max-height: min(90vh, 560px);
@@ -1462,8 +1497,11 @@
             top: 12px;
             left: 12px;
             display: flex;
-            gap: 6px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 5px;
             z-index: 3;
+            max-width: 88px;
         }
 
         .profile-lang-switch {
@@ -1476,7 +1514,8 @@
         }
 
         .profile-theme-btn {
-            min-width: 36px;
+            min-width: 0;
+            width: 100%;
             padding: 6px 10px;
             border-radius: 8px;
             border: 1px solid #d9d9e3;
@@ -3152,6 +3191,14 @@
         margin: 8px auto 0;
         padding: 12px 10px;
         border-radius: 18px;
+    }
+    #goal-screen .goal-screen-back-btn {
+        padding: 8px 11px;
+        min-width: 40px;
+        border-radius: 12px;
+    }
+    #goal-screen .goal-screen-back-btn__arrow {
+        font-size: 1.22rem;
     }
 
     .platform-goal-hint {
@@ -5032,7 +5079,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <div id="goal-screen" style="display: none;">
                     <div class="platform-header">
-                        <button onclick="closeGoalScreen()" style="background: #6c757d; padding: 14px 28px; border-radius: 20px; flex: none; width: auto; min-width: auto; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" data-i18n="goal.back">← Назад</button>
+                        <button type="button" class="goal-screen-back-btn" onclick="closeGoalScreen()" data-i18n-title="goal.back" title="Назад" aria-label="Назад">
+                            <span class="goal-screen-back-btn__arrow" aria-hidden="true">←</span>
+                            <span class="goal-screen-back-btn__label" data-i18n="goal.back">Назад</span>
+                        </button>
                         <div class="platform-logo" data-i18n="goal.screen_title">Моя цель</div>
                         <div style="width: 45px;"></div>
                     </div>
