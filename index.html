@@ -6122,59 +6122,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return 1 - (1 - t) * (1 - t);
     }
 
-    function fpPolylineLength(pts) {
-        let total = 0;
-        for (let i = 1; i < pts.length; i++) {
-            total += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
-        }
-        return total;
-    }
-
-    /** Кубическая Безье — дуга подлёта (не прямой луч) */
-    function fpSampleCubicBezier(p0, c1, c2, p3, segments) {
-        const pts = [];
-        const n = Math.max(8, segments | 0);
-        for (let i = 0; i <= n; i++) {
-            const t = i / n;
-            const u = 1 - t;
-            const a = u * u * u;
-            const b = 3 * u * u * t;
-            const c = 3 * u * t * t;
-            const d = t * t * t;
-            pts.push({
-                x: a * p0.x + b * c1.x + c * c2.x + d * p3.x,
-                y: a * p0.y + b * c1.y + c * c2.y + d * p3.y
-            });
-        }
-        return pts;
-    }
-
-    /**
-     * Дуга подлёта к кнопке: касательная в начале и в точке удара по направлению полёта,
-     * лёгкий изгиб «как у реального метеора» (гравитация / сопротивление).
-     */
-    function fpBuildMeteorApproachCurve(pStart, pHit, vx, vy) {
-        const vlen = Math.hypot(vx, vy) || 1;
-        const ux = vx / vlen;
-        const uy = vy / vlen;
-        const perpX = -uy;
-        const perpY = ux;
-        const chord = Math.hypot(pHit.x - pStart.x, pHit.y - pStart.y);
-        const pull = chord * 0.4;
-        const bulge = chord * (0.14 + Math.random() * 0.07);
-        const side = perpY >= 0 ? bulge : -bulge;
-
-        const c1 = {
-            x: pStart.x + ux * pull * 0.62 + perpX * side * 0.45,
-            y: pStart.y + uy * pull * 0.62 + perpY * side * 0.45
-        };
-        const c2 = {
-            x: pHit.x - ux * pull * 0.55 + perpX * side,
-            y: pHit.y - uy * pull * 0.55 + perpY * side
-        };
-        return fpSampleCubicBezier(pStart, c1, c2, pHit, fpIsMobileViewport() ? 26 : 34);
-    }
-
     function fpPlaceMeteorHead(el, headX, headY, angleRad) {
         const w = el.offsetWidth || 90;
         const tx = headX - Math.cos(angleRad) * w;
@@ -6268,25 +6215,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const pStart = toLayer(sx, sy);
         const pHit = toLayer(ex, ey);
-        const approachPts = opts.blueBright
-            ? fpBuildMeteorApproachCurve(pStart, pHit, vx, vy)
-            : [pStart, pHit];
-        const approachLen = fpPolylineLength(approachPts);
-        const dur1 = fpClamp(approachLen / 480, 0.34, 0.68) * 1000;
+        const approachLen = Math.hypot(pHit.x - pStart.x, pHit.y - pStart.y);
+        const dur1 = fpClamp(approachLen / 520, 0.32, 0.62) * 1000;
 
         function finish() {
             el.remove();
             fpGoalOrbitAnimating = false;
         }
 
-        const pAim = approachPts[1] || pHit;
-        const angApproach = Math.atan2(pAim.y - pStart.y, pAim.x - pStart.x);
+        const angApproach = Math.atan2(pHit.y - pStart.y, pHit.x - pStart.x);
         fpPlaceMeteorHead(el, pStart.x, pStart.y, angApproach);
         void el.offsetWidth;
 
         fpAnimateHeadAlongPolyline(
             el,
-            approachPts,
+            [pStart, pHit],
             dur1,
             fpEaseOutQuad,
             function afterApproach() {
@@ -6337,28 +6280,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const sxSpan = Math.max(window.innerWidth + (mobile ? 340 : 200), mobile ? 560 : 400);
 
         for (let attempt = 0; attempt < attempts; attempt++) {
-            let sx;
-            let sy;
-            let vx;
-            let vy;
-
-            if (blueBright && mobile && attempt % 5 === 0) {
-                const cx = (br.left + br.right) * 0.5;
-                sx = cx + (Math.random() - 0.5) * Math.max(96, br.width * 1.4);
-                sy = br.top - 24 - Math.random() * Math.max(140, window.innerHeight * 0.22);
-                const dx = cx - sx;
-                const dy = br.top + br.height * 0.42 - sy;
-                const len = Math.hypot(dx, dy) || 1;
-                vx = dx / len;
-                vy = dy / len;
-            } else {
-                const thetaDeg = 20 + Math.random() * 50;
-                const theta = (thetaDeg * Math.PI) / 180;
-                vx = Math.cos(theta);
-                vy = Math.sin(theta);
-                sy = (mobile ? -18 : -35) - Math.random() * (mobile ? 220 : 140);
-                sx = -sxPad + Math.random() * sxSpan;
-            }
+            /* Тот же угол, что у обычных метеоров над сценой (~18°–62° к горизонту) */
+            const thetaDeg = 18 + Math.pow(Math.random(), 0.85) * 44;
+            const theta = (thetaDeg * Math.PI) / 180;
+            const vx = Math.cos(theta);
+            const vy = Math.sin(theta);
+            const sy = (mobile ? -18 : -35) - Math.random() * (mobile ? 220 : 140);
+            const sx = -sxPad + Math.random() * sxSpan;
 
             if (vy < minVy) continue;
 
