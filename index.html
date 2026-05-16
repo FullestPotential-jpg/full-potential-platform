@@ -4644,7 +4644,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </head>
 <body>
-    <!-- Заставка (телефон): голубая звезда-ракета — ~0.4 с цикл, ~1 с взлёт; конец по animationend -->
+    <!-- Заставка: звезда-ракета взлетает ~1.4 с; приложение открывается сразу по окончании (без паузы fade) -->
     <div id="mobileStarSplash" class="mobile-star-splash" aria-hidden="true">
         <div class="mobile-star-splash__veil"></div>
         <div class="mobile-star-splash__scene" aria-hidden="true">
@@ -4876,36 +4876,30 @@ document.addEventListener('DOMContentLoaded', function() {
             document.documentElement.classList.add('fp-mobile-splash-lock', 'fp-entry-splash-lock');
             el.classList.add('mobile-star-splash--on');
 
+            var splashDone = false;
+            var fallbackTimer;
             function cleanup() {
                 el.classList.add('mobile-star-splash--closed');
                 el.classList.remove('mobile-star-splash--on', 'mobile-star-splash--exit');
                 document.documentElement.classList.remove('fp-mobile-splash-lock', 'fp-entry-splash-lock');
             }
-            function fadeOut() {
-                if (el.classList.contains('mobile-star-splash--closed')) return;
-                el.classList.add('mobile-star-splash--exit');
-                function onFade(ev) {
-                    if (ev && ev.propertyName !== 'opacity') return;
-                    el.removeEventListener('transitionend', onFade);
-                    cleanup();
-                }
-                el.addEventListener('transitionend', onFade);
-                window.setTimeout(function () {
-                    if (el.classList.contains('mobile-star-splash--closed')) return;
-                    el.removeEventListener('transitionend', onFade);
-                    cleanup();
-                }, 500);
+            function finishSplash() {
+                if (splashDone) return;
+                splashDone = true;
+                if (fallbackTimer) window.clearTimeout(fallbackTimer);
+                if (rocket) rocket.removeEventListener('animationend', onRocketAnim);
+                cleanup();
             }
             function onRocketAnim(ev) {
                 if (!ev || ev.target !== rocket) return;
                 if (ev.animationName !== 'mss-rocket-launch' && ev.animationName !== 'mss-rocket-launch-mobile') return;
-                rocket.removeEventListener('animationend', onRocketAnim);
-                fadeOut();
+                finishSplash();
             }
             if (rocket) {
                 rocket.addEventListener('animationend', onRocketAnim);
             }
-            window.setTimeout(fadeOut, 2000);
+            /* 1.4s взлёт + небольшой запас; без fadeOut — приложение сразу после ухода звезды */
+            fallbackTimer = window.setTimeout(finishSplash, 1480);
         }
         function fpRunEntrySplashes() {
             fpEntryStarSplashRun('mobileStarSplash', 'fpMssRocket', '(max-width: 768px)');
