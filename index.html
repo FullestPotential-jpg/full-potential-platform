@@ -576,6 +576,9 @@
             overflow: hidden;
             border-bottom: 1px solid rgba(100, 120, 200, 0.15);
         }
+        .progress-container[hidden] {
+            display: none !important;
+        }
         
         .progress-bar {
             height: 100%;
@@ -4813,7 +4816,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <h1 class="hero-title">Full <span class="hero-word-accent">Potentiall</span></h1>
         </header>
         
-        <div class="progress-container">
+        <div class="progress-container" id="progress-container" hidden>
             <div class="progress-bar" id="progress-bar"></div>
         </div>
         
@@ -7861,14 +7864,21 @@ function showScreen(screenId) {
     });
     document.getElementById(screenId).classList.add('active');
 
+    const progressContainer = document.getElementById('progress-container');
+    const isQuestionScreen = /^question-\d+$/.test(screenId);
+    if (progressContainer) {
+        progressContainer.hidden = !isQuestionScreen;
+    }
+
     if (screenId === 'platform-screen') {
         window.setTimeout(fpFlushPendingBlueGoalMeteor, 350);
     }
-    
-    // Обновляем прогресс
-    const questionNumber = parseInt(screenId.split('-')[1]);
-    if (!isNaN(questionNumber)) {
-        updateProgress((questionNumber / 12) * 100);
+
+    if (isQuestionScreen) {
+        const questionNumber = parseInt(screenId.split('-')[1], 10);
+        if (!isNaN(questionNumber)) {
+            updateProgress((questionNumber / 12) * 100);
+        }
     }
 }
 
