@@ -1034,7 +1034,61 @@
         .mobile-star-splash--on .mss-rocket {
             animation: mss-rocket-launch 1.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
         }
-        /* Телефон: без мерцания filter/opacity на десятках SVG-узлов — только взлёт ракеты (compositor) */
+        /* Телефон: живой огонь (opacity/transform), без filter-анимаций на звезде */
+        @keyframes mss-flame-flicker-mobile {
+            0%,
+            100% {
+                opacity: 0.9;
+                transform: scaleY(1);
+            }
+            25% {
+                opacity: 1;
+                transform: scaleY(1.1);
+            }
+            50% {
+                opacity: 0.84;
+                transform: scaleY(0.93);
+            }
+            75% {
+                opacity: 1;
+                transform: scaleY(1.06);
+            }
+        }
+        @keyframes mss-trail-core-pulse-mobile {
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        @keyframes mss-spark-twinkle-mobile {
+            0%,
+            100% {
+                opacity: 0.18;
+                transform: scale(0.62);
+            }
+            42% {
+                opacity: 1;
+                transform: scale(1.12);
+            }
+            72% {
+                opacity: 0.48;
+                transform: scale(0.88);
+            }
+        }
+        @keyframes mss-trail-hover-mobile {
+            0%,
+            100% {
+                transform: scaleY(1);
+                opacity: 0.9;
+            }
+            50% {
+                transform: scaleY(1.14);
+                opacity: 1;
+            }
+        }
         @media (max-width: 768px) {
             .mobile-star-splash__veil {
                 background: linear-gradient(168deg, #030510 0%, #0a0f28 38%, #101a48 100%);
@@ -1045,16 +1099,26 @@
             .mss-rocket {
                 filter: drop-shadow(0 0 22px rgba(130, 240, 255, 0.65));
             }
-            .mobile-star-splash--on .mss-trail-fx,
-            .mobile-star-splash--on .mss-trail-core,
-            .mobile-star-splash--on .mss-trail-sparks circle,
+            .mobile-star-splash--on .mss-trail-fx {
+                transform-origin: 50% 8%;
+                will-change: transform, opacity;
+                animation: mss-flame-flicker-mobile 0.1s ease-in-out infinite;
+            }
+            .mobile-star-splash--on .mss-trail-core {
+                animation: mss-trail-core-pulse-mobile 0.09s ease-in-out infinite alternate;
+            }
+            .mobile-star-splash--on .mss-trail-sparks circle {
+                animation: mss-spark-twinkle-mobile 0.2s ease-in-out infinite;
+            }
             .mobile-star-splash--on .mss-star-shimmer-rect,
             .mobile-star-splash--on .mss-star-body,
             .mobile-star-splash--on .mss-star-sparkles circle {
                 animation: none !important;
             }
             .mobile-star-splash--on .mss-rocket__trail {
-                animation: mss-trail-launch 1s cubic-bezier(0.25, 0.85, 0.35, 1) 0.4s forwards;
+                animation:
+                    mss-trail-hover-mobile 0.1s ease-in-out 4 alternate,
+                    mss-trail-launch 1s cubic-bezier(0.25, 0.85, 0.35, 1) 0.4s forwards;
             }
             @keyframes mss-rocket-launch-mobile {
                 0% {
