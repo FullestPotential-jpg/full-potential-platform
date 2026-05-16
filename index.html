@@ -1175,19 +1175,17 @@
             background: rgba(255, 255, 255, 0.97);
             border: 1px solid rgba(130, 150, 210, 0.14);
             box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
-            transition: row-gap 0.42s cubic-bezier(0.4, 0, 0.2, 1);
             align-items: start;
-        }
-        #platform-main {
-            margin-top: 4px;
-        }
-        @media (min-width: 769px) {
-            #platform-screen.platform-screen--goal-open > .platform-header {
-                row-gap: 0;
-            }
         }
         #platform-screen.platform-screen--goal-open > .platform-header {
             border-radius: 20px;
+            row-gap: 0;
+        }
+        #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
+            display: none;
+        }
+        #platform-main {
+            margin-top: 4px;
         }
         #goal-screen > .platform-header {
             box-sizing: border-box;
@@ -1246,16 +1244,8 @@
             grid-row: 2;
             width: 100%;
             min-width: 0;
-            display: grid;
-            grid-template-rows: 1fr;
+            display: block;
             overflow: hidden;
-            transition: grid-template-rows 0.42s cubic-bezier(0.4, 0, 0.2, 1);
-            contain: layout style;
-        }
-        @media (min-width: 769px) {
-            #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
-                grid-template-rows: 0fr;
-            }
         }
         .platform-header-tagline {
             position: relative;
@@ -1265,10 +1255,6 @@
             padding: 11px 28px 11px 32px;
             overflow: hidden;
             isolation: isolate;
-            transition: opacity 0.32s ease;
-            transform: translateZ(0);
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
             text-align: center;
             font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
             font-size: clamp(0.98rem, 2.55vw, 1.16rem);
@@ -1278,21 +1264,12 @@
             line-height: 1.38;
             border-radius: 999px;
             border: 1px solid rgba(120, 165, 255, 0.42);
-            color: transparent;
-            background-image: linear-gradient(
-                112deg,
-                #f4f7ff 0%,
-                #c5d4ff 38%,
-                #9eb8ff 62%,
-                #e8eeff 100%
-            );
-            -webkit-background-clip: text;
-            background-clip: text;
+            color: #e8f0ff;
+            text-shadow: 0 0 18px rgba(140, 185, 255, 0.35);
             box-shadow:
                 0 6px 22px rgba(20, 32, 88, 0.14),
                 0 0 28px rgba(72, 110, 220, 0.12),
                 inset 0 1px 0 rgba(255, 255, 255, 0.14);
-            filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.2));
         }
         .platform-header-tagline::before {
             content: '';
@@ -1322,12 +1299,6 @@
             text-shadow: 0 0 10px rgba(140, 190, 255, 0.75);
             pointer-events: none;
         }
-        @media (min-width: 769px) {
-            #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
-                opacity: 0;
-                pointer-events: none;
-            }
-        }
         #platform-screen > .platform-header > .profile-menu {
             grid-column: 2;
             grid-row: 1;
@@ -1353,21 +1324,11 @@
             letter-spacing: 0.045em;
             border-radius: 18px;
             border: 1px solid rgba(110, 150, 235, 0.38);
-            color: transparent;
-            background-image: linear-gradient(
-                118deg,
-                #121c4e 0%,
-                #2d4aa8 42%,
-                #3859c9 58%,
-                #1a2860 100%
-            );
-            -webkit-background-clip: text;
-            background-clip: text;
+            color: #1a2d6e;
             box-shadow:
                 0 8px 28px rgba(14, 22, 62, 0.11),
                 0 0 0 1px rgba(255, 255, 255, 0.55) inset,
                 0 1px 0 rgba(255, 255, 255, 0.9) inset;
-            filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.65));
         }
         .platform-goal-hint::before {
             content: '';
@@ -1397,7 +1358,6 @@
         }
         .goal-entry-wrap {
             padding: 14px 20px 6px;
-            transition: padding 0.38s cubic-bezier(0.4, 0, 0.2, 1), margin 0.38s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #platform-screen.platform-screen--goal-open .goal-entry-wrap {
             padding-top: 4px;
@@ -2982,11 +2942,8 @@
             .goal-orbit-meteor {
                 display: none !important;
             }
-            #platform-screen > .platform-header > .platform-header-tagline-slot {
-                transition: none !important;
-            }
             #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
-                grid-template-rows: 0fr !important;
+                display: none !important;
             }
         }
 
@@ -3296,33 +3253,8 @@
         left: 11px;
         font-size: 0.68em;
     }
-    /* Слоган на телефоне: fade → плавное схлопывание высоты и row-gap */
-    #platform-screen > .platform-header > .platform-header-tagline-slot {
-        display: block;
-        overflow: hidden;
-        max-height: 5.25rem;
-        grid-template-rows: unset !important;
-        transition: max-height 0.26s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
-        transition: opacity 0.22s ease-out;
-        opacity: 1;
-    }
-    #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot.platform-header-tagline-slot--out > .platform-header-tagline {
-        opacity: 0;
-        pointer-events: none;
-    }
-    #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot.platform-header-tagline-slot--gone {
-        max-height: 0;
-        pointer-events: none;
-    }
     #platform-screen > .platform-header {
         align-items: start;
-        transition: row-gap 0.26s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    #platform-screen.platform-screen--goal-open > .platform-header.platform-header--tagline-gone {
-        border-radius: 18px;
-        row-gap: 0;
     }
     .shooting-star {
         will-change: transform;
@@ -5664,27 +5596,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (header) {
             header.classList.remove('platform-header--tagline-gone');
         }
-    }
-
-    /** Телефон: слоган плавно уходит вверх, затем слот скрывается без grid-анимации */
-    function fpTaglineLiteHide() {
-        if (!fpIsMobileViewport()) return;
-        fpClearTaglineLiteAnim();
-        var slot = fpGetPlatformTaglineSlot();
-        if (!slot) return;
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                slot.classList.add('platform-header-tagline-slot--out');
-                fpTaglineLiteTimer = window.setTimeout(function () {
-                    fpTaglineLiteTimer = null;
-                    var platformScreen = document.getElementById('platform-screen');
-                    if (!platformScreen || !platformScreen.classList.contains('platform-screen--goal-open')) return;
-                    slot.classList.add('platform-header-tagline-slot--gone');
-                    var header = fpGetPlatformHeaderEl();
-                    if (header) header.classList.add('platform-header--tagline-gone');
-                }, 190);
-            });
-        });
     }
 
     function fpTaglineLiteShow() {
@@ -8212,7 +8123,6 @@ function openGoalScreen(event) {
     if (event) event.preventDefault();
     const platformScreen = document.getElementById('platform-screen');
     if (platformScreen) platformScreen.classList.add('platform-screen--goal-open');
-    fpTaglineLiteHide();
     document.getElementById('platform-main').style.display = 'none';
     document.getElementById('goal-screen').style.display = 'block';
     setGoalNavActive(true);
