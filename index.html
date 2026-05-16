@@ -1010,6 +1010,44 @@
         .mobile-star-splash--on .mss-rocket {
             animation: mss-rocket-launch 1.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
         }
+        /* Телефон: без мерцания filter/opacity на десятках SVG-узлов — только взлёт ракеты (compositor) */
+        @media (max-width: 768px) {
+            .mobile-star-splash__veil {
+                background: linear-gradient(168deg, #030510 0%, #0a0f28 38%, #101a48 100%);
+            }
+            .mobile-star-splash__scene {
+                contain: layout style paint;
+            }
+            .mss-rocket {
+                filter: drop-shadow(0 0 22px rgba(130, 240, 255, 0.65));
+            }
+            .mobile-star-splash--on .mss-trail-fx,
+            .mobile-star-splash--on .mss-trail-core,
+            .mobile-star-splash--on .mss-trail-sparks circle,
+            .mobile-star-splash--on .mss-star-shimmer-rect,
+            .mobile-star-splash--on .mss-star-body,
+            .mobile-star-splash--on .mss-star-sparkles circle {
+                animation: none !important;
+            }
+            .mobile-star-splash--on .mss-rocket__trail {
+                animation: mss-trail-launch 1s cubic-bezier(0.25, 0.85, 0.35, 1) 0.4s forwards;
+            }
+            @keyframes mss-rocket-launch-mobile {
+                0% {
+                    transform: translate3d(-50%, calc(-50% + 1vh), 0) scale(1);
+                }
+                28.571% {
+                    transform: translate3d(-50%, calc(-50% - 0.35vh), 0) scale(1);
+                }
+                100% {
+                    transform: translate3d(-50%, calc(-50% - 128vh), 0) scale(0.94);
+                }
+            }
+            .mobile-star-splash--on .mss-rocket {
+                animation: mss-rocket-launch-mobile 1.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
+                will-change: transform;
+            }
+        }
         @media (prefers-reduced-motion: reduce) {
             .mobile-star-splash {
                 display: none !important;
@@ -1208,6 +1246,7 @@
             grid-template-rows: 1fr;
             overflow: hidden;
             transition: grid-template-rows 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+            contain: layout style;
         }
         #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
             grid-template-rows: 0fr;
@@ -1218,6 +1257,9 @@
             padding: 8px 14px;
             overflow: hidden;
             transition: opacity 0.32s ease;
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
             text-align: center;
             font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
             font-size: clamp(0.92rem, 2.4vw, 1.12rem);
@@ -2890,8 +2932,9 @@
                 #ffffff 100%
             );
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.38);
-            will-change: transform, left, top;
+            will-change: transform;
             backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         .goal-orbit-meteor::before {
             content: '';
@@ -3161,20 +3204,35 @@
     #platform-main {
         margin-top: 6px;
     }
-    #platform-screen.platform-screen--goal-open > .platform-header {
-        border-radius: 18px;
-        row-gap: 0;
-    }
     #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
         padding: 10px 14px;
         font-size: clamp(0.84rem, 3.4vw, 1rem);
     }
+    /* Слоган: на телефоне без анимации grid-template-rows (мигает в Safari); сначала opacity, потом схлопывание */
     #platform-screen > .platform-header > .platform-header-tagline-slot {
-        transition: grid-template-rows 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: grid-template-rows 0s linear 0.28s;
+    }
+    #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0s linear 0.28s;
+    }
+    #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
+        transition: opacity 0.26s ease;
+    }
+    #platform-screen.platform-screen--goal-open > .platform-header {
+        border-radius: 18px;
+        row-gap: 0;
+        transition: row-gap 0s linear 0.28s;
     }
     #platform-screen > .platform-header {
         align-items: start;
-        transition: row-gap 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: row-gap 0s linear 0s;
+    }
+    #platform-screen:not(.platform-screen--goal-open) > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
+        transition: opacity 0.26s ease 0.06s;
+    }
+    .shooting-star {
+        will-change: transform;
     }
     #goal-screen > .platform-header {
         width: calc(100% - 24px);
@@ -4672,7 +4730,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 500);
             }
             function onRocketAnim(ev) {
-                if (!ev || ev.target !== rocket || ev.animationName !== 'mss-rocket-launch') return;
+                if (!ev || ev.target !== rocket) return;
+                if (ev.animationName !== 'mss-rocket-launch' && ev.animationName !== 'mss-rocket-launch-mobile') return;
                 rocket.removeEventListener('animationend', onRocketAnim);
                 fadeOut();
             }
@@ -5853,9 +5912,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function fpPlaceMeteorHead(el, headX, headY, angleRad) {
         const w = el.offsetWidth || 90;
-        el.style.left = headX - Math.cos(angleRad) * w + 'px';
-        el.style.top = headY - Math.sin(angleRad) * w + 'px';
-        el.style.transform = 'rotate(' + angleRad + 'rad)';
+        const tx = headX - Math.cos(angleRad) * w;
+        const ty = headY - Math.sin(angleRad) * w;
+        el.style.left = '0';
+        el.style.top = '0';
+        el.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0) rotate(' + angleRad + 'rad)';
     }
 
     function fpAnimateHeadAlongPolyline(el, points, durationMs, easing, done) {
@@ -5927,7 +5988,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return { x: wx - layerRect.left, y: wy - layerRect.top };
         }
 
-        const path = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, 9);
+        const path = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, fpIsMobileViewport() ? 6 : 9);
         const startIdx = fpNearestPathIndex(path, ex, ey);
         const n = path.length;
         const iPrev = (startIdx - 1 + n) % n;
@@ -6317,7 +6378,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         /* Частота метеоров; дополнительные — только над ночной сценой */
         const u = Math.random();
-        const gapMs = 1900 + Math.pow(u, 1.38) * 32000;
+        const mobile = fpIsMobileViewport();
+        const gapMs = (mobile ? 2600 : 1900) + Math.pow(u, 1.38) * (mobile ? 36000 : 32000);
 
         shootingStarTimer = window.setTimeout(() => {
             spawnShootingStar();
@@ -6325,15 +6387,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.setTimeout(fpFlushPendingBlueGoalMeteor, 80 + Math.random() * 220);
             }
             /* Метеор к кнопке «Моя цель»: каждая вторая подходящая траектория обводит кнопку */
-            if (Math.random() < 0.48) {
-                window.setTimeout(fpTrySpawnGoalOrbitMeteor, 120 + Math.random() * 900);
+            if (Math.random() < (mobile ? 0.34 : 0.48)) {
+                window.setTimeout(fpTrySpawnGoalOrbitMeteor, 120 + Math.random() * (mobile ? 1100 : 900));
             }
             /* Вторая вспышка на блоке с луной — не в московское окно hero→night */
-            if (!fpMskHeroThroughNightWindow() && Math.random() < 0.32) {
+            if (!fpMskHeroThroughNightWindow() && Math.random() < (mobile ? 0.2 : 0.32)) {
                 window.setTimeout(spawnExtraNightMeteor, 200 + Math.random() * 750);
             }
             /* Редкий «двойной» общий цикл */
-            if (Math.random() < 0.19) {
+            if (!mobile && Math.random() < 0.19) {
                 window.setTimeout(spawnShootingStar, 160 + Math.random() * 520);
             }
             scheduleShootingStar();
