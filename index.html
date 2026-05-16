@@ -1173,7 +1173,7 @@
             margin: 12px auto 16px;
             padding: 16px 24px;
             border-radius: 20px;
-            overflow: hidden;
+            overflow: visible;
             border: 1px solid rgba(130, 155, 220, 0.28);
             background: linear-gradient(168deg, #ffffff 0%, #f9fbff 45%, #f3f7ff 100%);
             box-shadow:
@@ -1192,8 +1192,7 @@
                 radial-gradient(ellipse 30% 40% at 100% 0%, rgba(150, 180, 255, 0.07) 0%, transparent 55%);
         }
         #platform-screen > .platform-header > .platform-logo--brand,
-        #platform-screen > .platform-header > .platform-header-tagline-slot,
-        #platform-screen > .platform-header > .profile-menu {
+        #platform-screen > .platform-header > .platform-header-tagline-slot {
             position: relative;
             z-index: 1;
         }
@@ -1321,6 +1320,8 @@
             align-self: center;
             flex-shrink: 0;
             margin-left: 0;
+            position: relative;
+            z-index: 30;
         }
         /* Подсказка над кнопкой «Моя цель» */
         .platform-goal-hint {
@@ -1526,7 +1527,7 @@
         .profile-menu {
             position: relative;
             overflow: visible;
-            z-index: 1001;
+            z-index: 30;
         }
         
         .profile-icon {
@@ -1581,7 +1582,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             display: none;
-            z-index: 1000;
+            z-index: 2000;
             margin-top: 10px;
         }
 
