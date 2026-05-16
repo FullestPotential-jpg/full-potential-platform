@@ -3216,15 +3216,16 @@
         padding: 10px 14px;
         font-size: clamp(0.84rem, 3.4vw, 1rem);
     }
-    /* Слоган на телефоне: fade, затем скрытие слота (без grid/row-gap до конца анимации) */
+    /* Слоган на телефоне: fade → плавное схлопывание высоты и row-gap */
     #platform-screen > .platform-header > .platform-header-tagline-slot {
         display: block;
         overflow: hidden;
+        max-height: 4.75rem;
         grid-template-rows: unset !important;
-        transition: none !important;
+        transition: max-height 0.36s cubic-bezier(0.22, 1, 0.36, 1);
     }
     #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
-        transition: opacity 0.28s ease-out;
+        transition: opacity 0.3s ease-out;
         opacity: 1;
     }
     #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot.platform-header-tagline-slot--out > .platform-header-tagline {
@@ -3232,15 +3233,16 @@
         pointer-events: none;
     }
     #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot.platform-header-tagline-slot--gone {
-        display: none;
+        max-height: 0;
+        pointer-events: none;
+    }
+    #platform-screen > .platform-header {
+        align-items: start;
+        transition: row-gap 0.36s cubic-bezier(0.22, 1, 0.36, 1);
     }
     #platform-screen.platform-screen--goal-open > .platform-header.platform-header--tagline-gone {
         border-radius: 18px;
         row-gap: 0;
-    }
-    #platform-screen > .platform-header {
-        align-items: start;
-        transition: none;
     }
     .shooting-star {
         will-change: transform;
@@ -5598,7 +5600,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     slot.classList.add('platform-header-tagline-slot--gone');
                     var header = fpGetPlatformHeaderEl();
                     if (header) header.classList.add('platform-header--tagline-gone');
-                }, 300);
+                }, 260);
             });
         });
     }
