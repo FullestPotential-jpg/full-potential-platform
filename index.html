@@ -3125,7 +3125,7 @@
                 0 0 1px rgba(255, 255, 255, 1),
                 0 0 4px rgba(200, 225, 255, 0.65);
         }
-        /* Каждая 4-я «обычная» звезда: ярче, голубее, чуть крупнее хвост и головка */
+        /* Каждая 3-я звезда к «Моя цель»: ярче, голубее, чуть крупнее хвост и головка */
         .goal-orbit-meteor.goal-orbit-meteor--blue-bright {
             width: clamp(82px, 18vw, 198px);
             height: 1px;
@@ -5714,7 +5714,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let shootingStarTimer = null;
     let fpShootingStarSeq = 0;
-    let fpBlueGoalStarSeq = 0;
     let fpBlueStarPending = false;
     let fpGoalOrbitAnimating = false;
 
@@ -6331,14 +6330,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
     }
 
-    /** Каждая 4-я вспышка на экране платформы — яркая голубая к «Моя цель» */
+    /** Каждая 3-я вспышка — яркая голубая: в кнопку «Моя цель» и обход по контуру */
     function fpMaybeSpawnBlueGoalMeteor() {
         if (fpShootingStarsReducedMotion()) return false;
         const ctx = fpGoalOrbitUiContext();
         if (!ctx || fpGoalOrbitAnimating) return false;
 
-        fpBlueGoalStarSeq += 1;
-        if (fpBlueGoalStarSeq % 4 !== 0) return false;
+        if (fpShootingStarSeq % 3 !== 0) return false;
 
         if (fpTrySpawnGoalOrbitMeteor({ blueBright: true })) {
             fpBlueStarPending = false;
