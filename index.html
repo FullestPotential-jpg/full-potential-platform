@@ -1160,6 +1160,7 @@
         }
         /* Шапка платформы: 1-я строка — логотип и профиль; 2-я — слоган (схлопывается вверх) */
         #platform-screen > .platform-header {
+            position: relative;
             display: grid;
             grid-template-columns: 1fr auto;
             grid-template-rows: auto auto;
@@ -1172,9 +1173,29 @@
             margin: 12px auto 16px;
             padding: 16px 24px;
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.97);
-            border: 1px solid rgba(130, 150, 210, 0.14);
-            box-shadow: 0 2px 14px rgba(12, 18, 52, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(130, 155, 220, 0.28);
+            background: linear-gradient(168deg, #ffffff 0%, #f9fbff 45%, #f3f7ff 100%);
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.92) inset,
+                0 14px 40px rgba(12, 20, 58, 0.1),
+                0 3px 12px rgba(56, 89, 201, 0.06);
+        }
+        #platform-screen > .platform-header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 90% 55% at 50% -30%, rgba(120, 165, 255, 0.11) 0%, transparent 62%),
+                radial-gradient(ellipse 30% 40% at 100% 0%, rgba(150, 180, 255, 0.07) 0%, transparent 55%);
+        }
+        #platform-screen > .platform-header > .platform-logo--brand,
+        #platform-screen > .platform-header > .platform-header-tagline-slot,
+        #platform-screen > .platform-header > .profile-menu {
+            position: relative;
+            z-index: 1;
         }
         #platform-screen.platform-screen--goal-open > .platform-header {
             border-radius: 20px;
@@ -1244,27 +1265,9 @@
             width: 100%;
             min-width: 0;
             display: block;
-            overflow: hidden;
-        }
-        .platform-header-tagline {
-            position: relative;
-            margin: 0;
-            min-height: 0;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 11px 28px 11px 32px;
-            overflow: hidden;
-            text-align: center;
-            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-            font-size: clamp(0.98rem, 2.55vw, 1.16rem);
-            font-weight: 600;
-            font-style: italic;
-            letter-spacing: 0.065em;
-            line-height: 1.38;
             border-radius: 999px;
+            overflow: hidden;
             border: 1px solid rgba(120, 165, 255, 0.42);
-            color: #e8f0ff;
-            text-shadow: 0 0 18px rgba(140, 185, 255, 0.35);
             background-color: #080c22;
             background-image:
                 radial-gradient(1px 1px at 14% 32%, rgba(255, 255, 255, 0.88), transparent),
@@ -1276,6 +1279,27 @@
             box-shadow:
                 0 6px 22px rgba(20, 32, 88, 0.14),
                 0 0 28px rgba(72, 110, 220, 0.12);
+        }
+        .platform-header-tagline {
+            position: relative;
+            margin: 0;
+            min-height: 0;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 28px 11px 32px;
+            border: none;
+            border-radius: 0;
+            background: none;
+            box-shadow: none;
+            text-align: center;
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-size: clamp(0.98rem, 2.55vw, 1.16rem);
+            font-weight: 600;
+            font-style: italic;
+            letter-spacing: 0.065em;
+            line-height: 1.38;
+            color: #e8f0ff;
+            text-shadow: 0 0 18px rgba(140, 185, 255, 0.35);
         }
         .platform-header-tagline::after {
             content: '✦';
