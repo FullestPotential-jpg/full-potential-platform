@@ -3208,28 +3208,40 @@
         padding: 10px 14px;
         font-size: clamp(0.84rem, 3.4vw, 1rem);
     }
-    /* Слоган: на телефоне без анимации grid-template-rows (мигает в Safari); сначала opacity, потом схлопывание */
+    /* Слоган на телефоне: упрощённо — только fade + лёгкий подъём, схлопывание после (классы в JS) */
     #platform-screen > .platform-header > .platform-header-tagline-slot {
-        transition: grid-template-rows 0s linear 0.28s;
+        display: block;
+        overflow: hidden;
+        grid-template-rows: unset !important;
+        transition: none !important;
     }
     #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
-        grid-template-rows: 0fr;
-        transition: grid-template-rows 0s linear 0.28s;
+        grid-template-rows: unset !important;
+    }
+    #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
+        opacity: 1;
+        pointer-events: auto;
     }
     #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
-        transition: opacity 0.26s ease;
+        transition: opacity 0.26s ease-out, transform 0.26s ease-out;
+        transform: translate3d(0, 0, 0);
+        will-change: opacity, transform;
     }
-    #platform-screen.platform-screen--goal-open > .platform-header {
+    .platform-header-tagline-slot--out > .platform-header-tagline {
+        opacity: 0;
+        transform: translate3d(0, -10px, 0);
+        pointer-events: none;
+    }
+    .platform-header-tagline-slot--gone {
+        display: none;
+    }
+    #platform-screen.platform-screen--goal-open > .platform-header.platform-header--tagline-gone {
         border-radius: 18px;
         row-gap: 0;
-        transition: row-gap 0s linear 0.28s;
     }
     #platform-screen > .platform-header {
         align-items: start;
-        transition: row-gap 0s linear 0s;
-    }
-    #platform-screen:not(.platform-screen--goal-open) > .platform-header > .platform-header-tagline-slot > .platform-header-tagline {
-        transition: opacity 0.26s ease 0.06s;
+        transition: none;
     }
     .shooting-star {
         will-change: transform;
@@ -5542,6 +5554,56 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {
             return window.innerWidth <= 768;
         }
+    }
+
+    var fpTaglineLiteTimer = null;
+
+    function fpGetPlatformTaglineSlot() {
+        var screen = document.getElementById('platform-screen');
+        return screen ? screen.querySelector('.platform-header-tagline-slot') : null;
+    }
+
+    function fpGetPlatformHeaderEl() {
+        var screen = document.getElementById('platform-screen');
+        return screen ? screen.querySelector('.platform-header') : null;
+    }
+
+    function fpClearTaglineLiteAnim() {
+        if (fpTaglineLiteTimer) {
+            clearTimeout(fpTaglineLiteTimer);
+            fpTaglineLiteTimer = null;
+        }
+        var slot = fpGetPlatformTaglineSlot();
+        var header = fpGetPlatformHeaderEl();
+        if (slot) {
+            slot.classList.remove('platform-header-tagline-slot--out', 'platform-header-tagline-slot--gone');
+        }
+        if (header) {
+            header.classList.remove('platform-header--tagline-gone');
+        }
+    }
+
+    /** Телефон: слоган плавно уходит вверх, затем слот скрывается без grid-анимации */
+    function fpTaglineLiteHide() {
+        if (!fpIsMobileViewport()) return;
+        fpClearTaglineLiteAnim();
+        var slot = fpGetPlatformTaglineSlot();
+        if (!slot) return;
+        requestAnimationFrame(function () {
+            slot.classList.add('platform-header-tagline-slot--out');
+            fpTaglineLiteTimer = window.setTimeout(function () {
+                fpTaglineLiteTimer = null;
+                var platformScreen = document.getElementById('platform-screen');
+                if (!platformScreen || !platformScreen.classList.contains('platform-screen--goal-open')) return;
+                slot.classList.add('platform-header-tagline-slot--gone');
+                var header = fpGetPlatformHeaderEl();
+                if (header) header.classList.add('platform-header--tagline-gone');
+            }, 270);
+        });
+    }
+
+    function fpTaglineLiteShow() {
+        fpClearTaglineLiteAnim();
     }
 
     function fpShootingStarsReducedMotion() {
@@ -7920,6 +7982,7 @@ async function showResult() {
         updateProfileData();
         showScreen('platform-screen');
         const platformScreen = document.getElementById('platform-screen');
+        fpTaglineLiteShow();
         if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
         document.getElementById('goal-screen').style.display = 'none';
         document.getElementById('platform-main').style.display = 'block';
@@ -8064,6 +8127,7 @@ function openGoalScreen(event) {
     if (event) event.preventDefault();
     const platformScreen = document.getElementById('platform-screen');
     if (platformScreen) platformScreen.classList.add('platform-screen--goal-open');
+    fpTaglineLiteHide();
     document.getElementById('platform-main').style.display = 'none';
     document.getElementById('goal-screen').style.display = 'block';
     setGoalNavActive(true);
@@ -8072,6 +8136,7 @@ function openGoalScreen(event) {
 
 function closeGoalScreen() {
     const platformScreen = document.getElementById('platform-screen');
+    fpTaglineLiteShow();
     if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
     document.getElementById('goal-screen').style.display = 'none';
     document.getElementById('platform-main').style.display = 'block';
