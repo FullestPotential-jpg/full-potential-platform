@@ -1158,8 +1158,10 @@
             );
             box-shadow: 0 0 12px rgba(140, 175, 255, 0.45);
         }
-        /* Шапка платформы: 1-я строка — логотип и профиль; 2-я — слоган (схлопывается вверх) */
+        /* Шапка платформы: скругление сверху, лёгкий срез нижних углов */
         #platform-screen > .platform-header {
+            --fp-header-cut: 14px;
+            --fp-header-top-r: 20px;
             position: relative;
             display: grid;
             grid-template-columns: 1fr auto;
@@ -1170,35 +1172,64 @@
             box-sizing: border-box;
             width: calc(100% - 40px);
             max-width: 1200px;
-            margin: 12px auto 16px;
-            padding: 16px 24px;
-            border-radius: 20px;
+            margin: 12px auto 18px;
+            padding: 16px 24px 18px;
             overflow: visible;
-            border: 1px solid rgba(130, 155, 220, 0.28);
+            border: none;
+            background: transparent;
+            box-shadow: none;
+        }
+        #platform-screen > .platform-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
             background: linear-gradient(168deg, #ffffff 0%, #f9fbff 45%, #f3f7ff 100%);
+            border: 1px solid rgba(130, 155, 220, 0.28);
             box-shadow:
                 0 1px 0 rgba(255, 255, 255, 0.92) inset,
                 0 14px 40px rgba(12, 20, 58, 0.1),
                 0 3px 12px rgba(56, 89, 201, 0.06);
+            clip-path: polygon(
+                0 var(--fp-header-top-r),
+                var(--fp-header-top-r) 0,
+                calc(100% - var(--fp-header-top-r)) 0,
+                100% var(--fp-header-top-r),
+                100% calc(100% - var(--fp-header-cut)),
+                calc(100% - var(--fp-header-cut)) 100%,
+                var(--fp-header-cut) 100%,
+                0 calc(100% - var(--fp-header-cut))
+            );
         }
         #platform-screen > .platform-header::after {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: inherit;
             pointer-events: none;
+            z-index: 0;
             background:
                 radial-gradient(ellipse 90% 55% at 50% -30%, rgba(120, 165, 255, 0.11) 0%, transparent 62%),
                 radial-gradient(ellipse 30% 40% at 100% 0%, rgba(150, 180, 255, 0.07) 0%, transparent 55%);
+            clip-path: polygon(
+                0 var(--fp-header-top-r),
+                var(--fp-header-top-r) 0,
+                calc(100% - var(--fp-header-top-r)) 0,
+                100% var(--fp-header-top-r),
+                100% calc(100% - var(--fp-header-cut)),
+                calc(100% - var(--fp-header-cut)) 100%,
+                var(--fp-header-cut) 100%,
+                0 calc(100% - var(--fp-header-cut))
+            );
         }
         #platform-screen > .platform-header > .platform-logo--brand,
         #platform-screen > .platform-header > .platform-header-tagline-slot {
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
         #platform-screen.platform-screen--goal-open > .platform-header {
-            border-radius: 20px;
             row-gap: 0;
+            padding-bottom: 16px;
         }
         #platform-screen.platform-screen--goal-open > .platform-header > .platform-header-tagline-slot {
             display: none;
@@ -3251,10 +3282,11 @@
     }
 
     #platform-screen > .platform-header {
+        --fp-header-cut: 11px;
+        --fp-header-top-r: 16px;
         width: calc(100% - 24px);
-        margin: 10px auto 14px;
-        padding: 14px 12px 12px;
-        border-radius: 18px;
+        margin: 10px auto 16px;
+        padding: 14px 12px 16px;
         row-gap: 10px;
     }
     #platform-main {
