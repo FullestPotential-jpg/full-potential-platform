@@ -88,6 +88,7 @@
         --fp-night-text-hover: #1f2a5e;
         --fp-night-border: rgba(20, 28, 66, 0.38);
         --fp-gradient-btn: linear-gradient(135deg, #0f1740 0%, #1a2858 55%, #1e3268 100%);
+        --fp-gradient-accent-btn: linear-gradient(135deg, #a5b4fc 0%, #6366f1 48%, #4338ca 100%);
         --fp-gradient-banner: linear-gradient(135deg, #0c1438 0%, #1a2858 100%);
         --fp-gradient-chat: linear-gradient(135deg, #0c1438 0%, #162454 100%);
         --fp-msg-out: #1a3268;
@@ -699,6 +700,17 @@
         .next-btn:hover, #restart-btn:hover, #submit-btn:hover, #start-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(15, 23, 64, 0.4);
+        }
+
+        #goto-platform-btn {
+            background: var(--fp-gradient-accent-btn);
+            color: #fff;
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.38);
+        }
+        #goto-platform-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(99, 102, 241, 0.48);
+            background: linear-gradient(135deg, #c7d2fe 0%, #818cf8 45%, #4f46e5 100%);
         }
         
         button:disabled {
@@ -5097,7 +5109,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     
     <div class="navigation" style="justify-content: center; margin-top: 30px; gap: 15px;">
-        <button onclick="goToPlatform()" style="background: #28a745;" data-i18n="result.goto_platform">Перейти на платформу</button>
+        <button type="button" id="goto-platform-btn" onclick="goToPlatform()" data-i18n="result.goto_platform">Перейти на платформу</button>
         <button id="restart-btn" onclick="restartTest()" data-i18n="result.retry">Пройти тест снова</button>
     </div>
 </div>
