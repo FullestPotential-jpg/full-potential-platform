@@ -2411,6 +2411,61 @@
             opacity: 0;
             z-index: 3;
         }
+        .night-person .person-archetype-emblem {
+            position: absolute;
+            left: auto;
+            right: -20%;
+            bottom: 10%;
+            width: clamp(14px, 36%, 30px);
+            height: clamp(16px, 44%, 36px);
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+        }
+        .night-person:not(.night-person--default) .person-archetype-emblem {
+            opacity: 1;
+        }
+        .night-person:not(.night-person--default) .person-archetype-emblem::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--fp-archetype-emblem) center / contain no-repeat;
+            filter: drop-shadow(0 2px 7px rgba(49, 46, 129, 0.38));
+        }
+        .night-person:not(.night-person--default) .person-accent {
+            opacity: 0;
+            background: none;
+            box-shadow: none;
+            filter: none;
+        }
+        .night-person:not(.night-person--default) .person-accent::before,
+        .night-person:not(.night-person--default) .person-accent::after {
+            display: none;
+        }
+        .night-person.night-person--amygdala-dopamine-control {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2052%2072%22%20fill%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22m%22%20x1%3D%2226%22%20y1%3D%2228%22%20x2%3D%2226%22%20y2%3D%2266%22%3E%3Cstop%20stop-color%3D%22%23c7d2fe%22%2F%3E%3Cstop%20offset%3D%22.4%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23312e81%22%2F%3E%3C%2FlinearGradient%3E%3CradialGradient%20id%3D%22g%22%20cx%3D%2214%22%20cy%3D%2216%22%20r%3D%2218%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.95%22%2F%3E%3Cstop%20offset%3D%22.2%22%20stop-color%3D%22%23fef9c3%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%23fbbf24%22%20stop-opacity%3D%22.55%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23818cf8%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Cellipse%20cx%3D%2214%22%20cy%3D%2217%22%20rx%3D%2220%22%20ry%3D%2216%22%20fill%3D%22url(%23g)%22%20opacity%3D%22.9%22%2F%3E%3Cpath%20d%3D%22M8%2038c-3-8%204-16%2014-18%2010-2%2022%202%2030%208%205%204%205%2011-1%2014-3%202-8%203-12%203H16c-6%200-10-3-8-7z%22%20fill%3D%22url(%23m)%22%2F%3E%3Cpath%20d%3D%22M5%2033c-5-2-4-7%203-9l16-6c4%202%202%206-3%207l-14%205c-2%201-2%203-2%203z%22%20fill%3D%22%23818cf8%22%2F%3E%3Cpath%20d%3D%22M10%2019c-1-5%203-9%205-6%202%203%203%206%202%208-2%203-6%202-7-2z%22%20fill%3D%22%23fef08a%22%2F%3E%3C%2Fsvg%3E");
+        }
+        .night-person.night-person--amygdala-dopamine-connection {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2226%22%20r%3D%225.5%22%20fill%3D%22%2338bdf8%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2226%22%20r%3D%223%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M11%2016c0-4%203-7%207-7h4c4%200%207%203%207%207v5c0%204-3%207-7%207h-2l-4%204v-4c-4%200-7-3-7-7v-5z%22%20fill%3D%22%23fff%22%20stroke%3D%22%233b82f6%22%20stroke-width%3D%221.6%22%2F%3E%3Cpath%20d%3D%22M27%2012c0-3%202.5-5.5%205.5-5.5H36c3%200%205.5%202.5%205.5%205.5v4c0%203-2.5%205.5-5.5%205.5h-1.5l-3%203v-3c-3%200-5.5-2.5-5.5-5.5v-4z%22%20fill%3D%22%23e0f2fe%22%20stroke%3D%22%232563eb%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M14%2022h6M28%2018h5%22%20stroke%3D%22%2360a5fa%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+        }
+        .night-person.night-person--amygdala-serotonin-control {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%2218%22%20fill%3D%22%231e293b%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%2214%22%20fill%3D%22%230f172a%22%2F%3E%3Cpath%20d%3D%22M24%208v8M24%2032v8M8%2024h8M32%2024h8%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M24%2012l3%2010h-6l3-10z%22%20fill%3D%22%23f59e0b%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%223%22%20fill%3D%22%23fbbf24%22%2F%3E%3C%2Fsvg%3E");
+        }
+        .night-person.night-person--amygdala-serotonin-connection {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M24%208v28%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M10%2036h28%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M8%2020h14l-2%2010H10l-2-10z%22%20fill%3D%22%23e2e8f0%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.4%22%2F%3E%3Cpath%20d%3D%22M26%2016h14l-2%2010H28l-2-10z%22%20fill%3D%22%23f8fafc%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.4%22%2F%3E%3C%2Fsvg%3E");
+        }
+        .night-person.night-person--hippocampus-dopamine-control {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%3E%3Crect%20x%3D%228%22%20y%3D%228%22%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%224%22%20fill%3D%22%230f172a%22%20stroke%3D%22%2322d3ee%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M14%2032V18h6v14M22%2032V14h6v18M30%2032V22h6v10%22%20stroke%3D%22%2367e8f9%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2212%22%20r%3D%224%22%20fill%3D%22%2322d3ee%22%2F%3E%3C%2Fsvg%3E");
+        }
+        .night-person.night-person--hippocampus-dopamine-connection {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M8%2038%20L24%2010%20L40%2038%20Z%22%20fill%3D%22%236366f1%22%20stroke%3D%22%23312e81%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22M24%2010%20L24%2022%22%20stroke%3D%22%23c7d2fe%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M20%2018h8l-4-8-4%208z%22%20fill%3D%22%23fbbf24%22%20stroke%3D%22%23b45309%22%20stroke-width%3D%22.8%22%2F%3E%3C%2Fsvg%3E");
+        }
+        .night-person.night-person--hippocampus-serotonin-control {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%229%22%20fill%3D%22%230ea5e9%22%20stroke%3D%22%230369a1%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M24%206v6M24%2036v6M6%2024h6M36%2024h6M11%2011l4.2%204.2M32.8%2032.8l4.2%204.2M37%2011l-4.2%204.2M15.2%2032.8L11%2037%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%224%22%20fill%3D%22%23e0f2fe%22%2F%3E%3C%2Fsvg%3E");
+        }
+        .night-person.night-person--hippocampus-serotonin-connection {
+            --fp-archetype-emblem: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2056%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M24%204%20L42%2016%20V36%20L24%2052%20L6%2036%20V16%20Z%22%20fill%3D%22url(%23s)%22%2F%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22s%22%20x1%3D%2224%22%20y1%3D%224%22%20x2%3D%2224%22%20y2%3D%2252%22%3E%3Cstop%20stop-color%3D%22%23f1f5f9%22%2F%3E%3Cstop%20offset%3D%22.35%22%20stop-color%3D%22%2360a5fa%22%2F%3E%3Cstop%20offset%3D%22.75%22%20stop-color%3D%22%232563eb%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231e3a8a%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M24%2018v16M18%2026h12%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.85%22%2F%3E%3C%2Fsvg%3E");
+        }
 
         /* --- ПРОВИДЕЦ: лампада у фигуры, шарф в тон платформе (лавандовый индиго) --- */
         .night-person.night-person--amygdala-dopamine-control {
@@ -5196,6 +5251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <div class="person-arm left"></div>
                                     <div class="person-arm right"></div>
                                     <span class="person-accent"></span>
+                                    <span class="person-archetype-emblem" aria-hidden="true"></span>
                                 </div>
                                 <div
                                     class="night-person-archetype-toast"
@@ -5327,6 +5383,18 @@ document.addEventListener('DOMContentLoaded', function() {
             'auth.reset_bad_token': 'Ссылка недействительна. Запросите новую.',
             'auth.reset_success': 'Пароль изменён.',
             'auth.reset_login_with_new': 'Можно войти.',
+            'auth.fill_all': 'Заполните все поля',
+            'auth.duplicate_email': 'Аккаунт с таким email уже существует',
+            'auth.server_unavailable': 'Сервер недоступен. Обновите страницу и попробуйте снова.',
+            'auth.register_rejected': 'Регистрация отклонена. Попробуйте другой email.',
+            'auth.register_success': 'Регистрация успешна!',
+            'auth.register_failed': 'Не удалось завершить регистрацию. Откройте сайт по HTTPS или обновите страницу.',
+            'auth.wrong_password': 'Неверный пароль',
+            'auth.account_not_found_offline': 'Аккаунт не найден. Нужен интернет для входа с другого устройства.',
+            'auth.login_failed_credentials': 'Аккаунт не найден или неверный пароль',
+            'auth.login_success': 'Вход успешен!',
+            'auth.login_failed': 'Не удалось выполнить вход. Откройте сайт по HTTPS или обновите страницу.',
+            'auth.login_required': 'Сначала войдите в систему',
             'nav.back': 'Назад',
             'nav.next': 'Далее',
             'nav.result': 'Узнать результат',
@@ -5453,6 +5521,18 @@ document.addEventListener('DOMContentLoaded', function() {
             'auth.reset_bad_token': 'Invalid link. Request a new one.',
             'auth.reset_success': 'Password changed.',
             'auth.reset_login_with_new': 'You can sign in now.',
+            'auth.fill_all': 'Fill in all fields',
+            'auth.duplicate_email': 'An account with this email already exists',
+            'auth.server_unavailable': 'Server unavailable. Refresh the page and try again.',
+            'auth.register_rejected': 'Registration declined. Try a different email.',
+            'auth.register_success': 'Registration successful!',
+            'auth.register_failed': 'Could not complete registration. Open the site over HTTPS or refresh the page.',
+            'auth.wrong_password': 'Incorrect password',
+            'auth.account_not_found_offline': 'Account not found. Internet is required to sign in from another device.',
+            'auth.login_failed_credentials': 'Account not found or incorrect password',
+            'auth.login_success': 'Signed in successfully!',
+            'auth.login_failed': 'Could not sign in. Open the site over HTTPS or refresh the page.',
+            'auth.login_required': 'Please sign in first',
             'nav.back': 'Back',
             'nav.next': 'Next',
             'nav.result': 'See result',
@@ -7285,24 +7365,24 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
     const password = document.getElementById('reg-password').value;
 
     if (!emailRaw || !password) {
-        showAuthMessage('register-message', 'Заполните все поля', 'error');
+        showAuthMessage('register-message', fpT('auth.fill_all'), 'error');
         return;
     }
 
     if (!isValidEmail(emailRaw)) {
-        showAuthMessage('register-message', 'Введите корректный адрес email', 'error');
+        showAuthMessage('register-message', fpT('auth.email_invalid'), 'error');
         return;
     }
 
     const email = normalizeEmail(emailRaw);
 
     if (findUserByEmail(email)) {
-        showAuthMessage('register-message', 'Аккаунт с таким email уже существует', 'error');
+        showAuthMessage('register-message', fpT('auth.duplicate_email'), 'error');
         return;
     }
 
     if (!window.supabaseClient) {
-        showAuthMessage('register-message', 'Сервер недоступен. Обновите страницу и попробуйте снова.', 'error');
+        showAuthMessage('register-message', fpT('auth.server_unavailable'), 'error');
         return;
     }
 
@@ -7320,9 +7400,9 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
 
     if (!regData || !regData.ok) {
         if (regData && regData.error === 'duplicate') {
-            showAuthMessage('register-message', 'Аккаунт с таким email уже существует', 'error');
+            showAuthMessage('register-message', fpT('auth.duplicate_email'), 'error');
         } else {
-            showAuthMessage('register-message', 'Регистрация отклонена. Попробуйте другой email.', 'error');
+            showAuthMessage('register-message', fpT('auth.register_rejected'), 'error');
         }
         return;
     }
@@ -7352,7 +7432,7 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
         console.warn('[nickname] не удалось записать ник на сервер при регистрации; синхронизация при следующем входе');
     }
 
-    showAuthMessage('register-message', 'Регистрация успешна!', 'success');
+    showAuthMessage('register-message', fpT('auth.register_success'), 'success');
     clearAuthFields();
     
     setTimeout(() => {
@@ -7363,7 +7443,7 @@ function updateUserPersonalityInStore(email, personality_type, personality_descr
         console.error(err);
         showAuthMessage(
             'register-message',
-            'Не удалось завершить регистрацию. Откройте сайт по HTTPS или обновите страницу.',
+            fpT('auth.register_failed'),
             'error'
         );
     }
@@ -7376,12 +7456,12 @@ async function login() {
     const password = document.getElementById('login-password').value;
 
     if (!emailRaw || !password) {
-        showAuthMessage('login-message', 'Заполните все поля', 'error');
+        showAuthMessage('login-message', fpT('auth.fill_all'), 'error');
         return;
     }
 
     if (!isValidEmail(emailRaw)) {
-        showAuthMessage('login-message', 'Введите корректный адрес email', 'error');
+        showAuthMessage('login-message', fpT('auth.email_invalid'), 'error');
         return;
     }
 
@@ -7424,7 +7504,7 @@ async function login() {
             }
         }
         if (!ok) {
-            showAuthMessage('login-message', 'Неверный пароль', 'error');
+            showAuthMessage('login-message', fpT('auth.wrong_password'), 'error');
             return;
         }
         await migrateLegacyPasswordToHash(found, email, password);
@@ -7446,7 +7526,7 @@ async function login() {
         }
     } else {
         if (!window.supabaseClient) {
-            showAuthMessage('login-message', 'Аккаунт не найден. Нужен интернет для входа с другого устройства.', 'error');
+            showAuthMessage('login-message', fpT('auth.account_not_found_offline'), 'error');
             return;
         }
         const hash = await hashPlatformPassword(email, password);
@@ -7460,7 +7540,7 @@ async function login() {
             return;
         }
         if (!loginData || !loginData.ok) {
-            showAuthMessage('login-message', 'Аккаунт не найден или неверный пароль', 'error');
+            showAuthMessage('login-message', fpT('auth.login_failed_credentials'), 'error');
             return;
         }
         serverProfile = loginData;
@@ -7514,7 +7594,7 @@ async function login() {
     }
     fpLastPlatformProfileFetch = Date.now();
     
-    showAuthMessage('login-message', 'Вход успешен!', 'success');
+    showAuthMessage('login-message', fpT('auth.login_success'), 'success');
     clearAuthFields();
     
     setTimeout(() => {
@@ -7530,7 +7610,7 @@ async function login() {
         console.error(err);
         showAuthMessage(
             'login-message',
-            'Не удалось выполнить вход. Откройте сайт по HTTPS или обновите страницу.',
+            fpT('auth.login_failed'),
             'error'
         );
     }
@@ -7898,7 +7978,7 @@ function fpArchetypeDisplayNameFromUser(user) {
 
 function startTest() {
     if (!currentUser) {
-        showAuthMessage('login-message', 'Сначала войдите в систему', 'error');
+        showAuthMessage('login-message', fpT('auth.login_required'), 'error');
         showScreen('auth-screen');
         return;
     }
