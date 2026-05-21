@@ -1411,6 +1411,14 @@
             position: relative;
             z-index: 30;
         }
+        /* Метеоры — fixed z-index 450; при открытом профиле шапка выше слоя метеоров */
+        #platform-screen:has(.profile-dropdown.active) > .platform-header {
+            z-index: 480;
+        }
+        #platform-screen > .platform-header > .profile-menu.profile-menu--open,
+        #platform-screen > .platform-header > .profile-menu:has(.profile-dropdown.active) {
+            z-index: 2;
+        }
         /* Подсказка над кнопкой «Моя цель» */
         .platform-goal-hint {
             position: relative;
@@ -3108,6 +3116,8 @@
             );
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.38);
             will-change: transform;
+            transform: translate3d(0, 0, 0);
+            contain: layout style paint;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
@@ -3151,7 +3161,17 @@
                 0 0 10px rgba(34, 211, 238, 0.9),
                 0 0 18px rgba(59, 130, 246, 0.55);
         }
-        
+        @media (max-width: 768px) {
+            .goal-orbit-meteor.goal-orbit-meteor--blue-bright {
+                box-shadow: 0 0 5px rgba(56, 189, 248, 0.55);
+            }
+            .goal-orbit-meteor.goal-orbit-meteor--blue-bright::before {
+                box-shadow:
+                    0 0 2px rgba(255, 255, 255, 1),
+                    0 0 8px rgba(34, 211, 238, 0.8);
+            }
+        }
+
         .module-card {
             background: white;
             border-radius: 20px;
@@ -6122,16 +6142,69 @@ document.addEventListener('DOMContentLoaded', function() {
         return 1 - (1 - t) * (1 - t);
     }
 
+    function fpLerpAngle(from, to, t) {
+        let d = to - from;
+        while (d > Math.PI) d -= 2 * Math.PI;
+        while (d < -Math.PI) d += 2 * Math.PI;
+        return from + d * t;
+    }
+
+    function fpDecimatePolyline(pts, maxPts) {
+        if (!pts || pts.length <= maxPts) return pts;
+        const step = Math.ceil(pts.length / maxPts);
+        const out = [];
+        for (let i = 0; i < pts.length; i += step) {
+            out.push(pts[i]);
+        }
+        const last = pts[pts.length - 1];
+        if (out[out.length - 1] !== last) out.push(last);
+        return out;
+    }
+
+    function fpPathTangentAngle(points, segLens, total, dist, lookAhead) {
+        lookAhead = lookAhead == null ? 10 : lookAhead;
+        const d0 = fpClamp(dist, 0, Math.max(0, total - 0.001));
+        const d1 = Math.min(d0 + lookAhead, total - 0.001);
+        let acc = 0;
+        let i = 0;
+        for (; i < segLens.length; i++) {
+            if (acc + segLens[i] >= d0) break;
+            acc += segLens[i];
+        }
+        const sl0 = segLens[i] > 1e-6 ? segLens[i] : 1;
+        const t0 = (d0 - acc) / sl0;
+        const p0a = points[i];
+        const p0b = points[i + 1];
+        const x0 = p0a.x + (p0b.x - p0a.x) * t0;
+        const y0 = p0a.y + (p0b.y - p0a.y) * t0;
+        acc = 0;
+        i = 0;
+        for (; i < segLens.length; i++) {
+            if (acc + segLens[i] >= d1) break;
+            acc += segLens[i];
+        }
+        const sl1 = segLens[i] > 1e-6 ? segLens[i] : 1;
+        const t1 = (d1 - acc) / sl1;
+        const p1a = points[i];
+        const p1b = points[i + 1];
+        const x1 = p1a.x + (p1b.x - p1a.x) * t1;
+        const y1 = p1a.y + (p1b.y - p1a.y) * t1;
+        return Math.atan2(y1 - y0, x1 - x0);
+    }
+
     function fpPlaceMeteorHead(el, headX, headY, angleRad) {
         const w = el.offsetWidth || 90;
         const tx = headX - Math.cos(angleRad) * w;
         const ty = headY - Math.sin(angleRad) * w;
+        const rx = Math.round(tx * 2) / 2;
+        const ry = Math.round(ty * 2) / 2;
         el.style.left = '0';
         el.style.top = '0';
-        el.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0) rotate(' + angleRad + 'rad)';
+        el.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0) rotate(' + angleRad + 'rad)';
     }
 
-    function fpAnimateHeadAlongPolyline(el, points, durationMs, easing, done) {
+    function fpAnimateHeadAlongPolyline(el, points, durationMs, easing, done, animOpts) {
+        animOpts = animOpts || {};
         if (points.length < 2) {
             done();
             return;
@@ -6147,13 +6220,19 @@ document.addEventListener('DOMContentLoaded', function() {
             done();
             return;
         }
+        const smoothHeading = !!animOpts.smoothHeading;
+        const smoothT = animOpts.smoothHeadingT != null ? animOpts.smoothHeadingT : 0.3;
+        const lookAhead = animOpts.lookAhead != null ? animOpts.lookAhead : (fpIsMobileViewport() ? 14 : 10);
+        let heading = smoothHeading ? fpPathTangentAngle(points, segLens, total, 0, lookAhead) : 0;
         const t0 = performance.now();
         function frame(now) {
             let u = (now - t0) / durationMs;
             if (u >= 1) {
                 const pLast = points[points.length - 1];
-                const pPrev = points[points.length - 2];
-                const ang = Math.atan2(pLast.y - pPrev.y, pLast.x - pPrev.x);
+                const distEnd = total;
+                const ang = smoothHeading
+                    ? fpPathTangentAngle(points, segLens, total, Math.max(0, distEnd - 1), lookAhead)
+                    : Math.atan2(pLast.y - points[points.length - 2].y, pLast.x - points[points.length - 2].x);
                 fpPlaceMeteorHead(el, pLast.x, pLast.y, ang);
                 done();
                 return;
@@ -6172,7 +6251,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const p1 = points[i + 1];
             const x = p0.x + (p1.x - p0.x) * segT;
             const y = p0.y + (p1.y - p0.y) * segT;
-            const ang = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+            let ang;
+            if (smoothHeading) {
+                const targetAng = fpPathTangentAngle(points, segLens, total, dist, lookAhead);
+                heading = fpLerpAngle(heading, targetAng, smoothT);
+                ang = heading;
+            } else {
+                ang = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+            }
             fpPlaceMeteorHead(el, x, y, ang);
             requestAnimationFrame(frame);
         }
@@ -6200,7 +6286,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return { x: wx - layerRect.left, y: wy - layerRect.top };
         }
 
-        const path = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, fpIsMobileViewport() ? 6 : 9);
+        const mobileOrbit = fpIsMobileViewport();
+        const path = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, mobileOrbit ? 14 : 9);
         const startIdx = fpNearestPathIndex(path, ex, ey);
         const n = path.length;
         const iPrev = (startIdx - 1 + n) % n;
@@ -6237,10 +6324,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     fpPulseGoalNavStar(7000, { blueBright: true });
                 }
                 const loopWorld = fpPolylineFromLoop(path, startIdx, dir);
-                const loopLayer = loopWorld.map(function (p) {
+                let loopLayer = loopWorld.map(function (p) {
                     return toLayer(p.x, p.y);
                 });
+                if (mobileOrbit) {
+                    loopLayer = fpDecimatePolyline(loopLayer, opts.blueBright ? 56 : 72);
+                }
                 const dur2 = opts.blueBright ? 1320 : 1120;
+                const orbitAnimOpts = {
+                    smoothHeading: true,
+                    smoothHeadingT: mobileOrbit ? 0.42 : 0.3,
+                    lookAhead: mobileOrbit ? 18 : 12
+                };
 
                 fpAnimateHeadAlongPolyline(el, loopLayer, dur2, null, function afterOrbit() {
                     const last = loopLayer[loopLayer.length - 1];
@@ -6255,7 +6350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         fpEaseOutQuad,
                         finish
                     );
-                });
+                }, orbitAnimOpts);
             }
         );
     }
@@ -8146,11 +8241,20 @@ async function showResult() {
         btn.classList.toggle('is-open', open);
     }
 
+    function fpSyncProfileMenuStacking() {
+        const dropdown = document.getElementById('profileDropdown');
+        const menu = dropdown && dropdown.closest('.profile-menu');
+        if (menu) {
+            menu.classList.toggle('profile-menu--open', !!(dropdown && dropdown.classList.contains('active')));
+        }
+    }
+
     function toggleProfileMenu(event) {
         if (event) event.stopPropagation();
         const dropdown = document.getElementById('profileDropdown');
         const willOpen = !dropdown.classList.contains('active');
         dropdown.classList.toggle('active');
+        fpSyncProfileMenuStacking();
         if (willOpen) {
             closeProfileArchetypePanel();
             cancelNicknameEdit();
@@ -8165,6 +8269,7 @@ async function showResult() {
         if (dropdown && !profileMenu) {
             dropdown.classList.remove('active');
             closeProfileArchetypePanel();
+            fpSyncProfileMenuStacking();
         }
     });
 
