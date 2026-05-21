@@ -5814,6 +5814,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return cornerR;
     }
 
+    /** Орбита чуть снаружи кнопки — луч по краю, на кнопку заходит минимально */
+    function fpGoalOrbitOutsetPx() {
+        return fpIsMobileViewport() ? 5 : 4;
+    }
+
+    function fpGoalOrbitPerimeterRect(btnRect, cornerR) {
+        const o = fpGoalOrbitOutsetPx();
+        const W = btnRect.width + 2 * o;
+        const H = btnRect.height + 2 * o;
+        return {
+            L: btnRect.left - o,
+            T: btnRect.top - o,
+            W: W,
+            H: H,
+            R: fpClamp(cornerR + o, 0, Math.min(W, H) / 2 - 0.5)
+        };
+    }
+
     /** Плавное сияние звезды на «Моя цель» после попадания метеора */
     function fpPulseGoalNavStar(holdMs, opts) {
         opts = opts || {};
@@ -6161,6 +6179,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return out;
     }
 
+    /** Убирает лишние точки на прямых, углы не срезает (в отличие от fpDecimatePolyline) */
+    function fpDecimateCollinear(pts, eps) {
+        if (!pts || pts.length < 3) return pts;
+        eps = eps == null ? 2.5 : eps;
+        const out = [pts[0]];
+        for (let i = 1; i < pts.length - 1; i++) {
+            const a = out[out.length - 1];
+            const b = pts[i];
+            const c = pts[i + 1];
+            const cross = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+            const denom = Math.hypot(c.x - a.x, c.y - a.y);
+            const dist = denom > 1e-6 ? Math.abs(cross) / denom : 0;
+            if (dist > eps) out.push(b);
+        }
+        out.push(pts[pts.length - 1]);
+        return out;
+    }
+
     function fpPathTangentAngle(points, segLens, total, dist, lookAhead) {
         lookAhead = lookAhead == null ? 10 : lookAhead;
         const d0 = fpClamp(dist, 0, Math.max(0, total - 0.001));
@@ -6287,7 +6323,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const mobileOrbit = fpIsMobileViewport();
-        const path = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, mobileOrbit ? 14 : 9);
+        const orbitRect = fpGoalOrbitPerimeterRect(br, cornerR);
+        const path = fpRoundedRectPerimeterPts(
+            orbitRect.L,
+            orbitRect.T,
+            orbitRect.W,
+            orbitRect.H,
+            orbitRect.R,
+            mobileOrbit ? 10 : 9
+        );
         const startIdx = fpNearestPathIndex(path, ex, ey);
         const n = path.length;
         const iPrev = (startIdx - 1 + n) % n;
@@ -6327,8 +6371,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 let loopLayer = loopWorld.map(function (p) {
                     return toLayer(p.x, p.y);
                 });
-                if (mobileOrbit) {
-                    loopLayer = fpDecimatePolyline(loopLayer, opts.blueBright ? 56 : 72);
+                if (mobileOrbit && loopLayer.length > 96) {
+                    loopLayer = fpDecimateCollinear(loopLayer, 2.2);
                 }
                 const dur2 = opts.blueBright ? 1320 : 1120;
                 const orbitAnimOpts = {
