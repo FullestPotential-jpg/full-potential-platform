@@ -5974,6 +5974,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fpGoalOrbitAnimating = true;
             fpRunGoalMeteorAnimation({
                 layer: ctx.orbitLayer,
+                btn: ctx.btn,
                 sx: sx,
                 sy: sy,
                 ex: ex,
@@ -6119,6 +6120,39 @@ document.addEventListener('DOMContentLoaded', function() {
         return 1 - (1 - t) * (1 - t);
     }
 
+    /** Точка на полилинии по u ∈ [0, 1] (длина по дуге) */
+    function fpSamplePolylineAtU(points, u) {
+        if (!points || points.length < 2) {
+            const p0 = points && points[0] ? points[0] : { x: 0, y: 0 };
+            return { x: p0.x, y: p0.y };
+        }
+        const segLens = [];
+        let total = 0;
+        for (let i = 1; i < points.length; i++) {
+            const d = Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+            segLens.push(d);
+            total += d;
+        }
+        if (total < 1e-6) {
+            return { x: points[0].x, y: points[0].y };
+        }
+        let dist = fpClamp(u, 0, 1) * total;
+        let acc = 0;
+        let i = 0;
+        for (; i < segLens.length; i++) {
+            if (acc + segLens[i] >= dist) break;
+            acc += segLens[i];
+        }
+        const sl = segLens[i] > 1e-6 ? segLens[i] : 1;
+        const segT = (dist - acc) / sl;
+        const p0 = points[i];
+        const p1 = points[i + 1];
+        return {
+            x: p0.x + (p1.x - p0.x) * segT,
+            y: p0.y + (p1.y - p0.y) * segT
+        };
+    }
+
     function fpPlaceMeteorHead(el, headX, headY, angleRad) {
         const w = el.offsetWidth || 90;
         const tx = headX - Math.cos(angleRad) * w;
@@ -6176,8 +6210,32 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(frame);
     }
 
+    /** Движение по траектории, привязанной к кнопке каждый кадр (скролл не сбивает орбиту) */
+    function fpAnimateHeadAlongPolylineDynamic(el, getPointAtU, durationMs, easing, done) {
+        const t0 = performance.now();
+        function frame(now) {
+            let u = (now - t0) / durationMs;
+            if (u >= 1) {
+                const p = getPointAtU(1);
+                if (p) fpPlaceMeteorHead(el, p.x, p.y, p.ang);
+                done();
+                return;
+            }
+            u = easing ? easing(u) : u;
+            const p = getPointAtU(u);
+            if (!p) {
+                done();
+                return;
+            }
+            fpPlaceMeteorHead(el, p.x, p.y, p.ang);
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    }
+
     function fpRunGoalMeteorAnimation(opts) {
         const layer = opts.layer;
+        const btn = opts.btn;
         const sx = opts.sx;
         const sy = opts.sy;
         const ex = opts.ex;
@@ -6192,69 +6250,121 @@ document.addEventListener('DOMContentLoaded', function() {
         el.setAttribute('aria-hidden', 'true');
         layer.appendChild(el);
 
-        const layerRect = layer.getBoundingClientRect();
-        function toLayer(wx, wy) {
-            return { x: wx - layerRect.left, y: wy - layerRect.top };
+        if (!btn || !btn.isConnected) {
+            el.remove();
+            fpGoalOrbitAnimating = false;
+            return;
         }
 
-        const path = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, fpIsMobileViewport() ? 6 : 9);
-        const startIdx = fpNearestPathIndex(path, ex, ey);
-        const n = path.length;
-        const iPrev = (startIdx - 1 + n) % n;
-        const iNext = (startIdx + 1) % n;
-        const tCwX = path[iNext].x - path[startIdx].x;
-        const tCwY = path[iNext].y - path[startIdx].y;
-        const tCcwX = path[startIdx].x - path[iPrev].x;
-        const tCcwY = path[startIdx].y - path[iPrev].y;
-        const dotCw = vx * tCwX + vy * tCwY;
-        const dotCcw = vx * tCcwX + vy * tCcwY;
-        const dir = dotCw >= dotCcw ? 1 : -1;
+        const layerRect0 = layer.getBoundingClientRect();
+        const pStart = { x: sx - layerRect0.left, y: sy - layerRect0.top };
+        const hitLocalX = ex - br.left;
+        const hitLocalY = ey - br.top;
+        const segLen = fpIsMobileViewport() ? 6 : 9;
 
-        const pStart = toLayer(sx, sy);
-        const pHit = toLayer(ex, ey);
-        const approachLen = Math.hypot(pHit.x - pStart.x, pHit.y - pStart.y);
+        const path0 = fpRoundedRectPerimeterPts(br.left, br.top, br.width, br.height, cornerR, segLen);
+        const startIdx0 = fpNearestPathIndex(path0, ex, ey);
+        const n0 = path0.length;
+        const iPrev0 = (startIdx0 - 1 + n0) % n0;
+        const iNext0 = (startIdx0 + 1) % n0;
+        const dotCw =
+            vx * (path0[iNext0].x - path0[startIdx0].x) + vy * (path0[iNext0].y - path0[startIdx0].y);
+        const dotCcw =
+            vx * (path0[startIdx0].x - path0[iPrev0].x) + vy * (path0[startIdx0].y - path0[iPrev0].y);
+        const orbitDir = dotCw >= dotCcw ? 1 : -1;
+
+        const lr0 = layer.getBoundingClientRect();
+        const hx0 = br.left + hitLocalX - lr0.left;
+        const hy0 = br.top + hitLocalY - lr0.top;
+        const approachLen = Math.hypot(hx0 - pStart.x, hy0 - pStart.y);
         const dur1 = fpClamp(approachLen / 520, 0.32, 0.62) * 1000;
+        const exitYOffset = (Math.random() - 0.5) * 36;
 
         function finish() {
             el.remove();
             fpGoalOrbitAnimating = false;
         }
 
-        const angApproach = Math.atan2(pHit.y - pStart.y, pHit.x - pStart.x);
-        fpPlaceMeteorHead(el, pStart.x, pStart.y, angApproach);
+        function goalBtnVisible() {
+            if (!btn.isConnected) return false;
+            const r = btn.getBoundingClientRect();
+            return r.width >= 8 && r.height >= 8;
+        }
+
+        function orbitWorldLoop() {
+            const brNow = btn.getBoundingClientRect();
+            const path = fpRoundedRectPerimeterPts(
+                brNow.left,
+                brNow.top,
+                brNow.width,
+                brNow.height,
+                cornerR,
+                segLen
+            );
+            const hitVx = brNow.left + hitLocalX;
+            const hitVy = brNow.top + hitLocalY;
+            const startIdx = fpNearestPathIndex(path, hitVx, hitVy);
+            return fpPolylineFromLoop(path, startIdx, orbitDir);
+        }
+
+        function getApproachLayerPoint(u) {
+            if (!goalBtnVisible()) return null;
+            const lr = layer.getBoundingClientRect();
+            const brNow = btn.getBoundingClientRect();
+            const hx = brNow.left + hitLocalX - lr.left;
+            const hy = brNow.top + hitLocalY - lr.top;
+            const x = pStart.x + (hx - pStart.x) * u;
+            const y = pStart.y + (hy - pStart.y) * u;
+            return { x: x, y: y, ang: Math.atan2(hy - pStart.y, hx - pStart.x) };
+        }
+
+        function getOrbitLayerPoint(u) {
+            if (!goalBtnVisible()) return null;
+            const lr = layer.getBoundingClientRect();
+            const loopWorld = orbitWorldLoop();
+            const p = fpSamplePolylineAtU(loopWorld, u);
+            const p2 = fpSamplePolylineAtU(loopWorld, Math.min(1, u + 0.006));
+            return {
+                x: p.x - lr.left,
+                y: p.y - lr.top,
+                ang: Math.atan2(p2.y - p.y, p2.x - p.x)
+            };
+        }
+
+        function getExitLayerPoint(u) {
+            if (!goalBtnVisible()) return null;
+            const endOrbit = getOrbitLayerPoint(1);
+            if (!endOrbit) return null;
+            const lr = layer.getBoundingClientRect();
+            const targetX = lr.width + 80;
+            const targetY = endOrbit.y + exitYOffset;
+            const x = endOrbit.x + (targetX - endOrbit.x) * u;
+            const y = endOrbit.y + (targetY - endOrbit.y) * u;
+            return { x: x, y: y, ang: Math.atan2(targetY - endOrbit.y, targetX - endOrbit.x) };
+        }
+
+        const p0 = getApproachLayerPoint(0);
+        if (p0) fpPlaceMeteorHead(el, p0.x, p0.y, p0.ang);
         void el.offsetWidth;
 
-        fpAnimateHeadAlongPolyline(
-            el,
-            [pStart, pHit],
-            dur1,
-            fpEaseOutQuad,
-            function afterApproach() {
-                if (opts.blueBright) {
-                    fpPulseGoalNavStar(7000, { blueBright: true });
-                }
-                const loopWorld = fpPolylineFromLoop(path, startIdx, dir);
-                const loopLayer = loopWorld.map(function (p) {
-                    return toLayer(p.x, p.y);
-                });
-                const dur2 = opts.blueBright ? 1320 : 1120;
-
-                fpAnimateHeadAlongPolyline(el, loopLayer, dur2, null, function afterOrbit() {
-                    const last = loopLayer[loopLayer.length - 1];
-                    const targetX = layerRect.width + 80;
-                    const targetY = last.y + (Math.random() - 0.5) * 36;
-                    const angOut = Math.atan2(targetY - last.y, targetX - last.x);
-                    fpPlaceMeteorHead(el, last.x, last.y, angOut);
-                    fpAnimateHeadAlongPolyline(
-                        el,
-                        [last, { x: targetX, y: targetY }],
-                        480,
-                        fpEaseOutQuad,
-                        finish
-                    );
-                });
+        fpAnimateHeadAlongPolylineDynamic(el, getApproachLayerPoint, dur1, fpEaseOutQuad, function afterApproach() {
+            if (!goalBtnVisible()) {
+                finish();
+                return;
             }
-        );
+            if (opts.blueBright) {
+                fpPulseGoalNavStar(7000, { blueBright: true });
+            }
+            const dur2 = opts.blueBright ? 1320 : 1120;
+
+            fpAnimateHeadAlongPolylineDynamic(el, getOrbitLayerPoint, dur2, null, function afterOrbit() {
+                if (!goalBtnVisible()) {
+                    finish();
+                    return;
+                }
+                fpAnimateHeadAlongPolylineDynamic(el, getExitLayerPoint, 480, fpEaseOutQuad, finish);
+            });
+        });
     }
 
     /**
@@ -6297,6 +6407,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fpGoalOrbitAnimating = true;
             fpRunGoalMeteorAnimation({
                 layer: ctx.orbitLayer,
+                btn: ctx.btn,
                 sx: sx,
                 sy: sy,
                 ex: ex,
