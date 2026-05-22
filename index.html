@@ -2037,6 +2037,84 @@
             background: rgba(99, 102, 241, 0.08);
             color: #1a2858;
         }
+        .goal-list-view {
+            padding: 4px 0 24px;
+        }
+        .goal-list-view__title {
+            margin: 0 0 18px;
+            text-align: center;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(1.35rem, 4vw, 1.65rem);
+            font-weight: 600;
+            font-style: italic;
+            color: #141c42;
+        }
+        .goal-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+        .goal-card {
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: 1px solid rgba(120, 165, 255, 0.38);
+            border-radius: 18px;
+            padding: 18px 20px;
+            cursor: pointer;
+            color: #f0f5ff;
+            background-color: #080c22;
+            background-image:
+                radial-gradient(1px 1px at 12% 28%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 28% 72%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1.5px 1.5px at 55% 22%, rgba(255,255,255,0.85), transparent),
+                radial-gradient(1px 1px at 78% 58%, rgba(255,255,255,0.7), transparent),
+                linear-gradient(165deg, #060818 0%, #0f1438 46%, #162454 100%);
+            box-shadow: 0 10px 28px rgba(8, 12, 42, 0.32), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .goal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(8, 12, 42, 0.4), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .goal-card__text {
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.45;
+            letter-spacing: 0.02em;
+        }
+        .goal-card__meta {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: rgba(200, 220, 255, 0.75);
+        }
+        .goal-add-btn {
+            display: block;
+            width: 100%;
+            border: 1px solid rgba(130, 150, 210, 0.35);
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: #1a2858;
+            background: rgba(255, 255, 255, 0.92);
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+        .goal-add-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+        .goal-flow-view--hidden {
+            display: none !important;
+        }
+        .goal-list-view--hidden {
+            display: none !important;
+        }
         html.fp-platform-dark .goal-flow__panel {
             background: linear-gradient(168deg, #12182e 0%, #0e1428 100%);
             border-color: rgba(130, 150, 210, 0.22);
@@ -5943,6 +6021,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.plan_week_title': 'Первая неделя',
             'goal.plan_tips_title': 'Советы для вашего архетипа',
             'goal.plan_edit': 'Изменить цель',
+            'goal.list_title': 'Мои цели',
+            'goal.add_goal_btn': 'Добавить цель',
+            'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
+            'goal.card_no_plan': 'Продолжить настройку',
+            'goal.back_to_list': '← К списку целей',
             'goal.err_short': 'Опишите цель чуть подробнее (минимум 3 символа).',
             'goal.err_no_archetype': 'Сначала пройдите тест, чтобы определить архетип.',
             'goal.err_api': 'Не удалось получить план. Проверьте подключение и настройку OpenRouter в Supabase.',
@@ -6110,6 +6193,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.plan_week_title': 'First week',
             'goal.plan_tips_title': 'Tips for your archetype',
             'goal.plan_edit': 'Edit goal',
+            'goal.list_title': 'My goals',
+            'goal.add_goal_btn': 'Add goal',
+            'goal.card_has_plan': 'Plan ready — tap to open',
+            'goal.card_no_plan': 'Continue setup',
+            'goal.back_to_list': '← Back to goals',
             'goal.err_short': 'Describe your goal in a bit more detail (at least 3 characters).',
             'goal.err_no_archetype': 'Take the test first to discover your archetype.',
             'goal.err_api': 'Could not load the plan. Check your connection and OpenRouter setup in Supabase.',
@@ -8930,6 +9018,9 @@ function openGoalScreen(event) {
     if (prevTa && prevTa.value.trim().length >= 1 && typeof fpGoalSaveDraft === 'function') {
         fpGoalSaveDraft(prevTa.value);
     }
+    var existing = typeof fpGoalMigrateLegacyGoals === 'function' ? fpGoalMigrateLegacyGoals() : [];
+    fpGoalViewMode = existing.length > 0 ? 'list' : 'new';
+    fpGoalActiveId = null;
     const platformScreen = document.getElementById('platform-screen');
     if (platformScreen) platformScreen.classList.add('platform-screen--goal-open');
     document.getElementById('platform-main').style.display = 'none';
@@ -8959,7 +9050,10 @@ function setGoalNavActive(isActive) {
     const FP_GOAL_DRAFT_KEY = 'fp_goal_draft';
     const FP_GOAL_PLAN_KEY = 'fp_goal_last_plan';
     const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
+    const FP_GOALS_LIST_KEY = 'fp_goals_list';
     var fpGoalCurrentStep = 1;
+    var fpGoalViewMode = 'list';
+    var fpGoalActiveId = null;
 
     function fpGoalUserStorageSuffix() {
         if (!currentUser) return '';
@@ -8976,6 +9070,181 @@ function setGoalNavActive(isActive) {
     function fpGoalAnswersStorageKey() {
         var suf = fpGoalUserStorageSuffix();
         return suf ? FP_GOAL_ANSWERS_KEY + '_' + suf : FP_GOAL_ANSWERS_KEY;
+    }
+
+    function fpGoalGoalsStorageKey() {
+        var suf = fpGoalUserStorageSuffix();
+        return suf ? FP_GOALS_LIST_KEY + '_' + suf : FP_GOALS_LIST_KEY;
+    }
+
+    function fpGoalLegacyPlanKey() {
+        var suf = fpGoalUserStorageSuffix();
+        return suf ? FP_GOAL_PLAN_KEY + '_' + suf : FP_GOAL_PLAN_KEY;
+    }
+
+    function fpGoalNewId() {
+        return 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    }
+
+    function fpGoalCardLabel(text, plan) {
+        var t = String(text || '').trim();
+        if (plan && plan.title) {
+            var pt = String(plan.title).trim();
+            if (pt.length >= 3) return pt.length > 140 ? pt.slice(0, 137) + '…' : pt;
+        }
+        if (!t) return fpT('goal.screen_title');
+        return t.length > 140 ? t.slice(0, 137) + '…' : t;
+    }
+
+    function fpGoalLoadGoalsList() {
+        try {
+            var raw = localStorage.getItem(fpGoalGoalsStorageKey());
+            if (raw) {
+                var arr = JSON.parse(raw);
+                if (Array.isArray(arr)) return arr;
+            }
+        } catch (e) {}
+        return [];
+    }
+
+    function fpGoalSaveGoalsList(goals) {
+        try {
+            localStorage.setItem(fpGoalGoalsStorageKey(), JSON.stringify(goals.slice(0, 50)));
+        } catch (e) {}
+    }
+
+    function fpGoalFindGoal(goals, id) {
+        if (!id || !goals) return null;
+        for (var i = 0; i < goals.length; i++) {
+            if (goals[i].id === id) return goals[i];
+        }
+        return null;
+    }
+
+    function fpGoalMigrateLegacyGoals() {
+        var goals = fpGoalLoadGoalsList();
+        if (goals.length) return goals;
+
+        var text = fpGoalLoadDraft();
+        var plan = null;
+        var answers = fpGoalLoadAnswers();
+        try {
+            var pr = localStorage.getItem(fpGoalLegacyPlanKey());
+            if (!pr) pr = localStorage.getItem(FP_GOAL_PLAN_KEY);
+            if (pr) plan = JSON.parse(pr);
+        } catch (e) {}
+
+        if (!text && !plan) return goals;
+
+        var entry = {
+            id: fpGoalNewId(),
+            text: text || (plan && plan.title) || '',
+            label: fpGoalCardLabel(text, plan),
+            plan: plan,
+            answers: answers,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        };
+        goals = [entry];
+        fpGoalSaveGoalsList(goals);
+        return goals;
+    }
+
+    function fpGoalUpsertActive(goalText, plan, answers) {
+        var goals = fpGoalMigrateLegacyGoals();
+        var now = Date.now();
+        var entry = fpGoalActiveId ? fpGoalFindGoal(goals, fpGoalActiveId) : null;
+
+        if (!entry) {
+            entry = {
+                id: fpGoalNewId(),
+                text: goalText,
+                label: fpGoalCardLabel(goalText, plan),
+                plan: plan,
+                answers: answers,
+                createdAt: now,
+                updatedAt: now
+            };
+            goals.unshift(entry);
+            fpGoalActiveId = entry.id;
+        } else {
+            entry.text = goalText;
+            entry.plan = plan;
+            entry.answers = answers;
+            entry.label = fpGoalCardLabel(goalText, plan);
+            entry.updatedAt = now;
+        }
+        fpGoalSaveGoalsList(goals);
+        return entry;
+    }
+
+    function fpGoalShowListView() {
+        fpGoalViewMode = 'list';
+        fpGoalActiveId = null;
+        var listEl = document.getElementById('goalListView');
+        var flowEl = document.getElementById('goalFlowView');
+        if (listEl) listEl.classList.remove('goal-list-view--hidden');
+        if (flowEl) flowEl.classList.add('goal-flow-view--hidden');
+    }
+
+    function fpGoalShowFlowView() {
+        var listEl = document.getElementById('goalListView');
+        var flowEl = document.getElementById('goalFlowView');
+        if (listEl) listEl.classList.add('goal-list-view--hidden');
+        if (flowEl) flowEl.classList.remove('goal-flow-view--hidden');
+    }
+
+    function fpGoalBackToList() {
+        fpGoalHideError();
+        fpGoalShowListView();
+        fpGoalRenderGoalsList();
+    }
+
+    function fpGoalStartNewGoal() {
+        fpGoalViewMode = 'new';
+        fpGoalActiveId = null;
+        renderGoalContent();
+    }
+
+    function fpGoalOpenGoal(goalId) {
+        var goals = fpGoalMigrateLegacyGoals();
+        var g = fpGoalFindGoal(goals, goalId);
+        if (!g) return;
+        fpGoalActiveId = goalId;
+        if (g.plan) {
+            fpGoalViewMode = 'detail';
+            renderGoalContent();
+        } else {
+            fpGoalViewMode = 'edit';
+            renderGoalContent();
+        }
+    }
+
+    function fpGoalRenderGoalsList() {
+        var wrap = document.getElementById('goalCardsList');
+        if (!wrap) return;
+        var goals = fpGoalMigrateLegacyGoals();
+        if (!goals.length) {
+            fpGoalStartNewGoal();
+            return;
+        }
+        var html = '';
+        goals.forEach(function (g) {
+            var meta = g.plan
+                ? fpT('goal.card_has_plan')
+                : fpT('goal.card_no_plan');
+            html +=
+                '<button type="button" class="goal-card" data-goal-id="' +
+                fpGoalEscapeHtml(g.id) +
+                '" onclick="fpGoalOpenGoal(this.getAttribute(\'data-goal-id\'))">' +
+                '<span class="goal-card__text">' +
+                fpGoalEscapeHtml(g.label || g.text || '') +
+                '</span>' +
+                '<span class="goal-card__meta">' +
+                fpGoalEscapeHtml(meta) +
+                '</span></button>';
+        });
+        wrap.innerHTML = html;
     }
 
     function fpGoalLoadDraft() {
@@ -9039,6 +9308,15 @@ function setGoalNavActive(isActive) {
             localStorage.setItem(key, JSON.stringify(answers));
             if (key !== FP_GOAL_ANSWERS_KEY) {
                 localStorage.setItem(FP_GOAL_ANSWERS_KEY, JSON.stringify(answers));
+            }
+            if (fpGoalActiveId) {
+                var goals = fpGoalLoadGoalsList();
+                var entry = fpGoalFindGoal(goals, fpGoalActiveId);
+                if (entry) {
+                    entry.answers = answers;
+                    entry.updatedAt = Date.now();
+                    fpGoalSaveGoalsList(goals);
+                }
             }
         } catch (e) {}
     }
@@ -9139,6 +9417,30 @@ function setGoalNavActive(isActive) {
             return;
         }
         fpGoalSaveDraft(ta.value);
+        if (!fpGoalActiveId) {
+            var goals = fpGoalLoadGoalsList();
+            var draftEntry = {
+                id: fpGoalNewId(),
+                text: goal,
+                label: fpGoalCardLabel(goal, null),
+                plan: null,
+                answers: null,
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+            goals.unshift(draftEntry);
+            fpGoalSaveGoalsList(goals);
+            fpGoalActiveId = draftEntry.id;
+        } else {
+            var goals2 = fpGoalLoadGoalsList();
+            var e2 = fpGoalFindGoal(goals2, fpGoalActiveId);
+            if (e2) {
+                e2.text = goal;
+                e2.label = fpGoalCardLabel(goal, e2.plan);
+                e2.updatedAt = Date.now();
+                fpGoalSaveGoalsList(goals2);
+            }
+        }
         fpGoalHideError();
         fpGoalSetStep(2);
         fpGoalOnQuestionsInput();
@@ -9288,12 +9590,16 @@ function setGoalNavActive(isActive) {
             .replace(/"/g, '&quot;');
     }
 
-    function fpGoalRenderPlan(plan) {
+    function fpGoalRenderPlan(plan, options) {
+        var opts = options || {};
         var panel = document.getElementById('goalPlanPanel');
-        var inputPanel = document.getElementById('goalInputPanel');
+        var step1 = document.getElementById('goalStep1Panel');
+        var step2 = document.getElementById('goalStep2Panel');
         var loading = document.getElementById('goalFlowLoading');
         if (!panel) return;
-        if (inputPanel) inputPanel.style.display = 'none';
+        fpGoalShowFlowView();
+        if (step1) step1.classList.add('goal-flow__panel--hidden');
+        if (step2) step2.classList.add('goal-flow__panel--hidden');
         if (loading) loading.classList.remove('is-active');
 
         var phasesHtml = '';
@@ -9357,29 +9663,23 @@ function setGoalNavActive(isActive) {
             phasesHtml +
             tipsHtml +
             weekHtml +
-            '<button type="button" class="goal-plan-edit-btn" onclick="fpGoalBackToInput()">' +
-            fpT('goal.plan_edit') +
+            '<button type="button" class="goal-plan-edit-btn" onclick="fpGoalBackToList()">' +
+            fpT('goal.back_to_list') +
             '</button>';
 
         panel.classList.add('is-visible');
         fpGoalSetStep(3);
-        try {
-            localStorage.setItem(FP_GOAL_PLAN_KEY, JSON.stringify(plan));
-        } catch (e) {}
+        var stepsBar = document.getElementById('goalStepsBar');
+        if (stepsBar) stepsBar.style.display = 'none';
+        if (!opts.skipPersist) {
+            try {
+                localStorage.setItem(fpGoalLegacyPlanKey(), JSON.stringify(plan));
+            } catch (e) {}
+        }
     }
 
     function fpGoalBackToInput() {
-        var panel = document.getElementById('goalPlanPanel');
-        var loading = document.getElementById('goalFlowLoading');
-        if (panel) {
-            panel.classList.remove('is-visible');
-            panel.innerHTML = '';
-        }
-        if (loading) loading.classList.remove('is-active');
-        fpGoalSetStep(1);
-        var ta = document.getElementById('goalUserInput');
-        if (ta) fpGoalSaveDraft(ta.value);
-        fpGoalOnInput();
+        fpGoalBackToList();
     }
 
     async function fpGoalLaunchPlan() {
@@ -9411,6 +9711,7 @@ function setGoalNavActive(isActive) {
             return;
         }
         fpGoalSaveAnswers(answers);
+        fpGoalSaveDraft(goal);
 
         var ak = typeof resolveArchetypeKeyFromUser === 'function'
             ? resolveArchetypeKeyFromUser(currentUser)
@@ -9429,9 +9730,6 @@ function setGoalNavActive(isActive) {
         }
 
         fpGoalHideError();
-        try {
-            localStorage.removeItem(FP_GOAL_PLAN_KEY);
-        } catch (e) {}
         if (btn) btn.disabled = true;
         if (step2) step2.style.opacity = '0.55';
         if (loading) loading.classList.add('is-active');
@@ -9523,7 +9821,9 @@ function setGoalNavActive(isActive) {
                 return;
             }
 
-            fpGoalRenderPlan(data.plan);
+            fpGoalUpsertActive(goal, data.plan, answers);
+            fpGoalViewMode = 'detail';
+            fpGoalRenderPlan(data.plan, { skipPersist: true });
         } catch (e) {
             console.error('[goal-plan]', e);
             fpGoalShowError(fpT('goal.err_api'));
@@ -9538,14 +9838,42 @@ function setGoalNavActive(isActive) {
         var container = document.getElementById('goal-content');
         if (!container) return;
 
-        var draft = typeof fpGoalLoadDraft === 'function' ? fpGoalLoadDraft() : '';
+        var goals = fpGoalMigrateLegacyGoals();
+        if (fpGoalViewMode === 'list' && goals.length > 0) {
+            /* list mode — set below after shell */
+        } else if (fpGoalViewMode === 'list' && !goals.length) {
+            fpGoalViewMode = 'new';
+        }
+
+        var activeGoal = fpGoalActiveId ? fpGoalFindGoal(goals, fpGoalActiveId) : null;
+        var draft = '';
+        if (activeGoal && activeGoal.text) {
+            draft = activeGoal.text;
+        } else if (fpGoalViewMode !== 'new' || fpGoalActiveId) {
+            draft = typeof fpGoalLoadDraft === 'function' ? fpGoalLoadDraft() : '';
+        }
 
         var archetypeName = currentUser
             ? fpArchetypeDisplayNameFromUser(currentUser)
             : fpT('goal.archetype_fallback');
 
+        var showList = fpGoalViewMode === 'list' && goals.length > 0;
+
         container.innerHTML =
             '<div class="goal-flow">' +
+            '<div id="goalListView" class="goal-list-view' +
+            (showList ? '' : ' goal-list-view--hidden') +
+            '">' +
+            '<p class="goal-list-view__title" data-i18n="goal.list_title">' +
+            fpT('goal.list_title') +
+            '</p>' +
+            '<div class="goal-cards" id="goalCardsList"></div>' +
+            '<button type="button" class="goal-add-btn" onclick="fpGoalStartNewGoal()" data-i18n="goal.add_goal_btn">' +
+            fpT('goal.add_goal_btn') +
+            '</button></div>' +
+            '<div id="goalFlowView" class="goal-flow-view' +
+            (showList ? ' goal-flow-view--hidden' : '') +
+            '">' +
             '<nav class="goal-steps" id="goalStepsBar" aria-label="Goal flow steps">' +
             '<div class="goal-steps__item is-active" data-step="1">' +
             '<span class="goal-steps__dot">1</span><span data-i18n="goal.step_goal">' +
@@ -9580,6 +9908,11 @@ function setGoalNavActive(isActive) {
             fpT('goal.next_btn') +
             '</button></div>' +
             '<div class="goal-flow__error" id="goalFlowError" role="alert"></div>' +
+            (goals.length > 0
+                ? '<button type="button" class="goal-back-step-btn" style="margin-top:14px;width:100%" onclick="fpGoalBackToList()" data-i18n="goal.back_to_list">' +
+                  fpT('goal.back_to_list') +
+                  '</button>'
+                : '') +
             '</div>' +
             '<div class="goal-flow__panel goal-questions-panel goal-flow__panel--hidden" id="goalStep2Panel">' +
             '<p class="goal-flow__label" data-i18n="goal.step_questions">' +
@@ -9640,18 +9973,39 @@ function setGoalNavActive(isActive) {
             '<p data-i18n="goal.launch_loading">' +
             fpT('goal.launch_loading') +
             '</p></div>' +
-            '<div class="goal-plan-panel" id="goalPlanPanel"></div></div>';
+            '<div class="goal-plan-panel" id="goalPlanPanel"></div></div></div>';
 
-        fpGoalCurrentStep = 1;
+        if (showList) {
+            fpGoalRenderGoalsList();
+            return;
+        }
+
+        fpGoalShowFlowView();
         var ta = document.getElementById('goalUserInput');
         if (ta) {
             ta.value = draft;
             fpGoalOnInput();
         }
-        fpGoalBindAnswersToForm(fpGoalLoadAnswers());
-        fpGoalSetStep(1);
+        var savedAnswers =
+            activeGoal && activeGoal.answers
+                ? activeGoal.answers
+                : fpGoalLoadAnswers();
+        fpGoalBindAnswersToForm(savedAnswers);
 
+        if (fpGoalViewMode === 'detail' && activeGoal && activeGoal.plan) {
+            fpGoalRenderPlan(activeGoal.plan, { skipPersist: true });
+            return;
+        }
+
+        fpGoalCurrentStep = 1;
+        var stepsBarInit = document.getElementById('goalStepsBar');
+        if (stepsBarInit) stepsBarInit.style.display = '';
+        fpGoalSetStep(1);
     }
+
+    window.fpGoalOpenGoal = fpGoalOpenGoal;
+    window.fpGoalStartNewGoal = fpGoalStartNewGoal;
+    window.fpGoalBackToList = fpGoalBackToList;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
