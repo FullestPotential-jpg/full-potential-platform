@@ -5773,6 +5773,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_short': 'Опишите цель чуть подробнее (минимум 3 символа).',
             'goal.err_no_archetype': 'Сначала пройдите тест, чтобы определить архетип.',
             'goal.err_api': 'Не удалось получить план. Проверьте подключение и настройку OpenRouter в Supabase.',
+            'goal.err_401': 'Доступ к функции запрещён (401). В Supabase: Edge Functions → goal-plan-generate → выключите «Verify JWT with legacy secret» и снова Deploy.',
             'goal.err_openrouter_key': 'На сервере не задан OPENROUTER_API_KEY (Supabase → Edge Functions → Secrets).',
             'goal.archetype_fallback': 'Ваш архетип',
             'night_scene.archetype_icon_title': 'Иконка вашего архетипа',
@@ -5923,6 +5924,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_short': 'Describe your goal in a bit more detail (at least 3 characters).',
             'goal.err_no_archetype': 'Take the test first to discover your archetype.',
             'goal.err_api': 'Could not load the plan. Check your connection and OpenRouter setup in Supabase.',
+            'goal.err_401': 'Function access denied (401). In Supabase: Edge Functions → goal-plan-generate → turn OFF «Verify JWT with legacy secret», then Deploy again.',
             'goal.err_openrouter_key': 'OPENROUTER_API_KEY is not set on the server (Supabase → Edge Functions → Secrets).',
             'goal.archetype_fallback': 'Your archetype',
             'night_scene.archetype_icon_title': 'Your archetype icon',
@@ -8940,32 +8942,63 @@ function setGoalNavActive(isActive) {
 
         var lang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
 
-        try {
-            var res = await fetch(base.replace(/\/$/, '') + '/functions/v1/goal-plan-generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + key,
-                    apikey: key
-                },
-                body: JSON.stringify({
-                    goal: goal,
-                    lang: lang,
-                    archetype_key: ak || '',
-                    archetype_name: fpArchetypeDisplayNameFromUser(currentUser),
-                    archetype_profile: profile
-                })
-            });
+        var payload = {
+            goal: goal,
+            lang: lang,
+            archetype_key: ak || '',
+            archetype_name: fpArchetypeDisplayNameFromUser(currentUser),
+            archetype_profile: profile
+        };
 
-            var data = {};
-            try {
-                data = await res.json();
-            } catch (parseErr) {
-                data = {};
+        try {
+            var data = null;
+            var httpStatus = 0;
+
+            if (window.supabaseClient && typeof window.supabaseClient.functions.invoke === 'function') {
+                var invoked = await window.supabaseClient.functions.invoke('goal-plan-generate', {
+                    body: payload
+                });
+                if (invoked.error) {
+                    httpStatus = invoked.error.status || (invoked.error.name === 'FunctionsHttpError' ? 401 : 0);
+                    console.error('[goal-plan] invoke', invoked.error);
+                    if (httpStatus === 401) {
+                        fpGoalShowError(fpT('goal.err_401'));
+                        return;
+                    }
+                }
+                data = invoked.data;
+            } else {
+                var res = await fetch(base.replace(/\/$/, '') + '/functions/v1/goal-plan-generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: 'Bearer ' + key,
+                        apikey: key
+                    },
+                    body: JSON.stringify(payload)
+                });
+                httpStatus = res.status;
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    data = {};
+                }
+                if (httpStatus === 401) {
+                    fpGoalShowError(fpT('goal.err_401'));
+                    return;
+                }
+                if (!res.ok) {
+                    if (data && data.error === 'missing_openrouter_key') {
+                        fpGoalShowError(fpT('goal.err_openrouter_key'));
+                    } else {
+                        fpGoalShowError(fpT('goal.err_api'));
+                    }
+                    return;
+                }
             }
 
-            if (!res.ok || !data.ok) {
-                if (data.error === 'missing_openrouter_key') {
+            if (!data || !data.ok) {
+                if (data && data.error === 'missing_openrouter_key') {
                     fpGoalShowError(fpT('goal.err_openrouter_key'));
                 } else {
                     fpGoalShowError(fpT('goal.err_api'));
