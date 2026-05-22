@@ -8450,6 +8450,28 @@ const FP_ARCHETYPE_PREMIUM_LEGACY = {
     "hippocampus-serotonin-connection": "стабильный"
 };
 
+/** Уникальные подсказки для плана цели — по 8 архетипам (не делить 4 legacy-типа) */
+const FP_ARCHETYPE_GOAL_PLAN_HINTS_RU = {
+    "amygdala-dopamine-control": "ПРОВИДЕЦ: видение целиком, MVP за 1–2 нед., делегировать рутину, контроль стратегии. Слабость: хаос и чужие правки. План: кристаллизация видения → прототип → передача исполнения.",
+    "amygdala-dopamine-connection": "КОММУНИКАТОР: энергия от людей и признания. План: публичные обязательства, союзник, еженедельная обратная связь. Слабость: изоляция гасит цель.",
+    "amygdala-serotonin-control": "НОМАД: автономия, гибкий график, глубина. План: личные слоты, микрошаги, минимум внешнего контроля. Слабость: давление дедлайнов «сверху».",
+    "amygdala-serotonin-connection": "ПОСРЕДНИК: гармония, дипломатия. План: спокойная среда, границы, союзник для жёстких задач. Слабость: открытый конфликт истощает.",
+    "hippocampus-dopamine-control": "СТРАТЕГ: схемы, риски, KPI. План: дорожная карта, дедлайн на анализ, Plan B. Слабость: паралич анализом.",
+    "hippocampus-dopamine-connection": "ПИОНЕР: экспансия с командой. План: роли союзников, общие чекпоинты. Слабость: solo без единомышленников.",
+    "hippocampus-serotonin-control": "ИНЖЕНЕР: процессы, метрики, DoD. План: чеклисты, таймбоксы, малые релизы. Слабость: бесконечная настройка.",
+    "hippocampus-serotonin-connection": "ХРАНИТЕЛЬ: стабильность, ритуалы, «свои». План: постепенные шаги, привязка к ценностям. Слабость: резкие «революции»."
+};
+const FP_ARCHETYPE_GOAL_PLAN_HINTS_EN = {
+    "amygdala-dopamine-control": "SEER: whole vision, MVP in 1–2 weeks, delegate routine, keep strategy control. Weak: chaos and others editing vision. Plan: vision → prototype → handoff.",
+    "amygdala-dopamine-connection": "COMMUNICATOR: energy from people and recognition. Plan: public commitments, ally, weekly feedback. Weak: isolation kills the goal.",
+    "amygdala-serotonin-control": "NOMAD: autonomy, flexible schedule, depth. Plan: private slots, micro-steps, minimal external control. Weak: top-down deadline pressure.",
+    "amygdala-serotonin-connection": "MEDIATOR: harmony, diplomacy. Plan: calm environment, boundaries, ally for hard tasks. Weak: open conflict drains.",
+    "hippocampus-dopamine-control": "STRATEGIST: schemes, risks, KPIs. Plan: roadmap, analysis deadline, Plan B. Weak: analysis paralysis.",
+    "hippocampus-dopamine-connection": "PIONEER: expansion with a team. Plan: ally roles, shared checkpoints. Weak: solo without like-minded allies.",
+    "hippocampus-serotonin-control": "ENGINEER: processes, metrics, DoD. Plan: checklists, timeboxes, small releases. Weak: endless setup.",
+    "hippocampus-serotonin-connection": "KEEPER: stability, rituals, \"their people\". Plan: gradual steps, values anchor. Weak: sudden \"revolutions\"."
+};
+
 (function registerArchetypeKeysToFpMsg() {
     function registerBundle(bundle, lang) {
         Object.keys(bundle).forEach(function (k) {
@@ -8904,6 +8926,10 @@ async function showResult() {
 
 function openGoalScreen(event) {
     if (event) event.preventDefault();
+    var prevTa = document.getElementById('goalUserInput');
+    if (prevTa && prevTa.value.trim().length >= 1 && typeof fpGoalSaveDraft === 'function') {
+        fpGoalSaveDraft(prevTa.value);
+    }
     const platformScreen = document.getElementById('platform-screen');
     if (platformScreen) platformScreen.classList.add('platform-screen--goal-open');
     document.getElementById('platform-main').style.display = 'none';
@@ -8913,6 +8939,8 @@ function openGoalScreen(event) {
 }
 
 function closeGoalScreen() {
+    var ta = document.getElementById('goalUserInput');
+    if (ta && typeof fpGoalSaveDraft === 'function') fpGoalSaveDraft(ta.value);
     const platformScreen = document.getElementById('platform-screen');
     fpTaglineLiteShow();
     if (platformScreen) platformScreen.classList.remove('platform-screen--goal-open');
@@ -8932,6 +8960,49 @@ function setGoalNavActive(isActive) {
     const FP_GOAL_PLAN_KEY = 'fp_goal_last_plan';
     const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
     var fpGoalCurrentStep = 1;
+
+    function fpGoalUserStorageSuffix() {
+        if (!currentUser) return '';
+        if (currentUser.id) return String(currentUser.id);
+        if (currentUser.email) return String(currentUser.email).toLowerCase().replace(/[^a-z0-9@._-]/g, '_');
+        return '';
+    }
+
+    function fpGoalDraftStorageKey() {
+        var suf = fpGoalUserStorageSuffix();
+        return suf ? FP_GOAL_DRAFT_KEY + '_' + suf : FP_GOAL_DRAFT_KEY;
+    }
+
+    function fpGoalAnswersStorageKey() {
+        var suf = fpGoalUserStorageSuffix();
+        return suf ? FP_GOAL_ANSWERS_KEY + '_' + suf : FP_GOAL_ANSWERS_KEY;
+    }
+
+    function fpGoalLoadDraft() {
+        var key = fpGoalDraftStorageKey();
+        try {
+            var v = localStorage.getItem(key);
+            if (v != null && v !== '') return v;
+            if (key !== FP_GOAL_DRAFT_KEY) {
+                var legacy = localStorage.getItem(FP_GOAL_DRAFT_KEY);
+                if (legacy) {
+                    localStorage.setItem(key, legacy);
+                    return legacy;
+                }
+            }
+        } catch (e) {}
+        return '';
+    }
+
+    function fpGoalSaveDraft(text) {
+        try {
+            var val = text == null ? '' : String(text);
+            localStorage.setItem(fpGoalDraftStorageKey(), val);
+            if (fpGoalDraftStorageKey() !== FP_GOAL_DRAFT_KEY) {
+                localStorage.setItem(FP_GOAL_DRAFT_KEY, val);
+            }
+        } catch (e) {}
+    }
 
     function fpGoalSetStep(step) {
         fpGoalCurrentStep = step;
@@ -8964,13 +9035,21 @@ function setGoalNavActive(isActive) {
 
     function fpGoalSaveAnswers(answers) {
         try {
-            localStorage.setItem(FP_GOAL_ANSWERS_KEY, JSON.stringify(answers));
+            var key = fpGoalAnswersStorageKey();
+            localStorage.setItem(key, JSON.stringify(answers));
+            if (key !== FP_GOAL_ANSWERS_KEY) {
+                localStorage.setItem(FP_GOAL_ANSWERS_KEY, JSON.stringify(answers));
+            }
         } catch (e) {}
     }
 
     function fpGoalLoadAnswers() {
         try {
-            var raw = localStorage.getItem(FP_GOAL_ANSWERS_KEY);
+            var key = fpGoalAnswersStorageKey();
+            var raw = localStorage.getItem(key);
+            if (!raw && key !== FP_GOAL_ANSWERS_KEY) {
+                raw = localStorage.getItem(FP_GOAL_ANSWERS_KEY);
+            }
             if (raw) return JSON.parse(raw);
         } catch (e) {}
         return null;
@@ -9059,9 +9138,7 @@ function setGoalNavActive(isActive) {
             fpGoalShowError(fpT('goal.err_short'));
             return;
         }
-        try {
-            localStorage.setItem(FP_GOAL_DRAFT_KEY, ta.value);
-        } catch (e) {}
+        fpGoalSaveDraft(ta.value);
         fpGoalHideError();
         fpGoalSetStep(2);
         fpGoalOnQuestionsInput();
@@ -9102,11 +9179,28 @@ function setGoalNavActive(isActive) {
             ? resolveArchetypeKeyFromUser(user)
             : null;
 
+        var hintsRu = typeof FP_ARCHETYPE_GOAL_PLAN_HINTS_RU !== 'undefined'
+            ? FP_ARCHETYPE_GOAL_PLAN_HINTS_RU
+            : {};
+        var hintsEn = typeof FP_ARCHETYPE_GOAL_PLAN_HINTS_EN !== 'undefined'
+            ? FP_ARCHETYPE_GOAL_PLAN_HINTS_EN
+            : {};
+        var bundle = lang === 'en' && typeof ARCHETYPE_SOURCE_EN !== 'undefined'
+            ? ARCHETYPE_SOURCE_EN
+            : ARCHETYPE_SOURCE_RU;
+
         if (ak) {
-            parts.push('=== CORE ARCHETYPE (test result) ===');
+            parts.push('=== UNIQUE ARCHETYPE PROFILE (8 types — primary) ===');
             parts.push('Key: ' + ak);
-            parts.push('Name: ' + fpT('archetype.' + ak + '.name'));
-            parts.push(fpArchetypeHtmlToPlain(fpT('archetype.' + ak + '.html')));
+            var hint = lang === 'en' ? hintsEn[ak] : hintsRu[ak];
+            if (hint) parts.push(hint);
+            if (bundle && bundle[ak]) {
+                parts.push('Name: ' + bundle[ak].name);
+                parts.push(fpArchetypeHtmlToPlain(bundle[ak].description));
+            } else {
+                parts.push('Name: ' + fpT('archetype.' + ak + '.name'));
+                parts.push(fpArchetypeHtmlToPlain(fpT('archetype.' + ak + '.html')));
+            }
         } else if (user.personality_type) {
             parts.push('=== PERSONALITY TYPE ===');
             parts.push('Type: ' + user.personality_type);
@@ -9120,7 +9214,11 @@ function setGoalNavActive(isActive) {
             : user.personality_type;
 
         if (premiumType && typeof getTypeSpecificContent === 'function') {
-            parts.push('=== PLATFORM KNOWLEDGE BASE (career, risks, learning, relationships) ===');
+            parts.push(
+                '=== SUPPLEMENT: shared premium cluster («' +
+                    premiumType +
+                    '») — use only where it fits THIS archetype; do not replace unique profile above ==='
+            );
             var modKeys = [
                 'strengths',
                 'career',
@@ -9139,7 +9237,7 @@ function setGoalNavActive(isActive) {
                     if (!html || html.indexOf('скоро появится') !== -1) return;
                     var t = fpStripHtml(html);
                     if (t.length > 80) {
-                        parts.push('--- Module: ' + k + ' ---\n' + t.slice(0, 5500));
+                        parts.push('--- Module: ' + k + ' ---\n' + t.slice(0, 12000));
                     }
                 } catch (err) {
                     console.warn('[goal-plan] skip premium chunk', k, err);
@@ -9175,7 +9273,7 @@ function setGoalNavActive(isActive) {
         if (!ta || !wrap) return;
         var v = ta.value.trim();
         try {
-            localStorage.setItem(FP_GOAL_DRAFT_KEY, ta.value);
+            fpGoalSaveDraft(ta.value);
         } catch (e) {}
         if (v.length >= 3) wrap.classList.add('is-visible');
         else wrap.classList.remove('is-visible');
@@ -9279,6 +9377,8 @@ function setGoalNavActive(isActive) {
         }
         if (loading) loading.classList.remove('is-active');
         fpGoalSetStep(1);
+        var ta = document.getElementById('goalUserInput');
+        if (ta) fpGoalSaveDraft(ta.value);
         fpGoalOnInput();
     }
 
@@ -9438,10 +9538,7 @@ function setGoalNavActive(isActive) {
         var container = document.getElementById('goal-content');
         if (!container) return;
 
-        var draft = '';
-        try {
-            draft = localStorage.getItem(FP_GOAL_DRAFT_KEY) || '';
-        } catch (e) {}
+        var draft = typeof fpGoalLoadDraft === 'function' ? fpGoalLoadDraft() : '';
 
         var archetypeName = currentUser
             ? fpArchetypeDisplayNameFromUser(currentUser)
