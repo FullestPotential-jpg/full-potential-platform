@@ -6028,6 +6028,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back_to_list': '← К списку целей',
             'goal.err_short': 'Опишите цель чуть подробнее (минимум 3 символа).',
             'goal.err_no_archetype': 'Сначала пройдите тест, чтобы определить архетип.',
+            'goal.err_need_login': 'Войдите в аккаунт, чтобы работать с целями.',
             'goal.err_api': 'Не удалось получить план. Проверьте подключение и настройку OpenRouter в Supabase.',
             'goal.err_401': '401: Supabase блокирует вызов. Откройте goal-plan-generate → вкладка Details → переключатель «Verify JWT with legacy secret» должен быть ВЫКЛЮЧЕН (OFF, серый) → Deploy. Не включайте его.',
             'goal.err_openrouter_key': 'На сервере не задан OPENROUTER_API_KEY (Supabase → Edge Functions → Secrets).',
@@ -6200,6 +6201,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.back_to_list': '← Back to goals',
             'goal.err_short': 'Describe your goal in a bit more detail (at least 3 characters).',
             'goal.err_no_archetype': 'Take the test first to discover your archetype.',
+            'goal.err_need_login': 'Sign in to manage your goals.',
             'goal.err_api': 'Could not load the plan. Check your connection and OpenRouter setup in Supabase.',
             'goal.err_401': 'Function access denied (401). In Supabase: Edge Functions → goal-plan-generate → turn OFF «Verify JWT with legacy secret», then Deploy again.',
             'goal.err_openrouter_key': 'OPENROUTER_API_KEY is not set on the server (Supabase → Edge Functions → Secrets).',
@@ -9014,6 +9016,11 @@ async function showResult() {
 
 function openGoalScreen(event) {
     if (event) event.preventDefault();
+    if (!currentUser || !currentUser.email) {
+        alert(fpT('goal.err_need_login'));
+        return;
+    }
+    if (typeof fpGoalResetUiState === 'function') fpGoalResetUiState();
     var prevTa = document.getElementById('goalUserInput');
     if (prevTa && prevTa.value.trim().length >= 1 && typeof fpGoalSaveDraft === 'function') {
         fpGoalSaveDraft(prevTa.value);
@@ -9055,31 +9062,67 @@ function setGoalNavActive(isActive) {
     var fpGoalViewMode = 'list';
     var fpGoalActiveId = null;
 
-    function fpGoalUserStorageSuffix() {
-        if (!currentUser) return '';
-        if (currentUser.id) return String(currentUser.id);
-        if (currentUser.email) return String(currentUser.email).toLowerCase().replace(/[^a-z0-9@._-]/g, '_');
-        return '';
+    function fpGoalOwnerEmail() {
+        if (!currentUser || !currentUser.email) return '';
+        return typeof normalizeEmail === 'function'
+            ? normalizeEmail(currentUser.email)
+            : String(currentUser.email).trim().toLowerCase();
+    }
+
+    /** Ключ хранилища только по email — без общих ключей для всех аккаунтов */
+    function fpGoalAccountKey() {
+        var em = fpGoalOwnerEmail();
+        if (!em) return null;
+        return em.replace(/[^a-z0-9@._-]/g, '_');
+    }
+
+    function fpGoalScopedStorageKey(prefix) {
+        var ak = fpGoalAccountKey();
+        return ak ? prefix + '_' + ak : null;
     }
 
     function fpGoalDraftStorageKey() {
-        var suf = fpGoalUserStorageSuffix();
-        return suf ? FP_GOAL_DRAFT_KEY + '_' + suf : FP_GOAL_DRAFT_KEY;
+        return fpGoalScopedStorageKey(FP_GOAL_DRAFT_KEY);
     }
 
     function fpGoalAnswersStorageKey() {
-        var suf = fpGoalUserStorageSuffix();
-        return suf ? FP_GOAL_ANSWERS_KEY + '_' + suf : FP_GOAL_ANSWERS_KEY;
+        return fpGoalScopedStorageKey(FP_GOAL_ANSWERS_KEY);
     }
 
     function fpGoalGoalsStorageKey() {
-        var suf = fpGoalUserStorageSuffix();
-        return suf ? FP_GOALS_LIST_KEY + '_' + suf : FP_GOALS_LIST_KEY;
+        return fpGoalScopedStorageKey(FP_GOALS_LIST_KEY);
     }
 
     function fpGoalLegacyPlanKey() {
-        var suf = fpGoalUserStorageSuffix();
-        return suf ? FP_GOAL_PLAN_KEY + '_' + suf : FP_GOAL_PLAN_KEY;
+        return fpGoalScopedStorageKey(FP_GOAL_PLAN_KEY);
+    }
+
+    function fpGoalResetUiState() {
+        fpGoalActiveId = null;
+        fpGoalViewMode = 'list';
+        fpGoalCurrentStep = 1;
+    }
+
+    function fpGoalStampOwner(goals) {
+        var owner = fpGoalOwnerEmail();
+        if (!owner || !goals) return goals;
+        goals.forEach(function (g) {
+            g.ownerEmail = owner;
+        });
+        return goals;
+    }
+
+    function fpGoalFilterGoalsForCurrentUser(goals) {
+        var owner = fpGoalOwnerEmail();
+        if (!owner) return [];
+        return (goals || []).filter(function (g) {
+            if (!g || !g.ownerEmail) return true;
+            var o =
+                typeof normalizeEmail === 'function'
+                    ? normalizeEmail(g.ownerEmail)
+                    : String(g.ownerEmail).trim().toLowerCase();
+            return o === owner;
+        });
     }
 
     function fpGoalNewId() {
@@ -9097,19 +9140,47 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalLoadGoalsList() {
-        try {
-            var raw = localStorage.getItem(fpGoalGoalsStorageKey());
-            if (raw) {
+        var key = fpGoalGoalsStorageKey();
+        if (!key) return [];
+
+        var merged = [];
+        var seen = {};
+
+        function addFromStorage(storageKey) {
+            if (!storageKey) return;
+            try {
+                var raw = localStorage.getItem(storageKey);
+                if (!raw) return;
                 var arr = JSON.parse(raw);
-                if (Array.isArray(arr)) return arr;
-            }
-        } catch (e) {}
-        return [];
+                if (!Array.isArray(arr)) return;
+                fpGoalFilterGoalsForCurrentUser(arr).forEach(function (g) {
+                    if (!g || !g.id || seen[g.id]) return;
+                    seen[g.id] = true;
+                    merged.push(g);
+                });
+            } catch (e) {}
+        }
+
+        addFromStorage(key);
+        if (currentUser && currentUser.id) {
+            var idKey = FP_GOALS_LIST_KEY + '_' + String(currentUser.id);
+            if (idKey !== key) addFromStorage(idKey);
+        }
+
+        merged.sort(function (a, b) {
+            return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
+        });
+        return merged;
     }
 
     function fpGoalSaveGoalsList(goals) {
+        var key = fpGoalGoalsStorageKey();
+        if (!key) return;
         try {
-            localStorage.setItem(fpGoalGoalsStorageKey(), JSON.stringify(goals.slice(0, 50)));
+            localStorage.setItem(
+                key,
+                JSON.stringify(fpGoalStampOwner(goals.slice(0, 50)))
+            );
         } catch (e) {}
     }
 
@@ -9122,16 +9193,33 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalMigrateLegacyGoals() {
+        if (!fpGoalAccountKey()) return [];
+
         var goals = fpGoalLoadGoalsList();
         if (goals.length) return goals;
 
-        var text = fpGoalLoadDraft();
+        var draftKey = fpGoalDraftStorageKey();
+        var planKey = fpGoalLegacyPlanKey();
+        if (!draftKey && !planKey) return goals;
+
+        var text = '';
         var plan = null;
-        var answers = fpGoalLoadAnswers();
+        var answers = null;
         try {
-            var pr = localStorage.getItem(fpGoalLegacyPlanKey());
-            if (!pr) pr = localStorage.getItem(FP_GOAL_PLAN_KEY);
-            if (pr) plan = JSON.parse(pr);
+            if (draftKey) text = localStorage.getItem(draftKey) || '';
+        } catch (e) {}
+        try {
+            if (planKey) {
+                var pr = localStorage.getItem(planKey);
+                if (pr) plan = JSON.parse(pr);
+            }
+        } catch (e) {}
+        try {
+            var ansKey = fpGoalAnswersStorageKey();
+            if (ansKey) {
+                var ar = localStorage.getItem(ansKey);
+                if (ar) answers = JSON.parse(ar);
+            }
         } catch (e) {}
 
         if (!text && !plan) return goals;
@@ -9142,6 +9230,7 @@ function setGoalNavActive(isActive) {
             label: fpGoalCardLabel(text, plan),
             plan: plan,
             answers: answers,
+            ownerEmail: fpGoalOwnerEmail(),
             createdAt: Date.now(),
             updatedAt: Date.now()
         };
@@ -9162,6 +9251,7 @@ function setGoalNavActive(isActive) {
                 label: fpGoalCardLabel(goalText, plan),
                 plan: plan,
                 answers: answers,
+                ownerEmail: fpGoalOwnerEmail(),
                 createdAt: now,
                 updatedAt: now
             };
@@ -9249,27 +9339,19 @@ function setGoalNavActive(isActive) {
 
     function fpGoalLoadDraft() {
         var key = fpGoalDraftStorageKey();
+        if (!key) return '';
         try {
             var v = localStorage.getItem(key);
             if (v != null && v !== '') return v;
-            if (key !== FP_GOAL_DRAFT_KEY) {
-                var legacy = localStorage.getItem(FP_GOAL_DRAFT_KEY);
-                if (legacy) {
-                    localStorage.setItem(key, legacy);
-                    return legacy;
-                }
-            }
         } catch (e) {}
         return '';
     }
 
     function fpGoalSaveDraft(text) {
+        var key = fpGoalDraftStorageKey();
+        if (!key) return;
         try {
-            var val = text == null ? '' : String(text);
-            localStorage.setItem(fpGoalDraftStorageKey(), val);
-            if (fpGoalDraftStorageKey() !== FP_GOAL_DRAFT_KEY) {
-                localStorage.setItem(FP_GOAL_DRAFT_KEY, val);
-            }
+            localStorage.setItem(key, text == null ? '' : String(text));
         } catch (e) {}
     }
 
@@ -9303,12 +9385,10 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalSaveAnswers(answers) {
+        var key = fpGoalAnswersStorageKey();
+        if (!key) return;
         try {
-            var key = fpGoalAnswersStorageKey();
             localStorage.setItem(key, JSON.stringify(answers));
-            if (key !== FP_GOAL_ANSWERS_KEY) {
-                localStorage.setItem(FP_GOAL_ANSWERS_KEY, JSON.stringify(answers));
-            }
             if (fpGoalActiveId) {
                 var goals = fpGoalLoadGoalsList();
                 var entry = fpGoalFindGoal(goals, fpGoalActiveId);
@@ -9322,12 +9402,10 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalLoadAnswers() {
+        var key = fpGoalAnswersStorageKey();
+        if (!key) return null;
         try {
-            var key = fpGoalAnswersStorageKey();
             var raw = localStorage.getItem(key);
-            if (!raw && key !== FP_GOAL_ANSWERS_KEY) {
-                raw = localStorage.getItem(FP_GOAL_ANSWERS_KEY);
-            }
             if (raw) return JSON.parse(raw);
         } catch (e) {}
         return null;
@@ -9425,6 +9503,7 @@ function setGoalNavActive(isActive) {
                 label: fpGoalCardLabel(goal, null),
                 plan: null,
                 answers: null,
+                ownerEmail: fpGoalOwnerEmail(),
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             };
@@ -13755,12 +13834,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         localStorage.setItem('platformAuth', JSON.stringify(authData));
         localStorage.setItem('currentUser', JSON.stringify(userData));
+        if (typeof fpGoalResetUiState === 'function') fpGoalResetUiState();
         
         console.log('💾 Авторизация сохранена до:', expires.toLocaleDateString());
     }
     
     // Выход из системы
     function platformLogout() {
+        if (typeof fpGoalResetUiState === 'function') fpGoalResetUiState();
         localStorage.removeItem('platformAuth');
         localStorage.removeItem('currentUser');
         const dd = document.getElementById('profileDropdown');
