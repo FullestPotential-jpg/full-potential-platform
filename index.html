@@ -8249,6 +8249,18 @@ const ARCHETYPE_SOURCE_EN = {
     }
 };
 
+/** 8 архетипов → 4 legacy-типа с большой premium-базой в getTypeSpecificContent */
+const FP_ARCHETYPE_PREMIUM_LEGACY = {
+    "amygdala-dopamine-control": "творческий",
+    "amygdala-dopamine-connection": "коммуникабельный",
+    "amygdala-serotonin-control": "творческий",
+    "amygdala-serotonin-connection": "стабильный",
+    "hippocampus-dopamine-control": "технический",
+    "hippocampus-dopamine-connection": "коммуникабельный",
+    "hippocampus-serotonin-control": "технический",
+    "hippocampus-serotonin-connection": "стабильный"
+};
+
 (function registerArchetypeKeysToFpMsg() {
     function registerBundle(bundle, lang) {
         Object.keys(bundle).forEach(function (k) {
@@ -8737,25 +8749,48 @@ function setGoalNavActive(isActive) {
         return (d.textContent || d.innerText || '').replace(/\s+/g, ' ').trim();
     }
 
-    function fpCollectArchetypeKnowledge(user) {
+    function fpArchetypeHtmlToPlain(html) {
+        if (!html) return '';
+        var d = document.createElement('div');
+        d.innerHTML = html;
+        var lines = [];
+        d.querySelectorAll('h4, p, li').forEach(function (el) {
+            var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
+            if (t) lines.push(t);
+        });
+        if (!lines.length) return fpStripHtml(html);
+        return lines.join('\n');
+    }
+
+    function fpBuildArchetypeGoalProfile(user) {
         var parts = [];
         if (!user) return '';
+
+        var lang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
         var ak = typeof resolveArchetypeKeyFromUser === 'function'
             ? resolveArchetypeKeyFromUser(user)
             : null;
+
         if (ak) {
+            parts.push('=== CORE ARCHETYPE (test result) ===');
             parts.push('Key: ' + ak);
             parts.push('Name: ' + fpT('archetype.' + ak + '.name'));
-            parts.push(fpStripHtml(fpT('archetype.' + ak + '.html')));
+            parts.push(fpArchetypeHtmlToPlain(fpT('archetype.' + ak + '.html')));
         } else if (user.personality_type) {
+            parts.push('=== PERSONALITY TYPE ===');
             parts.push('Type: ' + user.personality_type);
             if (user.personality_description_html) {
-                parts.push(fpStripHtml(user.personality_description_html));
+                parts.push(fpArchetypeHtmlToPlain(user.personality_description_html));
             }
         }
-        var pt = user.personality_type;
-        if (pt && typeof getTypeSpecificContent === 'function') {
-            var keys = [
+
+        var premiumType = ak && FP_ARCHETYPE_PREMIUM_LEGACY[ak]
+            ? FP_ARCHETYPE_PREMIUM_LEGACY[ak]
+            : user.personality_type;
+
+        if (premiumType && typeof getTypeSpecificContent === 'function') {
+            parts.push('=== PLATFORM KNOWLEDGE BASE (career, risks, learning, relationships) ===');
+            var modKeys = [
                 'strengths',
                 'career',
                 'risks',
@@ -8767,18 +8802,23 @@ function setGoalNavActive(isActive) {
                 'persuasion',
                 'relationships'
             ];
-            keys.forEach(function (k) {
+            modKeys.forEach(function (k) {
                 try {
-                    var html = getTypeSpecificContent(pt, k);
+                    var html = getTypeSpecificContent(premiumType, k);
                     if (!html || html.indexOf('скоро появится') !== -1) return;
                     var t = fpStripHtml(html);
-                    if (t.length > 60) parts.push('[' + k + ']\n' + t.slice(0, 4000));
+                    if (t.length > 80) {
+                        parts.push('--- Module: ' + k + ' ---\n' + t.slice(0, 5500));
+                    }
                 } catch (err) {
                     console.warn('[goal-plan] skip premium chunk', k, err);
                 }
             });
         }
-        return parts.join('\n\n').slice(0, 30000);
+
+        var profile = parts.join('\n\n').slice(0, 48000);
+        console.log('[goal-plan] archetype profile chars:', profile.length, ak, premiumType);
+        return profile;
     }
 
     function fpGoalShowError(msg) {
@@ -8922,7 +8962,7 @@ function setGoalNavActive(isActive) {
         var ak = typeof resolveArchetypeKeyFromUser === 'function'
             ? resolveArchetypeKeyFromUser(currentUser)
             : null;
-        var profile = fpCollectArchetypeKnowledge(currentUser);
+        var profile = fpBuildArchetypeGoalProfile(currentUser);
         if (!profile && !currentUser.personality_type) {
             fpGoalShowError(fpT('goal.err_no_archetype'));
             return;
@@ -8936,6 +8976,9 @@ function setGoalNavActive(isActive) {
         }
 
         fpGoalHideError();
+        try {
+            localStorage.removeItem(FP_GOAL_PLAN_KEY);
+        } catch (e) {}
         if (btn) btn.disabled = true;
         if (inputPanel) inputPanel.style.opacity = '0.55';
         if (loading) loading.classList.add('is-active');
@@ -9079,14 +9122,6 @@ function setGoalNavActive(isActive) {
             fpGoalOnInput();
         }
 
-        var savedPlan = null;
-        try {
-            var raw = localStorage.getItem(FP_GOAL_PLAN_KEY);
-            if (raw) savedPlan = JSON.parse(raw);
-        } catch (e) {}
-        if (savedPlan && draft.trim().length >= 3) {
-            fpGoalRenderPlan(savedPlan);
-        }
     }
 
     function showValueContent() {
@@ -12865,5 +12900,3 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
-
-                                
