@@ -1880,6 +1880,163 @@
         .goal-flow__error.is-visible {
             display: block;
         }
+        .goal-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+        .goal-steps__item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #8a94b8;
+            letter-spacing: 0.03em;
+        }
+        .goal-steps__item.is-active,
+        .goal-steps__item.is-done {
+            color: #1a2858;
+        }
+        .goal-steps__dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid rgba(130, 150, 210, 0.35);
+            background: rgba(255, 255, 255, 0.9);
+            color: #5a6488;
+            transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .goal-steps__item.is-active .goal-steps__dot {
+            border-color: rgba(120, 165, 255, 0.45);
+            background-color: #080c22;
+            background-image:
+                radial-gradient(1px 1px at 22% 32%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 72% 68%, rgba(255,255,255,0.65), transparent),
+                linear-gradient(165deg, #060818 0%, #0f1438 52%, #162454 100%);
+            color: #f0f5ff;
+            box-shadow: 0 6px 16px rgba(8, 12, 42, 0.28);
+        }
+        .goal-steps__item.is-done .goal-steps__dot {
+            background: linear-gradient(165deg, #1a2858, #2a3d78);
+            color: #fff;
+            border-color: transparent;
+        }
+        .goal-steps__sep {
+            width: 24px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(130, 150, 210, 0.45), transparent);
+        }
+        .goal-flow__panel--hidden {
+            display: none !important;
+        }
+        .goal-questions-panel {
+            background: linear-gradient(168deg, #ffffff 0%, #f8faff 55%, #f2f6ff 100%);
+        }
+        .goal-q {
+            margin-bottom: 20px;
+        }
+        .goal-q:last-of-type {
+            margin-bottom: 8px;
+        }
+        .goal-q__label {
+            display: block;
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a2858;
+            line-height: 1.4;
+        }
+        .goal-q__hint {
+            margin: 0 0 8px;
+            font-size: 0.82rem;
+            color: #6a74a0;
+        }
+        .goal-q__input,
+        .goal-q__textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1px solid rgba(130, 150, 210, 0.35);
+            border-radius: 14px;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #1a2248;
+            background: rgba(255, 255, 255, 0.92);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .goal-q__textarea {
+            min-height: 72px;
+            resize: vertical;
+        }
+        .goal-q__input:focus,
+        .goal-q__textarea:focus {
+            outline: none;
+            border-color: rgba(99, 102, 241, 0.55);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+        .goal-q__range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .goal-q__range {
+            flex: 1;
+            accent-color: #2a3d78;
+        }
+        .goal-q__range-val {
+            min-width: 2.2rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a2858;
+            padding: 6px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(120, 165, 255, 0.35);
+            background-color: #080c22;
+            background-image:
+                radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.85), transparent),
+                linear-gradient(165deg, #060818, #141e48);
+            color: #f0f5ff;
+        }
+        .goal-flow__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+        }
+        .goal-flow__actions .goal-launch-wrap {
+            flex: 1;
+            min-width: 140px;
+            margin-top: 0;
+        }
+        .goal-flow__actions .goal-launch-wrap.is-visible {
+            max-height: 80px;
+        }
+        .goal-back-step-btn {
+            flex: none;
+            padding: 16px 20px;
+            border: 1px solid rgba(130, 150, 210, 0.35);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.85);
+            color: #4a5580;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .goal-back-step-btn:hover {
+            background: rgba(99, 102, 241, 0.08);
+            color: #1a2858;
+        }
         html.fp-platform-dark .goal-flow__panel {
             background: linear-gradient(168deg, #12182e 0%, #0e1428 100%);
             border-color: rgba(130, 150, 210, 0.22);
@@ -5765,7 +5922,23 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.input_label': 'Введите свою цель',
             'goal.input_placeholder': 'Например: выучить английский до уровня B2 за полгода…',
             'goal.archetype_line': 'План будет адаптирован под архетип',
+            'goal.step_goal': 'Цель',
+            'goal.step_questions': 'Контекст',
+            'goal.step_plan': 'План',
+            'goal.next_btn': 'Далее →',
             'goal.launch_btn': 'Полетели!',
+            'goal.back_to_goal': '← К цели',
+            'goal.q_hours_label': 'Сколько часов в неделю вы реально можете выделить на эту цель?',
+            'goal.q_hours_placeholder': 'Например: 5',
+            'goal.q_blockers_label': 'Что вас останавливало раньше при попытке её достичь?',
+            'goal.q_blockers_placeholder': 'Страх, нехватка времени, прокрастинация…',
+            'goal.q_energy_label': 'Оцените свою энергию сейчас по шкале 1–10',
+            'goal.q_help_label': 'Кто или что может вам помочь?',
+            'goal.q_help_placeholder': 'Люди, курсы, инструменты, привычки…',
+            'goal.q_stakes_label': 'Что случится, если через год вы не достигнете цели?',
+            'goal.q_stakes_placeholder': 'Последствия для жизни, карьеры, самооценки…',
+            'goal.err_incomplete_questions': 'Ответьте на все 5 вопросов — от этого зависит точность плана.',
+            'goal.err_energy_range': 'Энергия: выберите значение от 1 до 10.',
             'goal.launch_loading': 'Составляем маршрут под ваш архетип…',
             'goal.plan_week_title': 'Первая неделя',
             'goal.plan_tips_title': 'Советы для вашего архетипа',
@@ -5916,7 +6089,23 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.input_label': 'Enter your goal',
             'goal.input_placeholder': 'e.g. reach B2 English within six months…',
             'goal.archetype_line': 'Your plan will match your archetype',
+            'goal.step_goal': 'Goal',
+            'goal.step_questions': 'Context',
+            'goal.step_plan': 'Plan',
+            'goal.next_btn': 'Next →',
             'goal.launch_btn': "Let's go!",
+            'goal.back_to_goal': '← Back to goal',
+            'goal.q_hours_label': 'How many hours per week can you realistically dedicate to this goal?',
+            'goal.q_hours_placeholder': 'e.g. 5',
+            'goal.q_blockers_label': 'What stopped you before when trying to achieve it?',
+            'goal.q_blockers_placeholder': 'Fear, lack of time, procrastination…',
+            'goal.q_energy_label': 'Rate your current energy on a scale of 1–10',
+            'goal.q_help_label': 'Who or what can help you?',
+            'goal.q_help_placeholder': 'People, courses, tools, habits…',
+            'goal.q_stakes_label': 'What will happen if you do not reach the goal within a year?',
+            'goal.q_stakes_placeholder': 'Impact on life, career, self-esteem…',
+            'goal.err_incomplete_questions': 'Please answer all 5 questions — the plan depends on them.',
+            'goal.err_energy_range': 'Energy: pick a value from 1 to 10.',
             'goal.launch_loading': 'Building your archetype-tailored route…',
             'goal.plan_week_title': 'First week',
             'goal.plan_tips_title': 'Tips for your archetype',
@@ -8741,6 +8930,148 @@ function setGoalNavActive(isActive) {
 
     const FP_GOAL_DRAFT_KEY = 'fp_goal_draft';
     const FP_GOAL_PLAN_KEY = 'fp_goal_last_plan';
+    const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
+    var fpGoalCurrentStep = 1;
+
+    function fpGoalSetStep(step) {
+        fpGoalCurrentStep = step;
+        var bar = document.getElementById('goalStepsBar');
+        if (bar) {
+            var items = bar.querySelectorAll('.goal-steps__item');
+            items.forEach(function (el, idx) {
+                var n = idx + 1;
+                el.classList.remove('is-active', 'is-done');
+                if (n < step) el.classList.add('is-done');
+                else if (n === step) el.classList.add('is-active');
+            });
+        }
+        var s1 = document.getElementById('goalStep1Panel');
+        var s2 = document.getElementById('goalStep2Panel');
+        var plan = document.getElementById('goalPlanPanel');
+        var loading = document.getElementById('goalFlowLoading');
+        if (s1) s1.classList.toggle('goal-flow__panel--hidden', step !== 1);
+        if (s2) s2.classList.toggle('goal-flow__panel--hidden', step !== 2);
+        if (plan) {
+            if (step === 3) {
+                /* plan visibility controlled by fpGoalRenderPlan */
+            } else {
+                plan.classList.remove('is-visible');
+                plan.innerHTML = '';
+            }
+        }
+        if (loading && step !== 2) loading.classList.remove('is-active');
+    }
+
+    function fpGoalSaveAnswers(answers) {
+        try {
+            localStorage.setItem(FP_GOAL_ANSWERS_KEY, JSON.stringify(answers));
+        } catch (e) {}
+    }
+
+    function fpGoalLoadAnswers() {
+        try {
+            var raw = localStorage.getItem(FP_GOAL_ANSWERS_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return null;
+    }
+
+    function fpGoalBindAnswersToForm(saved) {
+        if (!saved) return;
+        var map = {
+            goalQHours: saved.hours_per_week,
+            goalQBlockers: saved.past_blockers,
+            goalQHelp: saved.support_resources,
+            goalQStakes: saved.stakes_if_fail
+        };
+        Object.keys(map).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && map[id] != null) el.value = map[id];
+        });
+        var energy = document.getElementById('goalQEnergy');
+        if (energy && saved.energy_level >= 1 && saved.energy_level <= 10) {
+            energy.value = String(saved.energy_level);
+            fpGoalOnEnergyInput();
+        }
+    }
+
+    function fpGoalOnEnergyInput() {
+        var range = document.getElementById('goalQEnergy');
+        var out = document.getElementById('goalQEnergyVal');
+        if (range && out) out.textContent = range.value;
+        fpGoalOnQuestionsInput();
+    }
+
+    function fpGoalCollectAnswers() {
+        var hoursEl = document.getElementById('goalQHours');
+        var blockersEl = document.getElementById('goalQBlockers');
+        var energyEl = document.getElementById('goalQEnergy');
+        var helpEl = document.getElementById('goalQHelp');
+        var stakesEl = document.getElementById('goalQStakes');
+        if (!hoursEl || !blockersEl || !energyEl || !helpEl || !stakesEl) return null;
+
+        var hours = String(hoursEl.value || '').trim();
+        var blockers = String(blockersEl.value || '').trim();
+        var help = String(helpEl.value || '').trim();
+        var stakes = String(stakesEl.value || '').trim();
+        var energy = parseInt(energyEl.value, 10);
+
+        return {
+            hours_per_week: hours,
+            past_blockers: blockers,
+            energy_level: energy,
+            support_resources: help,
+            stakes_if_fail: stakes
+        };
+    }
+
+    function fpGoalValidateAnswers(answers) {
+        if (!answers) return false;
+        var hoursNum = parseFloat(String(answers.hours_per_week).replace(',', '.'));
+        if (!answers.hours_per_week || isNaN(hoursNum) || hoursNum < 0.5 || hoursNum > 168) return false;
+        if (!answers.past_blockers || answers.past_blockers.length < 3) return false;
+        if (!answers.support_resources || answers.support_resources.length < 3) return false;
+        if (!answers.stakes_if_fail || answers.stakes_if_fail.length < 3) return false;
+        if (
+            !Number.isFinite(answers.energy_level) ||
+            answers.energy_level < 1 ||
+            answers.energy_level > 10
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    function fpGoalOnQuestionsInput() {
+        var wrap = document.getElementById('goalLaunchWrap');
+        if (!wrap) return;
+        var ok = fpGoalValidateAnswers(fpGoalCollectAnswers());
+        if (ok) wrap.classList.add('is-visible');
+        else wrap.classList.remove('is-visible');
+        fpGoalHideError();
+    }
+
+    function fpGoalGoToQuestions() {
+        var ta = document.getElementById('goalUserInput');
+        if (!ta) return;
+        var goal = ta.value.trim();
+        if (goal.length < 3) {
+            fpGoalShowError(fpT('goal.err_short'));
+            return;
+        }
+        try {
+            localStorage.setItem(FP_GOAL_DRAFT_KEY, ta.value);
+        } catch (e) {}
+        fpGoalHideError();
+        fpGoalSetStep(2);
+        fpGoalOnQuestionsInput();
+    }
+
+    function fpGoalBackToGoalStep() {
+        fpGoalHideError();
+        fpGoalSetStep(1);
+        fpGoalOnInput();
+    }
 
     function fpStripHtml(html) {
         if (!html) return '';
@@ -8822,20 +9153,25 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalShowError(msg) {
-        var el = document.getElementById('goalFlowError');
+        var el =
+            fpGoalCurrentStep === 2
+                ? document.getElementById('goalFlowErrorStep2')
+                : document.getElementById('goalFlowError');
         if (!el) return;
         el.textContent = msg;
         el.classList.add('is-visible');
     }
 
     function fpGoalHideError() {
-        var el = document.getElementById('goalFlowError');
-        if (el) el.classList.remove('is-visible');
+        ['goalFlowError', 'goalFlowErrorStep2'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.remove('is-visible');
+        });
     }
 
     function fpGoalOnInput() {
         var ta = document.getElementById('goalUserInput');
-        var wrap = document.getElementById('goalLaunchWrap');
+        var wrap = document.getElementById('goalNextWrap');
         if (!ta || !wrap) return;
         var v = ta.value.trim();
         try {
@@ -8928,6 +9264,7 @@ function setGoalNavActive(isActive) {
             '</button>';
 
         panel.classList.add('is-visible');
+        fpGoalSetStep(3);
         try {
             localStorage.setItem(FP_GOAL_PLAN_KEY, JSON.stringify(plan));
         } catch (e) {}
@@ -8935,29 +9272,45 @@ function setGoalNavActive(isActive) {
 
     function fpGoalBackToInput() {
         var panel = document.getElementById('goalPlanPanel');
-        var inputPanel = document.getElementById('goalInputPanel');
         var loading = document.getElementById('goalFlowLoading');
         if (panel) {
             panel.classList.remove('is-visible');
             panel.innerHTML = '';
         }
         if (loading) loading.classList.remove('is-active');
-        if (inputPanel) inputPanel.style.display = '';
+        fpGoalSetStep(1);
         fpGoalOnInput();
     }
 
     async function fpGoalLaunchPlan() {
+        if (fpGoalCurrentStep !== 2) return;
+
         var ta = document.getElementById('goalUserInput');
         var btn = document.getElementById('goalLaunchBtn');
         var loading = document.getElementById('goalFlowLoading');
-        var inputPanel = document.getElementById('goalInputPanel');
+        var step2 = document.getElementById('goalStep2Panel');
         if (!ta || !currentUser) return;
 
         var goal = ta.value.trim();
         if (goal.length < 3) {
             fpGoalShowError(fpT('goal.err_short'));
+            fpGoalBackToGoalStep();
             return;
         }
+
+        var answers = fpGoalCollectAnswers();
+        if (!fpGoalValidateAnswers(answers)) {
+            var energyBad =
+                answers &&
+                (!Number.isFinite(answers.energy_level) ||
+                    answers.energy_level < 1 ||
+                    answers.energy_level > 10);
+            fpGoalShowError(
+                energyBad ? fpT('goal.err_energy_range') : fpT('goal.err_incomplete_questions')
+            );
+            return;
+        }
+        fpGoalSaveAnswers(answers);
 
         var ak = typeof resolveArchetypeKeyFromUser === 'function'
             ? resolveArchetypeKeyFromUser(currentUser)
@@ -8980,7 +9333,7 @@ function setGoalNavActive(isActive) {
             localStorage.removeItem(FP_GOAL_PLAN_KEY);
         } catch (e) {}
         if (btn) btn.disabled = true;
-        if (inputPanel) inputPanel.style.opacity = '0.55';
+        if (step2) step2.style.opacity = '0.55';
         if (loading) loading.classList.add('is-active');
 
         var lang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
@@ -8990,7 +9343,12 @@ function setGoalNavActive(isActive) {
             lang: lang,
             archetype_key: ak || '',
             archetype_name: fpArchetypeDisplayNameFromUser(currentUser),
-            archetype_profile: profile
+            archetype_profile: profile,
+            hours_per_week: answers.hours_per_week,
+            past_blockers: answers.past_blockers,
+            energy_level: answers.energy_level,
+            support_resources: answers.support_resources,
+            stakes_if_fail: answers.stakes_if_fail
         };
 
         try {
@@ -9057,6 +9415,8 @@ function setGoalNavActive(isActive) {
             if (!data || !data.ok) {
                 if (data && data.error === 'missing_openrouter_key') {
                     fpGoalShowError(fpT('goal.err_openrouter_key'));
+                } else if (data && data.error === 'missing_context') {
+                    fpGoalShowError(fpT('goal.err_incomplete_questions'));
                 } else {
                     fpGoalShowError(fpT('goal.err_api'));
                 }
@@ -9069,7 +9429,7 @@ function setGoalNavActive(isActive) {
             fpGoalShowError(fpT('goal.err_api'));
         } finally {
             if (btn) btn.disabled = false;
-            if (inputPanel) inputPanel.style.opacity = '';
+            if (step2) step2.style.opacity = '';
             if (loading) loading.classList.remove('is-active');
         }
     }
@@ -9089,7 +9449,22 @@ function setGoalNavActive(isActive) {
 
         container.innerHTML =
             '<div class="goal-flow">' +
-            '<div class="goal-flow__panel goal-flow__panel--input" id="goalInputPanel">' +
+            '<nav class="goal-steps" id="goalStepsBar" aria-label="Goal flow steps">' +
+            '<div class="goal-steps__item is-active" data-step="1">' +
+            '<span class="goal-steps__dot">1</span><span data-i18n="goal.step_goal">' +
+            fpT('goal.step_goal') +
+            '</span></div>' +
+            '<span class="goal-steps__sep" aria-hidden="true"></span>' +
+            '<div class="goal-steps__item" data-step="2">' +
+            '<span class="goal-steps__dot">2</span><span data-i18n="goal.step_questions">' +
+            fpT('goal.step_questions') +
+            '</span></div>' +
+            '<span class="goal-steps__sep" aria-hidden="true"></span>' +
+            '<div class="goal-steps__item" data-step="3">' +
+            '<span class="goal-steps__dot">3</span><span data-i18n="goal.step_plan">' +
+            fpT('goal.step_plan') +
+            '</span></div></nav>' +
+            '<div class="goal-flow__panel goal-flow__panel--input" id="goalStep1Panel">' +
             '<p class="goal-flow__label" data-i18n="goal.input_label">' +
             fpT('goal.input_label') +
             '</p>' +
@@ -9102,13 +9477,67 @@ function setGoalNavActive(isActive) {
             ': <strong>' +
             fpGoalEscapeHtml(archetypeName) +
             '</strong></p>' +
+            '<div class="goal-launch-wrap" id="goalNextWrap">' +
+            '<button type="button" class="goal-launch-btn" onclick="fpGoalGoToQuestions()">' +
+            '<span class="goal-launch-btn__stars" aria-hidden="true"></span>' +
+            fpT('goal.next_btn') +
+            '</button></div>' +
+            '<div class="goal-flow__error" id="goalFlowError" role="alert"></div>' +
+            '</div>' +
+            '<div class="goal-flow__panel goal-questions-panel goal-flow__panel--hidden" id="goalStep2Panel">' +
+            '<p class="goal-flow__label" data-i18n="goal.step_questions">' +
+            fpT('goal.step_questions') +
+            '</p>' +
+            '<div class="goal-q">' +
+            '<label class="goal-q__label" for="goalQHours" data-i18n="goal.q_hours_label">' +
+            fpT('goal.q_hours_label') +
+            '</label>' +
+            '<input type="number" id="goalQHours" class="goal-q__input" min="0.5" max="168" step="0.5" ' +
+            'inputmode="decimal" placeholder="' +
+            fpGoalEscapeHtml(fpT('goal.q_hours_placeholder')) +
+            '" oninput="fpGoalOnQuestionsInput()"></div>' +
+            '<div class="goal-q">' +
+            '<label class="goal-q__label" for="goalQBlockers" data-i18n="goal.q_blockers_label">' +
+            fpT('goal.q_blockers_label') +
+            '</label>' +
+            '<textarea id="goalQBlockers" class="goal-q__textarea" rows="2" maxlength="1500" ' +
+            'placeholder="' +
+            fpGoalEscapeHtml(fpT('goal.q_blockers_placeholder')) +
+            '" oninput="fpGoalOnQuestionsInput()"></textarea></div>' +
+            '<div class="goal-q">' +
+            '<label class="goal-q__label" for="goalQEnergy" data-i18n="goal.q_energy_label">' +
+            fpT('goal.q_energy_label') +
+            '</label>' +
+            '<div class="goal-q__range-wrap">' +
+            '<input type="range" id="goalQEnergy" class="goal-q__range" min="1" max="10" step="1" value="5" ' +
+            'oninput="fpGoalOnEnergyInput()">' +
+            '<span class="goal-q__range-val" id="goalQEnergyVal">5</span></div></div>' +
+            '<div class="goal-q">' +
+            '<label class="goal-q__label" for="goalQHelp" data-i18n="goal.q_help_label">' +
+            fpT('goal.q_help_label') +
+            '</label>' +
+            '<textarea id="goalQHelp" class="goal-q__textarea" rows="2" maxlength="1500" ' +
+            'placeholder="' +
+            fpGoalEscapeHtml(fpT('goal.q_help_placeholder')) +
+            '" oninput="fpGoalOnQuestionsInput()"></textarea></div>' +
+            '<div class="goal-q">' +
+            '<label class="goal-q__label" for="goalQStakes" data-i18n="goal.q_stakes_label">' +
+            fpT('goal.q_stakes_label') +
+            '</label>' +
+            '<textarea id="goalQStakes" class="goal-q__textarea" rows="2" maxlength="1500" ' +
+            'placeholder="' +
+            fpGoalEscapeHtml(fpT('goal.q_stakes_placeholder')) +
+            '" oninput="fpGoalOnQuestionsInput()"></textarea></div>' +
+            '<div class="goal-flow__actions">' +
+            '<button type="button" class="goal-back-step-btn" onclick="fpGoalBackToGoalStep()" data-i18n="goal.back_to_goal">' +
+            fpT('goal.back_to_goal') +
+            '</button>' +
             '<div class="goal-launch-wrap" id="goalLaunchWrap">' +
             '<button type="button" class="goal-launch-btn" id="goalLaunchBtn" onclick="fpGoalLaunchPlan()">' +
             '<span class="goal-launch-btn__stars" aria-hidden="true"></span>' +
             fpT('goal.launch_btn') +
-            '</button></div>' +
-            '<div class="goal-flow__error" id="goalFlowError" role="alert"></div>' +
-            '</div>' +
+            '</button></div></div>' +
+            '<div class="goal-flow__error" id="goalFlowErrorStep2" role="alert"></div></div>' +
             '<div class="goal-flow__loading" id="goalFlowLoading">' +
             '<div class="goal-flow__loading-orbit" aria-hidden="true"></div>' +
             '<p data-i18n="goal.launch_loading">' +
@@ -9116,11 +9545,14 @@ function setGoalNavActive(isActive) {
             '</p></div>' +
             '<div class="goal-plan-panel" id="goalPlanPanel"></div></div>';
 
+        fpGoalCurrentStep = 1;
         var ta = document.getElementById('goalUserInput');
         if (ta) {
             ta.value = draft;
             fpGoalOnInput();
         }
+        fpGoalBindAnswersToForm(fpGoalLoadAnswers());
+        fpGoalSetStep(1);
 
     }
 
