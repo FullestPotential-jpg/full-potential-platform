@@ -8766,10 +8766,14 @@ function setGoalNavActive(isActive) {
                 'relationships'
             ];
             keys.forEach(function (k) {
-                var html = getTypeSpecificContent(pt, k);
-                if (!html || html.indexOf('скоро появится') !== -1) return;
-                var t = fpStripHtml(html);
-                if (t.length > 60) parts.push('[' + k + ']\n' + t.slice(0, 4000));
+                try {
+                    var html = getTypeSpecificContent(pt, k);
+                    if (!html || html.indexOf('скоро появится') !== -1) return;
+                    var t = fpStripHtml(html);
+                    if (t.length > 60) parts.push('[' + k + ']\n' + t.slice(0, 4000));
+                } catch (err) {
+                    console.warn('[goal-plan] skip premium chunk', k, err);
+                }
             });
         }
         return parts.join('\n\n').slice(0, 30000);
@@ -11618,7 +11622,7 @@ async function savePremiumAccess() {
             }
         };
         
-        return content[personalityType]?.[contentKey] || `<p>Контент для "${title}" скоро появится!</p>`;
+        return content[personalityType]?.[contentKey] || '';
     }
 
     function hidePremiumPage() {
