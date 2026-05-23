@@ -1818,14 +1818,18 @@
         }
         .goal-phase-check__icon {
             display: block;
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             opacity: 0;
             transform: scale(0.4);
             transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
-            color: #38bdf8;
-            font-size: 14px;
-            line-height: 1;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
+        }
+        .goal-phase-check__icon svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
         }
         .goal-phase-check.is-done {
             border-color: rgba(56, 189, 248, 0.75);
@@ -1892,7 +1896,10 @@
             align-items: center;
             justify-content: center;
             padding: 28px 20px;
-            background: rgba(4, 6, 20, 0.78);
+            background:
+                radial-gradient(ellipse 95% 65% at 50% 38%, rgba(40, 60, 140, 0.42) 0%, transparent 58%),
+                radial-gradient(ellipse 55% 40% at 12% 88%, rgba(56, 189, 248, 0.14) 0%, transparent 55%),
+                rgba(4, 6, 20, 0.82);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             opacity: 0;
@@ -1924,13 +1931,13 @@
         }
         .goal-phase-swipe-track {
             position: relative;
-            height: 14px;
+            height: 16px;
             border-radius: 999px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-            border: 1px solid rgba(140, 180, 255, 0.35);
+            background: linear-gradient(180deg, rgba(15, 20, 56, 0.92), rgba(6, 8, 24, 0.98));
+            border: 1px solid rgba(120, 165, 255, 0.38);
             box-shadow:
-                inset 0 2px 6px rgba(0, 0, 0, 0.35),
-                0 4px 20px rgba(56, 189, 248, 0.15);
+                inset 0 2px 8px rgba(0, 0, 0, 0.45),
+                0 6px 24px rgba(8, 12, 42, 0.35);
             touch-action: none;
         }
         .goal-phase-swipe-track__fill {
@@ -1940,8 +1947,18 @@
             bottom: 0;
             width: 0;
             border-radius: inherit;
-            background: linear-gradient(90deg, #0ea5e9, #6366f1 55%, #a78bfa);
-            box-shadow: 0 0 18px rgba(56, 189, 248, 0.55);
+            background: linear-gradient(
+                90deg,
+                #024a72 0%,
+                #0590c8 22%,
+                #4adfff 48%,
+                #7ee7ff 68%,
+                #38bdf8 82%,
+                #6366f1 100%
+            );
+            box-shadow:
+                0 0 20px rgba(56, 189, 248, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.28);
             pointer-events: none;
         }
         .goal-phase-swipe-star {
@@ -1949,8 +1966,8 @@
             position: absolute;
             top: 50%;
             left: 0;
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             margin: 0;
             padding: 0;
             border: none;
@@ -1961,7 +1978,46 @@
             user-select: none;
             -webkit-user-select: none;
             z-index: 2;
-            transition: filter 0.12s ease;
+            filter:
+                drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35))
+                drop-shadow(0 0 calc(10px + 30px * var(--glow)) rgba(56, 189, 248, calc(0.45 + 0.5 * var(--glow))))
+                drop-shadow(0 0 calc(20px + 54px * var(--glow)) rgba(34, 211, 238, calc(0.4 + 0.5 * var(--glow))))
+                drop-shadow(0 0 calc(6px + 22px * var(--glow)) rgba(186, 230, 253, calc(0.35 + 0.55 * var(--glow))));
+            transition: filter 0.14s ease, transform 0.14s ease;
+        }
+        .goal-phase-swipe-star::before,
+        .goal-phase-swipe-star::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+        }
+        .goal-phase-swipe-star::before {
+            width: 58px;
+            height: 58px;
+            background: radial-gradient(
+                circle,
+                rgba(56, 189, 248, 0.66) 0%,
+                rgba(34, 211, 238, 0.36) 38%,
+                rgba(14, 165, 233, 0.12) 58%,
+                transparent 72%
+            );
+            opacity: calc(var(--glow) * 0.85);
+        }
+        .goal-phase-swipe-star::after {
+            width: 86px;
+            height: 86px;
+            background: radial-gradient(
+                circle,
+                rgba(186, 230, 253, 0.34) 0%,
+                rgba(56, 189, 248, 0.18) 44%,
+                transparent 70%
+            );
+            opacity: calc(var(--glow) * 0.62);
         }
         .goal-phase-swipe-star:active {
             cursor: grabbing;
@@ -1971,16 +2027,21 @@
             width: 100%;
             height: 100%;
             overflow: visible;
+            filter: brightness(calc(1.22 + 0.48 * var(--glow))) saturate(calc(1.12 + 0.28 * var(--glow)));
+            transition: filter 0.12s ease;
         }
-        .goal-phase-swipe-star svg path {
-            fill: hsl(43, 96%, calc(48% + var(--glow) * 32%));
-            filter: drop-shadow(0 0 calc(2px + var(--glow) * 18px) rgba(255, 210, 90, calc(0.25 + var(--glow) * 0.75)));
-            transition: fill 0.1s ease;
+        .goal-phase-swipe-star.is-hot svg {
+            animation: fp-goal-star-svg-shimmer-blue 1.12s ease-in-out infinite;
         }
         .goal-phase-swipe-star.is-lift {
             transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
             transform: translate(-50%, -50%) translateY(-90px) scale(1.15);
             z-index: 3;
+            filter:
+                drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35))
+                drop-shadow(0 0 42px rgba(56, 189, 248, 0.96))
+                drop-shadow(0 0 78px rgba(34, 211, 238, 0.92))
+                drop-shadow(0 0 30px rgba(186, 230, 253, 0.88));
         }
         .goal-phase-swipe-star--flying {
             position: fixed;
@@ -1988,6 +2049,9 @@
             pointer-events: none;
             margin: 0;
             cursor: default;
+            filter:
+                drop-shadow(0 0 24px rgba(56, 189, 248, 0.85))
+                drop-shadow(0 0 48px rgba(34, 211, 238, 0.7));
         }
         .goal-plan-tips {
             margin-top: 18px;
@@ -9911,11 +9975,49 @@ function setGoalNavActive(isActive) {
 
     var fpGoalSwipeDrag = null;
 
-    function fpGoalSwipeStarSvg() {
+    function fpGoalBlueStarSvg(gradId) {
+        var gid = gradId || 'fpGoalStarG';
+        var pts =
+            '12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6';
         return (
-            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
-            '<path d="M12 2.5l2.9 6.5 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6z"/></svg>'
+            '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+            '<defs>' +
+            '<radialGradient id="' +
+            gid +
+            'BodyG" cx="34%" cy="26%" r="78%">' +
+            '<stop offset="0%" stop-color="#ffffff"/>' +
+            '<stop offset="22%" stop-color="#e8fdff"/>' +
+            '<stop offset="50%" stop-color="#4adfff"/>' +
+            '<stop offset="82%" stop-color="#0590c8"/>' +
+            '<stop offset="100%" stop-color="#024a72"/>' +
+            '</radialGradient>' +
+            '<linearGradient id="' +
+            gid +
+            'EdgeG" x1="15%" y1="10%" x2="85%" y2="95%" gradientUnits="userSpaceOnUse">' +
+            '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>' +
+            '<stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>' +
+            '<stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>' +
+            '</linearGradient>' +
+            '</defs>' +
+            '<polygon points="' +
+            pts +
+            '" fill="#012d4a" opacity="0.55" transform="translate(12 12) scale(1.04) translate(-12 -12)"/>' +
+            '<polygon points="' +
+            pts +
+            '" fill="url(#' +
+            gid +
+            'BodyG)"/>' +
+            '<polygon points="' +
+            pts +
+            '" fill="none" stroke="url(#' +
+            gid +
+            'EdgeG)" stroke-width="0.4" stroke-linejoin="round" opacity="0.9"/>' +
+            '</svg>'
         );
+    }
+
+    function fpGoalSwipeStarSvg() {
+        return fpGoalBlueStarSvg('gpsSwipe');
     }
 
     function fpGoalEnsureSwipeOverlay() {
@@ -9948,16 +10050,20 @@ function setGoalNavActive(isActive) {
         var fill = document.getElementById('goalPhaseSwipeFill');
         var track = document.getElementById('goalPhaseSwipeTrack');
         if (!star || !fill || !track) return;
-        var pct = Math.max(0, Math.min(1, p)) * 100;
+        var clamped = Math.max(0, Math.min(1, p));
+        var pct = clamped * 100;
         star.style.left = pct + '%';
         fill.style.width = pct + '%';
-        star.style.setProperty('--glow', String(Math.max(0, Math.min(1, p))));
+        star.style.setProperty('--glow', String(clamped));
+        star.classList.toggle('is-hot', clamped > 0.55);
         star.setAttribute('aria-valuenow', String(Math.round(pct)));
     }
 
     function fpGoalSwipeReset() {
         var star = document.getElementById('goalPhaseSwipeStar');
-        if (star) star.classList.remove('is-lift');
+        if (star) {
+            star.classList.remove('is-lift', 'is-hot');
+        }
         fpGoalSwipeSetProgress(0);
     }
 
@@ -10153,7 +10259,9 @@ function setGoalNavActive(isActive) {
                 idx +
                 ', event)"' +
                 (isDone ? ' disabled' : '') +
-                '><span class="goal-phase-check__icon" aria-hidden="true">★</span></button>' +
+                '><span class="goal-phase-check__icon" aria-hidden="true">' +
+                fpGoalBlueStarSvg('gpsChk' + idx) +
+                '</span></button>' +
                 '<p class="goal-plan-phase__week">' +
                 fpGoalEscapeHtml(fpGoalWeekLabel(idx)) +
                 '</p>' +
@@ -14327,5 +14435,3 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
-
-                                    
