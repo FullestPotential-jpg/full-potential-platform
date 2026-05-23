@@ -1773,12 +1773,15 @@
         .goal-plan-panel__intro {
             margin: 0;
             color: #444e72;
-            line-height: 1.6;
-            font-size: 1rem;
+            line-height: 1.75;
+            font-size: 1.02rem;
+            letter-spacing: 0.01em;
+            text-align: left;
         }
         .goal-plan-phase {
+            position: relative;
             margin-bottom: 16px;
-            padding: 20px 20px 18px;
+            padding: 20px 44px 18px 20px;
             border-radius: 18px;
             background: #fff;
             border: 1px solid rgba(130, 150, 210, 0.18);
@@ -1786,6 +1789,72 @@
             opacity: 0;
             transform: translateY(10px);
             animation: fp-goal-phase-in 0.55s ease forwards;
+            transition: border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+        .goal-plan-phase--done {
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.12);
+        }
+        .goal-phase-check {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 2px solid rgba(130, 150, 210, 0.45);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+            z-index: 2;
+        }
+        .goal-phase-check:hover:not(.is-done) {
+            border-color: rgba(56, 189, 248, 0.65);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+        .goal-phase-check__icon {
+            display: block;
+            width: 14px;
+            height: 14px;
+            opacity: 0;
+            transform: scale(0.4);
+            transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+            color: #38bdf8;
+            font-size: 14px;
+            line-height: 1;
+        }
+        .goal-phase-check.is-done {
+            border-color: rgba(56, 189, 248, 0.75);
+            background: linear-gradient(165deg, #060818, #162454);
+            cursor: default;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+        }
+        .goal-phase-check.is-done .goal-phase-check__icon {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+        .goal-phase-check.is-pop .goal-phase-check__icon {
+            animation: fp-goal-star-pop 0.55s ease forwards;
+        }
+        @keyframes fp-goal-star-pop {
+            0% { transform: scale(0.2) rotate(-40deg); opacity: 0; }
+            60% { transform: scale(1.25) rotate(8deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .goal-plan-phase__week {
+            margin: 0 0 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #5a6a9a;
+        }
+        .goal-plan-phase--done .goal-plan-phase__week {
+            color: #0284c7;
         }
         .goal-plan-phase:nth-child(2) { animation-delay: 0.08s; }
         .goal-plan-phase:nth-child(3) { animation-delay: 0.16s; }
@@ -1813,6 +1882,112 @@
         }
         .goal-plan-phase li {
             margin-bottom: 8px;
+        }
+        .goal-phase-swipe-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 120000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 20px;
+            background: rgba(4, 6, 20, 0.78);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .goal-phase-swipe-overlay.is-active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .goal-phase-swipe-overlay.is-exiting {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .goal-phase-swipe-overlay__hint {
+            margin: 0 0 28px;
+            max-width: 320px;
+            text-align: center;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #e8f2ff;
+            line-height: 1.45;
+            letter-spacing: 0.02em;
+        }
+        .goal-phase-swipe-track-wrap {
+            width: min(340px, 90vw);
+        }
+        .goal-phase-swipe-track {
+            position: relative;
+            height: 14px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(140, 180, 255, 0.35);
+            box-shadow:
+                inset 0 2px 6px rgba(0, 0, 0, 0.35),
+                0 4px 20px rgba(56, 189, 248, 0.15);
+            touch-action: none;
+        }
+        .goal-phase-swipe-track__fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #0ea5e9, #6366f1 55%, #a78bfa);
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.55);
+            pointer-events: none;
+        }
+        .goal-phase-swipe-star {
+            --glow: 0;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 52px;
+            height: 52px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            z-index: 2;
+            transition: filter 0.12s ease;
+        }
+        .goal-phase-swipe-star:active {
+            cursor: grabbing;
+        }
+        .goal-phase-swipe-star svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        .goal-phase-swipe-star svg path {
+            fill: hsl(43, 96%, calc(48% + var(--glow) * 32%));
+            filter: drop-shadow(0 0 calc(2px + var(--glow) * 18px) rgba(255, 210, 90, calc(0.25 + var(--glow) * 0.75)));
+            transition: fill 0.1s ease;
+        }
+        .goal-phase-swipe-star.is-lift {
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+            transform: translate(-50%, -50%) translateY(-90px) scale(1.15);
+            z-index: 3;
+        }
+        .goal-phase-swipe-star--flying {
+            position: fixed;
+            z-index: 120001;
+            pointer-events: none;
+            margin: 0;
+            cursor: default;
         }
         .goal-plan-tips {
             margin-top: 18px;
@@ -6026,6 +6201,18 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
             'goal.card_no_plan': 'Продолжить настройку',
             'goal.back_to_list': '← К списку целей',
+            'goal.week_1': 'Первая неделя',
+            'goal.week_2': 'Вторая неделя',
+            'goal.week_3': 'Третья неделя',
+            'goal.week_4': 'Четвёртая неделя',
+            'goal.week_5': 'Пятая неделя',
+            'goal.week_n': 'Неделя %n%',
+            'goal.phase_check_aria': 'Отметить неделю выполненной',
+            'goal.phase_done_aria': 'Неделя выполнена',
+            'goal.swipe_star_hint': 'Проведите звезду вправо до конца',
+            'goal.swipe_star_done': 'Отлично!',
+            'goal.week_mark_done': 'Отметить неделю выполненной',
+            'goal.week_done': 'Неделя выполнена',
             'goal.err_short': 'Опишите цель чуть подробнее (минимум 3 символа).',
             'goal.err_no_archetype': 'Сначала пройдите тест, чтобы определить архетип.',
             'goal.err_need_login': 'Войдите в аккаунт, чтобы работать с целями.',
@@ -6199,6 +6386,18 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'Plan ready — tap to open',
             'goal.card_no_plan': 'Continue setup',
             'goal.back_to_list': '← Back to goals',
+            'goal.week_1': 'Week 1',
+            'goal.week_2': 'Week 2',
+            'goal.week_3': 'Week 3',
+            'goal.week_4': 'Week 4',
+            'goal.week_5': 'Week 5',
+            'goal.week_n': 'Week %n%',
+            'goal.phase_check_aria': 'Mark week complete',
+            'goal.phase_done_aria': 'Week completed',
+            'goal.swipe_star_hint': 'Drag the star to the end →',
+            'goal.swipe_star_done': 'Great!',
+            'goal.week_mark_done': 'Mark week complete',
+            'goal.week_done': 'Week complete',
             'goal.err_short': 'Describe your goal in a bit more detail (at least 3 characters).',
             'goal.err_no_archetype': 'Take the test first to discover your archetype.',
             'goal.err_need_login': 'Sign in to manage your goals.',
@@ -9669,6 +9868,250 @@ function setGoalNavActive(isActive) {
             .replace(/"/g, '&quot;');
     }
 
+    function fpGoalWeekLabel(idx) {
+        var n = idx + 1;
+        if (n >= 1 && n <= 5) return fpT('goal.week_' + n);
+        return fpT('goal.week_n').replace('%n%', String(n));
+    }
+
+    function fpGoalGetCompletedPhases() {
+        if (!fpGoalActiveId) return [];
+        var goals = fpGoalLoadGoalsList();
+        var entry = fpGoalFindGoal(goals, fpGoalActiveId);
+        if (!entry || !Array.isArray(entry.completedPhases)) return [];
+        return entry.completedPhases.slice();
+    }
+
+    function fpGoalMarkPhaseComplete(phaseIdx) {
+        if (!fpGoalActiveId) return;
+        var goals = fpGoalLoadGoalsList();
+        var entry = fpGoalFindGoal(goals, fpGoalActiveId);
+        if (!entry) return;
+        if (!Array.isArray(entry.completedPhases)) entry.completedPhases = [];
+        if (entry.completedPhases.indexOf(phaseIdx) < 0) {
+            entry.completedPhases.push(phaseIdx);
+            entry.updatedAt = Date.now();
+            fpGoalSaveGoalsList(goals);
+        }
+        var card = document.querySelector(
+            '.goal-plan-phase[data-phase-idx="' + phaseIdx + '"]'
+        );
+        if (card) card.classList.add('goal-plan-phase--done');
+        var btn = card ? card.querySelector('.goal-phase-check') : null;
+        if (btn) {
+            btn.classList.add('is-done');
+            btn.disabled = true;
+            btn.setAttribute('aria-pressed', 'true');
+            btn.setAttribute('aria-label', fpT('goal.week_done'));
+            btn.classList.remove('is-pop');
+            void btn.offsetWidth;
+            btn.classList.add('is-pop');
+        }
+    }
+
+    var fpGoalSwipeDrag = null;
+
+    function fpGoalSwipeStarSvg() {
+        return (
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+            '<path d="M12 2.5l2.9 6.5 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6z"/></svg>'
+        );
+    }
+
+    function fpGoalEnsureSwipeOverlay() {
+        var overlay = document.getElementById('goalPhaseSwipeOverlay');
+        if (overlay) return overlay;
+        overlay = document.createElement('div');
+        overlay.id = 'goalPhaseSwipeOverlay';
+        overlay.className = 'goal-phase-swipe-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.innerHTML =
+            '<p class="goal-phase-swipe-overlay__hint" id="goalPhaseSwipeHint"></p>' +
+            '<div class="goal-phase-swipe-track-wrap">' +
+            '<div class="goal-phase-swipe-track" id="goalPhaseSwipeTrack">' +
+            '<div class="goal-phase-swipe-track__fill" id="goalPhaseSwipeFill"></div>' +
+            '<button type="button" class="goal-phase-swipe-star" id="goalPhaseSwipeStar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">' +
+            fpGoalSwipeStarSvg() +
+            '</button></div></div>';
+        document.body.appendChild(overlay);
+        var star = document.getElementById('goalPhaseSwipeStar');
+        if (star) {
+            star.addEventListener('pointerdown', fpGoalSwipeOnPointerDown);
+        }
+        return overlay;
+    }
+
+    function fpGoalSwipeSetProgress(p) {
+        var star = document.getElementById('goalPhaseSwipeStar');
+        var fill = document.getElementById('goalPhaseSwipeFill');
+        var track = document.getElementById('goalPhaseSwipeTrack');
+        if (!star || !fill || !track) return;
+        var pct = Math.max(0, Math.min(1, p)) * 100;
+        star.style.left = pct + '%';
+        fill.style.width = pct + '%';
+        star.style.setProperty('--glow', String(Math.max(0, Math.min(1, p))));
+        star.setAttribute('aria-valuenow', String(Math.round(pct)));
+    }
+
+    function fpGoalSwipeReset() {
+        var star = document.getElementById('goalPhaseSwipeStar');
+        if (star) star.classList.remove('is-lift');
+        fpGoalSwipeSetProgress(0);
+    }
+
+    function fpGoalSwipeOnPointerDown(e) {
+        if (!fpGoalSwipeDrag) return;
+        e.preventDefault();
+        var star = document.getElementById('goalPhaseSwipeStar');
+        if (!star) return;
+        star.setPointerCapture(e.pointerId);
+        fpGoalSwipeDrag.active = true;
+        fpGoalSwipeDrag.pointerId = e.pointerId;
+        fpGoalSwipeOnPointerMove(e);
+    }
+
+    function fpGoalSwipeOnPointerMove(e) {
+        if (!fpGoalSwipeDrag || !fpGoalSwipeDrag.active || e.pointerId !== fpGoalSwipeDrag.pointerId)
+            return;
+        var track = document.getElementById('goalPhaseSwipeTrack');
+        if (!track) return;
+        var rect = track.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var p = rect.width > 0 ? x / rect.width : 0;
+        fpGoalSwipeSetProgress(p);
+        fpGoalSwipeDrag.progress = p;
+    }
+
+    function fpGoalSwipeOnPointerUp(e) {
+        if (!fpGoalSwipeDrag || !fpGoalSwipeDrag.active || e.pointerId !== fpGoalSwipeDrag.pointerId)
+            return;
+        var star = document.getElementById('goalPhaseSwipeStar');
+        if (star) {
+            try {
+                star.releasePointerCapture(e.pointerId);
+            } catch (err) {}
+        }
+        fpGoalSwipeDrag.active = false;
+        var p = fpGoalSwipeDrag.progress || 0;
+        if (p >= 0.92) {
+            fpGoalSwipeComplete(fpGoalSwipeDrag.phaseIdx);
+        } else {
+            fpGoalSwipeAnimateBack();
+        }
+    }
+
+    function fpGoalSwipeAnimateBack() {
+        var star = document.getElementById('goalPhaseSwipeStar');
+        var fill = document.getElementById('goalPhaseSwipeFill');
+        if (star) star.style.transition = 'left 0.35s cubic-bezier(0.34, 1.2, 0.64, 1)';
+        if (fill) fill.style.transition = 'width 0.35s cubic-bezier(0.34, 1.2, 0.64, 1)';
+        fpGoalSwipeSetProgress(0);
+        window.setTimeout(function () {
+            if (star) star.style.transition = '';
+            if (fill) fill.style.transition = '';
+        }, 380);
+    }
+
+    function fpGoalSwipeComplete(phaseIdx) {
+        var overlay = document.getElementById('goalPhaseSwipeOverlay');
+        var star = document.getElementById('goalPhaseSwipeStar');
+        var hint = document.getElementById('goalPhaseSwipeHint');
+        if (hint) hint.textContent = fpT('goal.swipe_star_done');
+        fpGoalSwipeSetProgress(1);
+        if (star) {
+            star.style.setProperty('--glow', '1');
+            star.classList.add('is-lift');
+        }
+        document.removeEventListener('pointermove', fpGoalSwipeOnPointerMove);
+        document.removeEventListener('pointerup', fpGoalSwipeOnPointerUp);
+        document.removeEventListener('pointercancel', fpGoalSwipeOnPointerUp);
+        fpGoalSwipeDrag = null;
+
+        window.setTimeout(function () {
+            if (overlay) overlay.classList.add('is-exiting');
+            window.setTimeout(function () {
+                fpGoalSwipeFlyToBadge(phaseIdx);
+            }, 320);
+        }, 480);
+    }
+
+    function fpGoalSwipeFlyToBadge(phaseIdx) {
+        var overlay = document.getElementById('goalPhaseSwipeOverlay');
+        var star = document.getElementById('goalPhaseSwipeStar');
+        var target = document.querySelector(
+            '.goal-plan-phase[data-phase-idx="' + phaseIdx + '"] .goal-phase-check'
+        );
+        if (!star || !target) {
+            if (overlay) {
+                overlay.classList.remove('is-active', 'is-exiting');
+                overlay.setAttribute('aria-hidden', 'true');
+            }
+            fpGoalMarkPhaseComplete(phaseIdx);
+            fpGoalSwipeReset();
+            return;
+        }
+        var sr = star.getBoundingClientRect();
+        var tr = target.getBoundingClientRect();
+        var fly = document.createElement('button');
+        fly.type = 'button';
+        fly.className = 'goal-phase-swipe-star goal-phase-swipe-star--flying';
+        fly.innerHTML = fpGoalSwipeStarSvg();
+        fly.style.left = sr.left + 'px';
+        fly.style.top = sr.top + 'px';
+        fly.style.width = sr.width + 'px';
+        fly.style.height = sr.height + 'px';
+        fly.style.setProperty('--glow', '1');
+        document.body.appendChild(fly);
+
+        if (overlay) {
+            overlay.classList.remove('is-active', 'is-exiting');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+        fpGoalSwipeReset();
+
+        requestAnimationFrame(function () {
+            var tx = tr.left + tr.width / 2 - (sr.left + sr.width / 2);
+            var ty = tr.top + tr.height / 2 - (sr.top + sr.height / 2);
+            var scale = Math.max(0.22, tr.width / sr.width);
+            fly.style.transition =
+                'transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease 0.55s';
+            fly.style.transform =
+                'translate(' + tx + 'px, ' + ty + 'px) scale(' + scale + ') rotate(18deg)';
+            fly.style.opacity = '0.95';
+        });
+
+        window.setTimeout(function () {
+            fly.remove();
+            fpGoalMarkPhaseComplete(phaseIdx);
+        }, 720);
+    }
+
+    function fpGoalStartPhaseSwipe(phaseIdx) {
+        var overlay = fpGoalEnsureSwipeOverlay();
+        var hint = document.getElementById('goalPhaseSwipeHint');
+        if (hint) hint.textContent = fpT('goal.swipe_star_hint');
+        overlay.classList.remove('is-exiting');
+        overlay.classList.add('is-active');
+        overlay.setAttribute('aria-hidden', 'false');
+        fpGoalSwipeReset();
+        fpGoalSwipeDrag = { phaseIdx: phaseIdx, active: false, progress: 0, pointerId: null };
+        document.addEventListener('pointermove', fpGoalSwipeOnPointerMove);
+        document.addEventListener('pointerup', fpGoalSwipeOnPointerUp);
+        document.addEventListener('pointercancel', fpGoalSwipeOnPointerUp);
+    }
+
+    function fpGoalOnPhaseCheckClick(phaseIdx, evt) {
+        if (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+        var completed = fpGoalGetCompletedPhases();
+        if (completed.indexOf(phaseIdx) >= 0) return;
+        fpGoalStartPhaseSwipe(phaseIdx);
+    }
+
     function fpGoalRenderPlan(plan, options) {
         var opts = options || {};
         var panel = document.getElementById('goalPlanPanel');
@@ -9681,23 +10124,42 @@ function setGoalNavActive(isActive) {
         if (step2) step2.classList.add('goal-flow__panel--hidden');
         if (loading) loading.classList.remove('is-active');
 
+        var completedPhases = fpGoalGetCompletedPhases();
         var phasesHtml = '';
         (plan.phases || []).forEach(function (ph, idx) {
+            var isDone = completedPhases.indexOf(idx) >= 0;
             var steps = (ph.steps || [])
                 .map(function (s) {
                     return '<li>' + fpGoalEscapeHtml(s) + '</li>';
                 })
                 .join('');
             phasesHtml +=
-                '<article class="goal-plan-phase" style="animation-delay:' +
+                '<article class="goal-plan-phase' +
+                (isDone ? ' goal-plan-phase--done' : '') +
+                '" data-phase-idx="' +
+                idx +
+                '" style="animation-delay:' +
                 idx * 0.08 +
                 's">' +
+                '<button type="button" class="goal-phase-check' +
+                (isDone ? ' is-done' : '') +
+                '" data-phase-idx="' +
+                idx +
+                '" aria-pressed="' +
+                (isDone ? 'true' : 'false') +
+                '" aria-label="' +
+                fpGoalEscapeHtml(isDone ? fpT('goal.week_done') : fpT('goal.week_mark_done')) +
+                '" onclick="fpGoalOnPhaseCheckClick(' +
+                idx +
+                ', event)"' +
+                (isDone ? ' disabled' : '') +
+                '><span class="goal-phase-check__icon" aria-hidden="true">★</span></button>' +
+                '<p class="goal-plan-phase__week">' +
+                fpGoalEscapeHtml(fpGoalWeekLabel(idx)) +
+                '</p>' +
                 '<h3 class="goal-plan-phase__name">' +
                 fpGoalEscapeHtml(ph.name || '') +
                 '</h3>' +
-                (ph.duration
-                    ? '<p class="goal-plan-phase__dur">' + fpGoalEscapeHtml(ph.duration) + '</p>'
-                    : '') +
                 '<ol>' +
                 steps +
                 '</ol></article>';
@@ -10085,6 +10547,7 @@ function setGoalNavActive(isActive) {
     window.fpGoalOpenGoal = fpGoalOpenGoal;
     window.fpGoalStartNewGoal = fpGoalStartNewGoal;
     window.fpGoalBackToList = fpGoalBackToList;
+    window.fpGoalOnPhaseCheckClick = fpGoalOnPhaseCheckClick;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
@@ -13864,3 +14327,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
+
+                                    
