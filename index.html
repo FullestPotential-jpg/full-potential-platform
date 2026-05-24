@@ -1790,6 +1790,17 @@
             letter-spacing: 0.04em;
             color: #0284c7;
         }
+        .goal-plan-timeline-banner {
+            margin: 0 0 16px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            color: #0c4a6e;
+            font-size: 0.98rem;
+            line-height: 1.55;
+            text-align: left;
+        }
         .goal-plan-phase-block {
             margin-bottom: 18px;
             opacity: 0;
@@ -2681,6 +2692,11 @@
             border-color: rgba(130, 150, 210, 0.22);
         }
         html.fp-platform-dark .goal-flow__label,
+        html.fp-platform-dark .goal-plan-timeline-banner {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0c4a6e 100%);
+            border-color: #0369a1;
+            color: #e0f2fe;
+        }
         html.fp-platform-dark .goal-plan-panel__title {
             color: #e8f0ff;
         }
@@ -6571,7 +6587,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Шесть коротких ответов — и ИИ соберёт план под ваш архетип. В текстовых полях пишите конкретно: имена, примеры, сроки.',
             'goal.q_deadline_label': 'За какой срок хотите достичь цель?',
             'goal.q_deadline_placeholder': 'Например: за 3 месяца, к 1 сентября 2026, за полгода',
-            'goal.q_deadline_hint': 'От этого зависит число недель в плане — укажите срок или дату.',
+            'goal.q_deadline_hint':
+                'Ваш ориентир по сроку — ИИ сравнит с ним и предложит реалистичный план по неделям.',
             'goal.q_hours_label': 'Сколько часов в неделю вы реально можете выделить на эту цель?',
             'goal.q_hours_placeholder': 'Например: 5',
             'goal.q_blockers_label': 'Что вас останавливало раньше при попытке её достичь?',
@@ -6617,7 +6634,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.month_mark_done': 'Отметить месяц выполненным',
             'goal.month_finish_label': 'Завершить месяц',
             'goal.month_done': 'Месяц выполнен',
-            'goal.err_plan_length': 'План не совпал со сроком. Попробуйте ещё раз или уточните срок (например: «за год»).',
+            'goal.err_plan_length': 'План не удалось собрать. Попробуйте создать ещё раз.',
+            'goal.timeline_fallback':
+                'Вы указали срок «%user%». Реалистичный план: %ai% — при выполнении шагов по неделям.',
             'goal.phase_check_aria': 'Отметить неделю выполненной',
             'goal.phase_done_aria': 'Неделя выполнена',
             'goal.swipe_star_hint': 'Проведите звезду вправо до конца',
@@ -6799,7 +6818,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Six short answers — then AI builds your archetype plan. In text fields be concrete: names, examples, deadlines.',
             'goal.q_deadline_label': 'By when do you want to reach this goal?',
             'goal.q_deadline_placeholder': 'e.g. in 3 months, by Sep 1 2026, within six months',
-            'goal.q_deadline_hint': 'Plan length in weeks depends on this — give a timeframe or date.',
+            'goal.q_deadline_hint':
+                'Your expected timeframe — AI will compare and propose a realistic weekly plan.',
             'goal.q_hours_label': 'How many hours per week can you realistically dedicate to this goal?',
             'goal.q_hours_placeholder': 'e.g. 5',
             'goal.q_blockers_label': 'What stopped you before when trying to achieve it?',
@@ -6845,7 +6865,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.month_mark_done': 'Mark month complete',
             'goal.month_finish_label': 'Complete month',
             'goal.month_done': 'Month complete',
-            'goal.err_plan_length': 'Plan length did not match your deadline. Try again or clarify (e.g. "in one year").',
+            'goal.err_plan_length': 'Could not build the plan. Please try again.',
+            'goal.timeline_fallback':
+                'You mentioned "%user%". A realistic timeline: %ai% — if you follow the weekly steps.',
             'goal.phase_check_aria': 'Mark week complete',
             'goal.phase_done_aria': 'Week completed',
             'goal.swipe_star_hint': 'Drag the star to the end →',
@@ -10387,6 +10409,22 @@ function setGoalNavActive(isActive) {
         return fpGoalPhaseLabel(idx, entry && entry.plan);
     }
 
+    function fpGoalTimelineBannerHtml(plan) {
+        var msg = plan && plan.timeline_message ? String(plan.timeline_message).trim() : '';
+        if (!msg && plan && plan.user_stated_deadline && plan.recommended_timeline) {
+            msg =
+                fpT('goal.timeline_fallback')
+                    .replace('%user%', plan.user_stated_deadline)
+                    .replace('%ai%', plan.recommended_timeline);
+        }
+        if (!msg) return '';
+        return (
+            '<div class="goal-plan-timeline-banner" role="note">' +
+            fpGoalEscapeHtml(msg) +
+            '</div>'
+        );
+    }
+
     function fpGoalPhaseFinishKey(plan, which) {
         return fpGoalPlanUsesMonths(plan) ? 'goal.month_' + which : 'goal.week_' + which;
     }
@@ -10527,9 +10565,7 @@ function setGoalNavActive(isActive) {
                 : [];
         var step = steps[stepIdx] || '';
         var sch = fpGoalParseStepSchedule(step, stepIdx);
-        var phaseSpan =
-            entry.plan && entry.plan.phase_unit === 'month' ? 28 : 7;
-        d.setDate(d.getDate() + weekIdx * phaseSpan + sch.dayOffset);
+        d.setDate(d.getDate() + weekIdx * 7 + sch.dayOffset);
         var fb = (fallbackTime || '09:00').split(':');
         var fbH = parseInt(fb[0], 10) || 9;
         var fbM = parseInt(fb[1], 10) || 0;
@@ -11381,6 +11417,7 @@ function setGoalNavActive(isActive) {
 
         panel.innerHTML =
             '<div class="goal-plan-panel__head">' +
+            fpGoalTimelineBannerHtml(plan) +
             '<h2 class="goal-plan-panel__title">' +
             fpGoalEscapeHtml(plan.title || '') +
             '</h2>' +
