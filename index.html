@@ -2021,13 +2021,11 @@
         }
         .goal-plan-phase__steps {
             margin: 10px 0 0;
-            padding: 0;
+            padding: 0 0 0 26px;
             list-style: none;
         }
         .goal-plan-step {
-            display: flex;
-            align-items: flex-start;
-            gap: 0;
+            position: relative;
             margin-bottom: 14px;
             color: #1a2248;
             line-height: 1.62;
@@ -2037,43 +2035,44 @@
             margin-bottom: 0;
         }
         .goal-plan-step__num {
-            flex-shrink: 0;
-            min-width: 0;
-            height: auto;
-            margin-top: 3px;
-            padding: 0 2px 0 0;
+            position: absolute;
+            left: -26px;
+            top: 0.12em;
+            width: 22px;
+            height: 22px;
+            margin: 0;
+            padding: 0;
             border: none;
-            border-radius: 0;
+            border-radius: 6px;
             background: transparent;
-            font-size: 1.02rem;
+            font-size: 0.86rem;
             font-weight: 700;
-            line-height: 1.4;
-            color: #5a6a9a;
+            line-height: 22px;
+            text-align: center;
+            color: #6a7898;
             cursor: pointer;
-            display: inline;
+            flex-shrink: 0;
             text-decoration: underline;
-            text-decoration-color: rgba(130, 150, 210, 0.38);
-            text-underline-offset: 3px;
-            transition: color 0.2s ease, text-decoration-color 0.2s ease;
+            text-decoration-color: rgba(130, 150, 210, 0.42);
+            text-underline-offset: 2px;
+            transition: color 0.2s ease, text-decoration-color 0.2s ease, background 0.2s ease;
         }
         .goal-plan-step__num:hover {
             color: #0284c7;
-            text-decoration-color: rgba(56, 189, 248, 0.55);
-            box-shadow: none;
+            text-decoration-color: rgba(56, 189, 248, 0.6);
+            background: rgba(56, 189, 248, 0.06);
         }
         .goal-plan-step--done .goal-plan-step__num {
             color: #0590c8;
-            text-decoration-color: rgba(56, 189, 248, 0.45);
+            text-decoration-color: rgba(56, 189, 248, 0.5);
             background: transparent;
-            box-shadow: none;
         }
         .goal-plan-step--done .goal-plan-step__text {
             color: #3a4568;
         }
         .goal-plan-step__text {
-            flex: 1;
-            min-width: 0;
-            padding-top: 0;
+            display: block;
+            width: 100%;
         }
         .goal-plan-phase__name {
             margin: 0 0 6px;
@@ -15219,5 +15218,3 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
-
-    
