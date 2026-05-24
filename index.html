@@ -1751,6 +1751,22 @@
             color: #3d4670;
             font-size: 1rem;
         }
+        .goal-flow__loading-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #1e293b;
+        }
+        .goal-flow__loading-eta {
+            margin-top: 10px !important;
+            font-size: 0.95rem;
+            color: #0284c7;
+            font-weight: 600;
+        }
+        .goal-flow__loading-timer {
+            margin-top: 6px !important;
+            font-size: 0.88rem;
+            color: #64748b;
+        }
         .goal-plan-panel {
             display: none;
             opacity: 0;
@@ -6611,6 +6627,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Ответы про барьер, опору и последствия — минимум 20 символов каждый. Добавьте имена, примеры и детали.',
             'goal.err_energy_range': 'Энергия: выберите значение от 1 до 10.',
             'goal.launch_loading': 'Составляем маршрут под ваш архетип…',
+            'goal.launch_eta': 'Обычно 1–2 минуты. Не закрывайте страницу.',
+            'goal.launch_elapsed': 'Прошло %time% · ещё немного…',
             'goal.plan_week_title': 'Первая неделя',
             'goal.plan_tips_title': 'Советы для вашего архетипа',
             'goal.plan_edit': 'Изменить цель',
@@ -6663,7 +6681,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_no_archetype': 'Сначала пройдите тест, чтобы определить архетип.',
             'goal.err_need_login': 'Войдите в аккаунт, чтобы работать с целями.',
             'goal.err_api': 'Не удалось получить план. Попробуйте ещё раз через минуту.',
-            'goal.err_timeout': 'Генерация заняла слишком много времени. Нажмите «Создать план» ещё раз — мы уже ускорили длинные планы.',
+            'goal.err_timeout':
+                'Генерация заняла слишком много времени. Нажмите «Поехали» ещё раз — обычно хватает 1–2 минут.',
             'goal.err_openrouter_fail': 'OpenRouter отклонил запрос. Проверьте баланс на openrouter.ai и секрет OPENROUTER_API_KEY в Supabase.',
             'goal.err_401': '401: Supabase блокирует вызов. Откройте goal-plan-generate → вкладка Details → переключатель «Verify JWT with legacy secret» должен быть ВЫКЛЮЧЕН (OFF, серый) → Deploy. Не включайте его.',
             'goal.err_openrouter_key': 'На сервере не задан OPENROUTER_API_KEY (Supabase → Edge Functions → Secrets).',
@@ -6842,6 +6861,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Barrier, support, and stakes answers need at least 20 characters each. Add names, examples, and detail.',
             'goal.err_energy_range': 'Energy: pick a value from 1 to 10.',
             'goal.launch_loading': 'Building your archetype-tailored route…',
+            'goal.launch_eta': 'Usually 1–2 minutes. Please keep this page open.',
+            'goal.launch_elapsed': 'Elapsed %time% · almost there…',
             'goal.plan_week_title': 'First week',
             'goal.plan_tips_title': 'Tips for your archetype',
             'goal.plan_edit': 'Edit goal',
@@ -6894,7 +6915,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_no_archetype': 'Take the test first to discover your archetype.',
             'goal.err_need_login': 'Sign in to manage your goals.',
             'goal.err_api': 'Could not load the plan. Please try again in a minute.',
-            'goal.err_timeout': 'Generation took too long. Tap «Create plan» again — long plans are now faster.',
+            'goal.err_timeout':
+                'Generation took too long. Tap «Let\'s go» again — it usually takes 1–2 minutes.',
             'goal.err_openrouter_fail': 'OpenRouter rejected the request. Check your balance at openrouter.ai and OPENROUTER_API_KEY in Supabase.',
             'goal.err_401': 'Function access denied (401). In Supabase: Edge Functions → goal-plan-generate → turn OFF «Verify JWT with legacy secret», then Deploy again.',
             'goal.err_openrouter_key': 'OPENROUTER_API_KEY is not set on the server (Supabase → Edge Functions → Secrets).',
@@ -11449,6 +11471,34 @@ function setGoalNavActive(isActive) {
         fpGoalBackToList();
     }
 
+    var fpGoalLoadingTimerId = null;
+
+    function fpGoalStartLoadingUi() {
+        fpGoalStopLoadingUi();
+        var timerEl = document.getElementById('goalLoadingTimer');
+        var started = Date.now();
+        if (timerEl) timerEl.textContent = fpT('goal.launch_elapsed').replace('%time%', '0:00');
+        fpGoalLoadingTimerId = setInterval(function () {
+            var sec = Math.floor((Date.now() - started) / 1000);
+            var m = Math.floor(sec / 60);
+            var s = sec % 60;
+            var pad = s < 10 ? '0' + s : String(s);
+            if (timerEl) {
+                timerEl.textContent = fpT('goal.launch_elapsed').replace(
+                    '%time%',
+                    m + ':' + pad
+                );
+            }
+        }, 1000);
+    }
+
+    function fpGoalStopLoadingUi() {
+        if (fpGoalLoadingTimerId) {
+            clearInterval(fpGoalLoadingTimerId);
+            fpGoalLoadingTimerId = null;
+        }
+    }
+
     async function fpGoalLaunchPlan() {
         if (fpGoalCurrentStep !== 2) return;
 
@@ -11502,15 +11552,20 @@ function setGoalNavActive(isActive) {
         if (btn) btn.disabled = true;
         if (step2) step2.style.opacity = '0.55';
         if (loading) loading.classList.add('is-active');
+        fpGoalStartLoadingUi();
 
         var lang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
+
+        var profileForPlan = profile
+            ? String(profile).slice(0, 3200)
+            : '';
 
         var payload = {
             goal: goal,
             lang: lang,
             archetype_key: ak || '',
             archetype_name: fpArchetypeDisplayNameFromUser(currentUser),
-            archetype_profile: profile,
+            archetype_profile: profileForPlan,
             hours_per_week: answers.hours_per_week,
             target_deadline: answers.target_deadline,
             past_blockers: answers.past_blockers,
@@ -11525,11 +11580,17 @@ function setGoalNavActive(isActive) {
 
             var fnUrl = base.replace(/\/$/, '') + '/functions/v1/goal-plan-generate';
 
+            var fetchAbort = new AbortController();
+            var fetchTimeoutId = setTimeout(function () {
+                fetchAbort.abort();
+            }, 130000);
+
             async function fpGoalFetchPlan(headers) {
                 var res = await fetch(fnUrl, {
                     method: 'POST',
                     headers: headers,
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: fetchAbort.signal
                 });
                 var body = {};
                 try {
@@ -11609,8 +11670,14 @@ function setGoalNavActive(isActive) {
             fpGoalRenderPlan(data.plan, { skipPersist: true });
         } catch (e) {
             console.error('[goal-plan]', e);
-            fpGoalShowError(fpT('goal.err_api'));
+            if (e && e.name === 'AbortError') {
+                fpGoalShowError(fpT('goal.err_timeout'));
+            } else {
+                fpGoalShowError(fpT('goal.err_api'));
+            }
         } finally {
+            clearTimeout(fetchTimeoutId);
+            fpGoalStopLoadingUi();
             if (btn) btn.disabled = false;
             if (step2) step2.style.opacity = '';
             if (loading) loading.classList.remove('is-active');
@@ -11776,9 +11843,13 @@ function setGoalNavActive(isActive) {
             '<div class="goal-flow__error" id="goalFlowErrorStep2" role="alert"></div></div>' +
             '<div class="goal-flow__loading" id="goalFlowLoading">' +
             '<div class="goal-flow__loading-orbit" aria-hidden="true"></div>' +
-            '<p data-i18n="goal.launch_loading">' +
+            '<p class="goal-flow__loading-title" data-i18n="goal.launch_loading">' +
             fpT('goal.launch_loading') +
-            '</p></div>' +
+            '</p>' +
+            '<p class="goal-flow__loading-eta" id="goalLoadingEta" data-i18n="goal.launch_eta">' +
+            fpT('goal.launch_eta') +
+            '</p>' +
+            '<p class="goal-flow__loading-timer" id="goalLoadingTimer" aria-live="polite"></p></div>' +
             '<div class="goal-plan-panel" id="goalPlanPanel"></div></div></div>';
 
         if (showList) {
