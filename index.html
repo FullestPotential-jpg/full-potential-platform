@@ -1778,6 +1778,14 @@
             letter-spacing: 0.01em;
             text-align: left;
         }
+        .goal-plan-panel__weeks-meta {
+            margin: 0 0 10px;
+            text-align: center;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #0284c7;
+        }
         .goal-plan-phase-block {
             display: flex;
             align-items: stretch;
@@ -1804,7 +1812,7 @@
             flex: 1;
             min-width: 0;
             margin-bottom: 0;
-            padding: 20px 44px 18px 20px;
+            padding: 20px 44px 46px 20px;
             border-radius: 18px;
             background: #fff;
             border: 1px solid rgba(130, 150, 210, 0.18);
@@ -1934,6 +1942,126 @@
         .goal-phase-check.is-landing .goal-phase-check__icon {
             opacity: 0 !important;
             visibility: hidden;
+        }
+        .goal-phase-notify {
+            position: absolute;
+            bottom: 12px;
+            right: 14px;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: 1.5px solid rgba(130, 150, 210, 0.45);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.96);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+            z-index: 2;
+            color: #5a6a9a;
+        }
+        .goal-phase-notify:hover {
+            border-color: rgba(56, 189, 248, 0.65);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.22);
+            color: #0284c7;
+        }
+        .goal-phase-notify.is-on {
+            border-color: rgba(56, 189, 248, 0.75);
+            background: linear-gradient(165deg, #060818, #162454);
+            color: #7ee7ff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+        }
+        .goal-phase-notify svg {
+            display: block;
+            width: 15px;
+            height: 15px;
+        }
+        .goal-notify-pop {
+            position: fixed;
+            inset: 0;
+            z-index: 119000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(4, 6, 20, 0.55);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .goal-notify-pop.is-active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .goal-notify-pop__card {
+            width: min(360px, 92vw);
+            padding: 22px 20px 18px;
+            border-radius: 18px;
+            background: linear-gradient(168deg, #ffffff 0%, #f8faff 55%, #f2f6ff 100%);
+            border: 1px solid rgba(130, 150, 210, 0.25);
+            box-shadow: 0 16px 40px rgba(12, 20, 58, 0.18);
+        }
+        .goal-notify-pop__title {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1a2858;
+        }
+        .goal-notify-pop__hint {
+            margin: 0 0 14px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #5a6488;
+        }
+        .goal-notify-pop__preview {
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(6, 8, 24, 0.04);
+            border: 1px solid rgba(130, 150, 210, 0.2);
+            font-size: 0.86rem;
+            line-height: 1.5;
+            color: #333a5c;
+        }
+        .goal-notify-pop__time-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .goal-notify-pop__time-row label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a2858;
+        }
+        .goal-notify-pop__time-row input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid rgba(130, 150, 210, 0.35);
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        .goal-notify-pop__actions {
+            display: flex;
+            gap: 10px;
+        }
+        .goal-notify-pop__btn {
+            flex: 1;
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(130, 150, 210, 0.35);
+            background: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .goal-notify-pop__btn--primary {
+            border-color: rgba(56, 189, 248, 0.45);
+            background: linear-gradient(165deg, #060818, #162454);
+            color: #e8f2ff;
         }
         @keyframes fp-goal-star-pop {
             0% { transform: scale(0.2) rotate(-40deg); opacity: 0; }
@@ -6457,6 +6585,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.week_done': 'Неделя выполнена',
             'goal.step_toggle': 'Отметить шаг выполненным',
             'goal.step_done': 'Шаг выполнен',
+            'goal.notify_btn': 'Уведомления на неделю',
+            'goal.notify_on': 'Уведомления включены',
+            'goal.notify_pop_title': 'Напоминания на эту неделю',
+            'goal.notify_pop_hint': 'В указанное время придёт уведомление с конкретным шагом из этой недели (по времени в тексте шага).',
+            'goal.notify_time_label': 'Если время в шаге не указано — напоминание в:',
+            'goal.notify_enable': 'Включить',
+            'goal.notify_disable': 'Выключить',
+            'goal.notify_cancel': 'Отмена',
+            'goal.notify_denied': 'Разрешите уведомления в настройках браузера.',
+            'goal.notify_need_plan': 'Сначала откройте план цели.',
+            'goal.plan_weeks_count': 'План: %n% нед.',
             'goal.err_short': 'Опишите цель чуть подробнее (минимум 3 символа).',
             'goal.err_no_archetype': 'Сначала пройдите тест, чтобы определить архетип.',
             'goal.err_need_login': 'Войдите в аккаунт, чтобы работать с целями.',
@@ -6655,6 +6794,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.week_done': 'Week complete',
             'goal.step_toggle': 'Mark step complete',
             'goal.step_done': 'Step complete',
+            'goal.notify_btn': 'Week notifications',
+            'goal.notify_on': 'Notifications on',
+            'goal.notify_pop_title': 'Reminders for this week',
+            'goal.notify_pop_hint': 'You will get a notification with a concrete step from this week (using times from step text when present).',
+            'goal.notify_time_label': 'If a step has no time — remind at:',
+            'goal.notify_enable': 'Enable',
+            'goal.notify_disable': 'Disable',
+            'goal.notify_cancel': 'Cancel',
+            'goal.notify_denied': 'Allow notifications in your browser settings.',
+            'goal.notify_need_plan': 'Open a goal plan first.',
+            'goal.plan_weeks_count': 'Plan: %n% wks',
             'goal.err_short': 'Describe your goal in a bit more detail (at least 3 characters).',
             'goal.err_no_archetype': 'Take the test first to discover your archetype.',
             'goal.err_need_login': 'Sign in to manage your goals.',
@@ -10150,6 +10300,313 @@ function setGoalNavActive(isActive) {
         return fpT('goal.week_n').replace('%n%', String(n));
     }
 
+    function fpGoalNotifyBellSvg() {
+        return (
+            '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8"/>' +
+            '<path d="M13.73 21a2 2 0 01-3.46 0"/></svg>'
+        );
+    }
+
+    function fpGoalGetActiveGoalEntry() {
+        if (!fpGoalActiveId) return null;
+        return fpGoalFindGoal(fpGoalLoadGoalsList(), fpGoalActiveId);
+    }
+
+    function fpGoalEnsureWeekReminders(entry) {
+        if (!entry.weekReminders || typeof entry.weekReminders !== 'object') {
+            entry.weekReminders = { startDate: null, weeks: {}, fired: {} };
+        }
+        if (!entry.weekReminders.weeks) entry.weekReminders.weeks = {};
+        if (!entry.weekReminders.fired) entry.weekReminders.fired = {};
+        return entry.weekReminders;
+    }
+
+    function fpGoalIsWeekNotifyOn(weekIdx) {
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry) return false;
+        var wr = fpGoalEnsureWeekReminders(entry);
+        var cfg = wr.weeks[String(weekIdx)];
+        return !!(cfg && cfg.enabled);
+    }
+
+    function fpGoalParseStepSchedule(stepText, stepIdx) {
+        var t = String(stepText || '').toLowerCase();
+        var dayMap = {
+            пн: 0,
+            пон: 0,
+            mon: 0,
+            вт: 1,
+            tue: 1,
+            ср: 2,
+            wed: 2,
+            чт: 3,
+            thu: 3,
+            пт: 4,
+            fri: 4,
+            сб: 5,
+            sat: 5,
+            вс: 6,
+            sun: 6
+        };
+        var dayOffset = Math.min(stepIdx * 2, 6);
+        var keys = Object.keys(dayMap);
+        for (var i = 0; i < keys.length; i++) {
+            if (t.indexOf(keys[i]) >= 0) {
+                dayOffset = dayMap[keys[i]];
+                break;
+            }
+        }
+        var tm = t.match(/\b(\d{1,2})[:\.](\d{2})\b/);
+        var h = 9;
+        var m = 0;
+        if (tm) {
+            h = Math.min(23, parseInt(tm[1], 10));
+            m = Math.min(59, parseInt(tm[2], 10));
+        }
+        return { dayOffset: dayOffset, h: h, m: m };
+    }
+
+    function fpGoalNextStepTextForWeek(plan, weekIdx, completedSteps) {
+        var steps = plan && plan.phases && plan.phases[weekIdx] ? plan.phases[weekIdx].steps || [] : [];
+        var key = String(weekIdx);
+        var done = (completedSteps && completedSteps[key]) || [];
+        for (var i = 0; i < steps.length; i++) {
+            if (done.indexOf(i) < 0) return steps[i];
+        }
+        return steps.length ? steps[0] : fpT('goal.step_toggle');
+    }
+
+    function fpGoalBuildWeekReminderSlots(entry) {
+        if (!entry || !entry.plan || !entry.weekReminders) return [];
+        var wr = entry.weekReminders;
+        if (!wr.startDate) return [];
+        var start = new Date(wr.startDate + 'T00:00:00');
+        if (isNaN(start.getTime())) return [];
+        var slots = [];
+        Object.keys(wr.weeks || {}).forEach(function (wk) {
+            var cfg = wr.weeks[wk];
+            if (!cfg || !cfg.enabled) return;
+            var weekIdx = parseInt(wk, 10);
+            if (!entry.plan.phases || !entry.plan.phases[weekIdx]) return;
+            var steps = entry.plan.phases[weekIdx].steps || [];
+            var fallback = cfg.time || '09:00';
+            var fbParts = fallback.split(':');
+            var fbH = parseInt(fbParts[0], 10) || 9;
+            var fbM = parseInt(fbParts[1], 10) || 0;
+            steps.forEach(function (step, si) {
+                var sch = fpGoalParseStepSchedule(step, si);
+                var d = new Date(start);
+                d.setDate(d.getDate() + weekIdx * 7 + sch.dayOffset);
+                if (!String(step).match(/\b\d{1,2}[:\.]\d{2}\b/)) {
+                    d.setHours(fbH, fbM, 0, 0);
+                } else {
+                    d.setHours(sch.h, sch.m, 0, 0);
+                }
+                slots.push({
+                    id: entry.id + '_w' + weekIdx + '_s' + si + '_' + d.getTime(),
+                    at: d.getTime(),
+                    weekIdx: weekIdx,
+                    stepIdx: si,
+                    text: step,
+                    label: fpGoalWeekLabel(weekIdx)
+                });
+            });
+        });
+        return slots;
+    }
+
+    function fpGoalShowStepNotification(entry, slot) {
+        var title = slot.label + ' — ' + (entry.plan.title || fpT('goal.screen_title'));
+        var body = slot.text;
+        var tag = slot.id;
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'GOAL_NOTIFY',
+                title: title,
+                body: body,
+                tag: tag
+            });
+            return;
+        }
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                new Notification(title, {
+                    body: body,
+                    tag: tag,
+                    icon: '/icon-192.png'
+                });
+            } catch (e) {}
+        }
+    }
+
+    function fpGoalCheckReminders() {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        var now = Date.now();
+        var windowMs = 90 * 60 * 1000;
+        fpGoalLoadGoalsList().forEach(function (entry) {
+            if (!entry || !entry.plan) return;
+            var wr = fpGoalEnsureWeekReminders(entry);
+            var changed = false;
+            fpGoalBuildWeekReminderSlots(entry).forEach(function (slot) {
+                if (now < slot.at || now - slot.at > windowMs) return;
+                if (wr.fired[slot.id]) return;
+                fpGoalShowStepNotification(entry, slot);
+                wr.fired[slot.id] = true;
+                changed = true;
+            });
+            if (changed) {
+                entry.updatedAt = Date.now();
+                var goals = fpGoalLoadGoalsList();
+                var idx = goals.findIndex(function (g) {
+                    return g.id === entry.id;
+                });
+                if (idx >= 0) {
+                    goals[idx] = entry;
+                    fpGoalSaveGoalsList(goals);
+                }
+            }
+        });
+    }
+
+    function fpGoalEnsureNotifyPopover() {
+        var pop = document.getElementById('goalNotifyPop');
+        if (pop) return pop;
+        pop = document.createElement('div');
+        pop.id = 'goalNotifyPop';
+        pop.className = 'goal-notify-pop';
+        pop.setAttribute('aria-hidden', 'true');
+        pop.innerHTML =
+            '<div class="goal-notify-pop__card" role="dialog" aria-modal="true">' +
+            '<h3 class="goal-notify-pop__title" id="goalNotifyPopTitle"></h3>' +
+            '<p class="goal-notify-pop__hint" id="goalNotifyPopHint"></p>' +
+            '<p class="goal-notify-pop__preview" id="goalNotifyPopPreview"></p>' +
+            '<div class="goal-notify-pop__time-row">' +
+            '<label for="goalNotifyPopTime" id="goalNotifyPopTimeLabel"></label>' +
+            '<input type="time" id="goalNotifyPopTime" value="09:00">' +
+            '</div>' +
+            '<div class="goal-notify-pop__actions">' +
+            '<button type="button" class="goal-notify-pop__btn" id="goalNotifyPopCancel"></button>' +
+            '<button type="button" class="goal-notify-pop__btn goal-notify-pop__btn--primary" id="goalNotifyPopSave"></button>' +
+            '</div></div>';
+        document.body.appendChild(pop);
+        pop.addEventListener('click', function (e) {
+            if (e.target === pop) fpGoalCloseNotifyPopover();
+        });
+        document.getElementById('goalNotifyPopCancel').addEventListener('click', fpGoalCloseNotifyPopover);
+        return pop;
+    }
+
+    var fpGoalNotifyPopWeek = null;
+
+    function fpGoalCloseNotifyPopover() {
+        var pop = document.getElementById('goalNotifyPop');
+        if (pop) {
+            pop.classList.remove('is-active');
+            pop.setAttribute('aria-hidden', 'true');
+        }
+        fpGoalNotifyPopWeek = null;
+    }
+
+    async function fpGoalOpenNotifyPopover(phaseIdx, evt) {
+        if (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry || !entry.plan) return;
+        var wr = fpGoalEnsureWeekReminders(entry);
+        var cfg = wr.weeks[String(phaseIdx)];
+        if (cfg && cfg.enabled) {
+            var goalsOff = fpGoalLoadGoalsList();
+            var eOff = fpGoalFindGoal(goalsOff, entry.id);
+            if (eOff) {
+                var wrOff = fpGoalEnsureWeekReminders(eOff);
+                wrOff.weeks[String(phaseIdx)] = {
+                    enabled: false,
+                    time: cfg.time || '09:00'
+                };
+                eOff.updatedAt = Date.now();
+                fpGoalSaveGoalsList(goalsOff);
+            }
+            fpGoalSyncNotifyButtons();
+            return;
+        }
+        if (!('Notification' in window)) {
+            alert(fpT('goal.notify_denied'));
+            return;
+        }
+        if (Notification.permission === 'default') {
+            var perm = await Notification.requestPermission();
+            if (perm !== 'granted') {
+                alert(fpT('goal.notify_denied'));
+                return;
+            }
+        } else if (Notification.permission !== 'granted') {
+            alert(fpT('goal.notify_denied'));
+            return;
+        }
+        fpGoalEnsureNotifyPopover();
+        fpGoalNotifyPopWeek = phaseIdx;
+        var stepText = fpGoalNextStepTextForWeek(entry.plan, phaseIdx, entry.completedSteps);
+        var defaultTime = fpGoalParseStepSchedule(stepText, 0);
+        var timeEl = document.getElementById('goalNotifyPopTime');
+        if (timeEl) {
+            timeEl.value =
+                ('0' + defaultTime.h).slice(-2) + ':' + ('0' + defaultTime.m).slice(-2);
+        }
+        document.getElementById('goalNotifyPopTitle').textContent =
+            fpT('goal.notify_pop_title') + ' — ' + fpGoalWeekLabel(phaseIdx);
+        document.getElementById('goalNotifyPopHint').textContent = fpT('goal.notify_pop_hint');
+        document.getElementById('goalNotifyPopPreview').textContent = stepText;
+        document.getElementById('goalNotifyPopTimeLabel').textContent = fpT('goal.notify_time_label');
+        document.getElementById('goalNotifyPopCancel').textContent = fpT('goal.notify_cancel');
+        var saveBtn = document.getElementById('goalNotifyPopSave');
+        saveBtn.textContent = fpT('goal.notify_enable');
+        saveBtn.onclick = function () {
+            fpGoalSaveWeekNotify(phaseIdx, timeEl ? timeEl.value : '09:00');
+        };
+        var pop = document.getElementById('goalNotifyPop');
+        pop.classList.add('is-active');
+        pop.setAttribute('aria-hidden', 'false');
+    }
+
+    function fpGoalSaveWeekNotify(phaseIdx, timeStr) {
+        var goals = fpGoalLoadGoalsList();
+        var entry = fpGoalFindGoal(goals, fpGoalActiveId);
+        if (!entry) return;
+        var wr = fpGoalEnsureWeekReminders(entry);
+        if (!wr.startDate) {
+            wr.startDate = new Date().toISOString().slice(0, 10);
+        }
+        wr.weeks[String(phaseIdx)] = { enabled: true, time: timeStr || '09:00' };
+        entry.updatedAt = Date.now();
+        fpGoalSaveGoalsList(goals);
+        fpGoalCloseNotifyPopover();
+        fpGoalSyncNotifyButtons();
+        fpGoalCheckReminders();
+    }
+
+    function fpGoalSyncNotifyButtons() {
+        document.querySelectorAll('.goal-phase-notify').forEach(function (btn) {
+            var wk = btn.getAttribute('data-phase-idx');
+            var on = fpGoalIsWeekNotifyOn(parseInt(wk, 10));
+            btn.classList.toggle('is-on', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            btn.setAttribute('aria-label', on ? fpT('goal.notify_on') : fpT('goal.notify_btn'));
+        });
+    }
+
+    function fpGoalInitReminders() {
+        if (fpGoalInitReminders._started) return;
+        fpGoalInitReminders._started = true;
+        fpGoalCheckReminders();
+        setInterval(fpGoalCheckReminders, 60000);
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') fpGoalCheckReminders();
+        });
+    }
+
     function fpGoalGetCompletedPhases() {
         if (!fpGoalActiveId) return [];
         var goals = fpGoalLoadGoalsList();
@@ -10638,7 +11095,22 @@ function setGoalNavActive(isActive) {
                 '</h3>' +
                 '<ul class="goal-plan-phase__steps">' +
                 stepsHtml +
-                '</ul></article></div>';
+                '</ul>' +
+                '<button type="button" class="goal-phase-notify' +
+                (fpGoalIsWeekNotifyOn(idx) ? ' is-on' : '') +
+                '" data-phase-idx="' +
+                idx +
+                '" aria-pressed="' +
+                (fpGoalIsWeekNotifyOn(idx) ? 'true' : 'false') +
+                '" aria-label="' +
+                fpGoalEscapeHtml(
+                    fpGoalIsWeekNotifyOn(idx) ? fpT('goal.notify_on') : fpT('goal.notify_btn')
+                ) +
+                '" onclick="fpGoalOpenNotifyPopover(' +
+                idx +
+                ', event)">' +
+                fpGoalNotifyBellSvg() +
+                '</button></article></div>';
         });
 
         var tipsHtml = '';
@@ -10656,7 +11128,11 @@ function setGoalNavActive(isActive) {
         }
 
         var weekHtml = '';
-        if (plan.first_week && plan.first_week.length) {
+        if (
+            plan.first_week &&
+            plan.first_week.length &&
+            (!plan.phases || !plan.phases.length)
+        ) {
             weekHtml =
                 '<div class="goal-plan-week"><h3>' +
                 fpT('goal.plan_week_title') +
@@ -10669,11 +11145,21 @@ function setGoalNavActive(isActive) {
                 '</ul></div>';
         }
 
+        var weeksMeta =
+            plan.phases && plan.phases.length
+                ? '<p class="goal-plan-panel__weeks-meta">' +
+                  fpGoalEscapeHtml(
+                      fpT('goal.plan_weeks_count').replace('%n%', String(plan.phases.length))
+                  ) +
+                  '</p>'
+                : '';
+
         panel.innerHTML =
             '<div class="goal-plan-panel__head">' +
             '<h2 class="goal-plan-panel__title">' +
             fpGoalEscapeHtml(plan.title || '') +
             '</h2>' +
+            weeksMeta +
             '<p class="goal-plan-panel__intro">' +
             fpGoalEscapeHtml(plan.intro || '') +
             '</p></div>' +
@@ -10686,6 +11172,8 @@ function setGoalNavActive(isActive) {
 
         panel.classList.add('is-visible');
         fpGoalSetStep(3);
+        fpGoalSyncNotifyButtons();
+        fpGoalInitReminders();
         var stepsBar = document.getElementById('goalStepsBar');
         if (stepsBar) stepsBar.style.display = 'none';
         if (!opts.skipPersist) {
@@ -11040,6 +11528,7 @@ function setGoalNavActive(isActive) {
     window.fpGoalBackToList = fpGoalBackToList;
     window.fpGoalOnPhaseCheckClick = fpGoalOnPhaseCheckClick;
     window.fpGoalTogglePlanStep = fpGoalTogglePlanStep;
+    window.fpGoalOpenNotifyPopover = fpGoalOpenNotifyPopover;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
