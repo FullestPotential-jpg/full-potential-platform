@@ -6643,7 +6643,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_short': 'Опишите цель чуть подробнее (минимум 3 символа).',
             'goal.err_no_archetype': 'Сначала пройдите тест, чтобы определить архетип.',
             'goal.err_need_login': 'Войдите в аккаунт, чтобы работать с целями.',
-            'goal.err_api': 'Не удалось получить план. Проверьте подключение и настройку OpenRouter в Supabase.',
+            'goal.err_api': 'Не удалось получить план. Попробуйте ещё раз через минуту.',
+            'goal.err_timeout': 'Генерация заняла слишком много времени. Нажмите «Создать план» ещё раз — мы уже ускорили длинные планы.',
+            'goal.err_openrouter_fail': 'OpenRouter отклонил запрос. Проверьте баланс на openrouter.ai и секрет OPENROUTER_API_KEY в Supabase.',
             'goal.err_401': '401: Supabase блокирует вызов. Откройте goal-plan-generate → вкладка Details → переключатель «Verify JWT with legacy secret» должен быть ВЫКЛЮЧЕН (OFF, серый) → Deploy. Не включайте его.',
             'goal.err_openrouter_key': 'На сервере не задан OPENROUTER_API_KEY (Supabase → Edge Functions → Secrets).',
             'goal.archetype_fallback': 'Ваш архетип',
@@ -6869,7 +6871,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_short': 'Describe your goal in a bit more detail (at least 3 characters).',
             'goal.err_no_archetype': 'Take the test first to discover your archetype.',
             'goal.err_need_login': 'Sign in to manage your goals.',
-            'goal.err_api': 'Could not load the plan. Check your connection and OpenRouter setup in Supabase.',
+            'goal.err_api': 'Could not load the plan. Please try again in a minute.',
+            'goal.err_timeout': 'Generation took too long. Tap «Create plan» again — long plans are now faster.',
+            'goal.err_openrouter_fail': 'OpenRouter rejected the request. Check your balance at openrouter.ai and OPENROUTER_API_KEY in Supabase.',
             'goal.err_401': 'Function access denied (401). In Supabase: Edge Functions → goal-plan-generate → turn OFF «Verify JWT with legacy secret», then Deploy again.',
             'goal.err_openrouter_key': 'OPENROUTER_API_KEY is not set on the server (Supabase → Edge Functions → Secrets).',
             'goal.archetype_fallback': 'Your archetype',
@@ -11530,9 +11534,16 @@ function setGoalNavActive(isActive) {
                 return;
             }
 
+            if (httpStatus === 504 || (data && data.code === 'IDLE_TIMEOUT')) {
+                fpGoalShowError(fpT('goal.err_timeout'));
+                return;
+            }
+
             if (!attempt.res.ok) {
                 if (data && data.error === 'missing_openrouter_key') {
                     fpGoalShowError(fpT('goal.err_openrouter_key'));
+                } else if (data && data.error === 'openrouter_error') {
+                    fpGoalShowError(fpT('goal.err_openrouter_fail'));
                 } else {
                     fpGoalShowError(fpT('goal.err_api'));
                 }
@@ -11542,10 +11553,14 @@ function setGoalNavActive(isActive) {
             if (!data || !data.ok) {
                 if (data && data.error === 'missing_openrouter_key') {
                     fpGoalShowError(fpT('goal.err_openrouter_key'));
+                } else if (data && data.error === 'openrouter_error') {
+                    fpGoalShowError(fpT('goal.err_openrouter_fail'));
                 } else if (data && data.error === 'missing_context') {
                     fpGoalShowError(fpT('goal.err_incomplete_questions'));
                 } else if (data && data.error === 'invalid_week_count') {
                     fpGoalShowError(fpT('goal.err_plan_length'));
+                } else if (data && data.error === 'invalid_plan_json' || data && data.error === 'empty_response') {
+                    fpGoalShowError(fpT('goal.err_api'));
                 } else {
                     fpGoalShowError(fpT('goal.err_api'));
                 }
