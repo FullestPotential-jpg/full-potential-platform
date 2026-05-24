@@ -2354,9 +2354,16 @@
             color: #1a2858;
             line-height: 1.4;
         }
+        .goal-q__intro {
+            margin: 0 0 18px;
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: #444e72;
+        }
         .goal-q__hint {
-            margin: 0 0 8px;
+            margin: -4px 0 8px;
             font-size: 0.82rem;
+            line-height: 1.45;
             color: #6a74a0;
         }
         .goal-q__input,
@@ -6405,16 +6412,27 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.next_btn': 'Далее →',
             'goal.launch_btn': 'Полетели!',
             'goal.back_to_goal': '← К цели',
+            'goal.q_intro':
+                'Чем конкретнее ответы — тем точнее план под ваш архетип. В трёх текстовых полях ниже — минимум 20 символов: имена, примеры, ситуации, а не одно слово.',
             'goal.q_hours_label': 'Сколько часов в неделю вы реально можете выделить на эту цель?',
             'goal.q_hours_placeholder': 'Например: 5',
             'goal.q_blockers_label': 'Что вас останавливало раньше при попытке её достичь?',
-            'goal.q_blockers_placeholder': 'Страх, нехватка времени, прокрастинация…',
+            'goal.q_blockers_placeholder':
+                'Например: откладываю из-за страха ошибки; через 2 недели теряю мотивацию; не хватает времени после работы…',
+            'goal.q_blockers_hint': 'Опишите конкретно, что именно мешало — не общими словами (от 20 символов).',
             'goal.q_energy_label': 'Оцените свою энергию сейчас по шкале 1–10',
             'goal.q_help_label': 'Кто или что может вам помочь?',
-            'goal.q_help_placeholder': 'Люди, курсы, инструменты, привычки…',
+            'goal.q_help_placeholder':
+                'Например: жена Анна (поддержка в Telegram), наставник Игорь, курс «English B2», приложение Anki…',
+            'goal.q_help_hint':
+                'Укажите имена людей, каналы связи и инструменты — ИИ вставит их в шаги плана (от 20 символов).',
             'goal.q_stakes_label': 'Что случится, если через год вы не достигнете цели?',
-            'goal.q_stakes_placeholder': 'Последствия для жизни, карьеры, самооценки…',
-            'goal.err_incomplete_questions': 'Ответьте на все 5 вопросов — от этого зависит точность плана.',
+            'goal.q_stakes_placeholder':
+                'Например: останусь на прежней работе, не смогу переехать, упущу шанс на повышение…',
+            'goal.q_stakes_hint': 'Напишите реальные последствия для вас — не «будет плохо» (от 20 символов).',
+            'goal.err_incomplete_questions': 'Заполните все 5 вопросов — от этого зависит точность плана.',
+            'goal.err_answers_short':
+                'Ответы про барьер, опору и последствия — минимум 20 символов каждый. Добавьте имена, примеры и детали.',
             'goal.err_energy_range': 'Энергия: выберите значение от 1 до 10.',
             'goal.launch_loading': 'Составляем маршрут под ваш архетип…',
             'goal.plan_week_title': 'Первая неделя',
@@ -6592,16 +6610,27 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.next_btn': 'Next →',
             'goal.launch_btn': "Let's go!",
             'goal.back_to_goal': '← Back to goal',
+            'goal.q_intro':
+                'The more specific your answers, the better the plan fits your archetype. Three text fields below need at least 20 characters each — names, examples, situations, not a single word.',
             'goal.q_hours_label': 'How many hours per week can you realistically dedicate to this goal?',
             'goal.q_hours_placeholder': 'e.g. 5',
             'goal.q_blockers_label': 'What stopped you before when trying to achieve it?',
-            'goal.q_blockers_placeholder': 'Fear, lack of time, procrastination…',
+            'goal.q_blockers_placeholder':
+                'e.g. I delay because I fear mistakes; I lose motivation after 2 weeks; no time after work…',
+            'goal.q_blockers_hint': 'Be specific about what blocked you — not vague words (20+ characters).',
             'goal.q_energy_label': 'Rate your current energy on a scale of 1–10',
             'goal.q_help_label': 'Who or what can help you?',
-            'goal.q_help_placeholder': 'People, courses, tools, habits…',
+            'goal.q_help_placeholder':
+                'e.g. partner Anna (Telegram support), mentor Igor, course “English B2”, Anki app…',
+            'goal.q_help_hint':
+                'Include people’s names, how to reach them, and tools — the AI will use them in steps (20+ characters).',
             'goal.q_stakes_label': 'What will happen if you do not reach the goal within a year?',
-            'goal.q_stakes_placeholder': 'Impact on life, career, self-esteem…',
+            'goal.q_stakes_placeholder':
+                'e.g. I stay at my current job, cannot relocate, miss a promotion chance…',
+            'goal.q_stakes_hint': 'Describe real consequences for you — not just “it will be bad” (20+ characters).',
             'goal.err_incomplete_questions': 'Please answer all 5 questions — the plan depends on them.',
+            'goal.err_answers_short':
+                'Barrier, support, and stakes answers need at least 20 characters each. Add names, examples, and detail.',
             'goal.err_energy_range': 'Energy: pick a value from 1 to 10.',
             'goal.launch_loading': 'Building your archetype-tailored route…',
             'goal.plan_week_title': 'First week',
@@ -9481,6 +9510,8 @@ function setGoalNavActive(isActive) {
     else navItem.style.outline = 'none';
 }
 
+    const FP_GOAL_TEXT_ANSWER_MIN = 20;
+
     const FP_GOAL_DRAFT_KEY = 'fp_goal_draft';
     const FP_GOAL_PLAN_KEY = 'fp_goal_last_plan';
     const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
@@ -9888,20 +9919,37 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalValidateAnswers(answers) {
-        if (!answers) return false;
+        return !fpGoalGetAnswersValidationError(answers);
+    }
+
+    function fpGoalGetAnswersValidationError(answers) {
+        if (!answers) return 'incomplete';
         var hoursNum = parseFloat(String(answers.hours_per_week).replace(',', '.'));
-        if (!answers.hours_per_week || isNaN(hoursNum) || hoursNum < 0.5 || hoursNum > 168) return false;
-        if (!answers.past_blockers || answers.past_blockers.length < 3) return false;
-        if (!answers.support_resources || answers.support_resources.length < 3) return false;
-        if (!answers.stakes_if_fail || answers.stakes_if_fail.length < 3) return false;
+        if (!answers.hours_per_week || isNaN(hoursNum) || hoursNum < 0.5 || hoursNum > 168) {
+            return 'incomplete';
+        }
         if (
             !Number.isFinite(answers.energy_level) ||
             answers.energy_level < 1 ||
             answers.energy_level > 10
         ) {
-            return false;
+            return 'energy';
         }
-        return true;
+        var minLen = FP_GOAL_TEXT_ANSWER_MIN;
+        var texts = [
+            answers.past_blockers,
+            answers.support_resources,
+            answers.stakes_if_fail
+        ];
+        var hasEmpty = texts.some(function (t) {
+            return !t || !String(t).trim();
+        });
+        if (hasEmpty) return 'incomplete';
+        var hasShort = texts.some(function (t) {
+            return String(t).trim().length < minLen;
+        });
+        if (hasShort) return 'short_text';
+        return null;
     }
 
     function fpGoalOnQuestionsInput() {
@@ -10668,15 +10716,15 @@ function setGoalNavActive(isActive) {
         }
 
         var answers = fpGoalCollectAnswers();
-        if (!fpGoalValidateAnswers(answers)) {
-            var energyBad =
-                answers &&
-                (!Number.isFinite(answers.energy_level) ||
-                    answers.energy_level < 1 ||
-                    answers.energy_level > 10);
-            fpGoalShowError(
-                energyBad ? fpT('goal.err_energy_range') : fpT('goal.err_incomplete_questions')
-            );
+        var answersErr = fpGoalGetAnswersValidationError(answers);
+        if (answersErr) {
+            var errKey =
+                answersErr === 'energy'
+                    ? 'goal.err_energy_range'
+                    : answersErr === 'short_text'
+                      ? 'goal.err_answers_short'
+                      : 'goal.err_incomplete_questions';
+            fpGoalShowError(fpT(errKey));
             return;
         }
         fpGoalSaveAnswers(answers);
@@ -10887,6 +10935,9 @@ function setGoalNavActive(isActive) {
             '<p class="goal-flow__label" data-i18n="goal.step_questions">' +
             fpT('goal.step_questions') +
             '</p>' +
+            '<p class="goal-q__intro" data-i18n="goal.q_intro">' +
+            fpGoalEscapeHtml(fpT('goal.q_intro')) +
+            '</p>' +
             '<div class="goal-q">' +
             '<label class="goal-q__label" for="goalQHours" data-i18n="goal.q_hours_label">' +
             fpT('goal.q_hours_label') +
@@ -10899,8 +10950,12 @@ function setGoalNavActive(isActive) {
             '<label class="goal-q__label" for="goalQBlockers" data-i18n="goal.q_blockers_label">' +
             fpT('goal.q_blockers_label') +
             '</label>' +
-            '<textarea id="goalQBlockers" class="goal-q__textarea" rows="2" maxlength="1500" ' +
-            'placeholder="' +
+            '<p class="goal-q__hint" data-i18n="goal.q_blockers_hint">' +
+            fpGoalEscapeHtml(fpT('goal.q_blockers_hint')) +
+            '</p>' +
+            '<textarea id="goalQBlockers" class="goal-q__textarea" rows="3" maxlength="1500" minlength="' +
+            FP_GOAL_TEXT_ANSWER_MIN +
+            '" placeholder="' +
             fpGoalEscapeHtml(fpT('goal.q_blockers_placeholder')) +
             '" oninput="fpGoalOnQuestionsInput()"></textarea></div>' +
             '<div class="goal-q">' +
@@ -10915,16 +10970,24 @@ function setGoalNavActive(isActive) {
             '<label class="goal-q__label" for="goalQHelp" data-i18n="goal.q_help_label">' +
             fpT('goal.q_help_label') +
             '</label>' +
-            '<textarea id="goalQHelp" class="goal-q__textarea" rows="2" maxlength="1500" ' +
-            'placeholder="' +
+            '<p class="goal-q__hint" data-i18n="goal.q_help_hint">' +
+            fpGoalEscapeHtml(fpT('goal.q_help_hint')) +
+            '</p>' +
+            '<textarea id="goalQHelp" class="goal-q__textarea" rows="3" maxlength="1500" minlength="' +
+            FP_GOAL_TEXT_ANSWER_MIN +
+            '" placeholder="' +
             fpGoalEscapeHtml(fpT('goal.q_help_placeholder')) +
             '" oninput="fpGoalOnQuestionsInput()"></textarea></div>' +
             '<div class="goal-q">' +
             '<label class="goal-q__label" for="goalQStakes" data-i18n="goal.q_stakes_label">' +
             fpT('goal.q_stakes_label') +
             '</label>' +
-            '<textarea id="goalQStakes" class="goal-q__textarea" rows="2" maxlength="1500" ' +
-            'placeholder="' +
+            '<p class="goal-q__hint" data-i18n="goal.q_stakes_hint">' +
+            fpGoalEscapeHtml(fpT('goal.q_stakes_hint')) +
+            '</p>' +
+            '<textarea id="goalQStakes" class="goal-q__textarea" rows="3" maxlength="1500" minlength="' +
+            FP_GOAL_TEXT_ANSWER_MIN +
+            '" placeholder="' +
             fpGoalEscapeHtml(fpT('goal.q_stakes_placeholder')) +
             '" oninput="fpGoalOnQuestionsInput()"></textarea></div>' +
             '<div class="goal-flow__actions">' +
