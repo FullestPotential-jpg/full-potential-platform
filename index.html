@@ -1457,6 +1457,10 @@
         #platform-screen.platform-screen--goal-open .platform-goal-hint {
             display: none;
         }
+        #platform-screen.platform-screen--goal-open .goal-entry-wrap,
+        #platform-screen.platform-screen--goal-open .platform-goal-hint {
+            display: none !important;
+        }
         .goal-entry-wrap {
             padding: 14px 20px 6px;
         }
@@ -2034,38 +2038,103 @@
         .goal-plan-step:last-child {
             margin-bottom: 0;
         }
-        .goal-plan-step__num {
+        .goal-plan-step__num-wrap {
             position: absolute;
             left: -26px;
-            top: 0.12em;
+            top: 0.1em;
+            width: 22px;
+            height: 22px;
+        }
+        .goal-plan-step__num {
+            position: relative;
+            left: auto;
+            top: auto;
             width: 22px;
             height: 22px;
             margin: 0;
             padding: 0;
-            border: none;
-            border-radius: 6px;
+            border: 1.5px solid transparent;
+            border-radius: 50%;
             background: transparent;
-            font-size: 0.86rem;
+            font-size: 0.88rem;
             font-weight: 700;
-            line-height: 22px;
+            line-height: 20px;
             text-align: center;
             color: #6a7898;
             cursor: pointer;
-            flex-shrink: 0;
             text-decoration: underline;
             text-decoration-color: rgba(130, 150, 210, 0.42);
             text-underline-offset: 2px;
-            transition: color 0.2s ease, text-decoration-color 0.2s ease, background 0.2s ease;
+            transition:
+                border-color 0.22s ease,
+                background 0.22s ease,
+                color 0.22s ease,
+                box-shadow 0.22s ease,
+                text-decoration-color 0.22s ease;
         }
         .goal-plan-step__num:hover {
             color: #0284c7;
             text-decoration-color: rgba(56, 189, 248, 0.6);
+            border-color: rgba(56, 189, 248, 0.35);
             background: rgba(56, 189, 248, 0.06);
         }
         .goal-plan-step--done .goal-plan-step__num {
-            color: #0590c8;
-            text-decoration-color: rgba(56, 189, 248, 0.5);
-            background: transparent;
+            color: #0284c7;
+            text-decoration: none;
+            border-color: #38bdf8;
+            background: rgba(224, 247, 255, 0.55);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22);
+        }
+        .goal-plan-step__check {
+            position: absolute;
+            left: 50%;
+            top: calc(100% + 3px);
+            width: 14px;
+            height: 14px;
+            margin-left: -7px;
+            opacity: 0;
+            pointer-events: none;
+            transform-origin: center center;
+        }
+        .goal-plan-step__check svg {
+            display: block;
+            width: 14px;
+            height: 14px;
+        }
+        .goal-plan-step__check.is-animating {
+            opacity: 1;
+            animation: fp-goal-step-check 1.05s cubic-bezier(0.33, 1.05, 0.55, 1) forwards;
+        }
+        @keyframes fp-goal-step-check {
+            0% {
+                transform: rotate(0deg) scale(0.25);
+                opacity: 0;
+            }
+            14% {
+                opacity: 1;
+            }
+            78% {
+                transform: rotate(720deg) scale(1);
+                opacity: 1;
+            }
+            88% {
+                transform: rotate(720deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: rotate(720deg) scale(1);
+                opacity: 0;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .goal-plan-step__check.is-animating {
+                animation: fp-goal-step-check-reduced 0.35s ease forwards;
+            }
+            @keyframes fp-goal-step-check-reduced {
+                0% { opacity: 0; transform: scale(0.6); }
+                40% { opacity: 1; transform: scale(1); }
+                100% { opacity: 0; transform: scale(1); }
+            }
         }
         .goal-plan-step--done .goal-plan-step__text {
             color: #3a4568;
@@ -6259,7 +6328,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="none" stroke="url(#fpGoalStarEdgeG)" stroke-width="0.4" stroke-linejoin="round" opacity="0.9"/>
                             </svg>
                         </span>
-                        <span class="goal-entry-btn__txt" data-i18n="goal.nav_btn_label">Моя цель</span>
+                        <span class="goal-entry-btn__txt" data-i18n="goal.nav_btn_label">Мои цели</span>
                     </button>
                 </div>
 
@@ -6269,7 +6338,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span class="goal-screen-back-btn__arrow" aria-hidden="true">←</span>
                             <span class="goal-screen-back-btn__label" data-i18n="goal.back">Назад</span>
                         </button>
-                        <div class="platform-logo" data-i18n="goal.screen_title">Моя цель</div>
+                        <div class="platform-logo" data-i18n="goal.screen_title">Мои цели</div>
                         <div style="width: 45px;"></div>
                     </div>
                     <div class="platform-main-content">
@@ -6437,10 +6506,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'profile.desc.stable': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
             'profile.desc.technical': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.',
             'goal.block_hint': 'Напиши цель — ИИ распишет шаги под твой архетип',
-            'goal.nav_btn_label': 'Моя цель',
+            'goal.nav_btn_label': 'Мои цели',
             'chat.empty_hint': 'Начните общение — кнопка с карандашом вверху справа.',
             'goal.back': '← Назад',
-            'goal.screen_title': 'Моя цель',
+            'goal.screen_title': 'Мои цели',
             'goal.input_label': 'Введите свою цель',
             'goal.input_placeholder': 'Например: выучить английский до уровня B2 за полгода…',
             'goal.archetype_line': 'План будет адаптирован под архетип',
@@ -6647,10 +6716,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'profile.desc.stable': 'You are a reliable organizer. Your strength is consistency, responsibility, and building stable systems.',
             'profile.desc.technical': 'You are a strategist and analyst. Your strength is logical thinking, systems thinking, and solving complex problems.',
             'goal.block_hint': 'Write your goal — AI will outline steps for your archetype',
-            'goal.nav_btn_label': 'My goal',
+            'goal.nav_btn_label': 'My goals',
             'chat.empty_hint': 'Start a conversation — use the pencil button at the top right.',
             'goal.back': '← Back',
-            'goal.screen_title': 'My goal',
+            'goal.screen_title': 'My goals',
             'goal.input_label': 'Enter your goal',
             'goal.input_placeholder': 'e.g. reach B2 English within six months…',
             'goal.archetype_line': 'Your plan will match your archetype',
@@ -9567,8 +9636,12 @@ function closeGoalScreen() {
 
 function setGoalNavActive(isActive) {
     const navItem = document.getElementById('goalNavItem');
+    const wrap = navItem ? navItem.closest('.goal-entry-wrap') : null;
+    const hint = document.querySelector('.platform-goal-hint');
+    if (wrap) wrap.style.display = isActive ? 'none' : '';
+    if (hint) hint.style.display = isActive ? 'none' : '';
     if (!navItem) return;
-    if (isActive) navItem.style.outline = '2px solid rgba(126, 231, 255, 0.8)';
+    if (isActive) navItem.style.outline = 'none';
     else navItem.style.outline = 'none';
 }
 
@@ -10584,6 +10657,29 @@ function setGoalNavActive(isActive) {
         return arr.indexOf(stepIdx) >= 0;
     }
 
+    function fpGoalStepCheckSvg() {
+        return (
+            '<svg viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M5 12.5l5 5L19 7.5" fill="none" stroke="#060818" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        );
+    }
+
+    function fpGoalPlayStepCheckAnim(numBtn) {
+        if (!numBtn) return;
+        var wrap = numBtn.closest('.goal-plan-step__num-wrap');
+        if (!wrap) return;
+        var chk = wrap.querySelector('.goal-plan-step__check');
+        if (!chk) return;
+        chk.classList.remove('is-animating');
+        void chk.offsetWidth;
+        chk.classList.add('is-animating');
+        var clearAnim = function () {
+            chk.classList.remove('is-animating');
+            chk.removeEventListener('animationend', clearAnim);
+        };
+        chk.addEventListener('animationend', clearAnim);
+    }
+
     function fpGoalTogglePlanStep(phaseIdx, stepIdx, evt) {
         if (evt) {
             evt.preventDefault();
@@ -10613,6 +10709,10 @@ function setGoalNavActive(isActive) {
             if (numBtn) {
                 numBtn.setAttribute('aria-pressed', 'false');
                 numBtn.setAttribute('aria-label', fpT('goal.step_toggle'));
+                var chkOff = numBtn.parentElement
+                    ? numBtn.parentElement.querySelector('.goal-plan-step__check')
+                    : null;
+                if (chkOff) chkOff.classList.remove('is-animating');
             }
         } else {
             arr.push(stepIdx);
@@ -10623,6 +10723,7 @@ function setGoalNavActive(isActive) {
             if (numBtn) {
                 numBtn.setAttribute('aria-pressed', 'true');
                 numBtn.setAttribute('aria-label', fpT('goal.step_done'));
+                fpGoalPlayStepCheckAnim(numBtn);
             }
         }
         entry.updatedAt = Date.now();
@@ -10952,6 +11053,7 @@ function setGoalNavActive(isActive) {
                     '" data-step-idx="' +
                     si +
                     '">' +
+                    '<span class="goal-plan-step__num-wrap">' +
                     '<button type="button" class="goal-plan-step__num" aria-pressed="' +
                     (stepDone ? 'true' : 'false') +
                     '" aria-label="' +
@@ -10965,6 +11067,9 @@ function setGoalNavActive(isActive) {
                     ', event)">' +
                     stepNum +
                     '.</button>' +
+                    '<span class="goal-plan-step__check" aria-hidden="true">' +
+                    fpGoalStepCheckSvg() +
+                    '</span></span>' +
                     '<span class="goal-plan-step__text">' +
                     fpGoalEscapeHtml(s) +
                     '</span></li>';
