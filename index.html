@@ -6608,6 +6608,16 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.week_4': 'Четвёртая неделя',
             'goal.week_5': 'Пятая неделя',
             'goal.week_n': 'Неделя %n%',
+            'goal.month_1': 'Первый месяц',
+            'goal.month_2': 'Второй месяц',
+            'goal.month_3': 'Третий месяц',
+            'goal.month_4': 'Четвёртый месяц',
+            'goal.month_5': 'Пятый месяц',
+            'goal.month_n': 'Месяц %n%',
+            'goal.month_mark_done': 'Отметить месяц выполненным',
+            'goal.month_finish_label': 'Завершить месяц',
+            'goal.month_done': 'Месяц выполнен',
+            'goal.err_plan_length': 'План не совпал со сроком. Попробуйте ещё раз или уточните срок (например: «за год»).',
             'goal.phase_check_aria': 'Отметить неделю выполненной',
             'goal.phase_done_aria': 'Неделя выполнена',
             'goal.swipe_star_hint': 'Проведите звезду вправо до конца',
@@ -6824,6 +6834,16 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.week_4': 'Week 4',
             'goal.week_5': 'Week 5',
             'goal.week_n': 'Week %n%',
+            'goal.month_1': 'Month 1',
+            'goal.month_2': 'Month 2',
+            'goal.month_3': 'Month 3',
+            'goal.month_4': 'Month 4',
+            'goal.month_5': 'Month 5',
+            'goal.month_n': 'Month %n%',
+            'goal.month_mark_done': 'Mark month complete',
+            'goal.month_finish_label': 'Complete month',
+            'goal.month_done': 'Month complete',
+            'goal.err_plan_length': 'Plan length did not match your deadline. Try again or clarify (e.g. "in one year").',
             'goal.phase_check_aria': 'Mark week complete',
             'goal.phase_done_aria': 'Week completed',
             'goal.swipe_star_hint': 'Drag the star to the end →',
@@ -10347,10 +10367,24 @@ function setGoalNavActive(isActive) {
             .replace(/"/g, '&quot;');
     }
 
-    function fpGoalWeekLabel(idx) {
+    function fpGoalPlanUsesMonths(plan) {
+        return !!(plan && plan.phase_unit === 'month');
+    }
+
+    function fpGoalPhaseLabel(idx, plan) {
         var n = idx + 1;
-        if (n >= 1 && n <= 5) return fpT('goal.week_' + n);
-        return fpT('goal.week_n').replace('%n%', String(n));
+        var isMonth = fpGoalPlanUsesMonths(plan);
+        if (n >= 1 && n <= 5) return fpT(isMonth ? 'goal.month_' + n : 'goal.week_' + n);
+        return fpT(isMonth ? 'goal.month_n' : 'goal.week_n').replace('%n%', String(n));
+    }
+
+    function fpGoalWeekLabel(idx) {
+        var entry = fpGoalGetActiveGoalEntry();
+        return fpGoalPhaseLabel(idx, entry && entry.plan);
+    }
+
+    function fpGoalPhaseFinishKey(plan, which) {
+        return fpGoalPlanUsesMonths(plan) ? 'goal.month_' + which : 'goal.week_' + which;
     }
 
     function fpGoalNotifyBellSvg() {
@@ -10489,7 +10523,9 @@ function setGoalNavActive(isActive) {
                 : [];
         var step = steps[stepIdx] || '';
         var sch = fpGoalParseStepSchedule(step, stepIdx);
-        d.setDate(d.getDate() + weekIdx * 7 + sch.dayOffset);
+        var phaseSpan =
+            entry.plan && entry.plan.phase_unit === 'month' ? 28 : 7;
+        d.setDate(d.getDate() + weekIdx * phaseSpan + sch.dayOffset);
         var fb = (fallbackTime || '09:00').split(':');
         var fbH = parseInt(fb[0], 10) || 9;
         var fbM = parseInt(fb[1], 10) || 0;
@@ -10526,7 +10562,7 @@ function setGoalNavActive(isActive) {
                     weekIdx: weekIdx,
                     stepIdx: si,
                     text: step,
-                    label: fpGoalWeekLabel(weekIdx)
+                    label: fpGoalPhaseLabel(weekIdx, entry.plan)
                 });
             });
         });
@@ -11248,8 +11284,10 @@ function setGoalNavActive(isActive) {
                 idx +
                 '">' +
                 '<div class="goal-phase-complete-slot">' +
-                '<p class="goal-phase-complete-label" data-i18n="goal.week_finish_label">' +
-                fpGoalEscapeHtml(fpT('goal.week_finish_label')) +
+                '<p class="goal-phase-complete-label" data-i18n="' +
+                fpGoalPhaseFinishKey(plan, 'finish_label') +
+                '">' +
+                fpGoalEscapeHtml(fpT(fpGoalPhaseFinishKey(plan, 'finish_label'))) +
                 '</p>' +
                 '<button type="button" class="goal-phase-check' +
                 (isDone ? ' is-done is-settled' : '') +
@@ -11258,7 +11296,11 @@ function setGoalNavActive(isActive) {
                 '" aria-pressed="' +
                 (isDone ? 'true' : 'false') +
                 '" aria-label="' +
-                fpGoalEscapeHtml(isDone ? fpT('goal.week_done') : fpT('goal.week_mark_done')) +
+                fpGoalEscapeHtml(
+                    isDone
+                        ? fpT(fpGoalPhaseFinishKey(plan, 'done'))
+                        : fpT(fpGoalPhaseFinishKey(plan, 'mark_done'))
+                ) +
                 '" onclick="fpGoalOnPhaseCheckClick(' +
                 idx +
                 ', event)"' +
@@ -11267,7 +11309,7 @@ function setGoalNavActive(isActive) {
                 fpGoalBlueStarSvg('gpsChk' + idx) +
                 '</span></button></div>' +
                 '<p class="goal-plan-phase__week">' +
-                fpGoalEscapeHtml(fpGoalWeekLabel(idx)) +
+                fpGoalEscapeHtml(fpGoalPhaseLabel(idx, plan)) +
                 '</p>' +
                 '<h3 class="goal-plan-phase__name">' +
                 fpGoalEscapeHtml(ph.name || '') +
@@ -11502,6 +11544,8 @@ function setGoalNavActive(isActive) {
                     fpGoalShowError(fpT('goal.err_openrouter_key'));
                 } else if (data && data.error === 'missing_context') {
                     fpGoalShowError(fpT('goal.err_incomplete_questions'));
+                } else if (data && data.error === 'invalid_week_count') {
+                    fpGoalShowError(fpT('goal.err_plan_length'));
                 } else {
                     fpGoalShowError(fpT('goal.err_api'));
                 }
