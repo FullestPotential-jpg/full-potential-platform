@@ -1778,52 +1778,65 @@
             letter-spacing: 0.01em;
             text-align: left;
         }
-        .goal-plan-phase {
-            position: relative;
+        .goal-plan-phase-block {
             display: flex;
             align-items: stretch;
-            gap: 0;
-            margin-bottom: 16px;
-            padding: 20px 44px 18px 14px;
+            gap: 10px;
+            margin-bottom: 18px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fp-goal-phase-in 0.55s ease forwards;
+        }
+        .goal-plan-phase-block:nth-child(2) { animation-delay: 0.08s; }
+        .goal-plan-phase-block:nth-child(3) { animation-delay: 0.16s; }
+        .goal-plan-phase-block:nth-child(4) { animation-delay: 0.24s; }
+        .goal-plan-phase-block:nth-child(5) { animation-delay: 0.32s; }
+        .goal-plan-phase__aside {
+            flex: 0 0 20px;
+            position: relative;
+            padding-top: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .goal-plan-phase {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            margin-bottom: 0;
+            padding: 20px 44px 18px 20px;
             border-radius: 18px;
             background: #fff;
             border: 1px solid rgba(130, 150, 210, 0.18);
             box-shadow: 0 6px 20px rgba(12, 20, 58, 0.05);
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fp-goal-phase-in 0.55s ease forwards;
             transition: border-color 0.35s ease, box-shadow 0.35s ease;
         }
         .goal-plan-phase__rail {
-            flex-shrink: 0;
-            width: 14px;
-            margin: 6px 10px 6px 4px;
-            position: relative;
-            align-self: stretch;
-            min-height: 48px;
+            position: absolute;
+            left: 50%;
+            top: 70px;
+            bottom: 6px;
+            width: 3px;
+            transform: translateX(-50%);
+            pointer-events: none;
         }
         .goal-plan-phase__rail-track {
             position: absolute;
-            left: 50%;
-            top: 4px;
-            bottom: 4px;
-            width: 4px;
-            transform: translateX(-50%);
+            inset: 0;
             border-radius: 999px;
             background: linear-gradient(
                 180deg,
-                rgba(130, 150, 210, 0.22) 0%,
-                rgba(99, 102, 241, 0.1) 100%
+                rgba(130, 150, 210, 0.2) 0%,
+                rgba(99, 102, 241, 0.08) 100%
             );
-            box-shadow: inset 0 1px 2px rgba(12, 20, 58, 0.08);
+            box-shadow: inset 0 1px 2px rgba(12, 20, 58, 0.06);
         }
         .goal-plan-phase__rail-fill {
             position: absolute;
-            left: 50%;
-            top: 4px;
-            width: 4px;
+            left: 0;
+            top: 0;
+            width: 3px;
             height: 0;
-            transform: translateX(-50%);
             border-radius: 999px;
             background: linear-gradient(
                 180deg,
@@ -1833,8 +1846,8 @@
                 #6366f1 100%
             );
             box-shadow:
-                0 0 14px rgba(56, 189, 248, 0.55),
-                0 0 4px rgba(74, 223, 255, 0.8);
+                0 0 10px rgba(56, 189, 248, 0.45),
+                0 0 3px rgba(74, 223, 255, 0.7);
             transition: height 0.5s cubic-bezier(0.34, 1.15, 0.64, 1);
             pointer-events: none;
         }
@@ -1842,27 +1855,23 @@
             content: '';
             position: absolute;
             left: 50%;
-            bottom: -3px;
-            width: 8px;
-            height: 8px;
+            bottom: -2px;
+            width: 6px;
+            height: 6px;
             transform: translateX(-50%);
             border-radius: 50%;
             background: radial-gradient(circle, #e8fdff 0%, #4adfff 55%, #0590c8 100%);
-            box-shadow: 0 0 10px rgba(74, 223, 255, 0.85);
+            box-shadow: 0 0 8px rgba(74, 223, 255, 0.75);
             opacity: 0;
             transition: opacity 0.35s ease;
         }
         .goal-plan-phase__rail-fill--active::after {
             opacity: 1;
         }
-        .goal-plan-phase--done .goal-plan-phase__rail-fill {
+        .goal-plan-phase-block--done .goal-plan-phase__rail-fill {
             box-shadow:
-                0 0 18px rgba(56, 189, 248, 0.65),
-                0 0 6px rgba(74, 223, 255, 0.9);
-        }
-        .goal-plan-phase__content {
-            flex: 1;
-            min-width: 0;
+                0 0 14px rgba(56, 189, 248, 0.55),
+                0 0 5px rgba(74, 223, 255, 0.85);
         }
         .goal-plan-phase--done {
             border-color: rgba(56, 189, 248, 0.45);
@@ -1942,12 +1951,90 @@
         .goal-plan-phase--done .goal-plan-phase__week {
             color: #0284c7;
         }
-        .goal-plan-phase:nth-child(2) { animation-delay: 0.08s; }
-        .goal-plan-phase:nth-child(3) { animation-delay: 0.16s; }
-        .goal-plan-phase:nth-child(4) { animation-delay: 0.24s; }
-        .goal-plan-phase:nth-child(5) { animation-delay: 0.32s; }
         @keyframes fp-goal-phase-in {
             to { opacity: 1; transform: translateY(0); }
+        }
+        .goal-plan-phase__dots {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+        .goal-plan-phase__dot-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: 46px;
+            padding-top: 6px;
+            box-sizing: border-box;
+        }
+        .goal-plan-phase__dot-item:last-child {
+            min-height: 36px;
+        }
+        .goal-plan-phase__steps {
+            margin: 10px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+        .goal-plan-step {
+            margin-bottom: 14px;
+            color: #1a2248;
+            line-height: 1.62;
+            font-size: 1.02rem;
+        }
+        .goal-plan-step:last-child {
+            margin-bottom: 0;
+        }
+        .goal-plan-step__dot {
+            flex-shrink: 0;
+            width: 11px;
+            height: 11px;
+            margin: 0;
+            padding: 0;
+            border: 1.5px solid rgba(130, 150, 210, 0.5);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.98);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition:
+                border-color 0.22s ease,
+                box-shadow 0.22s ease,
+                transform 0.18s ease,
+                background 0.22s ease;
+        }
+        .goal-plan-step__dot:hover {
+            border-color: rgba(56, 189, 248, 0.7);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.28);
+            transform: scale(1.12);
+        }
+        .goal-plan-step__dot-core {
+            display: block;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: linear-gradient(165deg, #4adfff, #0590c8);
+            box-shadow: 0 0 4px rgba(56, 189, 248, 0.45);
+            transition: width 0.24s ease, height 0.24s ease;
+        }
+        .goal-plan-step--done .goal-plan-step__dot {
+            border-color: rgba(56, 189, 248, 0.8);
+            background: linear-gradient(165deg, #060818, #162454);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+        }
+        .goal-plan-step--done .goal-plan-step__dot-core {
+            width: 4px;
+            height: 4px;
+        }
+        .goal-plan-step--done .goal-plan-step__text {
+            color: #2e3a62;
+        }
+        .goal-plan-step__text {
+            display: block;
         }
         .goal-plan-phase__name {
             margin: 0 0 6px;
@@ -1959,71 +2046,6 @@
             margin: 0 0 12px;
             font-size: 0.86rem;
             color: #6a74a0;
-        }
-        .goal-plan-phase__steps {
-            margin: 10px 0 0;
-            padding: 0;
-            list-style: none;
-        }
-        .goal-plan-step {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: #333a5c;
-            line-height: 1.55;
-        }
-        .goal-plan-step:last-child {
-            margin-bottom: 0;
-        }
-        .goal-plan-step__dot {
-            flex-shrink: 0;
-            width: 20px;
-            height: 20px;
-            margin-top: 2px;
-            padding: 0;
-            border: 2px solid rgba(130, 150, 210, 0.45);
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.95);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition:
-                border-color 0.25s ease,
-                box-shadow 0.25s ease,
-                transform 0.2s ease,
-                background 0.25s ease;
-        }
-        .goal-plan-step__dot:hover {
-            border-color: rgba(56, 189, 248, 0.65);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.22);
-            transform: scale(1.06);
-        }
-        .goal-plan-step__dot-core {
-            display: block;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: linear-gradient(165deg, #4adfff, #0590c8);
-            box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
-            transition: width 0.28s ease, height 0.28s ease;
-        }
-        .goal-plan-step--done .goal-plan-step__dot {
-            border-color: rgba(56, 189, 248, 0.75);
-            background: linear-gradient(165deg, #060818, #162454);
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
-        }
-        .goal-plan-step--done .goal-plan-step__dot-core {
-            width: 8px;
-            height: 8px;
-        }
-        .goal-plan-step--done .goal-plan-step__text {
-            color: #2a3568;
-        }
-        .goal-plan-step__text {
-            flex: 1;
-            min-width: 0;
         }
         .goal-phase-swipe-overlay {
             position: fixed;
@@ -10104,14 +10126,13 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalUpdatePhaseRail(phaseIdx) {
-        var card = document.querySelector(
-            '.goal-plan-phase[data-phase-idx="' + phaseIdx + '"]'
+        var block = document.querySelector(
+            '.goal-plan-phase-block[data-phase-idx="' + phaseIdx + '"]'
         );
-        if (!card) return;
-        var steps = card.querySelectorAll('.goal-plan-step');
-        var total = steps.length;
-        var done = card.querySelectorAll('.goal-plan-step--done').length;
-        var fill = card.querySelector('.goal-plan-phase__rail-fill');
+        if (!block) return;
+        var total = block.querySelectorAll('.goal-plan-phase__dot-item').length;
+        var done = block.querySelectorAll('.goal-plan-phase__dot-item.goal-plan-step--done').length;
+        var fill = block.querySelector('.goal-plan-phase__rail-fill');
         if (!fill || total === 0) return;
         var pct = Math.round((done / total) * 100);
         fill.style.height = pct + '%';
@@ -10134,17 +10155,22 @@ function setGoalNavActive(isActive) {
         if (!Array.isArray(entry.completedSteps[key])) entry.completedSteps[key] = [];
         var arr = entry.completedSteps[key];
         var pos = arr.indexOf(stepIdx);
-        var stepEl = document.querySelector(
-            '.goal-plan-step[data-phase-idx="' +
-                phaseIdx +
-                '"][data-step-idx="' +
-                stepIdx +
-                '"]'
+        var block = document.querySelector(
+            '.goal-plan-phase-block[data-phase-idx="' + phaseIdx + '"]'
         );
-        var dot = stepEl ? stepEl.querySelector('.goal-plan-step__dot') : null;
+        var dotItem = block
+            ? block.querySelector(
+                  '.goal-plan-phase__dot-item[data-step-idx="' + stepIdx + '"]'
+              )
+            : null;
+        var textItem = block
+            ? block.querySelector('.goal-plan-step[data-step-idx="' + stepIdx + '"]')
+            : null;
+        var dot = dotItem ? dotItem.querySelector('.goal-plan-step__dot') : null;
         if (pos >= 0) {
             arr.splice(pos, 1);
-            if (stepEl) stepEl.classList.remove('goal-plan-step--done');
+            if (dotItem) dotItem.classList.remove('goal-plan-step--done');
+            if (textItem) textItem.classList.remove('goal-plan-step--done');
             if (dot) {
                 dot.setAttribute('aria-pressed', 'false');
                 dot.setAttribute('aria-label', fpT('goal.step_toggle'));
@@ -10154,7 +10180,8 @@ function setGoalNavActive(isActive) {
             arr.sort(function (a, b) {
                 return a - b;
             });
-            if (stepEl) stepEl.classList.add('goal-plan-step--done');
+            if (dotItem) dotItem.classList.add('goal-plan-step--done');
+            if (textItem) textItem.classList.add('goal-plan-step--done');
             if (dot) {
                 dot.setAttribute('aria-pressed', 'true');
                 dot.setAttribute('aria-label', fpT('goal.step_done'));
@@ -10477,56 +10504,69 @@ function setGoalNavActive(isActive) {
             var isDone = completedPhases.indexOf(idx) >= 0;
             var phaseSteps = ph.steps || [];
             var doneStepCount = 0;
-            var stepsHtml = phaseSteps
-                .map(function (s, si) {
-                    var stepDone = fpGoalIsStepDone(idx, si, completedStepsMap);
-                    if (stepDone) doneStepCount++;
-                    return (
-                        '<li class="goal-plan-step' +
-                        (stepDone ? ' goal-plan-step--done' : '') +
-                        '" data-phase-idx="' +
-                        idx +
-                        '" data-step-idx="' +
-                        si +
-                        '">' +
-                        '<button type="button" class="goal-plan-step__dot" aria-pressed="' +
-                        (stepDone ? 'true' : 'false') +
-                        '" aria-label="' +
-                        fpGoalEscapeHtml(
-                            stepDone ? fpT('goal.step_done') : fpT('goal.step_toggle')
-                        ) +
-                        '" onclick="fpGoalTogglePlanStep(' +
-                        idx +
-                        ', ' +
-                        si +
-                        ', event)"><span class="goal-plan-step__dot-core" aria-hidden="true"></span></button>' +
-                        '<span class="goal-plan-step__text">' +
-                        fpGoalEscapeHtml(s) +
-                        '</span></li>'
-                    );
-                })
-                .join('');
+            var dotsHtml = '';
+            var stepsHtml = '';
+            phaseSteps.forEach(function (s, si) {
+                var stepDone = fpGoalIsStepDone(idx, si, completedStepsMap);
+                if (stepDone) doneStepCount++;
+                dotsHtml +=
+                    '<li class="goal-plan-phase__dot-item' +
+                    (stepDone ? ' goal-plan-step--done' : '') +
+                    '" data-phase-idx="' +
+                    idx +
+                    '" data-step-idx="' +
+                    si +
+                    '">' +
+                    '<button type="button" class="goal-plan-step__dot" aria-pressed="' +
+                    (stepDone ? 'true' : 'false') +
+                    '" aria-label="' +
+                    fpGoalEscapeHtml(
+                        stepDone ? fpT('goal.step_done') : fpT('goal.step_toggle')
+                    ) +
+                    '" onclick="fpGoalTogglePlanStep(' +
+                    idx +
+                    ', ' +
+                    si +
+                    ', event)"><span class="goal-plan-step__dot-core" aria-hidden="true"></span></button></li>';
+                stepsHtml +=
+                    '<li class="goal-plan-step' +
+                    (stepDone ? ' goal-plan-step--done' : '') +
+                    '" data-phase-idx="' +
+                    idx +
+                    '" data-step-idx="' +
+                    si +
+                    '"><span class="goal-plan-step__text">' +
+                    fpGoalEscapeHtml(s) +
+                    '</span></li>';
+            });
             var railPct =
                 phaseSteps.length > 0
                     ? Math.round((doneStepCount / phaseSteps.length) * 100)
                     : 0;
             phasesHtml +=
-                '<article class="goal-plan-phase' +
-                (isDone ? ' goal-plan-phase--done' : '') +
+                '<div class="goal-plan-phase-block' +
+                (isDone ? ' goal-plan-phase-block--done' : '') +
                 '" data-phase-idx="' +
                 idx +
                 '" style="animation-delay:' +
                 idx * 0.08 +
                 's">' +
-                '<div class="goal-plan-phase__rail" aria-hidden="true">' +
+                '<aside class="goal-plan-phase__aside" aria-hidden="true">' +
+                '<div class="goal-plan-phase__rail">' +
                 '<div class="goal-plan-phase__rail-track"></div>' +
                 '<div class="goal-plan-phase__rail-fill' +
                 (railPct > 0 ? ' goal-plan-phase__rail-fill--active' : '') +
                 '" style="height:' +
                 railPct +
-                '%"></div>' +
-                '</div>' +
-                '<div class="goal-plan-phase__content">' +
+                '%"></div></div>' +
+                '<ul class="goal-plan-phase__dots">' +
+                dotsHtml +
+                '</ul></aside>' +
+                '<article class="goal-plan-phase' +
+                (isDone ? ' goal-plan-phase--done' : '') +
+                '" data-phase-idx="' +
+                idx +
+                '">' +
                 '<button type="button" class="goal-phase-check' +
                 (isDone ? ' is-done is-settled' : '') +
                 '" data-phase-idx="' +
@@ -10550,7 +10590,7 @@ function setGoalNavActive(isActive) {
                 '</h3>' +
                 '<ul class="goal-plan-phase__steps">' +
                 stepsHtml +
-                '</ul></div></article>';
+                '</ul></article></div>';
         });
 
         var tipsHtml = '';
