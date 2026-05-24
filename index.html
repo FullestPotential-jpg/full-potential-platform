@@ -2524,6 +2524,46 @@
             line-height: 1.45;
             color: #6a74a0;
         }
+        .goal-q__optional {
+            margin: 0 0 16px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px dashed rgba(130, 150, 210, 0.35);
+        }
+        .goal-q__optional-title {
+            margin: 0 0 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: #5a6a9a;
+        }
+        .goal-q__chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .goal-q__chip {
+            padding: 8px 12px;
+            border: 1px solid rgba(130, 150, 210, 0.4);
+            border-radius: 999px;
+            background: #fff;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #3a4568;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+        .goal-q__chip:hover {
+            border-color: rgba(56, 189, 248, 0.55);
+        }
+        .goal-q__chip.is-selected {
+            border-color: rgba(56, 189, 248, 0.7);
+            background: rgba(224, 247, 255, 0.9);
+            color: #0284c7;
+        }
         .goal-q__input,
         .goal-q__textarea {
             width: 100%;
@@ -6568,23 +6608,30 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.launch_btn': 'Полетели!',
             'goal.back_to_goal': '← К цели',
             'goal.q_intro':
-                'Чем конкретнее ответы — тем точнее план под ваш архетип. В трёх текстовых полях ниже — минимум 20 символов: имена, примеры, ситуации, а не одно слово.',
+                'Ответьте на 5 вопросов ниже. В трёх текстовых полях — хотя бы пара фраз с деталями (от 20 символов): имена, примеры, не одно слово. Ниже по желанию — срок, это необязательно.',
+            'goal.q_optional_title': 'По желанию — точнее подберём длину плана',
+            'goal.q_horizon_label': 'Примерный срок цели',
+            'goal.q_horizon_short': 'До месяца',
+            'goal.q_horizon_medium': '2–3 месяца',
+            'goal.q_horizon_long': 'Полгода и больше',
+            'goal.q_deadline_label': 'К какой дате хотите результат?',
+            'goal.q_deadline_placeholder': 'Например: к сентябрю 2026 или 15.09.2026',
             'goal.q_hours_label': 'Сколько часов в неделю вы реально можете выделить на эту цель?',
             'goal.q_hours_placeholder': 'Например: 5',
             'goal.q_blockers_label': 'Что вас останавливало раньше при попытке её достичь?',
             'goal.q_blockers_placeholder':
                 'Например: откладываю из-за страха ошибки; через 2 недели теряю мотивацию; не хватает времени после работы…',
-            'goal.q_blockers_hint': 'Опишите конкретно, что именно мешало — не общими словами (от 20 символов).',
+            'goal.q_blockers_hint': 'Что именно: страх, время, привычка, человек — одна-две конкретные ситуации.',
             'goal.q_energy_label': 'Оцените свою энергию сейчас по шкале 1–10',
             'goal.q_help_label': 'Кто или что может вам помочь?',
             'goal.q_help_placeholder':
                 'Например: жена Анна (поддержка в Telegram), наставник Игорь, курс «English B2», приложение Anki…',
             'goal.q_help_hint':
-                'Укажите имена людей, каналы связи и инструменты — ИИ вставит их в шаги плана (от 20 символов).',
+                'Имена + как связаться + чем помогут: «жена Анна, вечером в Telegram».',
             'goal.q_stakes_label': 'Что случится, если через год вы не достигнете цели?',
             'goal.q_stakes_placeholder':
                 'Например: останусь на прежней работе, не смогу переехать, упущу шанс на повышение…',
-            'goal.q_stakes_hint': 'Напишите реальные последствия для вас — не «будет плохо» (от 20 символов).',
+            'goal.q_stakes_hint': 'Что реально изменится в жизни, если год ничего не делать.',
             'goal.err_incomplete_questions': 'Заполните все 5 вопросов — от этого зависит точность плана.',
             'goal.err_answers_short':
                 'Ответы про барьер, опору и последствия — минимум 20 символов каждый. Добавьте имена, примеры и детали.',
@@ -6780,23 +6827,30 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.launch_btn': "Let's go!",
             'goal.back_to_goal': '← Back to goal',
             'goal.q_intro':
-                'The more specific your answers, the better the plan fits your archetype. Three text fields below need at least 20 characters each — names, examples, situations, not a single word.',
+                'Answer 5 questions below. Three text fields need at least a couple of concrete phrases (20+ characters). Optional timing below — skip if unsure.',
+            'goal.q_optional_title': 'Optional — helps calibrate plan length',
+            'goal.q_horizon_label': 'Rough timeline',
+            'goal.q_horizon_short': 'Up to 1 month',
+            'goal.q_horizon_medium': '2–3 months',
+            'goal.q_horizon_long': '6+ months',
+            'goal.q_deadline_label': 'Target date (if any)',
+            'goal.q_deadline_placeholder': 'e.g. by Sep 2026 or 09/15/2026',
             'goal.q_hours_label': 'How many hours per week can you realistically dedicate to this goal?',
             'goal.q_hours_placeholder': 'e.g. 5',
             'goal.q_blockers_label': 'What stopped you before when trying to achieve it?',
             'goal.q_blockers_placeholder':
                 'e.g. I delay because I fear mistakes; I lose motivation after 2 weeks; no time after work…',
-            'goal.q_blockers_hint': 'Be specific about what blocked you — not vague words (20+ characters).',
+            'goal.q_blockers_hint': 'What exactly: fear, time, habit, a person — one or two real situations.',
             'goal.q_energy_label': 'Rate your current energy on a scale of 1–10',
             'goal.q_help_label': 'Who or what can help you?',
             'goal.q_help_placeholder':
                 'e.g. partner Anna (Telegram support), mentor Igor, course “English B2”, Anki app…',
             'goal.q_help_hint':
-                'Include people’s names, how to reach them, and tools — the AI will use them in steps (20+ characters).',
+                'Names + how to reach them + how they help: “partner Anna, Telegram evenings”.',
             'goal.q_stakes_label': 'What will happen if you do not reach the goal within a year?',
             'goal.q_stakes_placeholder':
                 'e.g. I stay at my current job, cannot relocate, miss a promotion chance…',
-            'goal.q_stakes_hint': 'Describe real consequences for you — not just “it will be bad” (20+ characters).',
+            'goal.q_stakes_hint': 'What would actually change in your life if you did nothing for a year.',
             'goal.err_incomplete_questions': 'Please answer all 5 questions — the plan depends on them.',
             'goal.err_answers_short':
                 'Barrier, support, and stakes answers need at least 20 characters each. Add names, examples, and detail.',
@@ -10062,12 +10116,22 @@ function setGoalNavActive(isActive) {
             goalQHours: saved.hours_per_week,
             goalQBlockers: saved.past_blockers,
             goalQHelp: saved.support_resources,
-            goalQStakes: saved.stakes_if_fail
+            goalQStakes: saved.stakes_if_fail,
+            goalQDeadline: saved.target_deadline
         };
         Object.keys(map).forEach(function (id) {
             var el = document.getElementById(id);
             if (el && map[id] != null) el.value = map[id];
         });
+        document.querySelectorAll('.goal-q__chip[data-horizon]').forEach(function (c) {
+            c.classList.remove('is-selected');
+        });
+        if (saved.goal_horizon) {
+            var chip = document.querySelector(
+                '.goal-q__chip[data-horizon="' + saved.goal_horizon + '"]'
+            );
+            if (chip) chip.classList.add('is-selected');
+        }
         var energy = document.getElementById('goalQEnergy');
         if (energy && saved.energy_level >= 1 && saved.energy_level <= 10) {
             energy.value = String(saved.energy_level);
@@ -10082,12 +10146,28 @@ function setGoalNavActive(isActive) {
         fpGoalOnQuestionsInput();
     }
 
+    function fpGoalGetHorizonFromForm() {
+        var sel = document.querySelector('.goal-q__chip.is-selected[data-horizon]');
+        return sel ? sel.getAttribute('data-horizon') : '';
+    }
+
+    function fpGoalOnHorizonChip(el) {
+        if (!el) return;
+        var wasSelected = el.classList.contains('is-selected');
+        document.querySelectorAll('.goal-q__chip[data-horizon]').forEach(function (c) {
+            c.classList.remove('is-selected');
+        });
+        if (!wasSelected) el.classList.add('is-selected');
+        fpGoalOnQuestionsInput();
+    }
+
     function fpGoalCollectAnswers() {
         var hoursEl = document.getElementById('goalQHours');
         var blockersEl = document.getElementById('goalQBlockers');
         var energyEl = document.getElementById('goalQEnergy');
         var helpEl = document.getElementById('goalQHelp');
         var stakesEl = document.getElementById('goalQStakes');
+        var deadlineEl = document.getElementById('goalQDeadline');
         if (!hoursEl || !blockersEl || !energyEl || !helpEl || !stakesEl) return null;
 
         var hours = String(hoursEl.value || '').trim();
@@ -10095,13 +10175,17 @@ function setGoalNavActive(isActive) {
         var help = String(helpEl.value || '').trim();
         var stakes = String(stakesEl.value || '').trim();
         var energy = parseInt(energyEl.value, 10);
+        var deadline = deadlineEl ? String(deadlineEl.value || '').trim().slice(0, 80) : '';
+        var horizon = fpGoalGetHorizonFromForm();
 
         return {
             hours_per_week: hours,
             past_blockers: blockers,
             energy_level: energy,
             support_resources: help,
-            stakes_if_fail: stakes
+            stakes_if_fail: stakes,
+            target_deadline: deadline,
+            goal_horizon: horizon
         };
     }
 
@@ -11416,6 +11500,8 @@ function setGoalNavActive(isActive) {
             support_resources: answers.support_resources,
             stakes_if_fail: answers.stakes_if_fail
         };
+        if (answers.target_deadline) payload.target_deadline = answers.target_deadline;
+        if (answers.goal_horizon) payload.goal_horizon = answers.goal_horizon;
 
         try {
             var data = null;
@@ -11594,6 +11680,30 @@ function setGoalNavActive(isActive) {
             'inputmode="decimal" placeholder="' +
             fpGoalEscapeHtml(fpT('goal.q_hours_placeholder')) +
             '" oninput="fpGoalOnQuestionsInput()"></div>' +
+            '<div class="goal-q__optional">' +
+            '<p class="goal-q__optional-title" data-i18n="goal.q_optional_title">' +
+            fpGoalEscapeHtml(fpT('goal.q_optional_title')) +
+            '</p>' +
+            '<span class="goal-q__label" data-i18n="goal.q_horizon_label">' +
+            fpT('goal.q_horizon_label') +
+            '</span>' +
+            '<div class="goal-q__chips" role="group">' +
+            '<button type="button" class="goal-q__chip" data-horizon="short" onclick="fpGoalOnHorizonChip(this)">' +
+            fpGoalEscapeHtml(fpT('goal.q_horizon_short')) +
+            '</button>' +
+            '<button type="button" class="goal-q__chip" data-horizon="medium" onclick="fpGoalOnHorizonChip(this)">' +
+            fpGoalEscapeHtml(fpT('goal.q_horizon_medium')) +
+            '</button>' +
+            '<button type="button" class="goal-q__chip" data-horizon="long" onclick="fpGoalOnHorizonChip(this)">' +
+            fpGoalEscapeHtml(fpT('goal.q_horizon_long')) +
+            '</button></div>' +
+            '<label class="goal-q__label" for="goalQDeadline" data-i18n="goal.q_deadline_label">' +
+            fpT('goal.q_deadline_label') +
+            '</label>' +
+            '<input type="text" id="goalQDeadline" class="goal-q__input" maxlength="80" ' +
+            'placeholder="' +
+            fpGoalEscapeHtml(fpT('goal.q_deadline_placeholder')) +
+            '" oninput="fpGoalOnQuestionsInput()"></div>' +
             '<div class="goal-q">' +
             '<label class="goal-q__label" for="goalQBlockers" data-i18n="goal.q_blockers_label">' +
             fpT('goal.q_blockers_label') +
@@ -11687,6 +11797,7 @@ function setGoalNavActive(isActive) {
     window.fpGoalStartNewGoal = fpGoalStartNewGoal;
     window.fpGoalBackToList = fpGoalBackToList;
     window.fpGoalOnPhaseCheckClick = fpGoalOnPhaseCheckClick;
+    window.fpGoalOnHorizonChip = fpGoalOnHorizonChip;
     window.fpGoalTogglePlanStep = fpGoalTogglePlanStep;
     window.fpGoalOpenNotifyPopover = fpGoalOpenNotifyPopover;
 
