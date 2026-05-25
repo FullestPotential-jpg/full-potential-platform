@@ -6819,7 +6819,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_btn': 'Уведомления на неделю',
             'goal.notify_on': 'Уведомления включены',
             'goal.notify_pop_title': 'Напоминания на эту неделю',
-            'goal.notify_pop_hint': 'В указанное время придёт уведомление с конкретным шагом из этой недели (по времени в тексте шага).',
+            'goal.notify_pop_hint':
+                'Это время — для всех шагов недели. Лучше добавить приложение на главный экран. В фоне напоминания могут прийти с небольшой задержкой.',
             'goal.notify_time_label': 'Время:',
             'goal.notify_date_label': 'Дата:',
             'goal.notify_enable': 'Включить',
@@ -7059,7 +7060,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_btn': 'Week notifications',
             'goal.notify_on': 'Notifications on',
             'goal.notify_pop_title': 'Reminders for this week',
-            'goal.notify_pop_hint': 'You will get a notification with a concrete step from this week (using times from step text when present).',
+            'goal.notify_pop_hint':
+                'This time applies to all steps this week. Works best if the app is installed to your home screen. Background delivery may be a few minutes late when the app is closed.',
             'goal.notify_time_label': 'Time:',
             'goal.notify_date_label': 'Date:',
             'goal.notify_enable': 'Enable',
@@ -10787,7 +10789,18 @@ function setGoalNavActive(isActive) {
         return mon;
     }
 
-    function fpGoalStepReminderDate(entry, weekIdx, stepIdx, fallbackTime) {
+    function fpGoalAdvanceToNextFire(d) {
+        var now = Date.now() - 45000;
+        if (d.getTime() >= now) return d;
+        var copy = new Date(d.getTime());
+        for (var i = 0; i < 60; i++) {
+            copy.setDate(copy.getDate() + 7);
+            if (copy.getTime() >= now) return copy;
+        }
+        return d;
+    }
+
+    function fpGoalStepReminderDate(entry, weekIdx, stepIdx, fallbackTime, preferWeekNotifyTime) {
         var monday = fpGoalPlanAnchorMonday(entry);
         var d = new Date(monday.getTime());
         var steps =
@@ -10800,12 +10813,19 @@ function setGoalNavActive(isActive) {
         var fb = (fallbackTime || '09:00').split(':');
         var fbH = parseInt(fb[0], 10) || 9;
         var fbM = parseInt(fb[1], 10) || 0;
-        if (!String(step).match(/\b\d{1,2}[:\.]\d{2}\b/)) {
+        if (preferWeekNotifyTime || !String(step).match(/\b\d{1,2}[:\.]\d{2}\b/)) {
             d.setHours(fbH, fbM, 0, 0);
         } else {
             d.setHours(sch.h, sch.m, 0, 0);
         }
-        return d;
+        return fpGoalAdvanceToNextFire(d);
+    }
+
+    function fpGoalClearWeekFired(wr, weekIdx) {
+        var needle = '_w' + weekIdx + '_';
+        Object.keys(wr.fired || {}).forEach(function (key) {
+            if (key.indexOf(needle) >= 0) delete wr.fired[key];
+        });
     }
 
     function fpGoalStepDateISO(entry, weekIdx, stepIdx) {
@@ -10824,20 +10844,114 @@ function setGoalNavActive(isActive) {
             if (!entry.plan.phases || !entry.plan.phases[weekIdx]) return;
             var steps = entry.plan.phases[weekIdx].steps || [];
             var fallback = cfg.time || '09:00';
+            var useWeekTime = !!(cfg && cfg.enabled && cfg.time);
             steps.forEach(function (step, si) {
                 if (fpGoalIsStepDoneInEntry(entry, weekIdx, si)) return;
-                var d = fpGoalStepReminderDate(entry, weekIdx, si, fallback);
+                var d = fpGoalStepReminderDate(entry, weekIdx, si, fallback, useWeekTime);
                 slots.push({
                     id: entry.id + '_w' + weekIdx + '_s' + si + '_' + d.getTime(),
                     at: d.getTime(),
                     weekIdx: weekIdx,
                     stepIdx: si,
                     text: step,
-                    label: fpGoalPhaseLabel(weekIdx, entry.plan)
+                    label: fpGoalPhaseLabel(weekIdx, entry.plan),
+                    goalId: entry.id
                 });
             });
         });
         return slots;
+    }
+
+    function fpGoalExportReminderItemsForSW() {
+        var items = [];
+        fpGoalLoadGoalsList().forEach(function (entry) {
+            if (!entry || !entry.plan) return;
+            var wr = fpGoalEnsureWeekReminders(entry);
+            fpGoalBuildWeekReminderSlots(entry).forEach(function (slot) {
+                items.push({
+                    at: slot.at,
+                    title: slot.label + ' — ' + (entry.plan.title || fpT('goal.screen_title')),
+                    body: slot.text,
+                    tag: slot.id,
+                    goalId: entry.id,
+                    fired: !!wr.fired[slot.id]
+                });
+            });
+        });
+        return items;
+    }
+
+    function fpGoalMarkReminderFired(tag, goalId) {
+        if (!tag) return;
+        var goals = fpGoalLoadGoalsList();
+        var changed = false;
+        goals.forEach(function (entry) {
+            if (goalId && entry.id !== goalId) return;
+            var wr = fpGoalEnsureWeekReminders(entry);
+            if (!wr.fired[tag]) {
+                wr.fired[tag] = true;
+                entry.updatedAt = Date.now();
+                changed = true;
+            }
+        });
+        if (changed) fpGoalSaveGoalsList(goals);
+    }
+
+    function fpGoalMergeFiredFromServiceWorker() {
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+            return Promise.resolve();
+        }
+        return new Promise(function (resolve) {
+            var channel = new MessageChannel();
+            channel.port1.onmessage = function (ev) {
+                var items = ev.data || [];
+                var goals = fpGoalLoadGoalsList();
+                var changed = false;
+                items.forEach(function (item) {
+                    if (!item.fired || !item.tag) return;
+                    goals.forEach(function (entry) {
+                        if (item.goalId && entry.id !== item.goalId) return;
+                        var wr = fpGoalEnsureWeekReminders(entry);
+                        if (!wr.fired[item.tag]) {
+                            wr.fired[item.tag] = true;
+                            entry.updatedAt = Date.now();
+                            changed = true;
+                        }
+                    });
+                });
+                if (changed) fpGoalSaveGoalsList(goals);
+                resolve();
+            };
+            try {
+                navigator.serviceWorker.controller.postMessage(
+                    { type: 'GET_GOAL_REMINDERS' },
+                    [channel.port2]
+                );
+            } catch (e) {
+                resolve();
+            }
+            setTimeout(resolve, 800);
+        });
+    }
+
+    function fpGoalSyncRemindersToServiceWorker() {
+        if (!('serviceWorker' in navigator)) return Promise.resolve();
+        return navigator.serviceWorker.ready
+            .then(function (reg) {
+                var items = fpGoalExportReminderItemsForSW();
+                if (reg.active) {
+                    reg.active.postMessage({ type: 'SYNC_GOAL_REMINDERS', items: items });
+                }
+                if ('sync' in reg) {
+                    return reg.sync.register('goal-reminders-check').catch(function () {});
+                }
+                if ('periodicSync' in reg) {
+                    return reg.periodicSync
+                        .register('goal-reminders', { minInterval: 60 * 60 * 1000 })
+                        .catch(function () {});
+                }
+            })
+            .catch(function () {});
     }
 
     function fpGoalShowStepNotification(entry, slot) {
@@ -10866,8 +10980,17 @@ function setGoalNavActive(isActive) {
 
     function fpGoalCheckReminders() {
         if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        var run = function () {
+            fpGoalSyncRemindersToServiceWorker();
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) return;
+            fpGoalCheckRemindersLocal();
+        };
+        fpGoalMergeFiredFromServiceWorker().then(run).catch(run);
+    }
+
+    function fpGoalCheckRemindersLocal() {
         var now = Date.now();
-        var windowMs = 90 * 60 * 1000;
+        var windowMs = 12 * 60 * 1000;
         fpGoalLoadGoalsList().forEach(function (entry) {
             if (!entry || !entry.plan) return;
             var wr = fpGoalEnsureWeekReminders(entry);
@@ -10958,10 +11081,12 @@ function setGoalNavActive(isActive) {
                     enabled: false,
                     time: cfg.time || '09:00'
                 };
+                fpGoalClearWeekFired(wrOff, phaseIdx);
                 eOff.updatedAt = Date.now();
                 fpGoalSaveGoalsList(goalsOff);
             }
             fpGoalSyncNotifyButtons();
+            fpGoalSyncRemindersToServiceWorker();
             return;
         }
         if (!('Notification' in window)) {
@@ -10992,14 +11117,28 @@ function setGoalNavActive(isActive) {
             return;
         }
         var stepText = fpGoalNextStepTextForWeek(entry.plan, phaseIdx, entry.completedSteps);
-        var defaultTime = fpGoalParseStepSchedule(stepText, stepIdx);
-        var dateIso = fpGoalStepDateISO(entry, phaseIdx, stepIdx);
+        var wrPop = fpGoalEnsureWeekReminders(entry);
+        var cfgPop = wrPop.weeks[String(phaseIdx)];
+        var fallbackPop = (cfgPop && cfgPop.time) || '09:00';
+        var previewDate = fpGoalStepReminderDate(
+            entry,
+            phaseIdx,
+            stepIdx,
+            fallbackPop,
+            !!(cfgPop && cfgPop.time)
+        );
+        var dateIso = fpGoalFormatLocalDate(previewDate);
         var dateEl = document.getElementById('goalNotifyPopDate');
         if (dateEl) dateEl.value = fpGoalFormatDateDisplay(dateIso);
         var timeEl = document.getElementById('goalNotifyPopTime');
         if (timeEl) {
-            timeEl.value =
-                ('0' + defaultTime.h).slice(-2) + ':' + ('0' + defaultTime.m).slice(-2);
+            if (cfgPop && cfgPop.time) {
+                timeEl.value = cfgPop.time;
+            } else {
+                var defaultTime = fpGoalParseStepSchedule(stepText, stepIdx);
+                timeEl.value =
+                    ('0' + defaultTime.h).slice(-2) + ':' + ('0' + defaultTime.m).slice(-2);
+            }
         }
         document.getElementById('goalNotifyPopTitle').textContent =
             fpT('goal.notify_pop_title') + ' — ' + fpGoalWeekLabel(phaseIdx);
@@ -11034,14 +11173,27 @@ function setGoalNavActive(isActive) {
             return;
         }
         var stepText = fpGoalNextStepTextForWeek(entry.plan, phaseIdx, entry.completedSteps);
-        var defaultTime = fpGoalParseStepSchedule(stepText, stepIdx);
-        var dateIso = fpGoalStepDateISO(entry, phaseIdx, stepIdx);
+        var wrRef = fpGoalEnsureWeekReminders(entry);
+        var cfgRef = wrRef.weeks[String(phaseIdx)];
+        var fallbackRef = (cfgRef && cfgRef.time) || '09:00';
+        var previewDate = fpGoalStepReminderDate(
+            entry,
+            phaseIdx,
+            stepIdx,
+            fallbackRef,
+            !!(cfgRef && cfgRef.time)
+        );
         var dateEl = document.getElementById('goalNotifyPopDate');
-        if (dateEl) dateEl.value = fpGoalFormatDateDisplay(dateIso);
+        if (dateEl) dateEl.value = fpGoalFormatDateDisplay(fpGoalFormatLocalDate(previewDate));
         var timeEl = document.getElementById('goalNotifyPopTime');
         if (timeEl) {
-            timeEl.value =
-                ('0' + defaultTime.h).slice(-2) + ':' + ('0' + defaultTime.m).slice(-2);
+            if (cfgRef && cfgRef.time) {
+                timeEl.value = cfgRef.time;
+            } else {
+                var defaultTime = fpGoalParseStepSchedule(stepText, stepIdx);
+                timeEl.value =
+                    ('0' + defaultTime.h).slice(-2) + ':' + ('0' + defaultTime.m).slice(-2);
+            }
         }
         var preview = document.getElementById('goalNotifyPopPreview');
         if (preview) preview.textContent = stepText;
@@ -11065,10 +11217,12 @@ function setGoalNavActive(isActive) {
             wr.startDate = fpGoalFormatLocalDate(fpGoalPlanAnchorMonday(entry));
         }
         wr.weeks[String(phaseIdx)] = { enabled: true, time: timeStr || '09:00' };
+        fpGoalClearWeekFired(wr, phaseIdx);
         entry.updatedAt = Date.now();
         fpGoalSaveGoalsList(goals);
         fpGoalCloseNotifyPopover();
         fpGoalSyncNotifyButtons();
+        fpGoalSyncRemindersToServiceWorker();
         fpGoalCheckReminders();
     }
 
@@ -11085,8 +11239,24 @@ function setGoalNavActive(isActive) {
     function fpGoalInitReminders() {
         if (fpGoalInitReminders._started) return;
         fpGoalInitReminders._started = true;
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(function (reg) {
+                if ('periodicSync' in reg) {
+                    reg.periodicSync
+                        .register('goal-reminders', { minInterval: 60 * 60 * 1000 })
+                        .catch(function () {});
+                }
+            });
+        }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', function (ev) {
+                var data = ev.data;
+                if (!data || data.type !== 'GOAL_REMINDER_FIRED') return;
+                fpGoalMarkReminderFired(data.tag, data.goalId);
+            });
+        }
         fpGoalCheckReminders();
-        setInterval(fpGoalCheckReminders, 60000);
+        setInterval(fpGoalCheckReminders, 45000);
         document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'visible') fpGoalCheckReminders();
         });
@@ -14887,9 +15057,19 @@ async function savePremiumAccess() {
         </script>
     <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(() => console.log('SW registered'))
-    .catch(err => console.log('SW error:', err));
+  navigator.serviceWorker
+    .register('/sw.js')
+    .then(function (reg) {
+      console.log('SW registered');
+      if ('periodicSync' in reg) {
+        reg.periodicSync
+          .register('goal-reminders', { minInterval: 60 * 60 * 1000 })
+          .catch(function () {});
+      }
+    })
+    .catch(function (err) {
+      console.log('SW error:', err);
+    });
 }
 </script>
     <!-- ===== SUPABASE ЧАТ ===== -->
