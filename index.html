@@ -1817,6 +1817,111 @@
             line-height: 1.55;
             text-align: left;
         }
+        .goal-plan-first48 {
+            margin: 0 0 16px;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 100%);
+            border: 1px solid #fcd34d;
+        }
+        .goal-plan-first48 h3 {
+            margin: 0 0 10px;
+            font-size: 0.92rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #b45309;
+        }
+        .goal-plan-first48 ul {
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.55;
+            color: #78350f;
+        }
+        .goal-plan-success {
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #166534;
+        }
+        .goal-plan-success strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .goal-plan-refined {
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #f5f3ff;
+            border: 1px solid #c4b5fd;
+            font-size: 0.94rem;
+            line-height: 1.5;
+            color: #5b21b6;
+        }
+        .goal-plan-milestones {
+            margin: 0 0 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .goal-plan-milestone {
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+        .goal-plan-milestone__name {
+            margin: 0 0 4px;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.98rem;
+        }
+        .goal-plan-milestone__meta {
+            margin: 0 0 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6366f1;
+        }
+        .goal-plan-milestone__focus {
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            color: #475569;
+        }
+        .goal-plan-phase__focus {
+            margin: 0 0 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #eff6ff;
+            border-left: 3px solid #6366f1;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: #1e3a5f;
+        }
+        .goal-plan-phase__focus strong {
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .goal-plan-phase__slip {
+            margin: 12px 0 0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fff7ed;
+            border: 1px dashed #fdba74;
+            font-size: 0.86rem;
+            line-height: 1.45;
+            color: #9a3412;
+        }
+        .goal-plan-phase__slip strong {
+            color: #c2410c;
+        }
         .goal-plan-phase-block {
             margin-bottom: 18px;
             opacity: 0;
@@ -6671,6 +6776,12 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.launch_elapsed': 'Прошло %time% · ещё немного…',
             'goal.plan_week_title': 'Первая неделя',
             'goal.plan_tips_title': 'Советы для вашего архетипа',
+            'goal.plan_first_48h': 'Первые 48 часов',
+            'goal.plan_success': 'Критерий успеха',
+            'goal.plan_refined': 'Уточнённая формулировка цели',
+            'goal.plan_milestones': 'Этапы пути',
+            'goal.plan_week_focus': 'Фокус недели',
+            'goal.plan_if_slip': 'Если сорвались',
             'goal.plan_edit': 'Изменить цель',
             'goal.list_title': 'Мои Цели',
             'goal.add_goal_btn': 'Добавить цель',
@@ -6905,6 +7016,12 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.launch_elapsed': 'Elapsed %time% · almost there…',
             'goal.plan_week_title': 'First week',
             'goal.plan_tips_title': 'Tips for your archetype',
+            'goal.plan_first_48h': 'First 48 hours',
+            'goal.plan_success': 'Success criteria',
+            'goal.plan_refined': 'Refined goal wording',
+            'goal.plan_milestones': 'Path milestones',
+            'goal.plan_week_focus': 'Week focus',
+            'goal.plan_if_slip': 'If you slip',
             'goal.plan_edit': 'Edit goal',
             'goal.list_title': 'My goals',
             'goal.add_goal_btn': 'Add goal',
@@ -10471,6 +10588,58 @@ function setGoalNavActive(isActive) {
         return fpGoalPhaseLabel(idx, entry && entry.plan);
     }
 
+    function fpGoalMasterPlanBlocksHtml(plan) {
+        var html = '';
+        if (plan.first_48h && plan.first_48h.length) {
+            html +=
+                '<div class="goal-plan-first48"><h3>' +
+                fpGoalEscapeHtml(fpT('goal.plan_first_48h')) +
+                '</h3><ul>' +
+                plan.first_48h
+                    .map(function (s) {
+                        return '<li>' + fpGoalEscapeHtml(s) + '</li>';
+                    })
+                    .join('') +
+                '</ul></div>';
+        }
+        if (plan.success_criteria) {
+            html +=
+                '<div class="goal-plan-success"><strong>' +
+                fpGoalEscapeHtml(fpT('goal.plan_success')) +
+                '</strong>' +
+                fpGoalEscapeHtml(plan.success_criteria) +
+                '</div>';
+        }
+        if (plan.goal_rewritten && String(plan.goal_rewritten).trim()) {
+            html +=
+                '<div class="goal-plan-refined"><strong>' +
+                fpGoalEscapeHtml(fpT('goal.plan_refined')) +
+                '</strong> ' +
+                fpGoalEscapeHtml(plan.goal_rewritten) +
+                '</div>';
+        }
+        if (plan.milestones && plan.milestones.length) {
+            html += '<div class="goal-plan-milestones">';
+            plan.milestones.forEach(function (m) {
+                html +=
+                    '<div class="goal-plan-milestone">' +
+                    '<p class="goal-plan-milestone__name">' +
+                    fpGoalEscapeHtml(m.name || '') +
+                    '</p>' +
+                    (m.weeks_label
+                        ? '<p class="goal-plan-milestone__meta">' +
+                          fpGoalEscapeHtml(m.weeks_label) +
+                          '</p>'
+                        : '') +
+                    '<p class="goal-plan-milestone__focus">' +
+                    fpGoalEscapeHtml(m.focus || '') +
+                    '</p></div>';
+            });
+            html += '</div>';
+        }
+        return html;
+    }
+
     function fpGoalTimelineBannerHtml(plan) {
         var msg = plan && plan.timeline_message ? String(plan.timeline_message).trim() : '';
         if (!msg && plan && plan.user_stated_deadline && plan.recommended_timeline) {
@@ -11436,9 +11605,23 @@ function setGoalNavActive(isActive) {
                 '<h3 class="goal-plan-phase__name">' +
                 fpGoalEscapeHtml(ph.name || '') +
                 '</h3>' +
+                (ph.week_focus
+                    ? '<p class="goal-plan-phase__focus"><strong>' +
+                      fpGoalEscapeHtml(fpT('goal.plan_week_focus')) +
+                      ':</strong> ' +
+                      fpGoalEscapeHtml(ph.week_focus) +
+                      '</p>'
+                    : '') +
                 '<ul class="goal-plan-phase__steps">' +
                 stepsHtml +
                 '</ul>' +
+                (ph.if_slip
+                    ? '<p class="goal-plan-phase__slip"><strong>' +
+                      fpGoalEscapeHtml(fpT('goal.plan_if_slip')) +
+                      ':</strong> ' +
+                      fpGoalEscapeHtml(ph.if_slip) +
+                      '</p>'
+                    : '') +
                 '<button type="button" class="goal-phase-notify' +
                 (fpGoalIsWeekNotifyOn(idx) ? ' is-on' : '') +
                 '" data-phase-idx="' +
@@ -11504,6 +11687,7 @@ function setGoalNavActive(isActive) {
             fpGoalEscapeHtml(plan.title || '') +
             '</h2>' +
             weeksMeta +
+            fpGoalMasterPlanBlocksHtml(plan) +
             '<p class="goal-plan-panel__intro">' +
             fpGoalEscapeHtml(plan.intro || '') +
             '</p></div>' +
@@ -11643,7 +11827,7 @@ function setGoalNavActive(isActive) {
             var fetchAbort = new AbortController();
             var fetchTimeoutId = setTimeout(function () {
                 fetchAbort.abort();
-            }, 130000);
+            }, 145000);
 
             async function fpGoalFetchPlan(headers) {
                 var res = await fetch(fnUrl, {
