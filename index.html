@@ -2632,7 +2632,15 @@
             padding: 4px 0 24px;
         }
         #goal-screen > .platform-header > .platform-logo {
-            display: none;
+            flex: 1;
+            text-align: center;
+            margin: 0;
+            padding: 0 10px;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(1.28rem, 3.6vw, 1.6rem);
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: #1a2858;
         }
         .goal-list-view__title {
             display: none;
@@ -6408,7 +6416,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="none" stroke="url(#fpGoalStarEdgeG)" stroke-width="0.4" stroke-linejoin="round" opacity="0.9"/>
                             </svg>
                         </span>
-                        <span class="goal-entry-btn__txt" data-i18n="goal.nav_btn_label">Мои цели</span>
+                        <span class="goal-entry-btn__txt" data-i18n="goal.nav_btn_label">Мои Цели</span>
                     </button>
                 </div>
 
@@ -6418,7 +6426,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span class="goal-screen-back-btn__arrow" aria-hidden="true">←</span>
                             <span class="goal-screen-back-btn__label" data-i18n="goal.back">Назад</span>
                         </button>
-                        <div class="platform-logo" data-i18n="goal.screen_title">Мои цели</div>
+                        <div class="platform-logo" data-i18n="goal.screen_title">Мои Цели</div>
                         <div style="width: 45px;"></div>
                     </div>
                     <div class="platform-main-content">
@@ -6586,10 +6594,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'profile.desc.stable': 'Вы - надежный организатор. Ваша сила в последовательности, ответственности и создании устойчивых систем.',
             'profile.desc.technical': 'Вы - стратег и аналитик. Ваша сила в логическом мышлении, системном подходе и решении сложных проблем.',
             'goal.block_hint': 'Напиши цель — ИИ распишет шаги под твой архетип',
-            'goal.nav_btn_label': 'Мои цели',
+            'goal.nav_btn_label': 'Мои Цели',
             'chat.empty_hint': 'Начните общение — кнопка с карандашом вверху справа.',
             'goal.back': '← Назад',
-            'goal.screen_title': 'Мои цели',
+            'goal.screen_title': 'Мои Цели',
             'goal.input_label': 'Введите свою цель',
             'goal.input_placeholder': 'Например: выучить английский до уровня B2 за полгода…',
             'goal.archetype_line': 'План будет адаптирован под архетип',
@@ -6632,7 +6640,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.plan_week_title': 'Первая неделя',
             'goal.plan_tips_title': 'Советы для вашего архетипа',
             'goal.plan_edit': 'Изменить цель',
-            'goal.list_title': 'Мои цели',
+            'goal.list_title': 'Мои Цели',
             'goal.add_goal_btn': 'Добавить цель',
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
             'goal.card_no_plan': 'Продолжить настройку',
