@@ -96,7 +96,7 @@ ${MASTER_PLAN_JSON_SCHEMA}`;
     "\n\n" +
     EXECUTABLE_STEP_RULES_RU +
     "\n\n" +
-    ARCHETYPE_EXECUTION_GUIDE_RU.slice(0, 2400) +
+    ARCHETYPE_EXECUTION_GUIDE_RU.slice(0, 1600) +
     "\n\n" +
     PLAN_QUALITY_RULES_RU +
     "\n\n" +
@@ -116,8 +116,8 @@ function buildUserPrompt(
   const categoryHint = detectGoalCategoryHint(goal, lang);
   const profileExtra = archetypeProfile
     ? (lang === "en"
-      ? `\n\nOptional supplement from app:\n${archetypeProfile.slice(0, 3200)}`
-      : `\n\nДополнение из приложения:\n${archetypeProfile.slice(0, 3200)}`)
+      ? `\n\nOptional supplement from app:\n${archetypeProfile.slice(0, 2000)}`
+      : `\n\nДополнение из приложения:\n${archetypeProfile.slice(0, 2000)}`)
     : "";
 
   if (lang === "en") {
@@ -153,7 +153,7 @@ ${categoryHint}
 
 ВАЖНО:
 - Имена из «Опора» в шагах дословно.
-- intro: 8–14 предложений, мастерский план под архетип.
+- intro: 5–8 предложений, мастерский план под архетип.
 - Шаги уникальны по неделям — без копипаста.
 ${profileExtra}`;
 }
@@ -337,8 +337,8 @@ async function generateGoalPlan(
   // One OpenRouter call only: two sequential calls often exceed Supabase gateway idle
   // limit (~150s) → 502 / empty body → generic "could not load plan" in the app.
   const fullSuffix = lang === "en"
-    ? `\n\nOUTPUT: a single JSON object — the COMPLETE plan in one response. Include every top-level field plus phases[] (pick 2–12 weeks; prefer ~6–8 unless the goal is very small). Each week: name, week_focus, milestone (one of your milestones), exactly 3 unique steps (WHEN + ACTION + Done when), if_slip. first_week must be []. Shape:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`
-    : `\n\nОТВЕТ: один JSON — ПОЛНЫЙ план за один раз. Все поля + phases[] (2–12 недель; обычно 6–8, максимум 12). Каждая неделя: name, week_focus, milestone, ровно 3 разных шага (время + действие + «готово когда»), if_slip. first_week: []. Структура:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`;
+    ? `\n\nOUTPUT: one JSON object — COMPLETE plan. All fields + phases[] with **4 to 8 weeks only** (never more than 8). Each week: name, week_focus, milestone, exactly 3 concise unique steps (WHEN + ACTION + Done when, under ~140 chars each), if_slip. first_week: []. Shape:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`
+    : `\n\nОТВЕТ: один JSON — полный план. Все поля + phases[] **только от 4 до 8 недель** (не больше 8). Каждая неделя: name, week_focus, milestone, ровно 3 коротких разных шага (время + действие + «готово когда», до ~140 символов), if_slip. first_week: []. Структура:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`;
 
   const started = Date.now();
   const res = await callOpenRouterForPlan(
@@ -346,7 +346,7 @@ async function generateGoalPlan(
     model,
     systemPrompt,
     userPrompt + fullSuffix,
-    7200,
+    5200,
   );
   console.log("[goal-plan-generate] one-shot ms=", Date.now() - started);
   if (!res.ok) return res;
@@ -436,38 +436,76 @@ Deno.serve(async (req) => {
   const model = Deno.env.get("OPENROUTER_MODEL")?.trim() ||
     "openai/gpt-4o-mini";
 
-  try {
-    const generated = await generateGoalPlan(
-      apiKey,
-      model,
-      systemPrompt,
-      userPrompt,
-      ctx,
-      lang,
-    );
-    if (!generated.ok || !generated.plan) {
-      const err = generated.error || "server_error";
-      return json({
-        ok: false,
-        error: err,
-        status: "status" in generated ? generated.status : undefined,
-      }, 502);
-    }
+  const stream = new ReadableStream({
+    async start(controller) {
+      const enc = new TextEncoder();
+      const line = (obj: Record<string, unknown>) =>
+        enc.encode(JSON.stringify(obj) + "\n");
+      const tick = () => {
+        try {
+          controller.enqueue(line({ _: "h", t: Date.now() }));
+        } catch {
+          /* closed */
+        }
+      };
+      tick();
+      const iv = setInterval(tick, 10000);
+      try {
+        const generated = await generateGoalPlan(
+          apiKey,
+          model,
+          systemPrompt,
+          userPrompt,
+          ctx,
+          lang,
+        );
+        clearInterval(iv);
+        if (!generated.ok || !generated.plan) {
+          const err = generated.error || "server_error";
+          controller.enqueue(
+            line({
+              _: "r",
+              ok: false,
+              error: err,
+              status: "status" in generated ? generated.status : undefined,
+            }),
+          );
+          controller.close();
+          return;
+        }
+        const plan = generated.plan;
+        plan.phase_unit = "week";
+        plan.user_stated_deadline = ctx.target_deadline;
+        plan.recommended_weeks = plan.phases.length;
+        controller.enqueue(
+          line({
+            _: "r",
+            ok: true,
+            plan,
+            profile_chars: archetypeProfile.length,
+            week_count: plan.phases.length,
+            phase_unit: "week",
+          }),
+        );
+        controller.close();
+      } catch (e) {
+        clearInterval(iv);
+        console.error("[goal-plan-generate]", e);
+        try {
+          controller.enqueue(line({ _: "r", ok: false, error: "server_error" }));
+          controller.close();
+        } catch {
+          /* ignore */
+        }
+      }
+    },
+  });
 
-    const plan = generated.plan;
-    plan.phase_unit = "week";
-    plan.user_stated_deadline = ctx.target_deadline;
-    plan.recommended_weeks = plan.phases.length;
-
-    return json({
-      ok: true,
-      plan,
-      profile_chars: archetypeProfile.length,
-      week_count: plan.phases.length,
-      phase_unit: "week",
-    });
-  } catch (e) {
-    console.error("[goal-plan-generate]", e);
-    return json({ ok: false, error: "server_error" }, 500);
-  }
+  return new Response(stream, {
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
+  });
 });

@@ -6850,6 +6850,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.month_mark_done': 'Отметить месяц выполненным',
             'goal.month_finish_label': 'Завершить месяц',
             'goal.month_done': 'Месяц выполнен',
+            'goal.err_plan_json':
+                'Ответ ИИ оборвался или не распознан. Нажмите «Поехали» ещё раз или сократите формулировку цели.',
             'goal.err_plan_length': 'План не удалось собрать. Попробуйте создать ещё раз.',
             'goal.timeline_fallback':
                 'Вы указали срок «%user%». Реалистичный план: %ai% — при выполнении шагов по неделям.',
@@ -7094,6 +7096,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.month_finish_label': 'Complete month',
             'goal.month_done': 'Month complete',
             'goal.err_plan_length': 'Could not build the plan. Please try again.',
+            'goal.err_plan_json':
+                'The AI reply was cut off or invalid JSON. Tap launch again or shorten your goal text.',
             'goal.timeline_fallback':
                 'You mentioned "%user%". A realistic timeline: %ai% — if you follow the weekly steps.',
             'goal.phase_check_aria': 'Mark week complete',
@@ -12067,7 +12071,7 @@ function setGoalNavActive(isActive) {
         var lang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
 
         var profileForPlan = profile
-            ? String(profile).slice(0, 3200)
+            ? String(profile).slice(0, 2000)
             : '';
 
         var payload = {
@@ -12090,7 +12094,45 @@ function setGoalNavActive(isActive) {
             var attempt = null;
 
             var fnUrl = base.replace(/\/$/, '') + '/functions/v1/goal-plan-generate';
-            var PLAN_FETCH_TIMEOUT_MS = 210000;
+            var PLAN_FETCH_TIMEOUT_MS = 270000;
+
+            async function fpGoalParsePlanNdjsonBody(res) {
+                var reader = res.body && res.body.getReader ? res.body.getReader() : null;
+                if (!reader) return {};
+                var dec = new TextDecoder();
+                var buf = '';
+                var last = null;
+                while (true) {
+                    var rd = await reader.read();
+                    if (rd.done) break;
+                    buf += dec.decode(rd.value, { stream: true });
+                    var parts = buf.split('\n');
+                    buf = parts.pop() || '';
+                    for (var pi = 0; pi < parts.length; pi++) {
+                        var line = parts[pi].trim();
+                        if (!line) continue;
+                        try {
+                            var j = JSON.parse(line);
+                            if (j._ === 'r') last = j;
+                        } catch (pe) {}
+                    }
+                }
+                if (buf.trim()) {
+                    try {
+                        var j2 = JSON.parse(buf.trim());
+                        if (j2._ === 'r') last = j2;
+                    } catch (pe2) {}
+                }
+                if (!last || last._ !== 'r') return {};
+                return {
+                    ok: last.ok,
+                    plan: last.plan,
+                    error: last.error,
+                    profile_chars: last.profile_chars,
+                    week_count: last.week_count,
+                    phase_unit: last.phase_unit
+                };
+            }
 
             async function fpGoalRequestPlanOnce() {
                 var fetchAbort = new AbortController();
@@ -12104,11 +12146,16 @@ function setGoalNavActive(isActive) {
                         body: JSON.stringify(payload),
                         signal: fetchAbort.signal
                     });
+                    var ct = (res.headers.get('content-type') || '').toLowerCase();
                     var body = {};
-                    try {
-                        body = await res.json();
-                    } catch (parseErr) {
-                        body = {};
+                    if (ct.indexOf('ndjson') >= 0 && res.body) {
+                        body = await fpGoalParsePlanNdjsonBody(res);
+                    } else {
+                        try {
+                            body = await res.json();
+                        } catch (parseErr) {
+                            body = {};
+                        }
                     }
                     return { res: res, body: body };
                 }
@@ -12176,7 +12223,7 @@ function setGoalNavActive(isActive) {
                 if (d.error === 'openrouter_error') return fpT('goal.err_openrouter_fail');
                 if (d.error === 'missing_context') return fpT('goal.err_incomplete_questions');
                 if (d.error === 'invalid_week_count') return fpT('goal.err_plan_length');
-                if (d.error === 'invalid_plan_json' || d.error === 'empty_response') return fpT('goal.err_api');
+                if (d.error === 'invalid_plan_json' || d.error === 'empty_response') return fpT('goal.err_plan_json');
                 if (d.error) return fpT('goal.err_api');
                 if (status === 502 || status === 503 || status === 504) return fpT('goal.err_timeout');
                 return fpT('goal.err_api');
