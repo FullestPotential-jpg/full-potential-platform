@@ -12170,31 +12170,20 @@ function setGoalNavActive(isActive) {
                 return;
             }
 
-            if (!attempt.res.ok) {
-                if (data && data.error === 'missing_openrouter_key') {
-                    fpGoalShowError(fpT('goal.err_openrouter_key'));
-                } else if (data && data.error === 'openrouter_error') {
-                    fpGoalShowError(fpT('goal.err_openrouter_fail'));
-                } else {
-                    fpGoalShowError(fpT('goal.err_api'));
-                }
-                return;
+            function fpGoalPlanErrorMessage(dRaw, status) {
+                var d = dRaw || {};
+                if (d.error === 'missing_openrouter_key') return fpT('goal.err_openrouter_key');
+                if (d.error === 'openrouter_error') return fpT('goal.err_openrouter_fail');
+                if (d.error === 'missing_context') return fpT('goal.err_incomplete_questions');
+                if (d.error === 'invalid_week_count') return fpT('goal.err_plan_length');
+                if (d.error === 'invalid_plan_json' || d.error === 'empty_response') return fpT('goal.err_api');
+                if (d.error) return fpT('goal.err_api');
+                if (status === 502 || status === 503 || status === 504) return fpT('goal.err_timeout');
+                return fpT('goal.err_api');
             }
 
-            if (!data || !data.ok) {
-                if (data && data.error === 'missing_openrouter_key') {
-                    fpGoalShowError(fpT('goal.err_openrouter_key'));
-                } else if (data && data.error === 'openrouter_error') {
-                    fpGoalShowError(fpT('goal.err_openrouter_fail'));
-                } else if (data && data.error === 'missing_context') {
-                    fpGoalShowError(fpT('goal.err_incomplete_questions'));
-                } else if (data && data.error === 'invalid_week_count') {
-                    fpGoalShowError(fpT('goal.err_plan_length'));
-                } else if (data && data.error === 'invalid_plan_json' || data && data.error === 'empty_response') {
-                    fpGoalShowError(fpT('goal.err_api'));
-                } else {
-                    fpGoalShowError(fpT('goal.err_api'));
-                }
+            if (!attempt.res.ok || !data || data.ok === false) {
+                fpGoalShowError(fpGoalPlanErrorMessage(data, httpStatus));
                 return;
             }
 
