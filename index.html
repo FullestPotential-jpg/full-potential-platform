@@ -1778,6 +1778,41 @@
             opacity: 1;
             transform: translateY(0);
         }
+        .goal-plan-meta-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin: 0 0 14px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #334155;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        .goal-plan-meta-toggle:hover {
+            border-color: #0284c7;
+            color: #0c4a6e;
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        .goal-plan-meta-toggle__chev {
+            display: inline-block;
+            font-size: 0.7rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+            transform: rotate(0deg);
+        }
+        .goal-plan-meta-toggle.is-collapsed .goal-plan-meta-toggle__chev {
+            transform: rotate(180deg);
+        }
+        .goal-plan-panel__meta-body.is-collapsed {
+            display: none;
+        }
         .goal-plan-panel__head {
             text-align: center;
             margin-bottom: 22px;
@@ -2860,6 +2895,16 @@
         }
         html.fp-platform-dark .goal-plan-panel__title {
             color: #e8f0ff;
+        }
+        html.fp-platform-dark .goal-plan-meta-toggle {
+            background: rgba(18, 24, 48, 0.9);
+            border-color: rgba(130, 150, 210, 0.35);
+            color: #c8d4ff;
+        }
+        html.fp-platform-dark .goal-plan-meta-toggle:hover {
+            border-color: #38bdf8;
+            color: #e0f2fe;
+            background: rgba(30, 58, 95, 0.55);
         }
         html.fp-platform-dark .goal-flow__input {
             background: rgba(8, 12, 32, 0.65);
@@ -6788,6 +6833,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
             'goal.card_no_plan': 'Продолжить настройку',
             'goal.back_to_list': '← К списку целей',
+            'goal.meta_collapse': 'Свернуть описание и контекст',
+            'goal.meta_expand': 'Показать описание и контекст',
             'goal.week_1': 'Первая неделя',
             'goal.week_2': 'Вторая неделя',
             'goal.week_3': 'Третья неделя',
@@ -7029,6 +7076,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'Plan ready — tap to open',
             'goal.card_no_plan': 'Continue setup',
             'goal.back_to_list': '← Back to goals',
+            'goal.meta_collapse': 'Hide summary and context',
+            'goal.meta_expand': 'Show summary and context',
             'goal.week_1': 'Week 1',
             'goal.week_2': 'Week 2',
             'goal.week_3': 'Week 3',
@@ -11680,6 +11729,46 @@ function setGoalNavActive(isActive) {
         fpGoalStartPhaseSwipe(phaseIdx);
     }
 
+    var FP_GOAL_META_COLLAPSE_KEY = 'fp_goal_plan_meta_collapsed';
+
+    function fpGoalTogglePlanMeta() {
+        var body = document.getElementById('goalPlanMetaBody');
+        var btn = document.getElementById('goalPlanMetaToggle');
+        if (!body || !btn) return;
+        body.classList.toggle('is-collapsed');
+        var collapsed = body.classList.contains('is-collapsed');
+        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        btn.classList.toggle('is-collapsed', collapsed);
+        var label = document.getElementById('goalPlanMetaToggleLabel');
+        if (label) label.textContent = fpT(collapsed ? 'goal.meta_expand' : 'goal.meta_collapse');
+        try {
+            localStorage.setItem(FP_GOAL_META_COLLAPSE_KEY, collapsed ? '1' : '0');
+        } catch (e) {}
+    }
+
+    function fpGoalApplyPlanMetaCollapsedFromStorage() {
+        var body = document.getElementById('goalPlanMetaBody');
+        var btn = document.getElementById('goalPlanMetaToggle');
+        if (!body || !btn) return;
+        var collapsed = false;
+        try {
+            collapsed = localStorage.getItem(FP_GOAL_META_COLLAPSE_KEY) === '1';
+        } catch (e) {}
+        if (collapsed) {
+            body.classList.add('is-collapsed');
+            btn.classList.add('is-collapsed');
+            btn.setAttribute('aria-expanded', 'false');
+            var label = document.getElementById('goalPlanMetaToggleLabel');
+            if (label) label.textContent = fpT('goal.meta_expand');
+        } else {
+            body.classList.remove('is-collapsed');
+            btn.classList.remove('is-collapsed');
+            btn.setAttribute('aria-expanded', 'true');
+            var label2 = document.getElementById('goalPlanMetaToggleLabel');
+            if (label2) label2.textContent = fpT('goal.meta_collapse');
+        }
+    }
+
     function fpGoalRenderPlan(plan, options) {
         var opts = options || {};
         var panel = document.getElementById('goalPlanPanel');
@@ -11851,7 +11940,13 @@ function setGoalNavActive(isActive) {
                 : '';
 
         panel.innerHTML =
-            '<div class="goal-plan-panel__head">' +
+            '<button type="button" class="goal-plan-meta-toggle" id="goalPlanMetaToggle" ' +
+            'onclick="fpGoalTogglePlanMeta()" aria-controls="goalPlanMetaBody" aria-expanded="true">' +
+            '<span class="goal-plan-meta-toggle__chev" aria-hidden="true">▼</span>' +
+            '<span class="goal-plan-meta-toggle__text" id="goalPlanMetaToggleLabel">' +
+            fpGoalEscapeHtml(fpT('goal.meta_collapse')) +
+            '</span></button>' +
+            '<div class="goal-plan-panel__head goal-plan-panel__meta-body" id="goalPlanMetaBody">' +
             fpGoalTimelineBannerHtml(plan) +
             '<h2 class="goal-plan-panel__title">' +
             fpGoalEscapeHtml(plan.title || '') +
@@ -11869,6 +11964,7 @@ function setGoalNavActive(isActive) {
             '</button>';
 
         panel.classList.add('is-visible');
+        fpGoalApplyPlanMetaCollapsedFromStorage();
         fpGoalSetStep(3);
         fpGoalSyncNotifyButtons();
         fpGoalInitReminders();
@@ -12300,6 +12396,7 @@ function setGoalNavActive(isActive) {
     window.fpGoalOnPhaseCheckClick = fpGoalOnPhaseCheckClick;
     window.fpGoalTogglePlanStep = fpGoalTogglePlanStep;
     window.fpGoalOpenNotifyPopover = fpGoalOpenNotifyPopover;
+    window.fpGoalTogglePlanMeta = fpGoalTogglePlanMeta;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
