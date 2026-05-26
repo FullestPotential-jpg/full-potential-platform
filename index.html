@@ -6817,7 +6817,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Ответы про барьер, опору и последствия — минимум 20 символов каждый. Добавьте имена, примеры и детали.',
             'goal.err_energy_range': 'Энергия: выберите значение от 1 до 10.',
             'goal.launch_loading': 'Составляем маршрут под ваш архетип…',
-            'goal.launch_eta': 'Обычно 1–2 минуты. Не закрывайте страницу.',
+            'goal.launch_eta': 'Обычно 1–3 минуты. Не закрывайте страницу — при нагрузке ответ может занять больше времени.',
             'goal.launch_elapsed': 'Прошло %time% · ещё немного…',
             'goal.plan_week_title': 'Первая неделя',
             'goal.plan_tips_title': 'Советы для вашего архетипа',
@@ -6881,7 +6881,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_need_login': 'Войдите в аккаунт, чтобы работать с целями.',
             'goal.err_api': 'Не удалось получить план. Попробуйте ещё раз через минуту.',
             'goal.err_timeout':
-                'Генерация заняла слишком много времени. Нажмите «Поехали» ещё раз — обычно хватает 1–2 минут.',
+                'Не дождались ответа в срок (сеть или очередь ИИ). Нажмите «Поехали» ещё раз — повтор часто проходит. Если снова обрыв: попробуйте позже или смените модель в Supabase (OPENROUTER_MODEL).',
             'goal.err_openrouter_fail': 'OpenRouter отклонил запрос. Проверьте баланс на openrouter.ai и секрет OPENROUTER_API_KEY в Supabase.',
             'goal.err_401': '401: Supabase блокирует вызов. Откройте goal-plan-generate → вкладка Details → переключатель «Verify JWT with legacy secret» должен быть ВЫКЛЮЧЕН (OFF, серый) → Deploy. Не включайте его.',
             'goal.err_openrouter_key': 'На сервере не задан OPENROUTER_API_KEY (Supabase → Edge Functions → Secrets).',
@@ -7060,7 +7060,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Barrier, support, and stakes answers need at least 20 characters each. Add names, examples, and detail.',
             'goal.err_energy_range': 'Energy: pick a value from 1 to 10.',
             'goal.launch_loading': 'Building your archetype-tailored route…',
-            'goal.launch_eta': 'Usually 1–2 minutes. Please keep this page open.',
+            'goal.launch_eta': 'Usually 1–3 minutes. Keep this page open — when the AI is busy it can take longer.',
             'goal.launch_elapsed': 'Elapsed %time% · almost there…',
             'goal.plan_week_title': 'First week',
             'goal.plan_tips_title': 'Tips for your archetype',
@@ -7124,7 +7124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.err_need_login': 'Sign in to manage your goals.',
             'goal.err_api': 'Could not load the plan. Please try again in a minute.',
             'goal.err_timeout':
-                'Generation took too long. Tap «Let\'s go» again — it usually takes 1–2 minutes.',
+                'The request timed out (network or AI queue). Try launch again — a second attempt often works. If it keeps failing, try later or set OPENROUTER_MODEL in Supabase to a faster model.',
             'goal.err_openrouter_fail': 'OpenRouter rejected the request. Check your balance at openrouter.ai and OPENROUTER_API_KEY in Supabase.',
             'goal.err_401': 'Function access denied (401). In Supabase: Edge Functions → goal-plan-generate → turn OFF «Verify JWT with legacy secret», then Deploy again.',
             'goal.err_openrouter_key': 'OPENROUTER_API_KEY is not set on the server (Supabase → Edge Functions → Secrets).',
@@ -12087,54 +12087,77 @@ function setGoalNavActive(isActive) {
         try {
             var data = null;
             var httpStatus = 0;
+            var attempt = null;
 
             var fnUrl = base.replace(/\/$/, '') + '/functions/v1/goal-plan-generate';
+            var PLAN_FETCH_TIMEOUT_MS = 210000;
 
-            var fetchAbort = new AbortController();
-            var fetchTimeoutId = setTimeout(function () {
-                fetchAbort.abort();
-            }, 145000);
-
-            async function fpGoalFetchPlan(headers) {
-                var res = await fetch(fnUrl, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(payload),
-                    signal: fetchAbort.signal
-                });
-                var body = {};
-                try {
-                    body = await res.json();
-                } catch (parseErr) {
-                    body = {};
+            async function fpGoalRequestPlanOnce() {
+                var fetchAbort = new AbortController();
+                var tid = setTimeout(function () {
+                    fetchAbort.abort();
+                }, PLAN_FETCH_TIMEOUT_MS);
+                async function fpGoalFetchPlan(headers) {
+                    var res = await fetch(fnUrl, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(payload),
+                        signal: fetchAbort.signal
+                    });
+                    var body = {};
+                    try {
+                        body = await res.json();
+                    } catch (parseErr) {
+                        body = {};
+                    }
+                    return { res: res, body: body };
                 }
-                return { res: res, body: body };
+                try {
+                    var att = await fpGoalFetchPlan({
+                        'Content-Type': 'application/json',
+                        Authorization: 'Bearer ' + key,
+                        apikey: key
+                    });
+                    var hs = att.res.status;
+                    var dt = att.body;
+
+                    if (hs === 401) {
+                        console.warn('[goal-plan] 401 with JWT — retry without Authorization (нужен OFF у Verify JWT в Supabase)');
+                        att = await fpGoalFetchPlan({
+                            'Content-Type': 'application/json',
+                            apikey: key
+                        });
+                        hs = att.res.status;
+                        dt = att.body;
+                    }
+
+                    if (hs === 401) {
+                        att = await fpGoalFetchPlan({
+                            'Content-Type': 'application/json'
+                        });
+                        hs = att.res.status;
+                        dt = att.body;
+                    }
+
+                    return { attempt: att, httpStatus: hs, data: dt };
+                } finally {
+                    clearTimeout(tid);
+                }
             }
 
-            var attempt = await fpGoalFetchPlan({
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + key,
-                apikey: key
-            });
-            httpStatus = attempt.res.status;
-            data = attempt.body;
+            var bundle = await fpGoalRequestPlanOnce();
+            attempt = bundle.attempt;
+            httpStatus = bundle.httpStatus;
+            data = bundle.data;
 
-            if (httpStatus === 401) {
-                console.warn('[goal-plan] 401 with JWT — retry without Authorization (нужен OFF у Verify JWT в Supabase)');
-                attempt = await fpGoalFetchPlan({
-                    'Content-Type': 'application/json',
-                    apikey: key
+            if (httpStatus === 504 || (data && data.code === 'IDLE_TIMEOUT')) {
+                await new Promise(function (r) {
+                    setTimeout(r, 2000);
                 });
-                httpStatus = attempt.res.status;
-                data = attempt.body;
-            }
-
-            if (httpStatus === 401) {
-                attempt = await fpGoalFetchPlan({
-                    'Content-Type': 'application/json'
-                });
-                httpStatus = attempt.res.status;
-                data = attempt.body;
+                bundle = await fpGoalRequestPlanOnce();
+                attempt = bundle.attempt;
+                httpStatus = bundle.httpStatus;
+                data = bundle.data;
             }
 
             if (httpStatus === 401) {
@@ -12186,7 +12209,6 @@ function setGoalNavActive(isActive) {
                 fpGoalShowError(fpT('goal.err_api'));
             }
         } finally {
-            clearTimeout(fetchTimeoutId);
             fpGoalStopLoadingUi();
             if (btn) btn.disabled = false;
             if (step2) step2.style.opacity = '';
