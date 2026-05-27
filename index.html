@@ -1913,7 +1913,7 @@
             color: #4338ca;
         }
         .goal-plan-current-week .goal-plan-phase {
-            padding: 16px;
+            padding: 16px 16px 52px;
             border: none;
             box-shadow: none;
             background: rgba(255, 255, 255, 0.92);
@@ -1954,7 +1954,7 @@
         }
         .goal-plan-week-details .goal-plan-phase {
             margin: 0 8px 10px;
-            padding: 14px;
+            padding: 14px 14px 50px;
         }
         .goal-plan-phase__week-success {
             margin: 0 0 10px;
@@ -2064,7 +2064,7 @@
             color: #4f46e5;
         }
         .goal-plan-phase__slip {
-            margin: 12px 0 0;
+            margin: 12px 0 40px;
             padding: 10px 12px;
             border-radius: 10px;
             background: #fff7ed;
@@ -2089,7 +2089,7 @@
         .goal-plan-phase {
             position: relative;
             margin-bottom: 0;
-            padding: 16px;
+            padding: 16px 16px 52px;
             border-radius: 18px;
             background: #fff;
             border: 1px solid rgba(130, 150, 210, 0.18);
@@ -2106,21 +2106,6 @@
         .goal-plan-phase__top-text {
             flex: 1;
             min-width: 0;
-        }
-        .goal-plan-phase__actions {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 14px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(130, 150, 210, 0.2);
-        }
-        .goal-plan-phase__notify-label {
-            margin-right: auto;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #64748b;
         }
         .goal-plan-phase--done {
             border-color: rgba(99, 102, 241, 0.32);
@@ -2215,10 +2200,11 @@
             visibility: hidden;
         }
         .goal-phase-notify {
-            position: static;
-            flex-shrink: 0;
-            width: 36px;
-            height: 36px;
+            position: absolute;
+            bottom: 12px;
+            right: 14px;
+            width: 30px;
+            height: 30px;
             padding: 0;
             border: 1.5px solid rgba(130, 150, 210, 0.45);
             border-radius: 50%;
@@ -2440,11 +2426,11 @@
             background: rgba(224, 247, 255, 0.55);
             box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22);
         }
-        .goal-plan-step:not(.goal-plan-step--done) .goal-plan-step__num {
-            border-color: transparent;
-            background: transparent;
-            box-shadow: none;
-            transition: none;
+        .goal-plan-step:not(.goal-plan-step--done) .goal-plan-step__num:hover,
+        .goal-plan-step:not(.goal-plan-step--done) .goal-plan-step__num:focus-visible {
+            border-color: rgba(56, 189, 248, 0.45);
+            background: rgba(56, 189, 248, 0.08);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.12);
         }
         .goal-plan-step__check {
             position: absolute;
@@ -2953,38 +2939,40 @@
             margin-bottom: 22px;
         }
         .goal-card-row {
-            display: flex;
-            align-items: stretch;
-            gap: 8px;
+            position: relative;
         }
         .goal-card-row .goal-card {
-            flex: 1;
-            min-width: 0;
+            padding-right: 48px;
         }
         .goal-card-delete {
-            flex-shrink: 0;
-            width: 48px;
-            min-height: 100%;
-            border: 1px solid rgba(248, 113, 113, 0.45);
-            border-radius: 16px;
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border: 1.5px solid rgba(248, 113, 113, 0.5);
+            border-radius: 50%;
             padding: 0;
             cursor: pointer;
-            color: #fecaca;
-            background: rgba(127, 29, 29, 0.35);
+            color: #fca5a5;
+            background: rgba(127, 29, 29, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            z-index: 2;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
         }
         .goal-card-delete:hover {
-            background: rgba(185, 28, 28, 0.55);
+            background: rgba(185, 28, 28, 0.7);
             border-color: #f87171;
             color: #fff;
+            transform: translateY(-50%) scale(1.05);
         }
         .goal-card-delete svg {
             display: block;
-            width: 20px;
-            height: 20px;
+            width: 14px;
+            height: 14px;
         }
         .goal-card {
             display: block;
@@ -11657,12 +11645,13 @@ function setGoalNavActive(isActive) {
         if (!Array.isArray(entry.completedSteps[key])) entry.completedSteps[key] = [];
         var arr = entry.completedSteps[key];
         var pos = arr.indexOf(stepIdx);
-        var block = document.querySelector(
-            '.goal-plan-phase-block[data-phase-idx="' + phaseIdx + '"]'
+        var stepItem = document.querySelector(
+            '.goal-plan-step[data-phase-idx="' +
+                phaseIdx +
+                '"][data-step-idx="' +
+                stepIdx +
+                '"]'
         );
-        var stepItem = block
-            ? block.querySelector('.goal-plan-step[data-step-idx="' + stepIdx + '"]')
-            : null;
         var numBtn = stepItem ? stepItem.querySelector('.goal-plan-step__num') : null;
         if (pos >= 0) {
             arr.splice(pos, 1);
@@ -12176,10 +12165,6 @@ function setGoalNavActive(isActive) {
                   fpGoalEscapeHtml(ph.if_slip) +
                   '</p>'
                 : '') +
-            '<div class="goal-plan-phase__actions">' +
-            '<span class="goal-plan-phase__notify-label">' +
-            fpGoalEscapeHtml(fpT('goal.notify_btn')) +
-            '</span>' +
             '<button type="button" class="goal-phase-notify' +
             (fpGoalIsWeekNotifyOn(idx) ? ' is-on' : '') +
             '" data-phase-idx="' +
@@ -12192,7 +12177,7 @@ function setGoalNavActive(isActive) {
             idx +
             ', event)">' +
             fpGoalNotifyBellSvg() +
-            '</button></div></article>'
+            '</button></article>'
         );
     }
 
