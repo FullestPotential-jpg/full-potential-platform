@@ -44,6 +44,8 @@ interface PlanPhase {
   name: string;
   duration?: string;
   week_focus?: string;
+  week_success?: string;
+  tomorrow_step?: string;
   milestone?: string;
   steps: string[];
   if_slip?: string;
@@ -54,6 +56,7 @@ interface GoalPlan {
   intro: string;
   goal_rewritten?: string | null;
   success_criteria?: string;
+  barrier_protocol?: string;
   milestones?: PlanMilestone[];
   first_48h?: string[];
   phases: PlanPhase[];
@@ -277,11 +280,21 @@ function normalizeMasterPlan(plan: GoalPlan, ctx: GoalContext, lang: string): vo
   if (plan.goal_rewritten === "" || plan.goal_rewritten === "null") {
     plan.goal_rewritten = null;
   }
+  const barrierShort = ctx.past_blockers.slice(0, 80);
+  if (!plan.barrier_protocol?.trim()) {
+    plan.barrier_protocol = lang === "en"
+      ? `IF "${barrierShort}" shows up → within 2 hours: 15 min minimum step from this week + message your support. ELSE: continue the planned step.`
+      : `ЕСЛИ барьер «${barrierShort}» → в течение 2 ч: 15 мин минимальный шаг недели + сообщение опоре. ИНАЧЕ: продолжить запланированный шаг.`;
+  }
   const slipTpl = lang === "en"
-    ? `If the barrier hits ("${ctx.past_blockers.slice(0, 80)}"): same day, 15 min — do the smallest step from this week and message your support.`
-    : `Если барьер («${ctx.past_blockers.slice(0, 80)}»): в тот же день 15 мин — минимальный шаг из недели + сообщение опоре.`;
+    ? `If the barrier hits ("${barrierShort}"): same day, 15 min — smallest step from this week and message your support.`
+    : `Если барьер («${barrierShort}»): в тот же день 15 мин — минимальный шаг из недели + сообщение опоре.`;
   for (const ph of plan.phases) {
     if (!ph.week_focus?.trim()) ph.week_focus = ph.name || "";
+    if (!ph.week_success?.trim()) ph.week_success = ph.week_focus || "";
+    if (!ph.tomorrow_step?.trim() && ph.steps?.[0]) {
+      ph.tomorrow_step = ph.steps[0];
+    }
     if (!ph.if_slip?.trim()) ph.if_slip = slipTpl;
   }
   if (plan.milestones.length < 2 && plan.phases.length >= 2) {
@@ -337,8 +350,8 @@ async function generateGoalPlan(
   // One OpenRouter call only: two sequential calls often exceed Supabase gateway idle
   // limit (~150s) → 502 / empty body → generic "could not load plan" in the app.
   const fullSuffix = lang === "en"
-    ? `\n\nOUTPUT: one JSON object — COMPLETE plan. All fields + phases[] with **4 to 8 weeks only** (never more than 8). Each week: name, week_focus, milestone, exactly 3 concise unique steps (WHEN + ACTION + Done when, under ~140 chars each), if_slip. first_week: []. Shape:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`
-    : `\n\nОТВЕТ: один JSON — полный план. Все поля + phases[] **только от 4 до 8 недель** (не больше 8). Каждая неделя: name, week_focus, milestone, ровно 3 коротких разных шага (время + действие + «готово когда», до ~140 символов), if_slip. first_week: []. Структура:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`;
+    ? `\n\nOUTPUT: one JSON — COMPLETE plan. Include barrier_protocol, first_48h chain, phases[] 4-8 weeks. Each week: week_focus, week_success, tomorrow_step, milestone, exactly 3 anchored steps, if_slip. first_week: []. Shape:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`
+    : `\n\nОТВЕТ: один JSON — полный план. barrier_protocol, first_48h цепочкой, phases[] 4-8 недель. Каждая неделя: week_focus, week_success, tomorrow_step, milestone, ровно 3 шага с якорями, if_slip. first_week: []. Структура:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`;
 
   const started = Date.now();
   const res = await callOpenRouterForPlan(
@@ -357,6 +370,7 @@ async function generateGoalPlan(
     intro: String(p.intro || "").trim(),
     goal_rewritten: p.goal_rewritten ?? null,
     success_criteria: String(p.success_criteria || "").trim(),
+    barrier_protocol: String(p.barrier_protocol || "").trim(),
     milestones: (p.milestones || []) as PlanMilestone[],
     first_48h: (p.first_48h || []) as string[],
     recommended_weeks: clampWeekCount(Number(p.recommended_weeks) || (p.phases?.length || 8)),

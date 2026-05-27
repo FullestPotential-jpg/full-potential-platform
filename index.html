@@ -1873,6 +1873,125 @@
             line-height: 1.55;
             color: #78350f;
         }
+        .goal-plan-first48__hint {
+            margin: 0 0 8px;
+            font-size: 0.86rem;
+            color: #92400e;
+        }
+        .goal-plan-barrier-protocol {
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: #991b1b;
+            white-space: pre-wrap;
+        }
+        .goal-plan-barrier-protocol strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .goal-plan-current-week {
+            margin: 0 0 20px;
+            padding: 18px 16px 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border: 2px solid #818cf8;
+            box-shadow: 0 10px 28px rgba(99, 102, 241, 0.15);
+        }
+        .goal-plan-current-week__title {
+            margin: 0 0 4px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #4338ca;
+        }
+        .goal-plan-current-week .goal-plan-phase {
+            padding: 16px 44px 16px 16px;
+            border: none;
+            box-shadow: none;
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .goal-plan-all-weeks-title {
+            margin: 4px 0 12px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+        .goal-plan-week-details {
+            margin-bottom: 10px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+        .goal-plan-week-details--done {
+            opacity: 0.88;
+        }
+        .goal-plan-week-details > summary {
+            padding: 12px 14px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            list-style: none;
+        }
+        .goal-plan-week-details > summary::-webkit-details-marker {
+            display: none;
+        }
+        .goal-plan-week-details > summary::before {
+            content: '▸ ';
+            color: #6366f1;
+        }
+        .goal-plan-week-details[open] > summary::before {
+            content: '▾ ';
+        }
+        .goal-plan-week-details .goal-plan-phase {
+            margin: 0 8px 10px;
+            padding: 14px 40px 14px 14px;
+        }
+        .goal-plan-phase__week-success {
+            margin: 0 0 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #ecfdf5;
+            border-left: 3px solid #10b981;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            color: #065f46;
+        }
+        .goal-plan-phase__week-success strong {
+            color: #047857;
+        }
+        .goal-plan-phase__tomorrow {
+            margin: 0 0 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #78350f;
+        }
+        .goal-plan-phase__tomorrow strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #b45309;
+        }
+        .goal-plan-phase-block--current {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
         .goal-plan-success {
             margin: 0 0 14px;
             padding: 12px 14px;
@@ -2917,6 +3036,37 @@
         }
         html.fp-platform-dark .goal-plan-phase__name {
             color: #e8f0ff;
+        }
+        html.fp-platform-dark .goal-plan-current-week {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            border-color: #6366f1;
+        }
+        html.fp-platform-dark .goal-plan-current-week__title {
+            color: #c7d2fe;
+        }
+        html.fp-platform-dark .goal-plan-current-week .goal-plan-phase {
+            background: rgba(12, 16, 40, 0.85);
+        }
+        html.fp-platform-dark .goal-plan-week-details {
+            background: rgba(18, 24, 48, 0.6);
+            border-color: rgba(130, 150, 210, 0.25);
+        }
+        html.fp-platform-dark .goal-plan-week-details > summary {
+            color: #c8d4ff;
+        }
+        html.fp-platform-dark .goal-plan-phase__week-success {
+            background: rgba(6, 78, 59, 0.35);
+            color: #a7f3d0;
+        }
+        html.fp-platform-dark .goal-plan-phase__tomorrow {
+            background: rgba(120, 53, 15, 0.35);
+            border-color: #d97706;
+            color: #fde68a;
+        }
+        html.fp-platform-dark .goal-plan-barrier-protocol {
+            background: rgba(127, 29, 29, 0.35);
+            border-color: #b91c1c;
+            color: #fecaca;
         }
         html.fp-platform-dark .goal-plan-phase ol,
         html.fp-platform-dark .goal-plan-phase li {
@@ -6826,6 +6976,12 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.plan_refined': 'Уточнённая формулировка цели',
             'goal.plan_milestones': 'Этапы пути',
             'goal.plan_week_focus': 'Фокус недели',
+            'goal.plan_week_success': 'Успех недели (проверка)',
+            'goal.plan_tomorrow_step': 'Завтра — один шаг',
+            'goal.plan_barrier_protocol': 'Протокол при барьере',
+            'goal.plan_first_48h_hint': 'Цепочка: каждый шаг опирается на результат предыдущего.',
+            'goal.plan_current_week': 'Сейчас — эта неделя',
+            'goal.plan_all_weeks': 'Все недели плана',
             'goal.plan_if_slip': 'Если сорвались',
             'goal.plan_edit': 'Изменить цель',
             'goal.list_title': 'Мои Цели',
@@ -7071,6 +7227,12 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.plan_refined': 'Refined goal wording',
             'goal.plan_milestones': 'Path milestones',
             'goal.plan_week_focus': 'Week focus',
+            'goal.plan_week_success': 'Week success check',
+            'goal.plan_tomorrow_step': 'Tomorrow — one step',
+            'goal.plan_barrier_protocol': 'Barrier protocol',
+            'goal.plan_first_48h_hint': 'Chain: each step needs the previous step’s artifact.',
+            'goal.plan_current_week': 'Now — this week',
+            'goal.plan_all_weeks': 'All plan weeks',
             'goal.plan_if_slip': 'If you slip',
             'goal.plan_edit': 'Edit goal',
             'goal.list_title': 'My goals',
@@ -10645,11 +10807,21 @@ function setGoalNavActive(isActive) {
 
     function fpGoalMasterPlanBlocksHtml(plan) {
         var html = '';
+        if (plan.barrier_protocol && String(plan.barrier_protocol).trim()) {
+            html +=
+                '<div class="goal-plan-barrier-protocol"><strong>' +
+                fpGoalEscapeHtml(fpT('goal.plan_barrier_protocol')) +
+                '</strong>' +
+                fpGoalEscapeHtml(plan.barrier_protocol) +
+                '</div>';
+        }
         if (plan.first_48h && plan.first_48h.length) {
             html +=
                 '<div class="goal-plan-first48"><h3>' +
                 fpGoalEscapeHtml(fpT('goal.plan_first_48h')) +
-                '</h3><ul>' +
+                '</h3><p class="goal-plan-first48__hint">' +
+                fpGoalEscapeHtml(fpT('goal.plan_first_48h_hint')) +
+                '</p><ul>' +
                 plan.first_48h
                     .map(function (s) {
                         return '<li>' + fpGoalEscapeHtml(s) + '</li>';
@@ -11773,6 +11945,163 @@ function setGoalNavActive(isActive) {
         }
     }
 
+    function fpGoalGetActivePhaseIdx(completedPhases, phaseCount) {
+        for (var i = 0; i < phaseCount; i++) {
+            if (completedPhases.indexOf(i) < 0) return i;
+        }
+        return phaseCount > 0 ? phaseCount - 1 : 0;
+    }
+
+    function fpGoalBuildPhaseStepsHtml(phaseIdx, phaseSteps, completedStepsMap) {
+        var stepsHtml = '';
+        phaseSteps.forEach(function (s, si) {
+            var stepDone = fpGoalIsStepDone(phaseIdx, si, completedStepsMap);
+            var stepNum = si + 1;
+            stepsHtml +=
+                '<li class="goal-plan-step' +
+                (stepDone ? ' goal-plan-step--done' : '') +
+                '" data-phase-idx="' +
+                phaseIdx +
+                '" data-step-idx="' +
+                si +
+                '">' +
+                '<span class="goal-plan-step__num-wrap">' +
+                '<button type="button" class="goal-plan-step__num" aria-pressed="' +
+                (stepDone ? 'true' : 'false') +
+                '" aria-label="' +
+                fpGoalEscapeHtml(stepDone ? fpT('goal.step_done') : fpT('goal.step_toggle')) +
+                '" onclick="fpGoalTogglePlanStep(' +
+                phaseIdx +
+                ', ' +
+                si +
+                ', event)">' +
+                stepNum +
+                '.</button>' +
+                '<span class="goal-plan-step__check" aria-hidden="true">' +
+                fpGoalStepCheckSvg() +
+                '</span></span>' +
+                '<span class="goal-plan-step__text">' +
+                fpGoalEscapeHtml(s) +
+                '</span></li>';
+        });
+        return stepsHtml;
+    }
+
+    function fpGoalBuildPhaseMetaFieldsHtml(ph) {
+        var html = '';
+        var steps = ph.steps || [];
+        if (ph.week_focus) {
+            html +=
+                '<p class="goal-plan-phase__focus"><strong>' +
+                fpGoalEscapeHtml(fpT('goal.plan_week_focus')) +
+                ':</strong> ' +
+                fpGoalEscapeHtml(ph.week_focus) +
+                '</p>';
+        }
+        var weekSuccess = ph.week_success || ph.week_focus || '';
+        if (weekSuccess) {
+            html +=
+                '<p class="goal-plan-phase__week-success"><strong>' +
+                fpGoalEscapeHtml(fpT('goal.plan_week_success')) +
+                ':</strong> ' +
+                fpGoalEscapeHtml(weekSuccess) +
+                '</p>';
+        }
+        var tomorrow = ph.tomorrow_step || steps[0] || '';
+        if (tomorrow) {
+            html +=
+                '<p class="goal-plan-phase__tomorrow"><strong>' +
+                fpGoalEscapeHtml(fpT('goal.plan_tomorrow_step')) +
+                '</strong>' +
+                fpGoalEscapeHtml(tomorrow) +
+                '</p>';
+        }
+        return html;
+    }
+
+    function fpGoalBuildPhaseArticleHtml(ph, idx, plan, completedPhases, completedStepsMap) {
+        var isDone = completedPhases.indexOf(idx) >= 0;
+        var phaseSteps = ph.steps || [];
+        return (
+            '<article class="goal-plan-phase' +
+            (isDone ? ' goal-plan-phase--done' : '') +
+            '" data-phase-idx="' +
+            idx +
+            '">' +
+            '<div class="goal-phase-complete-slot">' +
+            '<p class="goal-phase-complete-label">' +
+            fpGoalEscapeHtml(fpT(fpGoalPhaseFinishKey(plan, 'finish_label'))) +
+            '</p>' +
+            '<button type="button" class="goal-phase-check' +
+            (isDone ? ' is-done is-settled' : '') +
+            '" data-phase-idx="' +
+            idx +
+            '" aria-pressed="' +
+            (isDone ? 'true' : 'false') +
+            '" aria-label="' +
+            fpGoalEscapeHtml(
+                isDone ? fpT(fpGoalPhaseFinishKey(plan, 'done')) : fpT(fpGoalPhaseFinishKey(plan, 'mark_done'))
+            ) +
+            '" onclick="fpGoalOnPhaseCheckClick(' +
+            idx +
+            ', event)"' +
+            (isDone ? ' disabled' : '') +
+            '><span class="goal-phase-check__icon" aria-hidden="true">' +
+            fpGoalBlueStarSvg('gpsChk' + idx) +
+            '</span></button></div>' +
+            '<p class="goal-plan-phase__week">' +
+            fpGoalEscapeHtml(fpGoalPhaseLabel(idx, plan)) +
+            '</p>' +
+            '<h3 class="goal-plan-phase__name">' +
+            fpGoalEscapeHtml(ph.name || '') +
+            '</h3>' +
+            fpGoalBuildPhaseMetaFieldsHtml(ph) +
+            '<ul class="goal-plan-phase__steps">' +
+            fpGoalBuildPhaseStepsHtml(idx, phaseSteps, completedStepsMap) +
+            '</ul>' +
+            (ph.if_slip
+                ? '<p class="goal-plan-phase__slip"><strong>' +
+                  fpGoalEscapeHtml(fpT('goal.plan_if_slip')) +
+                  ':</strong> ' +
+                  fpGoalEscapeHtml(ph.if_slip) +
+                  '</p>'
+                : '') +
+            '<button type="button" class="goal-phase-notify' +
+            (fpGoalIsWeekNotifyOn(idx) ? ' is-on' : '') +
+            '" data-phase-idx="' +
+            idx +
+            '" aria-pressed="' +
+            (fpGoalIsWeekNotifyOn(idx) ? 'true' : 'false') +
+            '" aria-label="' +
+            fpGoalEscapeHtml(fpGoalIsWeekNotifyOn(idx) ? fpT('goal.notify_on') : fpT('goal.notify_btn')) +
+            '" onclick="fpGoalOpenNotifyPopover(' +
+            idx +
+            ', event)">' +
+            fpGoalNotifyBellSvg() +
+            '</button></article>'
+        );
+    }
+
+    function fpGoalDefaultCollapseStrategyMeta() {
+        try {
+            if (localStorage.getItem(FP_GOAL_META_COLLAPSE_KEY) !== null) {
+                fpGoalApplyPlanMetaCollapsedFromStorage();
+                return;
+            }
+            var body = document.getElementById('goalPlanMetaBody');
+            var btn = document.getElementById('goalPlanMetaToggle');
+            if (!body || !btn) return;
+            body.classList.add('is-collapsed');
+            btn.classList.add('is-collapsed');
+            btn.setAttribute('aria-expanded', 'false');
+            var label = document.getElementById('goalPlanMetaToggleLabel');
+            if (label) label.textContent = fpT('goal.meta_expand');
+            localStorage.setItem(FP_GOAL_META_COLLAPSE_KEY, '1');
+        } catch (e) {
+            fpGoalApplyPlanMetaCollapsedFromStorage();
+        }
+    }
+
     function fpGoalRenderPlan(plan, options) {
         var opts = options || {};
         var panel = document.getElementById('goalPlanPanel');
@@ -11787,120 +12116,65 @@ function setGoalNavActive(isActive) {
 
         var completedPhases = fpGoalGetCompletedPhases();
         var completedStepsMap = fpGoalGetCompletedStepsMap();
+        var phases = plan.phases || [];
+        var activeIdx = fpGoalGetActivePhaseIdx(completedPhases, phases.length);
+        var currentWeekHtml = '';
         var phasesHtml = '';
-        (plan.phases || []).forEach(function (ph, idx) {
+        phases.forEach(function (ph, idx) {
             var isDone = completedPhases.indexOf(idx) >= 0;
-            var phaseSteps = ph.steps || [];
-            var stepsHtml = '';
-            phaseSteps.forEach(function (s, si) {
-                var stepDone = fpGoalIsStepDone(idx, si, completedStepsMap);
-                var stepNum = si + 1;
-                stepsHtml +=
-                    '<li class="goal-plan-step' +
-                    (stepDone ? ' goal-plan-step--done' : '') +
-                    '" data-phase-idx="' +
-                    idx +
-                    '" data-step-idx="' +
-                    si +
-                    '">' +
-                    '<span class="goal-plan-step__num-wrap">' +
-                    '<button type="button" class="goal-plan-step__num" aria-pressed="' +
-                    (stepDone ? 'true' : 'false') +
-                    '" aria-label="' +
-                    fpGoalEscapeHtml(
-                        stepDone ? fpT('goal.step_done') : fpT('goal.step_toggle')
-                    ) +
-                    '" onclick="fpGoalTogglePlanStep(' +
-                    idx +
-                    ', ' +
-                    si +
-                    ', event)">' +
-                    stepNum +
-                    '.</button>' +
-                    '<span class="goal-plan-step__check" aria-hidden="true">' +
-                    fpGoalStepCheckSvg() +
-                    '</span></span>' +
-                    '<span class="goal-plan-step__text">' +
-                    fpGoalEscapeHtml(s) +
-                    '</span></li>';
-            });
-            phasesHtml +=
-                '<div class="goal-plan-phase-block' +
-                (isDone ? ' goal-plan-phase-block--done' : '') +
-                '" data-phase-idx="' +
-                idx +
-                '" style="animation-delay:' +
-                idx * 0.08 +
-                's">' +
-                '<article class="goal-plan-phase' +
-                (isDone ? ' goal-plan-phase--done' : '') +
-                '" data-phase-idx="' +
-                idx +
-                '">' +
-                '<div class="goal-phase-complete-slot">' +
-                '<p class="goal-phase-complete-label" data-i18n="' +
-                fpGoalPhaseFinishKey(plan, 'finish_label') +
-                '">' +
-                fpGoalEscapeHtml(fpT(fpGoalPhaseFinishKey(plan, 'finish_label'))) +
-                '</p>' +
-                '<button type="button" class="goal-phase-check' +
-                (isDone ? ' is-done is-settled' : '') +
-                '" data-phase-idx="' +
-                idx +
-                '" aria-pressed="' +
-                (isDone ? 'true' : 'false') +
-                '" aria-label="' +
-                fpGoalEscapeHtml(
-                    isDone
-                        ? fpT(fpGoalPhaseFinishKey(plan, 'done'))
-                        : fpT(fpGoalPhaseFinishKey(plan, 'mark_done'))
-                ) +
-                '" onclick="fpGoalOnPhaseCheckClick(' +
-                idx +
-                ', event)"' +
-                (isDone ? ' disabled' : '') +
-                '><span class="goal-phase-check__icon" aria-hidden="true">' +
-                fpGoalBlueStarSvg('gpsChk' + idx) +
-                '</span></button></div>' +
-                '<p class="goal-plan-phase__week">' +
+            var isCurrent = idx === activeIdx && !isDone;
+            var article = fpGoalBuildPhaseArticleHtml(ph, idx, plan, completedPhases, completedStepsMap);
+            if (isCurrent) {
+                currentWeekHtml +=
+                    '<section class="goal-plan-current-week" aria-labelledby="goalCurrentWeekTitle">' +
+                    '<p class="goal-plan-current-week__title" id="goalCurrentWeekTitle">' +
+                    fpGoalEscapeHtml(fpT('goal.plan_current_week')) +
+                    '</p>' +
+                    article +
+                    '</section>';
+                return;
+            }
+            var summary =
                 fpGoalEscapeHtml(fpGoalPhaseLabel(idx, plan)) +
-                '</p>' +
-                '<h3 class="goal-plan-phase__name">' +
+                ' — ' +
                 fpGoalEscapeHtml(ph.name || '') +
-                '</h3>' +
-                (ph.week_focus
-                    ? '<p class="goal-plan-phase__focus"><strong>' +
-                      fpGoalEscapeHtml(fpT('goal.plan_week_focus')) +
-                      ':</strong> ' +
-                      fpGoalEscapeHtml(ph.week_focus) +
-                      '</p>'
-                    : '') +
-                '<ul class="goal-plan-phase__steps">' +
-                stepsHtml +
-                '</ul>' +
-                (ph.if_slip
-                    ? '<p class="goal-plan-phase__slip"><strong>' +
-                      fpGoalEscapeHtml(fpT('goal.plan_if_slip')) +
-                      ':</strong> ' +
-                      fpGoalEscapeHtml(ph.if_slip) +
-                      '</p>'
-                    : '') +
-                '<button type="button" class="goal-phase-notify' +
-                (fpGoalIsWeekNotifyOn(idx) ? ' is-on' : '') +
+                (isDone ? ' ✓' : '');
+            phasesHtml +=
+                '<details class="goal-plan-week-details' +
+                (isDone ? ' goal-plan-week-details--done' : '') +
                 '" data-phase-idx="' +
                 idx +
-                '" aria-pressed="' +
-                (fpGoalIsWeekNotifyOn(idx) ? 'true' : 'false') +
-                '" aria-label="' +
-                fpGoalEscapeHtml(
-                    fpGoalIsWeekNotifyOn(idx) ? fpT('goal.notify_on') : fpT('goal.notify_btn')
-                ) +
-                '" onclick="fpGoalOpenNotifyPopover(' +
-                idx +
-                ', event)">' +
-                fpGoalNotifyBellSvg() +
-                '</button></article></div>';
+                '">' +
+                '<summary>' +
+                summary +
+                '</summary>' +
+                article +
+                '</details>';
         });
+        if (!currentWeekHtml && phases.length) {
+            var lastPh = phases[activeIdx];
+            if (lastPh) {
+                currentWeekHtml =
+                    '<section class="goal-plan-current-week">' +
+                    '<p class="goal-plan-current-week__title">' +
+                    fpGoalEscapeHtml(fpT('goal.plan_current_week')) +
+                    '</p>' +
+                    fpGoalBuildPhaseArticleHtml(
+                        lastPh,
+                        activeIdx,
+                        plan,
+                        completedPhases,
+                        completedStepsMap
+                    ) +
+                    '</section>';
+            }
+        }
+        var allWeeksTitle =
+            phases.length > 1
+                ? '<h3 class="goal-plan-all-weeks-title">' +
+                  fpGoalEscapeHtml(fpT('goal.plan_all_weeks')) +
+                  '</h3>'
+                : '';
 
         var tipsHtml = '';
         if (plan.archetype_tips && plan.archetype_tips.length) {
@@ -11960,6 +12234,8 @@ function setGoalNavActive(isActive) {
             '<p class="goal-plan-panel__intro">' +
             fpGoalEscapeHtml(plan.intro || '') +
             '</p></div>' +
+            currentWeekHtml +
+            allWeeksTitle +
             phasesHtml +
             tipsHtml +
             weekHtml +
@@ -11968,7 +12244,7 @@ function setGoalNavActive(isActive) {
             '</button>';
 
         panel.classList.add('is-visible');
-        fpGoalApplyPlanMetaCollapsedFromStorage();
+        fpGoalDefaultCollapseStrategyMeta();
         fpGoalSetStep(3);
         fpGoalSyncNotifyButtons();
         fpGoalInitReminders();
