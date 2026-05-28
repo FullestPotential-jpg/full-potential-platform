@@ -1337,6 +1337,262 @@
         .goal-screen-back-btn__label {
             display: none;
         }
+        .goal-screen-feedback-btn {
+            flex-shrink: 0;
+            min-width: 44px;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid rgba(120, 165, 255, 0.45);
+            border-radius: 20px;
+            background: linear-gradient(165deg, #0f1438 0%, #1a2858 55%, #243a6e 100%);
+            color: #e8f0ff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(8, 12, 42, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .goal-screen-feedback-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(56, 189, 248, 0.65);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.22);
+        }
+        .goal-feedback-platform-link {
+            display: block;
+            width: 100%;
+            margin: 0 0 10px;
+            padding: 0;
+            border: none;
+            background: none;
+            color: #6366f1;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            cursor: pointer;
+        }
+        .goal-feedback-platform-link:hover {
+            color: #0284c7;
+        }
+        .goal-feedback-pop {
+            position: fixed;
+            inset: 0;
+            z-index: 120000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(4, 6, 20, 0.58);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .goal-feedback-pop.is-active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .goal-feedback-pop__card {
+            width: min(440px, 96vw);
+            max-height: min(88vh, 720px);
+            display: flex;
+            flex-direction: column;
+            border-radius: 20px;
+            background: linear-gradient(168deg, #ffffff 0%, #f8faff 48%, #eef4ff 100%);
+            border: 1px solid rgba(130, 150, 210, 0.32);
+            box-shadow: 0 24px 56px rgba(12, 20, 58, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+            overflow: hidden;
+        }
+        .goal-feedback-pop__head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid rgba(130, 150, 210, 0.2);
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%);
+        }
+        .goal-feedback-pop__title {
+            flex: 1;
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #141c42;
+            line-height: 1.25;
+        }
+        .goal-feedback-pop__head-btn {
+            flex-shrink: 0;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            background: rgba(255, 255, 255, 0.9);
+            color: #4338ca;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .goal-feedback-pop__head-btn:hover {
+            background: #eef2ff;
+            border-color: #6366f1;
+        }
+        .goal-feedback-pop__body {
+            padding: 14px 16px 16px;
+            overflow-y: auto;
+        }
+        .goal-feedback-pop__hint {
+            margin: 0 0 12px;
+            font-size: 0.86rem;
+            line-height: 1.5;
+            color: #5a6488;
+        }
+        .goal-feedback-pop__stars {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .goal-feedback-pop__star {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: 1.5px solid rgba(130, 150, 210, 0.4);
+            border-radius: 10px;
+            background: #fff;
+            color: #94a3b8;
+            font-size: 1.15rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        }
+        .goal-feedback-pop__star.is-on {
+            border-color: #f59e0b;
+            background: #fffbeb;
+            color: #d97706;
+        }
+        .goal-feedback-pop__textarea {
+            width: 100%;
+            min-height: 120px;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            padding: 12px 14px;
+            border: 1px solid rgba(130, 150, 210, 0.35);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.98rem;
+            line-height: 1.5;
+            color: #1a2858;
+            resize: vertical;
+        }
+        .goal-feedback-pop__textarea:focus {
+            outline: none;
+            border-color: rgba(56, 189, 248, 0.65);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+        }
+        .goal-feedback-pop__submit {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(165deg, #4f46e5 0%, #0284c7 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.28);
+        }
+        .goal-feedback-pop__submit:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        .goal-feedback-pop__status {
+            margin: 10px 0 0;
+            font-size: 0.86rem;
+            line-height: 1.45;
+            color: #64748b;
+            min-height: 1.2em;
+        }
+        .goal-feedback-pop__status.is-error {
+            color: #b91c1c;
+        }
+        .goal-feedback-pop__status.is-ok {
+            color: #047857;
+        }
+        .goal-feedback-pop__list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .goal-feedback-pop__item {
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+        .goal-feedback-pop__item-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .goal-feedback-pop__item-author {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: #1e293b;
+        }
+        .goal-feedback-pop__item-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        .goal-feedback-pop__item-stars {
+            color: #d97706;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .goal-feedback-pop__item-body {
+            margin: 0;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            color: #334155;
+            white-space: pre-wrap;
+        }
+        .goal-feedback-pop__empty {
+            padding: 24px 12px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        html.fp-platform-dark .goal-feedback-pop__card {
+            background: linear-gradient(168deg, #121830 0%, #0f1438 48%, #1a2858 100%);
+            border-color: rgba(130, 150, 210, 0.25);
+        }
+        html.fp-platform-dark .goal-feedback-pop__title {
+            color: #e8f0ff;
+        }
+        html.fp-platform-dark .goal-feedback-pop__hint,
+        html.fp-platform-dark .goal-feedback-pop__status {
+            color: #a8b8e8;
+        }
+        html.fp-platform-dark .goal-feedback-pop__textarea {
+            background: rgba(8, 12, 32, 0.65);
+            border-color: rgba(130, 150, 210, 0.3);
+            color: #e8f0ff;
+        }
+        html.fp-platform-dark .goal-feedback-pop__item {
+            background: rgba(18, 24, 48, 0.85);
+            border-color: rgba(130, 150, 210, 0.2);
+        }
+        html.fp-platform-dark .goal-feedback-pop__item-author {
+            color: #e8f0ff;
+        }
+        html.fp-platform-dark .goal-feedback-pop__item-body {
+            color: #c8d4ff;
+        }
         #platform-screen > .platform-header > .platform-logo--brand {
             grid-column: 1;
             grid-row: 1;
@@ -6770,6 +7026,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <p class="platform-goal-hint" data-i18n="goal.block_hint">Напиши цель — ИИ распишет шаги под твой архетип</p>
+                <button
+                    type="button"
+                    class="goal-feedback-platform-link"
+                    onclick="fpGoalOpenFeedbackModal(event)"
+                    data-i18n="goal.feedback_platform_link"
+                >
+                    ★ Оставить отзыв об ИИ
+                </button>
 
                 <div class="goal-entry-wrap">
                     <button type="button" class="goal-entry-btn" id="goalNavItem" onclick="openGoalScreen(event)">
@@ -6805,7 +7069,17 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span class="goal-screen-back-btn__label" data-i18n="goal.back">Назад</span>
                         </button>
                         <div class="platform-logo" data-i18n="goal.screen_title">Мои Цели</div>
-                        <div style="width: 45px;"></div>
+                        <button
+                            type="button"
+                            class="goal-screen-feedback-btn"
+                            onclick="fpGoalOpenFeedbackModal(event)"
+                            data-i18n="goal.feedback_btn"
+                            data-i18n-title="goal.feedback_btn_title"
+                            data-i18n-aria="goal.feedback_btn_title"
+                            title="Оставить отзыв об ИИ"
+                        >
+                            Отзыв
+                        </button>
                     </div>
                     <div class="platform-main-content">
                         <div id="goal-content"></div>
@@ -7042,6 +7316,27 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
             'goal.card_no_plan': 'Продолжить настройку',
             'goal.back_to_list': '← К списку целей',
+            'goal.feedback_btn': 'Отзыв',
+            'goal.feedback_btn_title': 'Оставить отзыв об ИИ',
+            'goal.feedback_platform_link': '★ Оставить отзыв об ИИ — поделиться опытом',
+            'goal.feedback_modal_title_write': 'Оставить отзыв',
+            'goal.feedback_modal_title_list': 'Отзывы участников',
+            'goal.feedback_other_btn': 'Другие отзывы',
+            'goal.feedback_write_btn': 'Написать отзыв',
+            'goal.feedback_hint':
+                'Расскажите, как для вас сработал ИИ-план: что помогло и что стоит улучшить. Отзыв увидят все участники.',
+            'goal.feedback_placeholder': 'Ваш отзыв (минимум 15 символов)…',
+            'goal.feedback_submit': 'Опубликовать отзыв',
+            'goal.feedback_login_required': 'Войдите в платформу, чтобы опубликовать отзыв.',
+            'goal.feedback_rating_required': 'Поставьте оценку от 1 до 5 звёзд.',
+            'goal.feedback_body_short': 'Напишите чуть подробнее — минимум 15 символов.',
+            'goal.feedback_thanks': 'Спасибо! Ваш отзыв опубликован — его видят все.',
+            'goal.feedback_error': 'Не удалось отправить отзыв. Попробуйте позже.',
+            'goal.feedback_load_error': 'Не удалось загрузить отзывы.',
+            'goal.feedback_empty': 'Пока нет отзывов — будьте первым.',
+            'goal.feedback_table_missing':
+                'Раздел отзывов подключается. Попробуйте чуть позже или напишите нам в чат.',
+            'goal.feedback_close': 'Закрыть',
             'goal.meta_collapse': 'Свернуть описание и контекст',
             'goal.meta_expand': 'Показать описание и контекст',
             'goal.week_1': 'Первая неделя',
@@ -7300,6 +7595,27 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'Plan ready — tap to open',
             'goal.card_no_plan': 'Continue setup',
             'goal.back_to_list': '← Back to goals',
+            'goal.feedback_btn': 'Review',
+            'goal.feedback_btn_title': 'Leave AI feedback',
+            'goal.feedback_platform_link': '★ Leave AI feedback — share your experience',
+            'goal.feedback_modal_title_write': 'Leave a review',
+            'goal.feedback_modal_title_list': 'Community reviews',
+            'goal.feedback_other_btn': 'Other reviews',
+            'goal.feedback_write_btn': 'Write a review',
+            'goal.feedback_hint':
+                'Tell us how the AI plan worked for you — what helped and what we should improve. Everyone can read your review.',
+            'goal.feedback_placeholder': 'Your review (at least 15 characters)…',
+            'goal.feedback_submit': 'Publish review',
+            'goal.feedback_login_required': 'Sign in to publish a review.',
+            'goal.feedback_rating_required': 'Please rate from 1 to 5 stars.',
+            'goal.feedback_body_short': 'Please write a bit more — at least 15 characters.',
+            'goal.feedback_thanks': 'Thank you! Your review is public for everyone.',
+            'goal.feedback_error': 'Could not submit your review. Try again later.',
+            'goal.feedback_load_error': 'Could not load reviews.',
+            'goal.feedback_empty': 'No reviews yet — be the first.',
+            'goal.feedback_table_missing':
+                'Reviews are being set up. Try again soon or message us in chat.',
+            'goal.feedback_close': 'Close',
             'goal.meta_collapse': 'Hide summary and context',
             'goal.meta_expand': 'Show summary and context',
             'goal.week_1': 'Week 1',
@@ -11391,6 +11707,314 @@ function setGoalNavActive(isActive) {
         return pop;
     }
 
+    var fpGoalFeedbackRating = 0;
+    var fpGoalFeedbackView = 'write';
+    var fpGoalFeedbackListLoaded = false;
+
+    function fpGoalFeedbackFormatDate(iso) {
+        try {
+            var d = new Date(iso);
+            var loc = getFpLang() === 'en' ? 'en-US' : 'ru-RU';
+            return d.toLocaleString(loc, {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function fpGoalFeedbackStarsHtml(rating) {
+        var n = Math.max(1, Math.min(5, parseInt(rating, 10) || 0));
+        var out = '';
+        for (var i = 1; i <= 5; i++) {
+            out += i <= n ? '★' : '☆';
+        }
+        return out;
+    }
+
+    function fpGoalFeedbackAuthorDisplay() {
+        if (!currentUser) return '';
+        if (currentUser.nickname && String(currentUser.nickname).trim()) {
+            return String(currentUser.nickname).trim().slice(0, 48);
+        }
+        if (currentUser.email) {
+            var em = String(currentUser.email).trim();
+            var at = em.indexOf('@');
+            return (at > 0 ? em.slice(0, at) : em).slice(0, 48);
+        }
+        return '';
+    }
+
+    function fpGoalFeedbackIsTableMissing(err) {
+        if (!err) return false;
+        var msg = String(err.message || err.details || err.hint || err).toLowerCase();
+        return (
+            msg.indexOf('goal_ai_reviews') >= 0 ||
+            msg.indexOf('does not exist') >= 0 ||
+            msg.indexOf('schema cache') >= 0 ||
+            err.code === '42P01'
+        );
+    }
+
+    function fpGoalEnsureFeedbackModal() {
+        var pop = document.getElementById('goalFeedbackPop');
+        if (pop) return pop;
+        pop = document.createElement('div');
+        pop.id = 'goalFeedbackPop';
+        pop.className = 'goal-feedback-pop';
+        pop.setAttribute('aria-hidden', 'true');
+        pop.innerHTML =
+            '<div class="goal-feedback-pop__card" role="dialog" aria-modal="true" aria-labelledby="goalFeedbackTitle">' +
+            '<div class="goal-feedback-pop__head">' +
+            '<button type="button" class="goal-feedback-pop__head-btn" id="goalFeedbackToggle"></button>' +
+            '<h3 class="goal-feedback-pop__title" id="goalFeedbackTitle"></h3>' +
+            '<button type="button" class="goal-feedback-pop__head-btn" id="goalFeedbackClose" aria-label=""></button>' +
+            '</div>' +
+            '<div class="goal-feedback-pop__body">' +
+            '<div id="goalFeedbackWritePanel">' +
+            '<p class="goal-feedback-pop__hint" id="goalFeedbackHint"></p>' +
+            '<div class="goal-feedback-pop__stars" id="goalFeedbackStars" role="group" aria-label=""></div>' +
+            '<textarea class="goal-feedback-pop__textarea" id="goalFeedbackBody" rows="5" maxlength="2000"></textarea>' +
+            '<button type="button" class="goal-feedback-pop__submit" id="goalFeedbackSubmit"></button>' +
+            '<p class="goal-feedback-pop__status" id="goalFeedbackStatus"></p>' +
+            '</div>' +
+            '<div id="goalFeedbackListPanel" hidden>' +
+            '<div class="goal-feedback-pop__list" id="goalFeedbackList"></div>' +
+            '</div>' +
+            '</div></div>';
+        document.body.appendChild(pop);
+        pop.addEventListener('click', function (e) {
+            if (e.target === pop) fpGoalCloseFeedbackModal();
+        });
+        document.getElementById('goalFeedbackClose').addEventListener('click', fpGoalCloseFeedbackModal);
+        document.getElementById('goalFeedbackToggle').addEventListener('click', function () {
+            fpGoalFeedbackSetView(fpGoalFeedbackView === 'write' ? 'list' : 'write');
+        });
+        document.getElementById('goalFeedbackSubmit').addEventListener('click', fpGoalSubmitFeedback);
+        var starsWrap = document.getElementById('goalFeedbackStars');
+        for (var s = 1; s <= 5; s++) {
+            (function (starVal) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'goal-feedback-pop__star';
+                btn.setAttribute('data-rating', String(starVal));
+                btn.setAttribute('aria-label', String(starVal));
+                btn.textContent = '★';
+                btn.addEventListener('click', function () {
+                    fpGoalFeedbackSetRating(starVal);
+                });
+                starsWrap.appendChild(btn);
+            })(s);
+        }
+        document.addEventListener('keydown', fpGoalFeedbackEscHandler);
+        return pop;
+    }
+
+    function fpGoalFeedbackEscHandler(e) {
+        if (e.key !== 'Escape') return;
+        var pop = document.getElementById('goalFeedbackPop');
+        if (pop && pop.classList.contains('is-active')) fpGoalCloseFeedbackModal();
+    }
+
+    function fpGoalCloseFeedbackModal() {
+        var pop = document.getElementById('goalFeedbackPop');
+        if (pop) {
+            pop.classList.remove('is-active');
+            pop.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    function fpGoalFeedbackSetRating(n) {
+        var v = parseInt(n, 10);
+        fpGoalFeedbackRating = v >= 1 && v <= 5 ? v : 0;
+        document.querySelectorAll('#goalFeedbackStars .goal-feedback-pop__star').forEach(function (btn) {
+            var star = parseInt(btn.getAttribute('data-rating'), 10);
+            btn.classList.toggle('is-on', fpGoalFeedbackRating > 0 && star <= fpGoalFeedbackRating);
+        });
+    }
+
+    function fpGoalFeedbackSetStatus(msg, kind) {
+        var el = document.getElementById('goalFeedbackStatus');
+        if (!el) return;
+        el.textContent = msg || '';
+        el.classList.remove('is-error', 'is-ok');
+        if (kind === 'error') el.classList.add('is-error');
+        if (kind === 'ok') el.classList.add('is-ok');
+    }
+
+    function fpGoalFeedbackRefreshChrome() {
+        var toggle = document.getElementById('goalFeedbackToggle');
+        var title = document.getElementById('goalFeedbackTitle');
+        var writePanel = document.getElementById('goalFeedbackWritePanel');
+        var listPanel = document.getElementById('goalFeedbackListPanel');
+        if (!toggle || !title || !writePanel || !listPanel) return;
+        if (fpGoalFeedbackView === 'list') {
+            toggle.textContent = fpT('goal.feedback_write_btn');
+            title.textContent = fpT('goal.feedback_modal_title_list');
+            writePanel.hidden = true;
+            listPanel.hidden = false;
+        } else {
+            toggle.textContent = fpT('goal.feedback_other_btn');
+            title.textContent = fpT('goal.feedback_modal_title_write');
+            writePanel.hidden = false;
+            listPanel.hidden = true;
+        }
+        document.getElementById('goalFeedbackClose').textContent = '✕';
+        document.getElementById('goalFeedbackClose').setAttribute('aria-label', fpT('goal.feedback_close'));
+        document.getElementById('goalFeedbackHint').textContent = fpT('goal.feedback_hint');
+        var bodyEl = document.getElementById('goalFeedbackBody');
+        if (bodyEl) bodyEl.placeholder = fpT('goal.feedback_placeholder');
+        document.getElementById('goalFeedbackSubmit').textContent = fpT('goal.feedback_submit');
+        var starsWrap = document.getElementById('goalFeedbackStars');
+        if (starsWrap) starsWrap.setAttribute('aria-label', fpT('goal.feedback_btn_title'));
+    }
+
+    function fpGoalFeedbackSetView(view) {
+        fpGoalFeedbackView = view === 'list' ? 'list' : 'write';
+        fpGoalFeedbackRefreshChrome();
+        if (fpGoalFeedbackView === 'list') fpGoalLoadFeedbackList();
+    }
+
+    function fpGoalOpenFeedbackModal(evt) {
+        if (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+        fpGoalEnsureFeedbackModal();
+        fpGoalFeedbackView = 'write';
+        fpGoalFeedbackListLoaded = false;
+        fpGoalFeedbackSetRating(0);
+        fpGoalFeedbackSetStatus('', '');
+        var bodyEl = document.getElementById('goalFeedbackBody');
+        if (bodyEl) bodyEl.value = '';
+        fpGoalFeedbackRefreshChrome();
+        var pop = document.getElementById('goalFeedbackPop');
+        pop.classList.add('is-active');
+        pop.setAttribute('aria-hidden', 'false');
+        if (bodyEl) bodyEl.focus();
+    }
+
+    async function fpGoalLoadFeedbackList() {
+        var listEl = document.getElementById('goalFeedbackList');
+        if (!listEl) return;
+        if (!window.supabaseClient) {
+            listEl.innerHTML =
+                '<p class="goal-feedback-pop__empty">' +
+                fpGoalEscapeHtml(fpT('goal.feedback_table_missing')) +
+                '</p>';
+            return;
+        }
+        listEl.innerHTML = '<p class="goal-feedback-pop__empty">…</p>';
+        var res = await window.supabaseClient
+            .from('goal_ai_reviews')
+            .select('id, author_display, personality_type, rating, body, lang, created_at')
+            .order('created_at', { ascending: false })
+            .limit(300);
+        if (res.error) {
+            listEl.innerHTML =
+                '<p class="goal-feedback-pop__empty">' +
+                fpGoalEscapeHtml(
+                    fpGoalFeedbackIsTableMissing(res.error)
+                        ? fpT('goal.feedback_table_missing')
+                        : fpT('goal.feedback_load_error')
+                ) +
+                '</p>';
+            return;
+        }
+        var rows = res.data || [];
+        fpGoalFeedbackListLoaded = true;
+        if (!rows.length) {
+            listEl.innerHTML =
+                '<p class="goal-feedback-pop__empty">' +
+                fpGoalEscapeHtml(fpT('goal.feedback_empty')) +
+                '</p>';
+            return;
+        }
+        listEl.innerHTML = rows
+            .map(function (row) {
+                var meta = fpGoalFeedbackFormatDate(row.created_at);
+                if (row.personality_type) {
+                    meta = meta
+                        ? meta + ' · ' + fpGoalEscapeHtml(String(row.personality_type))
+                        : fpGoalEscapeHtml(String(row.personality_type));
+                }
+                return (
+                    '<article class="goal-feedback-pop__item">' +
+                    '<div class="goal-feedback-pop__item-head">' +
+                    '<span class="goal-feedback-pop__item-author">' +
+                    fpGoalEscapeHtml(row.author_display || '—') +
+                    '</span>' +
+                    '<span class="goal-feedback-pop__item-meta">' +
+                    meta +
+                    '</span></div>' +
+                    '<div class="goal-feedback-pop__item-stars" aria-hidden="true">' +
+                    fpGoalFeedbackStarsHtml(row.rating) +
+                    '</div>' +
+                    '<p class="goal-feedback-pop__item-body">' +
+                    fpGoalEscapeHtml(row.body || '') +
+                    '</p></article>'
+                );
+            })
+            .join('');
+    }
+
+    async function fpGoalSubmitFeedback() {
+        if (!currentUser || !currentUser.email) {
+            fpGoalFeedbackSetStatus(fpT('goal.feedback_login_required'), 'error');
+            return;
+        }
+        if (!fpGoalFeedbackRating || fpGoalFeedbackRating < 1) {
+            fpGoalFeedbackSetStatus(fpT('goal.feedback_rating_required'), 'error');
+            return;
+        }
+        var bodyEl = document.getElementById('goalFeedbackBody');
+        var text = bodyEl ? String(bodyEl.value || '').trim() : '';
+        if (text.length < 15) {
+            fpGoalFeedbackSetStatus(fpT('goal.feedback_body_short'), 'error');
+            return;
+        }
+        var author = fpGoalFeedbackAuthorDisplay();
+        if (author.length < 2) {
+            fpGoalFeedbackSetStatus(fpT('goal.feedback_login_required'), 'error');
+            return;
+        }
+        if (!window.supabaseClient) {
+            fpGoalFeedbackSetStatus(fpT('goal.feedback_table_missing'), 'error');
+            return;
+        }
+        var submitBtn = document.getElementById('goalFeedbackSubmit');
+        if (submitBtn) submitBtn.disabled = true;
+        fpGoalFeedbackSetStatus('', '');
+        var payload = {
+            author_display: author,
+            personality_type: currentUser.personality_type
+                ? String(currentUser.personality_type).slice(0, 120)
+                : null,
+            rating: fpGoalFeedbackRating,
+            body: text.slice(0, 2000),
+            lang: getFpLang() === 'en' ? 'en' : 'ru'
+        };
+        var res = await window.supabaseClient.from('goal_ai_reviews').insert(payload);
+        if (submitBtn) submitBtn.disabled = false;
+        if (res.error) {
+            fpGoalFeedbackSetStatus(
+                fpGoalFeedbackIsTableMissing(res.error)
+                    ? fpT('goal.feedback_table_missing')
+                    : fpT('goal.feedback_error'),
+                'error'
+            );
+            return;
+        }
+        fpGoalFeedbackListLoaded = false;
+        if (bodyEl) bodyEl.value = '';
+        fpGoalFeedbackSetRating(0);
+        fpGoalFeedbackSetStatus(fpT('goal.feedback_thanks'), 'ok');
+    }
+
     var fpGoalNotifyPopWeek = null;
 
     function fpGoalCloseNotifyPopover() {
@@ -12862,6 +13486,7 @@ function setGoalNavActive(isActive) {
     window.fpGoalOpenNotifyPopover = fpGoalOpenNotifyPopover;
     window.fpGoalTogglePlanMeta = fpGoalTogglePlanMeta;
     window.fpGoalDeleteGoal = fpGoalDeleteGoal;
+    window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
