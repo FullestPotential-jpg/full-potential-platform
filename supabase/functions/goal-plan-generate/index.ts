@@ -14,7 +14,9 @@ import {
   MASTER_PLAN_RULES_RU,
   PLAN_QUALITY_RULES_EN,
   PLAN_QUALITY_RULES_RU,
+  buildSituationAccessBlock,
 } from "./plan-prompts.ts";
+import { resolveTargetPlanWeeks } from "./plan-deadline.ts";
 import {
   clampWeekCount,
   MAX_PLAN_WEEKS,
@@ -84,8 +86,8 @@ CORE LOGIC:
 STEP 1 — Best general path to THIS exact goal (ignore archetype first).
 STEP 2 — Adapt for archetype + user context (6 answers).
 
-Each phases[] item = ONE week. You choose how many weeks (2–12) are realistically needed — prefer the shortest path that still works.
-User's stated deadline is NOT the plan length — only for timeline_message comparison.
+Each phases[] item = ONE week. Plan length MUST match the user's stated horizon (see user prompt).
+If the full outcome is unrealistic in that time, keep all weeks but set honest success_criteria and timeline_message.
 
 EXECUTABLE STEP CONTRACT — every step: WHEN + ACTION + TOOL + DURATION + "Done when:".
 first_week = always [].
@@ -115,7 +117,14 @@ function buildUserPrompt(
   archetypeProfile: string,
   ctx: GoalContext,
 ): string {
-  const deadlineBlock = buildDeadlineReferenceBlock(lang, ctx);
+  const horizon = resolveTargetPlanWeeks(ctx.target_deadline, lang);
+  const deadlineBlock = buildDeadlineReferenceBlock(
+    lang,
+    ctx,
+    horizon.target,
+    horizon.parsed,
+  );
+  const situationBlock = buildSituationAccessBlock(lang, ctx);
   const categoryHint = detectGoalCategoryHint(goal, lang);
   const profileExtra = archetypeProfile
     ? (lang === "en"
@@ -136,6 +145,7 @@ CONTEXT:
 - Support: ${ctx.support_resources}
 - Stakes: ${ctx.stakes_if_fail}
 ${deadlineBlock}
+${situationBlock}
 ${categoryHint}
 ${profileExtra}`;
   }
@@ -152,6 +162,7 @@ ${goal}
 - Опора: ${ctx.support_resources}
 - Цена бездействия: ${ctx.stakes_if_fail}
 ${deadlineBlock}
+${situationBlock}
 ${categoryHint}
 
 ВАЖНО:
@@ -310,15 +321,21 @@ function normalizeMasterPlan(plan: GoalPlan, ctx: GoalContext, lang: string): vo
   }
 }
 
-function validatePlanShape(plan: GoalPlan): string | null {
+function validatePlanShape(
+  plan: GoalPlan,
+  targetWeeks: number,
+): string | null {
   if (!plan.title || !Array.isArray(plan.phases)) return "invalid_plan_shape";
   const weeks = plan.phases.length;
   if (weeks < MIN_PLAN_WEEKS || weeks > MAX_PLAN_WEEKS) {
     return "invalid_week_count";
   }
+  if (Math.abs(weeks - targetWeeks) > 2) {
+    return "invalid_week_count";
+  }
   if (
     plan.recommended_weeks !== undefined &&
-    Math.abs(plan.recommended_weeks - weeks) > 2
+    Math.abs(plan.recommended_weeks - weeks) > 1
   ) {
     return "invalid_week_count";
   }
@@ -347,11 +364,12 @@ async function generateGoalPlan(
   ctx: GoalContext,
   lang: string,
 ): Promise<OpenRouterResult & { plan?: GoalPlan }> {
-  // One OpenRouter call only: two sequential calls often exceed Supabase gateway idle
-  // limit (~150s) → 502 / empty body → generic "could not load plan" in the app.
+  const { target: targetWeeks } = resolveTargetPlanWeeks(ctx.target_deadline, lang);
+  const weekLo = Math.max(MIN_PLAN_WEEKS, targetWeeks - 1);
+  const weekHi = Math.min(MAX_PLAN_WEEKS, targetWeeks + 1);
   const fullSuffix = lang === "en"
-    ? `\n\nOUTPUT: one JSON — COMPLETE plan. Include barrier_protocol, first_48h chain, phases[] 4-8 weeks. Each week: week_focus, week_success, tomorrow_step, milestone, exactly 3 anchored steps, if_slip. first_week: []. Shape:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`
-    : `\n\nОТВЕТ: один JSON — полный план. barrier_protocol, first_48h цепочкой, phases[] 4-8 недель. Каждая неделя: week_focus, week_success, tomorrow_step, milestone, ровно 3 шага с якорями, if_slip. first_week: []. Структура:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`;
+    ? `\n\nOUTPUT: one JSON — COMPLETE plan. phases[] length MUST be ${targetWeeks} weeks (${weekLo}–${weekHi} only if unavoidable). Include barrier_protocol, first_48h chain. Each week: week_focus, week_success, tomorrow_step, milestone, exactly 3 anchored steps fitting user's situation_access, if_slip. first_week: []. Shape:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`
+    : `\n\nОТВЕТ: один JSON — полный план. phases[] — ровно ${targetWeeks} недель (допустимо ${weekLo}–${weekHi}). barrier_protocol, first_48h цепочкой. Каждая неделя: week_focus, week_success, tomorrow_step, milestone, ровно 3 шага под situation_access, if_slip. first_week: []. Структура:\n${MASTER_PLAN_JSON_SCHEMA}\n\n${ANTI_DUPLICATE_RULES}`;
 
   const started = Date.now();
   const res = await callOpenRouterForPlan(
@@ -359,7 +377,7 @@ async function generateGoalPlan(
     model,
     systemPrompt,
     userPrompt + fullSuffix,
-    5200,
+    6000,
   );
   console.log("[goal-plan-generate] one-shot ms=", Date.now() - started);
   if (!res.ok) return res;
@@ -388,7 +406,7 @@ async function generateGoalPlan(
   normalizeMasterPlan(plan, ctx, lang);
   ensureTimelineFields(plan, ctx, lang);
 
-  let err = validatePlanShape(plan);
+  let err = validatePlanShape(plan, targetWeeks);
   if (err === "duplicate_steps" || err === "vague_steps") {
     console.warn("[goal-plan-generate] soft accept", err);
     err = null;

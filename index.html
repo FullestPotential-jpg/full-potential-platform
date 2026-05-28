@@ -6986,11 +6986,16 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.launch_btn': 'Полетели!',
             'goal.back_to_goal': '← К цели',
             'goal.q_intro':
-                'Шесть коротких ответов — и ИИ соберёт план под ваш архетип. В текстовых полях пишите конкретно: имена, примеры, сроки.',
+                'Семь коротких ответов — и ИИ соберёт план под ваш архетип и реальные возможности. Пишите конкретно: сроки, место, интернет, деньги.',
             'goal.q_deadline_label': 'За какой срок хотите достичь цель?',
-            'goal.q_deadline_placeholder': 'Например: за 3 месяца, к 1 сентября 2026, за полгода',
+            'goal.q_deadline_placeholder': 'Например: за 3 месяца, к 1 сентября 2026, за лето',
             'goal.q_deadline_hint':
-                'Ваш ориентир по сроку — ИИ сравнит с ним и предложит реалистичный план по неделям.',
+                'План будет разбит по неделям на весь этот срок. Если цель амбициозная (например, крупная сумма), ИИ честно укажет, что реально успеть к дедлайну.',
+            'goal.q_situation_label': 'Где вы живёте и какие у вас реальные возможности?',
+            'goal.q_situation_placeholder':
+                'Например: деревня, интернет только с телефона 1–2 ч/день; или город, могу работать онлайн 10 ч/нед; нет авто; есть ноутбук…',
+            'goal.q_situation_hint':
+                'Место, интернет, транспорт, деньги на старт, язык, легальные ограничения — чтобы шаги были выполнимы именно у вас.',
             'goal.q_hours_label': 'Сколько часов в неделю вы реально можете выделить на эту цель?',
             'goal.q_hours_placeholder': 'Например: 5',
             'goal.q_blockers_label': 'Что вас останавливало раньше при попытке её достичь?',
@@ -7007,10 +7012,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.q_stakes_placeholder':
                 'Например: останусь на прежней работе, не смогу переехать, упущу шанс на повышение…',
             'goal.q_stakes_hint': 'Что реально изменится в жизни, если год ничего не делать.',
-            'goal.err_incomplete_questions': 'Заполните все 6 вопросов — от этого зависит точность плана.',
-            'goal.err_deadline_short': 'Укажите срок или дату: например «за 2 месяца» или «к 15.09.2026».',
+            'goal.err_incomplete_questions': 'Заполните все 7 вопросов — от этого зависит точность плана.',
             'goal.err_answers_short':
-                'Ответы про барьер, опору и последствия — минимум 20 символов каждый. Добавьте имена, примеры и детали.',
+                'Ответы про барьер, ситуацию, опору и последствия — минимум 20 символов каждый. Добавьте имена, примеры и детали.',
+            'goal.err_deadline_short': 'Укажите срок или дату: например «за 2 месяца» или «к 15.09.2026».',
             'goal.err_energy_range': 'Энергия: выберите значение от 1 до 10.',
             'goal.launch_loading': 'Составляем маршрут под ваш архетип…',
             'goal.launch_eta': 'Обычно 1–3 минуты. Не закрывайте страницу — при нагрузке ответ может занять больше времени.',
@@ -7239,11 +7244,16 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.launch_btn': "Let's go!",
             'goal.back_to_goal': '← Back to goal',
             'goal.q_intro':
-                'Six short answers — then AI builds your archetype plan. In text fields be concrete: names, examples, deadlines.',
+                'Seven short answers — then AI builds a plan for your archetype and real situation. Be concrete: timeframe, place, internet, money.',
             'goal.q_deadline_label': 'By when do you want to reach this goal?',
-            'goal.q_deadline_placeholder': 'e.g. in 3 months, by Sep 1 2026, within six months',
+            'goal.q_deadline_placeholder': 'e.g. in 3 months, by Sep 1 2026, over the summer',
             'goal.q_deadline_hint':
-                'Your expected timeframe — AI will compare and propose a realistic weekly plan.',
+                'The plan will span that many weeks. For ambitious targets (e.g. a large sum), AI will say honestly what fits the deadline.',
+            'goal.q_situation_label': 'Where you live and what you can realistically use?',
+            'goal.q_situation_placeholder':
+                'e.g. village, phone internet 1–2 h/day; or city, can work online 10 h/week; no car; have a laptop…',
+            'goal.q_situation_hint':
+                'Place, internet, transport, startup money, language, legal limits — so steps fit your life.',
             'goal.q_hours_label': 'How many hours per week can you realistically dedicate to this goal?',
             'goal.q_hours_placeholder': 'e.g. 5',
             'goal.q_blockers_label': 'What stopped you before when trying to achieve it?',
@@ -7260,10 +7270,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.q_stakes_placeholder':
                 'e.g. I stay at my current job, cannot relocate, miss a promotion chance…',
             'goal.q_stakes_hint': 'What would actually change in your life if you did nothing for a year.',
-            'goal.err_incomplete_questions': 'Please answer all 6 questions — the plan depends on them.',
+            'goal.err_incomplete_questions': 'Please answer all 7 questions — the plan depends on them.',
             'goal.err_deadline_short': 'Enter a timeframe or date, e.g. “in 2 months” or “by 09/15/2026”.',
             'goal.err_answers_short':
-                'Barrier, support, and stakes answers need at least 20 characters each. Add names, examples, and detail.',
+                'Barrier, situation, support, and stakes — at least 20 characters each. Add names, examples, and detail.',
             'goal.err_energy_range': 'Energy: pick a value from 1 to 10.',
             'goal.launch_loading': 'Building your archetype-tailored route…',
             'goal.launch_eta': 'Usually 1–3 minutes. Keep this page open — when the AI is busy it can take longer.',
@@ -10609,7 +10619,8 @@ function setGoalNavActive(isActive) {
             goalQBlockers: saved.past_blockers,
             goalQHelp: saved.support_resources,
             goalQStakes: saved.stakes_if_fail,
-            goalQDeadline: saved.target_deadline
+            goalQDeadline: saved.target_deadline,
+            goalQSituation: saved.situation_access
         };
         Object.keys(map).forEach(function (id) {
             var el = document.getElementById(id);
@@ -10632,16 +10643,21 @@ function setGoalNavActive(isActive) {
     function fpGoalCollectAnswers() {
         var hoursEl = document.getElementById('goalQHours');
         var deadlineEl = document.getElementById('goalQDeadline');
+        var situationEl = document.getElementById('goalQSituation');
         var blockersEl = document.getElementById('goalQBlockers');
         var energyEl = document.getElementById('goalQEnergy');
         var helpEl = document.getElementById('goalQHelp');
         var stakesEl = document.getElementById('goalQStakes');
-        if (!hoursEl || !deadlineEl || !blockersEl || !energyEl || !helpEl || !stakesEl) {
+        if (
+            !hoursEl || !deadlineEl || !situationEl || !blockersEl || !energyEl || !helpEl ||
+            !stakesEl
+        ) {
             return null;
         }
 
         var hours = String(hoursEl.value || '').trim();
         var deadline = String(deadlineEl.value || '').trim().slice(0, 120);
+        var situation = String(situationEl.value || '').trim();
         var blockers = String(blockersEl.value || '').trim();
         var help = String(helpEl.value || '').trim();
         var stakes = String(stakesEl.value || '').trim();
@@ -10650,6 +10666,7 @@ function setGoalNavActive(isActive) {
         return {
             hours_per_week: hours,
             target_deadline: deadline,
+            situation_access: situation,
             past_blockers: blockers,
             energy_level: energy,
             support_resources: help,
@@ -10678,6 +10695,7 @@ function setGoalNavActive(isActive) {
         if (!deadline || deadline.length < 5) return 'deadline';
         var minLen = FP_GOAL_TEXT_ANSWER_MIN;
         var texts = [
+            answers.situation_access,
             answers.past_blockers,
             answers.support_resources,
             answers.stakes_if_fail
@@ -12457,6 +12475,7 @@ function setGoalNavActive(isActive) {
             archetype_profile: profileForPlan,
             hours_per_week: answers.hours_per_week,
             target_deadline: answers.target_deadline,
+            situation_access: answers.situation_access,
             past_blockers: answers.past_blockers,
             energy_level: answers.energy_level,
             support_resources: answers.support_resources,
@@ -12730,6 +12749,18 @@ function setGoalNavActive(isActive) {
             'placeholder="' +
             fpGoalEscapeHtml(fpT('goal.q_deadline_placeholder')) +
             '" oninput="fpGoalOnQuestionsInput()"></div>' +
+            '<div class="goal-q">' +
+            '<label class="goal-q__label" for="goalQSituation" data-i18n="goal.q_situation_label">' +
+            fpT('goal.q_situation_label') +
+            '</label>' +
+            '<p class="goal-q__hint" data-i18n="goal.q_situation_hint">' +
+            fpGoalEscapeHtml(fpT('goal.q_situation_hint')) +
+            '</p>' +
+            '<textarea id="goalQSituation" class="goal-q__textarea" rows="3" maxlength="1500" minlength="' +
+            FP_GOAL_TEXT_ANSWER_MIN +
+            '" placeholder="' +
+            fpGoalEscapeHtml(fpT('goal.q_situation_placeholder')) +
+            '" oninput="fpGoalOnQuestionsInput()"></textarea></div>' +
             '<div class="goal-q">' +
             '<label class="goal-q__label" for="goalQBlockers" data-i18n="goal.q_blockers_label">' +
             fpT('goal.q_blockers_label') +

@@ -1,9 +1,10 @@
 import type { GoalContext } from "./goal-context.ts";
+import { MAX_PLAN_WEEKS, MIN_PLAN_WEEKS } from "./plan-schedule.ts";
 
 export const TIMELINE_JSON_FIELDS = `
-  "recommended_weeks": number (2-12, your realistic choice),
+  "recommended_weeks": number (must match phases.length),
   "recommended_timeline": "short label e.g. 12 weeks / 12 недель",
-  "timeline_message": "one sentence comparing user deadline vs your plan"`;
+  "timeline_message": "2-3 sentences: user's horizon vs plan; if money/result goal is unrealistic in that time, say honestly what is achievable by the deadline vs later"`;
 
 export const MASTER_PLAN_JSON_SCHEMA = `{
   "title": "string",
@@ -48,7 +49,10 @@ RULES:
 5) Each week: week_focus + week_success (Friday check, numeric/binary); tomorrow_step = smallest next action; exactly 3 steps; total minutes ≤ hours/week.
 6) if_slip: same-day recovery tied to barrier.
 7) ${STEP_ANCHOR_RULES}
-8) 4-8 weeks only. User deadline only for timeline_message.`;
+8) Plan length = user's stated horizon (see deadline block). Never compress months into a few weeks.
+
+REALISM (money / big outcomes):
+- If the goal is unlikely fully achievable in the stated time (e.g. $5000 in 3 weeks), keep the full week count but: success_criteria = honest partial target; timeline_message explains gap; steps build toward the full goal across all weeks.`;
 
 export const MASTER_PLAN_RULES_RU = `
 ПЛАН — ДВА СЛОЯ:
@@ -63,24 +67,58 @@ export const MASTER_PLAN_RULES_RU = `
 5) Каждая неделя: week_focus + week_success (проверка в пятницу, число/да-нет); tomorrow_step = минимальный шаг на завтра; ровно 3 шага; сумма минут ≤ часов/нед.
 6) if_slip: восстановление в тот же день под барьер.
 7) ${STEP_ANCHOR_RULES}
-8) Только 4-8 недель. Срок пользователя — только timeline_message.`;
+8) Длина плана = срок пользователя (см. блок ниже). Не сжимай месяцы в несколько недель.
+
+РЕАЛИЗМ (деньги / крупный результат):
+- Если цель вряд ли полностью достижима за указанный срок (напр. 5000$ за 3 недели) — сохрани полное число недель, но success_criteria = честная промежуточная цель; timeline_message объясняет разрыв; шаги ведут к полной цели по всем неделям.`;
+
+export function buildSituationAccessBlock(lang: string, ctx: GoalContext): string {
+  if (lang === "en") {
+    return `
+SITUATION & REAL ACCESS (mandatory — every step must fit):
+"${ctx.situation_access}"
+Do NOT suggest online business, paid ads, coworking, or city-only actions if user lacks internet, money, transport, or legal ability. Use only channels they actually have.`;
+  }
+  return `
+СИТУАЦИЯ И РЕАЛЬНЫЕ ВОЗМОЖНОСТИ (обязательно — каждый шаг должен подходить):
+«${ctx.situation_access}»
+Не предлагай онлайн-бизнес, рекламу, коворкинг, шаги «только в городе», если нет интернета, денег, транспорта или правовой возможности. Только доступные пользователю каналы.`;
+}
 
 export function buildDeadlineReferenceBlock(
   lang: string,
   ctx: GoalContext,
+  targetWeeks: number,
+  parsedWeeks: number | null,
 ): string {
+  const parsedNote = parsedWeeks != null
+    ? (lang === "en"
+      ? `Parsed from user's text: ~${parsedWeeks} weeks.`
+      : `Из текста срока: ~${parsedWeeks} недель.`)
+    : (lang === "en"
+      ? "Could not parse exact weeks — infer reasonably from user's deadline text."
+      : "Точное число недель не распознано — разумно выведи из формулировки срока.");
+
   if (lang === "en") {
     return `
-USER'S STATED DEADLINE (reference only — do NOT use as plan length):
-"${ctx.target_deadline}"
-You choose week count from goal complexity, ${ctx.hours_per_week} h/week MAX for all steps combined, energy ${ctx.energy_level}/10, barrier, archetype.
-Every phase = ONE week. ${TIMELINE_JSON_FIELDS}`;
+USER'S STATED HORIZON: "${ctx.target_deadline}"
+${parsedNote}
+
+PLAN LENGTH (mandatory):
+- phases[] MUST contain exactly ${targetWeeks} weeks (allowed ${Math.max(MIN_PLAN_WEEKS, targetWeeks - 1)}–${Math.min(MAX_PLAN_WEEKS, targetWeeks + 1)}).
+- One phases[] item = ONE calendar week. Do NOT give a 3-week plan for a 3-month goal.
+- ${ctx.hours_per_week} h/week MAX for all steps combined; energy ${ctx.energy_level}/10.
+${TIMELINE_JSON_FIELDS}`;
   }
   return `
-СРОК ПОЛЬЗОВАТЕЛЯ (только для сравнения — НЕ длина плана):
-«${ctx.target_deadline}»
-Число недель — по цели, максимум ${ctx.hours_per_week} ч/нед на все шаги недели, энергия ${ctx.energy_level}/10, барьер, архетип.
-Каждый phases[] = одна неделя. ${TIMELINE_JSON_FIELDS}`;
+СРОК ПОЛЬЗОВАТЕЛЯ: «${ctx.target_deadline}»
+${parsedNote}
+
+ДЛИНА ПЛАНА (обязательно):
+- phases[] — ровно ${targetWeeks} недель (допустимо ${Math.max(MIN_PLAN_WEEKS, targetWeeks - 1)}–${Math.min(MAX_PLAN_WEEKS, targetWeeks + 1)}).
+- Один элемент phases[] = одна календарная неделя. Не давай план на 3 недели, если пользователь указал 3 месяца.
+- Максимум ${ctx.hours_per_week} ч/нед на все шаги; энергия ${ctx.energy_level}/10.
+${TIMELINE_JSON_FIELDS}`;
 }
 
 export const ANTI_DUPLICATE_RULES = `
