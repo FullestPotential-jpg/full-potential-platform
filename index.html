@@ -2591,6 +2591,23 @@
             color: #fff;
             box-shadow: 0 6px 16px rgba(5, 144, 200, 0.28);
         }
+        .goal-notify-pop__test {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px dashed rgba(99, 102, 241, 0.45);
+            background: rgba(99, 102, 241, 0.06);
+            color: #4338ca;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+        .goal-notify-pop__test:hover {
+            background: rgba(99, 102, 241, 0.12);
+        }
         @keyframes fp-goal-star-pop {
             0% { transform: scale(0.2) rotate(-40deg); opacity: 0; }
             60% { transform: scale(1.25) rotate(8deg); opacity: 1; }
@@ -7358,7 +7375,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_on': 'Уведомления включены',
             'goal.notify_pop_title': 'Напоминания на эту неделю',
             'goal.notify_pop_hint':
-                'Это время — для всех шагов недели. Лучше добавить приложение на главный экран. В фоне напоминания могут прийти с небольшой задержкой.',
+                'Дата — по календарю плана (недели с понедельника), не обязательно сегодня. «Включить» — сразу тестовое уведомление; «Проверить через 1 минуту» — отложенный тест.',
+            'goal.notify_test_1min': 'Проверить через 1 минуту',
+            'goal.notify_test_scheduled':
+                'Через 1 минуту придёт тест. Не закрывайте вкладку полностью (свернуть можно).',
+            'goal.notify_test_suffix': '(тест)',
             'goal.notify_time_label': 'Время:',
             'goal.notify_date_label': 'Дата:',
             'goal.notify_enable': 'Включить',
@@ -7638,7 +7659,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_on': 'Notifications on',
             'goal.notify_pop_title': 'Reminders for this week',
             'goal.notify_pop_hint':
-                'This time applies to all steps this week. Works best if the app is installed to your home screen. Background delivery may be a few minutes late when the app is closed.',
+                'The date follows the plan calendar (weeks from Monday), not always today. «Enable» sends an instant test; «Test in 1 minute» schedules one.',
+            'goal.notify_test_1min': 'Test in 1 minute',
+            'goal.notify_test_scheduled':
+                'A test notification will arrive in 1 minute. Keep the tab open (minimized is OK).',
+            'goal.notify_test_suffix': '(test)',
             'goal.notify_time_label': 'Time:',
             'goal.notify_date_label': 'Date:',
             'goal.notify_enable': 'Enable',
@@ -11763,7 +11788,10 @@ function setGoalNavActive(isActive) {
     function fpGoalEnsureNotifyPopover() {
         var pop = document.getElementById('goalNotifyPop');
         var dateIn = pop ? pop.querySelector('#goalNotifyPopDate') : null;
-        if (pop && dateIn && dateIn.getAttribute('type') === 'text') return pop;
+        if (pop && dateIn && dateIn.getAttribute('type') === 'text') {
+            if (document.getElementById('goalNotifyPopTest1m')) return pop;
+            pop.remove();
+        }
         if (pop) pop.remove();
         pop = document.createElement('div');
         pop.id = 'goalNotifyPop';
@@ -11786,6 +11814,8 @@ function setGoalNavActive(isActive) {
             '<div class="goal-notify-pop__actions">' +
             '<button type="button" class="goal-notify-pop__btn" id="goalNotifyPopCancel"></button>' +
             '<button type="button" class="goal-notify-pop__btn goal-notify-pop__btn--primary" id="goalNotifyPopSave"></button>' +
+            '</div>' +
+            '<button type="button" class="goal-notify-pop__test" id="goalNotifyPopTest1m"></button>' +
             '</div></div>';
         document.body.appendChild(pop);
         pop.addEventListener('click', function (e) {
@@ -12114,6 +12144,26 @@ function setGoalNavActive(isActive) {
         fpGoalNotifyPopWeek = null;
     }
 
+    async function fpGoalTestNotifyInOneMinute(phaseIdx) {
+        var ok = await fpGoalRequestNotifyPermission();
+        if (!ok) {
+            alert(fpT('goal.notify_denied'));
+            return;
+        }
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry || !entry.plan) return;
+        var stepText = fpGoalNextStepTextForWeek(entry.plan, phaseIdx, entry.completedSteps);
+        var title = fpT('goal.notify_pop_title') + ' — ' + fpGoalWeekLabel(phaseIdx);
+        alert(fpT('goal.notify_test_scheduled'));
+        setTimeout(function () {
+            fpGoalShowNotificationDirect(
+                title + ' ' + fpT('goal.notify_test_suffix'),
+                stepText,
+                'goal-notify-test-1m-' + entry.id + '-' + phaseIdx + '-' + Date.now()
+            );
+        }, 60000);
+    }
+
     async function fpGoalOpenNotifyPopover(phaseIdx, evt) {
         if (evt) {
             evt.preventDefault();
@@ -12194,6 +12244,13 @@ function setGoalNavActive(isActive) {
         saveBtn.onclick = function () {
             fpGoalSaveWeekNotify(phaseIdx, timeEl ? timeEl.value : '09:00');
         };
+        var testBtn = document.getElementById('goalNotifyPopTest1m');
+        if (testBtn) {
+            testBtn.textContent = fpT('goal.notify_test_1min');
+            testBtn.onclick = function () {
+                fpGoalTestNotifyInOneMinute(phaseIdx);
+            };
+        }
         var pop = document.getElementById('goalNotifyPop');
         pop.classList.add('is-active');
         pop.setAttribute('aria-hidden', 'false');
