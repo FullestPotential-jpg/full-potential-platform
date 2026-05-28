@@ -1337,44 +1337,34 @@
         .goal-screen-back-btn__label {
             display: none;
         }
-        .goal-screen-feedback-btn {
+        .goal-screen-header-spacer {
             flex-shrink: 0;
-            min-width: 44px;
-            height: 40px;
-            padding: 0 12px;
+            width: 45px;
+            min-width: 45px;
+        }
+        .goal-feedback-entry-btn {
+            display: block;
+            box-sizing: border-box;
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            margin: 10px auto 0;
+            padding: 11px 18px;
             border: 1px solid rgba(120, 165, 255, 0.45);
-            border-radius: 20px;
+            border-radius: 16px;
             background: linear-gradient(165deg, #0f1438 0%, #1a2858 55%, #243a6e 100%);
             color: #e8f0ff;
-            font-size: 0.78rem;
+            font-size: 0.92rem;
             font-weight: 700;
             letter-spacing: 0.02em;
+            text-align: center;
             cursor: pointer;
             box-shadow: 0 4px 14px rgba(8, 12, 42, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
-        .goal-screen-feedback-btn:hover {
+        .goal-feedback-entry-btn:hover {
             transform: translateY(-1px);
             border-color: rgba(56, 189, 248, 0.65);
             box-shadow: 0 6px 18px rgba(56, 189, 248, 0.22);
-        }
-        .goal-feedback-platform-link {
-            display: block;
-            width: 100%;
-            margin: 0 0 10px;
-            padding: 0;
-            border: none;
-            background: none;
-            color: #6366f1;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-align: center;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-            cursor: pointer;
-        }
-        .goal-feedback-platform-link:hover {
-            color: #0284c7;
         }
         .goal-feedback-pop {
             position: fixed;
@@ -5164,6 +5154,12 @@
         padding: 12px 10px;
         border-radius: 18px;
     }
+    #goal-screen > .goal-feedback-entry-btn {
+        width: calc(100% - 24px);
+        margin-top: 8px;
+        padding: 10px 14px;
+        font-size: 0.88rem;
+    }
     #goal-content {
         padding-left: 12px;
         padding-right: 12px;
@@ -7026,14 +7022,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <p class="platform-goal-hint" data-i18n="goal.block_hint">Напиши цель — ИИ распишет шаги под твой архетип</p>
-                <button
-                    type="button"
-                    class="goal-feedback-platform-link"
-                    onclick="fpGoalOpenFeedbackModal(event)"
-                    data-i18n="goal.feedback_platform_link"
-                >
-                    ★ Оставить отзыв об ИИ
-                </button>
 
                 <div class="goal-entry-wrap">
                     <button type="button" class="goal-entry-btn" id="goalNavItem" onclick="openGoalScreen(event)">
@@ -7063,23 +7051,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <div id="goal-screen" style="display: none;">
+                    <button
+                        type="button"
+                        class="goal-feedback-entry-btn"
+                        onclick="fpGoalOpenFeedbackModal(event)"
+                        data-i18n="goal.feedback_platform_link"
+                    >
+                        Оставить отзыв
+                    </button>
                     <div class="platform-header">
                         <button type="button" class="goal-screen-back-btn" onclick="closeGoalScreen()" data-i18n-title="goal.back" title="Назад" aria-label="Назад">
                             <span class="goal-screen-back-btn__arrow" aria-hidden="true">←</span>
                             <span class="goal-screen-back-btn__label" data-i18n="goal.back">Назад</span>
                         </button>
                         <div class="platform-logo" data-i18n="goal.screen_title">Мои Цели</div>
-                        <button
-                            type="button"
-                            class="goal-screen-feedback-btn"
-                            onclick="fpGoalOpenFeedbackModal(event)"
-                            data-i18n="goal.feedback_btn"
-                            data-i18n-title="goal.feedback_btn_title"
-                            data-i18n-aria="goal.feedback_btn_title"
-                            title="Оставить отзыв об ИИ"
-                        >
-                            Отзыв
-                        </button>
+                        <div class="goal-screen-header-spacer" aria-hidden="true"></div>
                     </div>
                     <div class="platform-main-content">
                         <div id="goal-content"></div>
@@ -7316,9 +7302,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
             'goal.card_no_plan': 'Продолжить настройку',
             'goal.back_to_list': '← К списку целей',
-            'goal.feedback_btn': 'Отзыв',
-            'goal.feedback_btn_title': 'Оставить отзыв об ИИ',
-            'goal.feedback_platform_link': '★ Оставить отзыв об ИИ',
+            'goal.feedback_btn_title': 'Оставить отзыв',
+            'goal.feedback_platform_link': 'Оставить отзыв',
             'goal.feedback_modal_title_write': 'Оставить отзыв',
             'goal.feedback_modal_title_list': 'Отзывы участников',
             'goal.feedback_other_btn': 'Другие отзывы',
@@ -7380,6 +7365,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_disable': 'Выключить',
             'goal.notify_cancel': 'Отмена',
             'goal.notify_denied': 'Разрешите уведомления в настройках браузера.',
+            'goal.notify_enabled_ok':
+                'Напоминания включены. Тестовое уведомление отправлено — в назначенное время придёт следующее.',
             'goal.notify_need_plan': 'Сначала откройте план цели.',
             'goal.plan_weeks_count': 'План: %n% нед.',
             'goal.err_short': 'Опишите цель чуть подробнее (минимум 3 символа).',
@@ -7595,9 +7582,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.card_has_plan': 'Plan ready — tap to open',
             'goal.card_no_plan': 'Continue setup',
             'goal.back_to_list': '← Back to goals',
-            'goal.feedback_btn': 'Review',
-            'goal.feedback_btn_title': 'Leave AI feedback',
-            'goal.feedback_platform_link': '★ Leave AI feedback',
+            'goal.feedback_btn_title': 'Leave a review',
+            'goal.feedback_platform_link': 'Leave a review',
             'goal.feedback_modal_title_write': 'Leave a review',
             'goal.feedback_modal_title_list': 'Community reviews',
             'goal.feedback_other_btn': 'Other reviews',
@@ -7659,6 +7645,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_disable': 'Disable',
             'goal.notify_cancel': 'Cancel',
             'goal.notify_denied': 'Allow notifications in your browser settings.',
+            'goal.notify_enabled_ok':
+                'Reminders are on. A test notification was sent — the next one arrives at the scheduled time.',
             'goal.notify_need_plan': 'Open a goal plan first.',
             'goal.plan_weeks_count': 'Plan: %n% wks',
             'goal.err_short': 'Describe your goal in a bit more detail (at least 3 characters).',
@@ -10499,6 +10487,10 @@ function openGoalScreen(event) {
     document.getElementById('goal-screen').style.display = 'block';
     setGoalNavActive(true);
     renderGoalContent();
+    if (typeof fpGoalInitReminders === 'function') fpGoalInitReminders();
+    if (typeof fpGoalSyncRemindersToServiceWorker === 'function') {
+        fpGoalSyncRemindersToServiceWorker();
+    }
 }
 
 function closeGoalScreen() {
@@ -11589,55 +11581,147 @@ function setGoalNavActive(isActive) {
         });
     }
 
+    var fpGoalClientAlarmTimers = [];
+    var FP_GOAL_REMINDER_LATE_MS = 7 * 24 * 60 * 60 * 1000;
+
+    function fpGoalClearClientAlarms() {
+        fpGoalClientAlarmTimers.forEach(function (t) {
+            clearTimeout(t);
+        });
+        fpGoalClientAlarmTimers = [];
+    }
+
+    function fpGoalEnsureServiceWorkerReady() {
+        if (!('serviceWorker' in navigator)) return Promise.resolve(null);
+        return navigator.serviceWorker
+            .register('/sw.js')
+            .then(function () {
+                return navigator.serviceWorker.ready;
+            })
+            .catch(function () {
+                return null;
+            });
+    }
+
+    async function fpGoalRequestNotifyPermission() {
+        if (!('Notification' in window)) return false;
+        await fpGoalEnsureServiceWorkerReady();
+        if (Notification.permission === 'granted') return true;
+        if (Notification.permission === 'denied') return false;
+        var perm = await Notification.requestPermission();
+        return perm === 'granted';
+    }
+
+    function fpGoalShowNotificationDirect(title, body, tag) {
+        var opts = {
+            body: body || '',
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            tag: tag || 'goal-step',
+            renotify: true
+        };
+        if ('serviceWorker' in navigator) {
+            return navigator.serviceWorker.ready
+                .then(function (reg) {
+                    return reg.showNotification(title || 'Full Potentiall', opts);
+                })
+                .catch(function () {
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        try {
+                            new Notification(title || 'Full Potentiall', opts);
+                        } catch (e2) {}
+                    }
+                });
+        }
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                new Notification(title || 'Full Potentiall', opts);
+            } catch (e3) {}
+        }
+        return Promise.resolve();
+    }
+
+    function fpGoalShowStepNotification(entry, slot) {
+        var title = slot.label + ' — ' + (entry.plan.title || fpT('goal.screen_title'));
+        fpGoalShowNotificationDirect(title, slot.text, slot.id);
+    }
+
+    function fpGoalFireReminderItem(item) {
+        if (!item || item.fired) return;
+        var goals = fpGoalLoadGoalsList();
+        var entry = null;
+        if (item.goalId) entry = fpGoalFindGoal(goals, item.goalId);
+        if (!entry && item.tag) {
+            goals.some(function (g) {
+                if (g.id && item.tag.indexOf(g.id) === 0) {
+                    entry = g;
+                    return true;
+                }
+                return false;
+            });
+        }
+        fpGoalShowNotificationDirect(item.title, item.body, item.tag);
+        fpGoalMarkReminderFired(item.tag, item.goalId);
+        fpGoalSyncRemindersToServiceWorker();
+    }
+
+    function fpGoalScheduleClientAlarms() {
+        fpGoalClearClientAlarms();
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        var now = Date.now();
+        var maxDelay = 2147483647;
+        fpGoalExportReminderItemsForSW().forEach(function (item) {
+            if (item.fired || !item.at) return;
+            var delay = item.at - now;
+            if (delay <= 0) return;
+            if (delay > maxDelay) delay = maxDelay;
+            var captured = {
+                tag: item.tag,
+                title: item.title,
+                body: item.body,
+                goalId: item.goalId,
+                fired: false
+            };
+            var timer = setTimeout(function () {
+                fpGoalFireReminderItem(captured);
+            }, delay);
+            fpGoalClientAlarmTimers.push(timer);
+        });
+    }
+
     function fpGoalSyncRemindersToServiceWorker() {
-        if (!('serviceWorker' in navigator)) return Promise.resolve();
-        return navigator.serviceWorker.ready
+        if (!('serviceWorker' in navigator)) {
+            fpGoalScheduleClientAlarms();
+            return Promise.resolve();
+        }
+        return fpGoalEnsureServiceWorkerReady()
+            .then(function () {
+                return navigator.serviceWorker.ready;
+            })
             .then(function (reg) {
                 var items = fpGoalExportReminderItemsForSW();
                 if (reg.active) {
                     reg.active.postMessage({ type: 'SYNC_GOAL_REMINDERS', items: items });
                 }
                 if ('sync' in reg) {
-                    return reg.sync.register('goal-reminders-check').catch(function () {});
+                    reg.sync.register('goal-reminders-check').catch(function () {});
                 }
                 if ('periodicSync' in reg) {
-                    return reg.periodicSync
+                    reg.periodicSync
                         .register('goal-reminders', { minInterval: 60 * 60 * 1000 })
                         .catch(function () {});
                 }
+                fpGoalScheduleClientAlarms();
             })
-            .catch(function () {});
-    }
-
-    function fpGoalShowStepNotification(entry, slot) {
-        var title = slot.label + ' — ' + (entry.plan.title || fpT('goal.screen_title'));
-        var body = slot.text;
-        var tag = slot.id;
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-                type: 'GOAL_NOTIFY',
-                title: title,
-                body: body,
-                tag: tag
+            .catch(function () {
+                fpGoalScheduleClientAlarms();
             });
-            return;
-        }
-        if ('Notification' in window && Notification.permission === 'granted') {
-            try {
-                new Notification(title, {
-                    body: body,
-                    tag: tag,
-                    icon: '/icon-192.png'
-                });
-            } catch (e) {}
-        }
     }
 
     function fpGoalCheckReminders() {
         if (!('Notification' in window) || Notification.permission !== 'granted') return;
         var run = function () {
             fpGoalSyncRemindersToServiceWorker();
-            if (navigator.serviceWorker && navigator.serviceWorker.controller) return;
             fpGoalCheckRemindersLocal();
         };
         fpGoalMergeFiredFromServiceWorker().then(run).catch(run);
@@ -11645,15 +11729,19 @@ function setGoalNavActive(isActive) {
 
     function fpGoalCheckRemindersLocal() {
         var now = Date.now();
-        var windowMs = 12 * 60 * 1000;
         fpGoalLoadGoalsList().forEach(function (entry) {
             if (!entry || !entry.plan) return;
             var wr = fpGoalEnsureWeekReminders(entry);
             var changed = false;
             fpGoalBuildWeekReminderSlots(entry).forEach(function (slot) {
-                if (now < slot.at || now - slot.at > windowMs) return;
+                if (now < slot.at) return;
                 if (wr.fired[slot.id]) return;
                 if (fpGoalIsStepDoneInEntry(entry, slot.weekIdx, slot.stepIdx)) return;
+                if (now - slot.at > FP_GOAL_REMINDER_LATE_MS) {
+                    wr.fired[slot.id] = true;
+                    changed = true;
+                    return;
+                }
                 fpGoalShowStepNotification(entry, slot);
                 wr.fired[slot.id] = true;
                 changed = true;
@@ -12052,17 +12140,8 @@ function setGoalNavActive(isActive) {
             fpGoalSyncRemindersToServiceWorker();
             return;
         }
-        if (!('Notification' in window)) {
-            alert(fpT('goal.notify_denied'));
-            return;
-        }
-        if (Notification.permission === 'default') {
-            var perm = await Notification.requestPermission();
-            if (perm !== 'granted') {
-                alert(fpT('goal.notify_denied'));
-                return;
-            }
-        } else if (Notification.permission !== 'granted') {
+        var notifyOk = await fpGoalRequestNotifyPermission();
+        if (!notifyOk) {
             alert(fpT('goal.notify_denied'));
             return;
         }
@@ -12185,8 +12264,13 @@ function setGoalNavActive(isActive) {
         fpGoalSaveGoalsList(goals);
         fpGoalCloseNotifyPopover();
         fpGoalSyncNotifyButtons();
+        var stepText = fpGoalNextStepTextForWeek(entry.plan, phaseIdx, entry.completedSteps);
+        var weekLabel = fpGoalWeekLabel(phaseIdx);
+        var testTitle = fpT('goal.notify_pop_title') + ' — ' + weekLabel;
+        fpGoalShowNotificationDirect(testTitle, stepText, 'goal-notify-test-' + entry.id + '-' + phaseIdx);
         fpGoalSyncRemindersToServiceWorker();
         fpGoalCheckReminders();
+        alert(fpT('goal.notify_enabled_ok'));
     }
 
     function fpGoalSyncNotifyButtons() {
@@ -12218,11 +12302,14 @@ function setGoalNavActive(isActive) {
                 fpGoalMarkReminderFired(data.tag, data.goalId);
             });
         }
-        fpGoalCheckReminders();
-        setInterval(fpGoalCheckReminders, 45000);
+        fpGoalEnsureServiceWorkerReady().then(function () {
+            fpGoalCheckReminders();
+        });
+        setInterval(fpGoalCheckReminders, 30000);
         document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'visible') fpGoalCheckReminders();
         });
+        window.addEventListener('focus', fpGoalCheckReminders);
     }
 
     function fpGoalGetCompletedPhases() {
