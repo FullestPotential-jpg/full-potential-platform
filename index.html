@@ -2202,18 +2202,70 @@
             margin: 0 8px 10px;
             padding: 14px 14px 50px;
         }
-        .goal-plan-phase__week-success {
+        .goal-plan-phase__week-success,
+        .goal-plan-phase__focus {
+            position: relative;
             margin: 0 0 10px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: #ecfdf5;
-            border-left: 3px solid #10b981;
-            font-size: 0.9rem;
-            line-height: 1.45;
-            color: #065f46;
+            padding: 12px 14px 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(26, 40, 88, 0.14);
+            background: linear-gradient(165deg, #f4f7fc 0%, #e8eef8 52%, #dfe8f5 100%);
+            font-size: 0.92rem;
+            line-height: 1.48;
+            color: #1a2858;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
         }
-        .goal-plan-phase__week-success strong {
-            color: #047857;
+        .goal-plan-phase__week-success::before,
+        .goal-plan-phase__focus::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(
+                180deg,
+                #0a0e28 0%,
+                #162454 38%,
+                #1e3a6e 72%,
+                #243a6e 100%
+            );
+            box-shadow:
+                2px 0 10px rgba(10, 14, 40, 0.22),
+                inset -1px 0 0 rgba(120, 165, 255, 0.35);
+        }
+        .goal-plan-phase__week-success::after,
+        .goal-plan-phase__focus::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 10px;
+            bottom: 10px;
+            width: 1px;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(56, 99, 180, 0.45) 50%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }
+        .goal-plan-phase__week-success strong,
+        .goal-plan-phase__focus strong {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #0f1a42;
+        }
+        .goal-plan-phase__focus {
+            background: linear-gradient(165deg, #f8faff 0%, #eef3fb 50%, #e4ecf8 100%);
+        }
+        .goal-plan-phase__week-success {
+            background: linear-gradient(165deg, #eef2fa 0%, #e2eaf6 50%, #d8e2f2 100%);
         }
         .goal-plan-phase__tomorrow {
             margin: 0 0 12px;
@@ -2294,20 +2346,6 @@
             font-size: 0.9rem;
             line-height: 1.45;
             color: #475569;
-        }
-        .goal-plan-phase__focus {
-            margin: 0 0 10px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: #eff6ff;
-            border-left: 3px solid #6366f1;
-            font-size: 0.92rem;
-            line-height: 1.45;
-            color: #1e3a5f;
-        }
-        .goal-plan-phase__focus strong {
-            font-weight: 700;
-            color: #4f46e5;
         }
         .goal-plan-phase__slip {
             margin: 12px 0 40px;
@@ -3363,9 +3401,37 @@
         html.fp-platform-dark .goal-plan-week-details > summary {
             color: #c8d4ff;
         }
-        html.fp-platform-dark .goal-plan-phase__week-success {
-            background: rgba(6, 78, 59, 0.35);
-            color: #a7f3d0;
+        html.fp-platform-dark .goal-plan-phase__week-success,
+        html.fp-platform-dark .goal-plan-phase__focus {
+            background: linear-gradient(165deg, rgba(18, 28, 58, 0.92) 0%, rgba(12, 20, 48, 0.95) 100%);
+            border-color: rgba(120, 165, 255, 0.22);
+            color: #d8e4ff;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        html.fp-platform-dark .goal-plan-phase__week-success::before,
+        html.fp-platform-dark .goal-plan-phase__focus::before {
+            background: linear-gradient(
+                180deg,
+                #060818 0%,
+                #0f1438 45%,
+                #1a2858 100%
+            );
+            box-shadow:
+                2px 0 14px rgba(56, 99, 180, 0.28),
+                inset -1px 0 0 rgba(120, 165, 255, 0.4);
+        }
+        html.fp-platform-dark .goal-plan-phase__week-success::after,
+        html.fp-platform-dark .goal-plan-phase__focus::after {
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(96, 165, 250, 0.35) 50%,
+                transparent 100%
+            );
+        }
+        html.fp-platform-dark .goal-plan-phase__week-success strong,
+        html.fp-platform-dark .goal-plan-phase__focus strong {
+            color: #a8c4ff;
         }
         html.fp-platform-dark .goal-plan-phase__tomorrow {
             background: rgba(120, 53, 15, 0.35);
@@ -7375,7 +7441,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_on': 'Уведомления включены',
             'goal.notify_pop_title': 'Напоминания на эту неделю',
             'goal.notify_pop_hint':
-                'Дата — по календарю плана (недели с понедельника), не обязательно сегодня. «Включить» — сразу тестовое уведомление; «Проверить через 1 минуту» — отложенный тест.',
+                'Дата — по календарю плана. Чтобы получать напоминания при закрытой вкладке: добавьте сайт на главный экран (PWA) и разрешите уведомления. «Включить» — тест сразу; «Проверить через 1 минуту» — тест с открытой вкладкой.',
+            'goal.notify_background_hint':
+                'При закрытой вкладке напоминания приходят через push-сервер (после настройки в Supabase) или на Android при установленном PWA.',
             'goal.notify_test_1min': 'Проверить через 1 минуту',
             'goal.notify_test_scheduled':
                 'Через 1 минуту придёт тест. Не закрывайте вкладку полностью (свернуть можно).',
@@ -7659,7 +7727,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.notify_on': 'Notifications on',
             'goal.notify_pop_title': 'Reminders for this week',
             'goal.notify_pop_hint':
-                'The date follows the plan calendar (weeks from Monday), not always today. «Enable» sends an instant test; «Test in 1 minute» schedules one.',
+                'The date follows the plan calendar. For reminders when the tab is closed: add the app to your home screen (PWA) and allow notifications. «Enable» = instant test; «Test in 1 minute» needs the tab open.',
+            'goal.notify_background_hint':
+                'When the tab is closed, reminders use the push server (after Supabase setup) or on Android with the installed PWA.',
             'goal.notify_test_1min': 'Test in 1 minute',
             'goal.notify_test_scheduled':
                 'A test notification will arrive in 1 minute. Keep the tab open (minimized is OK).',
@@ -11631,10 +11701,19 @@ function setGoalNavActive(isActive) {
     async function fpGoalRequestNotifyPermission() {
         if (!('Notification' in window)) return false;
         await fpGoalEnsureServiceWorkerReady();
-        if (Notification.permission === 'granted') return true;
+        if (Notification.permission === 'granted') {
+            await fpGoalLoadVapidPublicKey();
+            await fpGoalSubscribeWebPush();
+            return true;
+        }
         if (Notification.permission === 'denied') return false;
         var perm = await Notification.requestPermission();
-        return perm === 'granted';
+        if (perm === 'granted') {
+            await fpGoalLoadVapidPublicKey();
+            await fpGoalSubscribeWebPush();
+            return true;
+        }
+        return false;
     }
 
     function fpGoalShowNotificationDirect(title, body, tag) {
@@ -11737,10 +11816,109 @@ function setGoalNavActive(isActive) {
                         .catch(function () {});
                 }
                 fpGoalScheduleClientAlarms();
+                return fpGoalSyncRemindersToPushServer();
             })
             .catch(function () {
                 fpGoalScheduleClientAlarms();
+                return fpGoalSyncRemindersToPushServer();
             });
+    }
+
+    window.fpVapidPublicKey = null;
+    window.fpVapidPublicKeyReady = null;
+
+    function fpGoalLoadVapidPublicKey() {
+        if (window.fpVapidPublicKey) return Promise.resolve(window.fpVapidPublicKey);
+        if (window.fpVapidPublicKeyReady) return window.fpVapidPublicKeyReady;
+        var base = window.fpSupabaseUrl;
+        var key = window.fpSupabaseAnonKey;
+        if (!base || !key) return Promise.resolve(null);
+        window.fpVapidPublicKeyReady = fetch(base + '/functions/v1/goal-reminders-push', {
+            headers: {
+                apikey: key,
+                Authorization: 'Bearer ' + key
+            }
+        })
+            .then(function (r) {
+                return r.json();
+            })
+            .then(function (d) {
+                window.fpVapidPublicKey = d && d.publicKey ? d.publicKey : null;
+                return window.fpVapidPublicKey;
+            })
+            .catch(function () {
+                return null;
+            });
+        return window.fpVapidPublicKeyReady;
+    }
+
+    function fpGoalUrlBase64ToUint8Array(base64String) {
+        var padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+        var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        var rawData = atob(base64);
+        var outputArray = new Uint8Array(rawData.length);
+        for (var i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    async function fpGoalSubscribeWebPush() {
+        if (!('PushManager' in window) || !('serviceWorker' in navigator)) return null;
+        var pub = window.fpVapidPublicKey;
+        if (!pub) pub = await fpGoalLoadVapidPublicKey();
+        if (!pub) return null;
+        await fpGoalEnsureServiceWorkerReady();
+        var reg = await navigator.serviceWorker.ready;
+        var existing = await reg.pushManager.getSubscription();
+        if (existing) return existing;
+        try {
+            return await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: fpGoalUrlBase64ToUint8Array(pub)
+            });
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function fpGoalSyncRemindersToPushServer() {
+        if (!currentUser || !currentUser.email) return;
+        if (!window.fpSupabaseUrl || !window.fpSupabaseAnonKey) return;
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        var sub = await fpGoalSubscribeWebPush();
+        if (!sub) return;
+        var items = fpGoalExportReminderItemsForSW().filter(function (it) {
+            return !it.fired;
+        });
+        var email =
+            typeof normalizeEmail === 'function'
+                ? normalizeEmail(currentUser.email)
+                : String(currentUser.email).trim().toLowerCase();
+        try {
+            await fetch(window.fpSupabaseUrl + '/functions/v1/goal-reminders-push', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    apikey: window.fpSupabaseAnonKey,
+                    Authorization: 'Bearer ' + window.fpSupabaseAnonKey
+                },
+                body: JSON.stringify({
+                    action: 'register',
+                    email: email,
+                    subscription: sub.toJSON(),
+                    reminders: items.map(function (it) {
+                        return {
+                            tag: it.tag,
+                            at: it.at,
+                            title: it.title,
+                            body: it.body,
+                            goalId: it.goalId
+                        };
+                    })
+                })
+            });
+        } catch (e) {}
     }
 
     function fpGoalCheckReminders() {
@@ -12359,6 +12537,7 @@ function setGoalNavActive(isActive) {
                 fpGoalMarkReminderFired(data.tag, data.goalId);
             });
         }
+        fpGoalLoadVapidPublicKey();
         fpGoalEnsureServiceWorkerReady().then(function () {
             fpGoalCheckReminders();
         });
