@@ -17619,10 +17619,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof fpGoalResetUiState === 'function') fpGoalResetUiState();
         localStorage.removeItem('platformAuth');
         localStorage.removeItem('currentUser');
-        const dd = document.getElementById('profileDropdown');
+        const dd = document.getElementById('profileDropdown'); 
         if (dd) dd.classList.remove('active');
         console.log('👋 Вы вышли из платформы');
-        window.location.reload();
+        window.location.reload(); 
     }
     
     // Восстановление сессии: см. restoreSessionFromStorage() в основном скрипте (вызывается при DOMContentLoaded)
