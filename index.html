@@ -13051,7 +13051,6 @@ function setGoalNavActive(isActive) {
 
     function fpGoalBuildPhaseMetaFieldsHtml(ph) {
         var html = '';
-        var steps = ph.steps || [];
         if (ph.week_focus) {
             html +=
                 '<p class="goal-plan-phase__focus"><strong>' +
@@ -13067,15 +13066,6 @@ function setGoalNavActive(isActive) {
                 fpGoalEscapeHtml(fpT('goal.plan_week_success')) +
                 ':</strong> ' +
                 fpGoalEscapeHtml(weekSuccess) +
-                '</p>';
-        }
-        var tomorrow = ph.tomorrow_step || steps[0] || '';
-        if (tomorrow) {
-            html +=
-                '<p class="goal-plan-phase__tomorrow"><strong>' +
-                fpGoalEscapeHtml(fpT('goal.plan_tomorrow_step')) +
-                '</strong>' +
-                fpGoalEscapeHtml(tomorrow) +
                 '</p>';
         }
         return html;
