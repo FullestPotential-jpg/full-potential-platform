@@ -2467,19 +2467,21 @@
             cursor: default;
             box-shadow: 0 4px 14px rgba(99, 102, 241, 0.38);
         }
-        .goal-phase-check.is-done:not(.is-settled) .goal-phase-check__icon {
+        .goal-phase-check.is-done:not(.is-settled):not(.is-pop) .goal-phase-check__icon {
             opacity: 0;
             transform: scale(0.15) rotate(-40deg);
             transition: none;
         }
         .goal-phase-check.is-done.is-pop .goal-phase-check__icon {
+            visibility: visible;
             animation: fp-goal-star-pop 0.55s ease forwards;
         }
         .goal-phase-check.is-done.is-settled .goal-phase-check__icon {
             opacity: 1;
             transform: scale(1) rotate(0deg);
+            visibility: visible;
         }
-        .goal-phase-check.is-landing .goal-phase-check__icon {
+        .goal-phase-check.is-landing:not(.is-settled) .goal-phase-check__icon {
             opacity: 0 !important;
             visibility: hidden;
         }
@@ -12671,7 +12673,12 @@ function setGoalNavActive(isActive) {
         if (card) card.classList.add('goal-plan-phase--done');
         var btn = card ? card.querySelector('.goal-phase-check') : null;
         if (btn) {
+            var icon = btn.querySelector('.goal-phase-check__icon');
             btn.classList.remove('is-landing');
+            if (icon) {
+                icon.style.visibility = 'visible';
+                icon.style.opacity = '';
+            }
             btn.classList.add('is-done');
             btn.disabled = true;
             btn.setAttribute('aria-pressed', 'true');
@@ -12679,10 +12686,28 @@ function setGoalNavActive(isActive) {
             btn.classList.remove('is-settled', 'is-pop');
             void btn.offsetWidth;
             btn.classList.add('is-pop');
-            window.setTimeout(function () {
+            var settleStar = function () {
                 btn.classList.add('is-settled');
                 btn.classList.remove('is-pop');
-            }, 580);
+                if (icon) {
+                    icon.style.visibility = '';
+                    icon.style.opacity = '';
+                }
+            };
+            if (icon) {
+                icon.addEventListener(
+                    'animationend',
+                    function onStarPopEnd(e) {
+                        if (e.animationName !== 'fp-goal-star-pop') return;
+                        icon.removeEventListener('animationend', onStarPopEnd);
+                        settleStar();
+                    },
+                    { once: true }
+                );
+            }
+            window.setTimeout(function () {
+                if (!btn.classList.contains('is-settled')) settleStar();
+            }, 720);
         }
     }
 
@@ -12939,6 +12964,7 @@ function setGoalNavActive(isActive) {
 
         window.setTimeout(function () {
             fly.remove();
+            target.classList.remove('is-landing');
             fpGoalMarkPhaseComplete(phaseIdx);
         }, flyMs + 40);
     }
@@ -13014,6 +13040,30 @@ function setGoalNavActive(isActive) {
         return phaseCount > 0 ? phaseCount - 1 : 0;
     }
 
+    function fpGoalAnchorStepWhen(text, stepIndex) {
+        var t = String(text || '').trim();
+        if (!t) return t;
+        var relativeRe =
+            /\b(?:сегодня|завтра|послезавтра|в\s+конце\s+недел|на\s+этой\s+недел|к\s+концу\s+недел|позже|today|tomorrow|the\s+day\s+after|end\s+of\s+(?:the\s+)?week|this\s+week|later\s+this\s+week)\b/i;
+        var weekdayRe =
+            /\b(?:пн|понедельник|вт|вторник|ср|среда|чт|четверг|пт|пятница|сб|суббота|вс|воскресенье|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b/i;
+        if (!relativeRe.test(t) || weekdayRe.test(t)) return t;
+        var days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+        var dayLabel = days[stepIndex % 7];
+        if (/\b(?:завтра|tomorrow)\b/i.test(t)) dayLabel = days[(stepIndex + 1) % 7];
+        else if (/\b(?:в\s+конце\s+недел|к\s+концу\s+недел|end\s+of\s+(?:the\s+)?week)\b/i.test(t)) {
+            dayLabel = days[4];
+        }
+        var stripped = t.replace(
+            /^(?:сегодня|завтра|послезавтра|в\s+конце\s+недел(?:и)?|на\s+этой\s+недел(?:е)?|к\s+концу\s+недел(?:и)?|позже|today|tomorrow|the\s+day\s+after|end\s+of\s+(?:the\s+)?week|this\s+week|later\s+this\s+week)\s*[—\-:,\.]?\s*/i,
+            ''
+        );
+        var timeMatch = stripped.match(/\b(\d{1,2}[:.]\d{2})\b/);
+        var time = timeMatch ? timeMatch[1].replace('.', ':') : '19:00';
+        var body = stripped.trim() || t;
+        return dayLabel + ' ' + time + ' — ' + body;
+    }
+
     function fpGoalBuildPhaseStepsHtml(phaseIdx, phaseSteps, completedStepsMap) {
         var stepsHtml = '';
         phaseSteps.forEach(function (s, si) {
@@ -13043,7 +13093,7 @@ function setGoalNavActive(isActive) {
                 fpGoalStepCheckSvg() +
                 '</span></span>' +
                 '<span class="goal-plan-step__text">' +
-                fpGoalEscapeHtml(s) +
+                fpGoalEscapeHtml(fpGoalAnchorStepWhen(s, si)) +
                 '</span></li>';
         });
         return stepsHtml;
