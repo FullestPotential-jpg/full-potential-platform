@@ -7665,7 +7665,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.month_done': 'Месяц выполнен',
             'goal.err_plan_json':
                 'Ответ ИИ оборвался или не распознан. Нажмите «Поехали» ещё раз или сократите формулировку цели.',
-            'goal.err_plan_length': 'План не удалось собрать. Попробуйте создать ещё раз.',
+            'goal.err_plan_length': 'План не удалось собрать (число недель). Попробуйте создать ещё раз.',
+            'goal.err_plan_validation': 'План не прошёл проверку качества. Нажмите «Создать план» ещё раз — обычно со 2–3 раза получается.',
+            'goal.err_step_contract': 'Шаги в плане недостаточно конкретные. Повторите генерацию.',
             'goal.timeline_fallback':
                 'Вы указали срок «%user%». Реалистичный план: %ai% — при выполнении шагов по неделям.',
             'goal.phase_check_aria': 'Отметить неделю выполненной',
@@ -7960,7 +7962,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.month_mark_done': 'Mark month complete',
             'goal.month_finish_label': 'Complete month',
             'goal.month_done': 'Month complete',
-            'goal.err_plan_length': 'Could not build the plan. Please try again.',
+            'goal.err_plan_length': 'Could not build the plan (week count). Please try again.',
+            'goal.err_plan_validation': 'Plan did not pass quality checks. Try generating again.',
+            'goal.err_step_contract': 'Steps were not specific enough. Please try again.',
             'goal.err_plan_json':
                 'The AI reply was cut off or invalid JSON. Tap launch again or shorten your goal text.',
             'goal.timeline_fallback':
@@ -12284,7 +12288,34 @@ function setGoalNavActive(isActive) {
         return out;
     }
 
+    function fpGoalSyncCurrentUserFromStorage() {
+        try {
+            if (typeof checkPlatformAuth === 'function') {
+                checkPlatformAuth();
+            }
+            var raw = localStorage.getItem('currentUser');
+            if (raw) {
+                var u = JSON.parse(raw);
+                if (u && u.email) {
+                    currentUser = u;
+                    return currentUser;
+                }
+            }
+            var authRaw = localStorage.getItem('platformAuth');
+            if (authRaw) {
+                var auth = JSON.parse(authRaw);
+                if (auth && auth.user && auth.user.email) {
+                    currentUser = auth.user;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    return currentUser;
+                }
+            }
+        } catch (e) {}
+        return currentUser;
+    }
+
     function fpGoalFeedbackAuthorDisplay() {
+        fpGoalSyncCurrentUserFromStorage();
         if (!currentUser) return '';
         if (currentUser.nickname && String(currentUser.nickname).trim()) {
             return String(currentUser.nickname).trim().slice(0, 48);
@@ -12511,6 +12542,7 @@ function setGoalNavActive(isActive) {
     }
 
     async function fpGoalSubmitFeedback() {
+        fpGoalSyncCurrentUserFromStorage();
         if (!currentUser || !currentUser.email) {
             fpGoalFeedbackSetStatus(fpT('goal.feedback_login_required'), 'error');
             return;
@@ -13824,12 +13856,16 @@ function setGoalNavActive(isActive) {
 
     async function fpGoalLaunchPlan() {
         if (fpGoalCurrentStep !== 2) return;
+        fpGoalSyncCurrentUserFromStorage();
 
         var ta = document.getElementById('goalUserInput');
         var btn = document.getElementById('goalLaunchBtn');
         var loading = document.getElementById('goalFlowLoading');
         var step2 = document.getElementById('goalStep2Panel');
-        if (!ta || !currentUser) return;
+        if (!ta || !currentUser) {
+            fpGoalShowError(fpT('goal.err_need_login'));
+            return;
+        }
 
         var goal = ta.value.trim();
         if (goal.length < 3) {
@@ -14034,7 +14070,22 @@ function setGoalNavActive(isActive) {
                 if (d.error === 'missing_context') return fpT('goal.err_incomplete_questions');
                 if (d.error === 'invalid_week_count') return fpT('goal.err_plan_length');
                 if (d.error === 'invalid_plan_json' || d.error === 'empty_response') return fpT('goal.err_plan_json');
-                if (d.error) return fpT('goal.err_api');
+                if (d.error === 'step_contract') return fpT('goal.err_step_contract');
+                if (
+                    d.error === 'vague_steps' ||
+                    d.error === 'duplicate_steps' ||
+                    d.error === 'relative_when_steps' ||
+                    d.error === 'weak_week_success' ||
+                    d.error === 'weekly_minutes_exceeded' ||
+                    d.error === 'invalid_first_48h' ||
+                    d.error === 'invalid_milestones' ||
+                    d.error === 'invalid_phase_fields' ||
+                    d.error === 'invalid_phase_steps' ||
+                    d.error === 'invalid_plan_shape'
+                ) {
+                    return fpT('goal.err_plan_validation') + ' (' + d.error + ')';
+                }
+                if (d.error) return fpT('goal.err_api') + ' (' + d.error + ')';
                 if (status === 502 || status === 503 || status === 504) return fpT('goal.err_timeout');
                 return fpT('goal.err_api');
             }
@@ -18019,6 +18070,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Автоматически входим в систему
             localStorage.setItem('currentUser', JSON.stringify(user));
+            if (typeof currentUser !== 'undefined') {
+                currentUser = user;
+            }
             return true;
             
         } catch (error) {
