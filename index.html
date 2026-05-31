@@ -7667,6 +7667,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Ответ ИИ оборвался или не распознан. Нажмите «Поехали» ещё раз или сократите формулировку цели.',
             'goal.err_plan_length': 'План не удалось собрать (число недель). Попробуйте создать ещё раз.',
             'goal.err_plan_validation': 'План не прошёл проверку качества. Нажмите «Создать план» ещё раз — обычно со 2–3 раза получается.',
+            'goal.err_plan_display': 'План получен, но не удалось показать его на экране. Обновите страницу или нажмите «Создать план» ещё раз.',
             'goal.err_step_contract': 'Шаги в плане недостаточно конкретные. Повторите генерацию.',
             'goal.timeline_fallback':
                 'Вы указали срок «%user%». Реалистичный план: %ai% — при выполнении шагов по неделям.',
@@ -7964,6 +7965,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.month_done': 'Month complete',
             'goal.err_plan_length': 'Could not build the plan (week count). Please try again.',
             'goal.err_plan_validation': 'Plan did not pass quality checks. Try generating again.',
+            'goal.err_plan_display': 'Plan was received but could not be displayed. Refresh the page or try generating again.',
             'goal.err_step_contract': 'Steps were not specific enough. Please try again.',
             'goal.err_plan_json':
                 'The AI reply was cut off or invalid JSON. Tap launch again or shorten your goal text.',
@@ -11065,6 +11067,10 @@ function setGoalNavActive(isActive) {
                 label: fpGoalCardLabel(goalText, plan),
                 plan: plan,
                 answers: answers,
+                completedPhases: [],
+                completedSteps: {},
+                phaseReviews: {},
+                planJournal: [],
                 ownerEmail: fpGoalOwnerEmail(),
                 createdAt: now,
                 updatedAt: now
@@ -11077,7 +11083,10 @@ function setGoalNavActive(isActive) {
             entry.answers = answers;
             entry.label = fpGoalCardLabel(goalText, plan);
             entry.updatedAt = now;
+            entry.completedPhases = [];
+            entry.completedSteps = {};
         }
+        fpGoalEnsureExecutionData(entry);
         fpGoalSaveGoalsList(goals);
         return entry;
     }
@@ -11219,6 +11228,7 @@ function setGoalNavActive(isActive) {
         fpGoalCurrentStep = step;
         var bar = document.getElementById('goalStepsBar');
         if (bar) {
+            bar.style.display = step === 3 ? 'none' : '';
             var items = bar.querySelectorAll('.goal-steps__item');
             items.forEach(function (el, idx) {
                 var n = idx + 1;
@@ -11235,7 +11245,7 @@ function setGoalNavActive(isActive) {
         if (s2) s2.classList.toggle('goal-flow__panel--hidden', step !== 2);
         if (plan) {
             if (step === 3) {
-                /* plan visibility controlled by fpGoalRenderPlan */
+                plan.classList.add('is-visible');
             } else {
                 plan.classList.remove('is-visible');
                 plan.innerHTML = '';
@@ -11564,6 +11574,34 @@ function setGoalNavActive(isActive) {
 
     function fpGoalPlanUsesMonths(plan) {
         return !!(plan && plan.phase_unit === 'month');
+    }
+
+    function fpGoalCoercePlanPhases(plan) {
+        if (!plan) return [];
+        var p = plan.phases;
+        if (Array.isArray(p)) return p;
+        if (p && typeof p === 'object') {
+            var numeric = Object.keys(p)
+                .filter(function (k) {
+                    return /^\d+$/.test(k);
+                })
+                .sort(function (a, b) {
+                    return Number(a) - Number(b);
+                });
+            if (numeric.length) {
+                return numeric.map(function (k) {
+                    return p[k];
+                });
+            }
+        }
+        return [];
+    }
+
+    function fpGoalCoerceStepText(step) {
+        if (step == null) return '';
+        if (typeof step === 'string') return step;
+        if (typeof step === 'object' && step.text != null) return String(step.text);
+        return String(step);
     }
 
     function fpGoalPhaseLabel(idx, plan) {
@@ -12991,6 +13029,7 @@ function setGoalNavActive(isActive) {
                 if (!btn.classList.contains('is-settled')) settleStar();
             }, 720);
         }
+        fpGoalRefreshPlanWeekLayout(false);
     }
 
     var fpGoalSwipeDrag = null;
@@ -13322,6 +13361,36 @@ function setGoalNavActive(isActive) {
         return phaseCount > 0 ? phaseCount - 1 : 0;
     }
 
+    /** Перестроить «Текущая неделя» / список недель без перезагрузки страницы. */
+    function fpGoalRefreshPlanWeekLayout(scrollToCurrent) {
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry || !entry.plan) return;
+        var metaBody = document.getElementById('goalPlanMetaBody');
+        var metaCollapsed =
+            metaBody && metaBody.classList.contains('is-collapsed');
+        fpGoalRenderPlan(entry.plan, { skipPersist: true });
+        if (metaCollapsed) {
+            var body = document.getElementById('goalPlanMetaBody');
+            var btn = document.getElementById('goalPlanMetaToggle');
+            if (body && btn) {
+                body.classList.add('is-collapsed');
+                btn.classList.add('is-collapsed');
+                btn.setAttribute('aria-expanded', 'false');
+                var label = document.getElementById('goalPlanMetaToggleLabel');
+                if (label) label.textContent = fpT('goal.meta_expand');
+            }
+        }
+        fpGoalSyncNotifyButtons();
+        if (scrollToCurrent !== false) {
+            window.requestAnimationFrame(function () {
+                var cw = document.querySelector('.goal-plan-current-week');
+                if (cw) {
+                    cw.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        }
+    }
+
     function fpGoalAnchorStepWhen(text, stepIndex) {
         var t = String(text || '').trim();
         if (!t) return t;
@@ -13351,6 +13420,7 @@ function setGoalNavActive(isActive) {
         phaseSteps.forEach(function (s, si) {
             var stepDone = fpGoalIsStepDone(phaseIdx, si, completedStepsMap);
             var stepNum = si + 1;
+            var stepText = fpGoalCoerceStepText(s);
             stepsHtml +=
                 '<li class="goal-plan-step' +
                 (stepDone ? ' goal-plan-step--done' : '') +
@@ -13375,7 +13445,7 @@ function setGoalNavActive(isActive) {
                 fpGoalStepCheckSvg() +
                 '</span></span>' +
                 '<span class="goal-plan-step__text">' +
-                fpGoalEscapeHtml(fpGoalAnchorStepWhen(s, si)) +
+                fpGoalEscapeHtml(fpGoalAnchorStepWhen(stepText, si)) +
                 '</span></li>';
         });
         return stepsHtml;
@@ -13547,9 +13617,15 @@ function setGoalNavActive(isActive) {
                 status +
                 (note ? ' — ' + note : '')
         });
+        if (status === 'done') {
+            if (!Array.isArray(e.completedPhases)) e.completedPhases = [];
+            if (e.completedPhases.indexOf(phaseIdx) < 0) {
+                e.completedPhases.push(phaseIdx);
+            }
+        }
         e.updatedAt = Date.now();
         fpGoalSaveGoalsList(goals);
-        if (e.plan) fpGoalRenderPlan(e.plan, { skipPersist: true });
+        fpGoalRefreshPlanWeekLayout();
     }
 
     function fpGoalLogWeekDeviation(phaseIdx) {
@@ -13574,12 +13650,15 @@ function setGoalNavActive(isActive) {
         });
         e.updatedAt = Date.now();
         fpGoalSaveGoalsList(goals);
-        if (e.plan) fpGoalRenderPlan(e.plan, { skipPersist: true });
+        fpGoalRefreshPlanWeekLayout();
     }
 
     function fpGoalBuildPhaseArticleHtml(ph, idx, plan, completedPhases, completedStepsMap) {
         var isDone = completedPhases.indexOf(idx) >= 0;
         var phaseSteps = ph.steps || [];
+        if (!Array.isArray(phaseSteps)) {
+            phaseSteps = [];
+        }
         return (
             '<article class="goal-plan-phase' +
             (isDone ? ' goal-plan-phase--done' : '') +
@@ -13665,23 +13744,33 @@ function setGoalNavActive(isActive) {
 
     function fpGoalRenderPlan(plan, options) {
         var opts = options || {};
+        plan = plan || {};
         var panel = document.getElementById('goalPlanPanel');
         var step1 = document.getElementById('goalStep1Panel');
         var step2 = document.getElementById('goalStep2Panel');
         var loading = document.getElementById('goalFlowLoading');
-        if (!panel) return;
-        fpGoalShowFlowView();
-        if (step1) step1.classList.add('goal-flow__panel--hidden');
-        if (step2) step2.classList.add('goal-flow__panel--hidden');
-        if (loading) loading.classList.remove('is-active');
+        if (!panel) {
+            if (fpGoalViewMode === 'detail' && fpGoalActiveId) {
+                renderGoalContent();
+                panel = document.getElementById('goalPlanPanel');
+                step1 = document.getElementById('goalStep1Panel');
+                step2 = document.getElementById('goalStep2Panel');
+                loading = document.getElementById('goalFlowLoading');
+            }
+            if (!panel) return false;
+        }
 
-        var completedPhases = fpGoalGetCompletedPhases();
-        var completedStepsMap = fpGoalGetCompletedStepsMap();
-        var phases = plan.phases || [];
-        var activeIdx = fpGoalGetActivePhaseIdx(completedPhases, phases.length);
-        var currentWeekHtml = '';
-        var phasesHtml = '';
-        phases.forEach(function (ph, idx) {
+        var panelHtml;
+        try {
+            fpGoalShowFlowView();
+            var completedPhases = fpGoalGetCompletedPhases();
+            var completedStepsMap = fpGoalGetCompletedStepsMap();
+            var phases = fpGoalCoercePlanPhases(plan);
+            var activeIdx = fpGoalGetActivePhaseIdx(completedPhases, phases.length);
+            var currentWeekHtml = '';
+            var phasesHtml = '';
+            phases.forEach(function (ph, idx) {
+            if (!ph || typeof ph !== 'object') ph = { name: '', steps: [] };
             var isDone = completedPhases.indexOf(idx) >= 0;
             var isCurrent = idx === activeIdx && !isDone;
             var article = fpGoalBuildPhaseArticleHtml(ph, idx, plan, completedPhases, completedStepsMap);
@@ -13738,47 +13827,47 @@ function setGoalNavActive(isActive) {
                 : '';
 
         var tipsHtml = '';
-        if (plan.archetype_tips && plan.archetype_tips.length) {
+        var archetypeTips = plan.archetype_tips;
+        if (archetypeTips && !Array.isArray(archetypeTips)) archetypeTips = [];
+        if (archetypeTips && archetypeTips.length) {
             tipsHtml =
                 '<div class="goal-plan-tips"><h3>' +
                 fpT('goal.plan_tips_title') +
                 '</h3><ul>' +
-                plan.archetype_tips
+                archetypeTips
                     .map(function (t) {
-                        return '<li>' + fpGoalEscapeHtml(t) + '</li>';
+                        return '<li>' + fpGoalEscapeHtml(fpGoalCoerceStepText(t)) + '</li>';
                     })
                     .join('') +
                 '</ul></div>';
         }
 
         var weekHtml = '';
-        if (
-            plan.first_week &&
-            plan.first_week.length &&
-            (!plan.phases || !plan.phases.length)
-        ) {
+        var firstWeek = plan.first_week;
+        if (firstWeek && !Array.isArray(firstWeek)) firstWeek = [];
+        if (firstWeek && firstWeek.length && !phases.length) {
             weekHtml =
                 '<div class="goal-plan-week"><h3>' +
                 fpT('goal.plan_week_title') +
                 '</h3><ul>' +
-                plan.first_week
+                firstWeek
                     .map(function (w) {
-                        return '<li>' + fpGoalEscapeHtml(w) + '</li>';
+                        return '<li>' + fpGoalEscapeHtml(fpGoalCoerceStepText(w)) + '</li>';
                     })
                     .join('') +
                 '</ul></div>';
         }
 
         var weeksMeta =
-            plan.phases && plan.phases.length
+            phases.length
                 ? '<p class="goal-plan-panel__weeks-meta">' +
                   fpGoalEscapeHtml(
-                      fpT('goal.plan_weeks_count').replace('%n%', String(plan.phases.length))
+                      fpT('goal.plan_weeks_count').replace('%n%', String(phases.length))
                   ) +
                   '</p>'
                 : '';
 
-        panel.innerHTML =
+        panelHtml =
             '<button type="button" class="goal-plan-meta-toggle" id="goalPlanMetaToggle" ' +
             'onclick="fpGoalTogglePlanMeta()" aria-controls="goalPlanMetaBody" aria-expanded="true">' +
             '<span class="goal-plan-meta-toggle__chev" aria-hidden="true">▼</span>' +
@@ -13807,19 +13896,30 @@ function setGoalNavActive(isActive) {
             '<button type="button" class="goal-plan-edit-btn" onclick="fpGoalBackToList()">' +
             fpT('goal.back_to_list') +
             '</button>';
+        } catch (renderErr) {
+            console.error('[goal-plan-render]', renderErr);
+            fpGoalSetStep(2);
+            if (step2) step2.classList.remove('goal-flow__panel--hidden');
+            if (step1) step1.classList.add('goal-flow__panel--hidden');
+            fpGoalShowError(fpT('goal.err_plan_display'));
+            return false;
+        }
 
+        if (step1) step1.classList.add('goal-flow__panel--hidden');
+        if (step2) step2.classList.add('goal-flow__panel--hidden');
+        if (loading) loading.classList.remove('is-active');
+        panel.innerHTML = panelHtml;
         panel.classList.add('is-visible');
         fpGoalDefaultCollapseStrategyMeta();
         fpGoalSetStep(3);
         fpGoalSyncNotifyButtons();
         fpGoalInitReminders();
-        var stepsBar = document.getElementById('goalStepsBar');
-        if (stepsBar) stepsBar.style.display = 'none';
         if (!opts.skipPersist) {
             try {
                 localStorage.setItem(fpGoalLegacyPlanKey(), JSON.stringify(plan));
             } catch (e) {}
         }
+        return true;
     }
 
     function fpGoalBackToInput() {
@@ -14097,7 +14197,11 @@ function setGoalNavActive(isActive) {
 
             fpGoalUpsertActive(goal, data.plan, answers);
             fpGoalViewMode = 'detail';
-            fpGoalRenderPlan(data.plan, { skipPersist: true });
+            var planShown = fpGoalRenderPlan(data.plan, { skipPersist: true });
+            if (!planShown) {
+                renderGoalContent();
+                fpGoalRenderPlan(data.plan, { skipPersist: true });
+            }
         } catch (e) {
             console.error('[goal-plan]', e);
             if (e && e.name === 'AbortError') {
