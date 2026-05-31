@@ -10877,6 +10877,8 @@ function setGoalNavActive(isActive) {
     var fpGoalCurrentStep = 1;
     var fpGoalViewMode = 'list';
     var fpGoalActiveId = null;
+    /** План сразу после генерации — пока DOM пересобирается (renderGoalContent). */
+    var fpGoalPendingDetailPlan = null;
 
     function fpGoalOwnerEmail() {
         if (!currentUser || !currentUser.email) return '';
@@ -10991,13 +10993,17 @@ function setGoalNavActive(isActive) {
 
     function fpGoalSaveGoalsList(goals) {
         var key = fpGoalGoalsStorageKey();
-        if (!key) return;
+        if (!key) return false;
         try {
             localStorage.setItem(
                 key,
                 JSON.stringify(fpGoalStampOwner(goals.slice(0, 50)))
             );
-        } catch (e) {}
+            return true;
+        } catch (e) {
+            console.warn('[goal] save failed', e);
+            return false;
+        }
     }
 
     function fpGoalFindGoal(goals, id) {
@@ -11056,6 +11062,7 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalUpsertActive(goalText, plan, answers) {
+        plan = fpGoalNormalizePlanObject(plan) || plan;
         var goals = fpGoalMigrateLegacyGoals();
         var now = Date.now();
         var entry = fpGoalActiveId ? fpGoalFindGoal(goals, fpGoalActiveId) : null;
@@ -11602,6 +11609,23 @@ function setGoalNavActive(isActive) {
         if (typeof step === 'string') return step;
         if (typeof step === 'object' && step.text != null) return String(step.text);
         return String(step);
+    }
+
+    function fpGoalNormalizePlanObject(raw) {
+        if (raw == null) return null;
+        var plan = raw;
+        if (typeof raw === 'string') {
+            try {
+                plan = JSON.parse(raw);
+            } catch (e) {
+                return null;
+            }
+        }
+        if (!plan || typeof plan !== 'object') return null;
+        plan.phases = fpGoalCoercePlanPhases(plan);
+        if (plan.first_week && !Array.isArray(plan.first_week)) plan.first_week = [];
+        if (plan.archetype_tips && !Array.isArray(plan.archetype_tips)) plan.archetype_tips = [];
+        return plan;
     }
 
     function fpGoalPhaseLabel(idx, plan) {
@@ -13744,7 +13768,7 @@ function setGoalNavActive(isActive) {
 
     function fpGoalRenderPlan(plan, options) {
         var opts = options || {};
-        plan = plan || {};
+        plan = fpGoalNormalizePlanObject(plan) || plan || {};
         var panel = document.getElementById('goalPlanPanel');
         var step1 = document.getElementById('goalStep1Panel');
         var step2 = document.getElementById('goalStep2Panel');
@@ -14042,42 +14066,44 @@ function setGoalNavActive(isActive) {
             var fnUrl = base.replace(/\/$/, '') + '/functions/v1/goal-plan-generate';
             var PLAN_FETCH_TIMEOUT_MS = 270000;
 
-            async function fpGoalParsePlanNdjsonBody(res) {
-                var reader = res.body && res.body.getReader ? res.body.getReader() : null;
-                if (!reader) return {};
-                var dec = new TextDecoder();
-                var buf = '';
+            async function fpGoalParsePlanResponseText(text) {
+                if (!text) return {};
                 var last = null;
-                while (true) {
-                    var rd = await reader.read();
-                    if (rd.done) break;
-                    buf += dec.decode(rd.value, { stream: true });
-                    var parts = buf.split('\n');
-                    buf = parts.pop() || '';
-                    for (var pi = 0; pi < parts.length; pi++) {
-                        var line = parts[pi].trim();
-                        if (!line) continue;
-                        try {
-                            var j = JSON.parse(line);
-                            if (j._ === 'r') last = j;
-                        } catch (pe) {}
-                    }
-                }
-                if (buf.trim()) {
+                var lines = String(text).split('\n');
+                for (var li = 0; li < lines.length; li++) {
+                    var line = lines[li].trim();
+                    if (!line) continue;
                     try {
-                        var j2 = JSON.parse(buf.trim());
-                        if (j2._ === 'r') last = j2;
-                    } catch (pe2) {}
+                        var j = JSON.parse(line);
+                        if (j._ === 'r') last = j;
+                    } catch (pe) {}
                 }
-                if (!last || last._ !== 'r') return {};
-                return {
-                    ok: last.ok,
-                    plan: last.plan,
-                    error: last.error,
-                    profile_chars: last.profile_chars,
-                    week_count: last.week_count,
-                    phase_unit: last.phase_unit
-                };
+                if (last && last._ === 'r') {
+                    return {
+                        ok: last.ok,
+                        plan: last.plan,
+                        error: last.error,
+                        profile_chars: last.profile_chars,
+                        week_count: last.week_count,
+                        phase_unit: last.phase_unit
+                    };
+                }
+                try {
+                    var single = JSON.parse(String(text).trim());
+                    if (single && single._ === 'r') {
+                        return {
+                            ok: single.ok,
+                            plan: single.plan,
+                            error: single.error,
+                            profile_chars: single.profile_chars,
+                            week_count: single.week_count,
+                            phase_unit: single.phase_unit
+                        };
+                    }
+                    return single || {};
+                } catch (pe2) {
+                    return {};
+                }
             }
 
             async function fpGoalRequestPlanOnce() {
@@ -14092,17 +14118,8 @@ function setGoalNavActive(isActive) {
                         body: JSON.stringify(payload),
                         signal: fetchAbort.signal
                     });
-                    var ct = (res.headers.get('content-type') || '').toLowerCase();
-                    var body = {};
-                    if (ct.indexOf('ndjson') >= 0 && res.body) {
-                        body = await fpGoalParsePlanNdjsonBody(res);
-                    } else {
-                        try {
-                            body = await res.json();
-                        } catch (parseErr) {
-                            body = {};
-                        }
-                    }
+                    var rawText = await res.text();
+                    var body = await fpGoalParsePlanResponseText(rawText);
                     return { res: res, body: body };
                 }
                 try {
@@ -14190,17 +14207,27 @@ function setGoalNavActive(isActive) {
                 return fpT('goal.err_api');
             }
 
-            if (!attempt.res.ok || !data || data.ok === false) {
+            if (!attempt.res.ok || !data || data.ok !== true) {
                 fpGoalShowError(fpGoalPlanErrorMessage(data, httpStatus));
                 return;
             }
 
-            fpGoalUpsertActive(goal, data.plan, answers);
+            var planObj = fpGoalNormalizePlanObject(data.plan);
+            if (!planObj) {
+                console.error('[goal-plan] missing plan in response', data);
+                fpGoalShowError(fpT('goal.err_plan_json'));
+                return;
+            }
+
+            fpGoalUpsertActive(goal, planObj, answers);
             fpGoalViewMode = 'detail';
-            var planShown = fpGoalRenderPlan(data.plan, { skipPersist: true });
-            if (!planShown) {
-                renderGoalContent();
-                fpGoalRenderPlan(data.plan, { skipPersist: true });
+            fpGoalPendingDetailPlan = planObj;
+            renderGoalContent();
+            fpGoalPendingDetailPlan = null;
+
+            if (!document.querySelector('#goalPlanPanel.is-visible')) {
+                console.warn('[goal-plan] plan panel not visible after render, retrying');
+                fpGoalRenderPlan(planObj, { skipPersist: true });
             }
         } catch (e) {
             console.error('[goal-plan]', e);
@@ -14414,8 +14441,12 @@ function setGoalNavActive(isActive) {
                 : fpGoalLoadAnswers();
         fpGoalBindAnswersToForm(savedAnswers);
 
-        if (fpGoalViewMode === 'detail' && activeGoal && activeGoal.plan) {
-            fpGoalRenderPlan(activeGoal.plan, { skipPersist: true });
+        var planToShow =
+            (activeGoal && activeGoal.plan) ||
+            (fpGoalViewMode === 'detail' ? fpGoalPendingDetailPlan : null);
+        planToShow = fpGoalNormalizePlanObject(planToShow) || planToShow;
+        if (fpGoalViewMode === 'detail' && planToShow) {
+            fpGoalRenderPlan(planToShow, { skipPersist: true });
             return;
         }
 
