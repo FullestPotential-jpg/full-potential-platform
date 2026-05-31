@@ -2051,15 +2051,30 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.85),
                 0 6px 18px rgba(26, 40, 88, 0.1);
         }
-        .goal-plan-meta-toggle__chev {
-            display: inline-block;
-            font-size: 0.7rem;
-            line-height: 1;
-            transition: transform 0.2s ease;
-            transform: rotate(0deg);
+        .goal-plan-meta-toggle__star {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            color: #4338ca;
         }
-        .goal-plan-meta-toggle.is-collapsed .goal-plan-meta-toggle__chev {
+        .goal-plan-meta-toggle__star-svg {
+            width: 100%;
+            height: 100%;
+            transform-origin: center center;
+            transition: transform 0.4s cubic-bezier(0.34, 1.15, 0.64, 1);
+        }
+        .goal-plan-meta-toggle.is-collapsed .goal-plan-meta-toggle__star-svg {
             transform: rotate(180deg);
+        }
+        .goal-plan-meta-toggle.is-animating .goal-plan-meta-toggle__star-svg {
+            animation: fp-goal-meta-star-spin 0.58s cubic-bezier(0.34, 1.15, 0.64, 1);
+        }
+        @keyframes fp-goal-meta-star-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         .goal-plan-panel__meta-body.is-collapsed {
             display: none;
@@ -3606,6 +3621,9 @@
             border-color: rgba(96, 165, 250, 0.45);
             color: #e0f2fe;
             background: linear-gradient(165deg, rgba(22, 36, 84, 0.95) 0%, rgba(16, 28, 68, 0.98) 100%);
+        }
+        html.fp-platform-dark .goal-plan-meta-toggle__star {
+            color: #818cf8;
         }
         html.fp-platform-dark .goal-flow__input {
             background: rgba(8, 12, 32, 0.65);
@@ -10566,6 +10584,7 @@ async function restoreSessionFromStorage() {
     }
     if (!user || !user.email) return;
     currentUser = user;
+    window.fpPlatformCurrentUser = user;
 
     const found = findUserByEmail(user.email);
     if (found) {
@@ -12360,6 +12379,7 @@ function setGoalNavActive(isActive) {
                 var u = JSON.parse(raw);
                 if (u && u.email) {
                     currentUser = u;
+                    window.fpPlatformCurrentUser = u;
                     return currentUser;
                 }
             }
@@ -12367,25 +12387,41 @@ function setGoalNavActive(isActive) {
             if (authRaw) {
                 var auth = JSON.parse(authRaw);
                 if (auth && auth.user && auth.user.email) {
+                    if (auth.expires && new Date() > new Date(auth.expires)) {
+                        return currentUser;
+                    }
                     currentUser = auth.user;
+                    window.fpPlatformCurrentUser = auth.user;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     return currentUser;
                 }
+            }
+            if (window.fpPlatformCurrentUser && window.fpPlatformCurrentUser.email) {
+                currentUser = window.fpPlatformCurrentUser;
+                return currentUser;
             }
         } catch (e) {}
         return currentUser;
     }
 
+    function fpGoalGetPlatformUser() {
+        var u = fpGoalSyncCurrentUserFromStorage();
+        if (u && u.email) return u;
+        return null;
+    }
+
     function fpGoalFeedbackAuthorDisplay() {
-        fpGoalSyncCurrentUserFromStorage();
-        if (!currentUser) return '';
-        if (currentUser.nickname && String(currentUser.nickname).trim()) {
-            return String(currentUser.nickname).trim().slice(0, 48);
+        var u = fpGoalGetPlatformUser();
+        if (!u) return '';
+        if (u.nickname && String(u.nickname).trim()) {
+            return String(u.nickname).trim().slice(0, 48);
         }
-        if (currentUser.email) {
-            var em = String(currentUser.email).trim();
+        if (u.email) {
+            var em = String(u.email).trim().toLowerCase();
             var at = em.indexOf('@');
-            return (at > 0 ? em.slice(0, at) : em).slice(0, 48);
+            var local = at > 0 ? em.slice(0, at) : em;
+            if (local.length >= 2) return local.slice(0, 48);
+            return em.slice(0, 48);
         }
         return '';
     }
@@ -12526,6 +12562,7 @@ function setGoalNavActive(isActive) {
             evt.stopPropagation();
         }
         fpGoalEnsureFeedbackModal();
+        fpGoalSyncCurrentUserFromStorage();
         fpGoalFeedbackView = 'write';
         fpGoalFeedbackListLoaded = false;
         fpGoalFeedbackSetRating(0);
@@ -12604,11 +12641,12 @@ function setGoalNavActive(isActive) {
     }
 
     async function fpGoalSubmitFeedback() {
-        fpGoalSyncCurrentUserFromStorage();
-        if (!currentUser || !currentUser.email) {
+        var user = fpGoalGetPlatformUser();
+        if (!user || !user.email) {
             fpGoalFeedbackSetStatus(fpT('goal.feedback_login_required'), 'error');
             return;
         }
+        currentUser = user;
         if (!fpGoalFeedbackRating || fpGoalFeedbackRating < 1) {
             fpGoalFeedbackSetStatus(fpT('goal.feedback_rating_required'), 'error');
             return;
@@ -12620,9 +12658,8 @@ function setGoalNavActive(isActive) {
             return;
         }
         var author = fpGoalFeedbackAuthorDisplay();
-        if (author.length < 2) {
-            fpGoalFeedbackSetStatus(fpT('goal.feedback_login_required'), 'error');
-            return;
+        if (!author) {
+            author = String(user.email).trim().slice(0, 48);
         }
         if (!window.supabaseClient) {
             fpGoalFeedbackSetStatus(fpT('goal.feedback_table_missing'), 'error');
@@ -12633,8 +12670,8 @@ function setGoalNavActive(isActive) {
         fpGoalFeedbackSetStatus('', '');
         var payload = {
             author_display: author,
-            personality_type: currentUser.personality_type
-                ? String(currentUser.personality_type).slice(0, 120)
+            personality_type: user.personality_type
+                ? String(user.personality_type).slice(0, 120)
                 : null,
             rating: fpGoalFeedbackRating,
             body: text.slice(0, 2000),
@@ -13340,6 +13377,29 @@ function setGoalNavActive(isActive) {
 
     var FP_GOAL_META_COLLAPSE_KEY = 'fp_goal_plan_meta_collapsed';
 
+    function fpGoalMetaToggleStarSvg() {
+        return (
+            '<svg class="goal-plan-meta-toggle__star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+            '<path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/>' +
+            '</svg>'
+        );
+    }
+
+    function fpGoalAnimateMetaToggleStar(btn) {
+        if (!btn) return;
+        var svg = btn.querySelector('.goal-plan-meta-toggle__star-svg');
+        if (!svg) return;
+        btn.classList.remove('is-animating');
+        void btn.offsetWidth;
+        btn.classList.add('is-animating');
+        var clearAnim = function (e) {
+            if (e && e.target !== svg) return;
+            btn.classList.remove('is-animating');
+            svg.removeEventListener('animationend', clearAnim);
+        };
+        svg.addEventListener('animationend', clearAnim, { once: true });
+    }
+
     function fpGoalTogglePlanMeta() {
         var body = document.getElementById('goalPlanMetaBody');
         var btn = document.getElementById('goalPlanMetaToggle');
@@ -13348,6 +13408,7 @@ function setGoalNavActive(isActive) {
         var collapsed = body.classList.contains('is-collapsed');
         btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
         btn.classList.toggle('is-collapsed', collapsed);
+        fpGoalAnimateMetaToggleStar(btn);
         var label = document.getElementById('goalPlanMetaToggleLabel');
         if (label) label.textContent = fpT(collapsed ? 'goal.meta_expand' : 'goal.meta_collapse');
         try {
@@ -13894,7 +13955,9 @@ function setGoalNavActive(isActive) {
         panelHtml =
             '<button type="button" class="goal-plan-meta-toggle" id="goalPlanMetaToggle" ' +
             'onclick="fpGoalTogglePlanMeta()" aria-controls="goalPlanMetaBody" aria-expanded="true">' +
-            '<span class="goal-plan-meta-toggle__chev" aria-hidden="true">▼</span>' +
+            '<span class="goal-plan-meta-toggle__star" aria-hidden="true">' +
+            fpGoalMetaToggleStarSvg() +
+            '</span>' +
             '<span class="goal-plan-meta-toggle__text" id="goalPlanMetaToggleLabel">' +
             fpGoalEscapeHtml(fpT('goal.meta_collapse')) +
             '</span></button>' +
@@ -18229,6 +18292,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Автоматически входим в систему
             localStorage.setItem('currentUser', JSON.stringify(user));
+            window.fpPlatformCurrentUser = user;
             if (typeof currentUser !== 'undefined') {
                 currentUser = user;
             }
@@ -18253,6 +18317,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         localStorage.setItem('platformAuth', JSON.stringify(authData));
         localStorage.setItem('currentUser', JSON.stringify(userData));
+        window.fpPlatformCurrentUser = userData;
+        if (typeof currentUser !== 'undefined') {
+            currentUser = userData;
+        }
         if (typeof fpGoalResetUiState === 'function') fpGoalResetUiState();
         
         console.log('💾 Авторизация сохранена до:', expires.toLocaleDateString());
@@ -18263,6 +18331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof fpGoalResetUiState === 'function') fpGoalResetUiState();
         localStorage.removeItem('platformAuth');
         localStorage.removeItem('currentUser');
+        window.fpPlatformCurrentUser = null;
         const dd = document.getElementById('profileDropdown'); 
         if (dd) dd.classList.remove('active');
         console.log('👋 Вы вышли из платформы');
