@@ -2057,20 +2057,27 @@
             justify-content: center;
             width: 20px;
             height: 20px;
-            flex-shrink: 0;
+            flex: 0 0 20px;
+            line-height: 0;
             color: #4338ca;
+            overflow: visible;
+        }
+        .goal-plan-meta-toggle__star-spin {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            transform-origin: 50% 50%;
         }
         .goal-plan-meta-toggle__star-svg {
-            width: 100%;
-            height: 100%;
-            transform-origin: center center;
-            transition: transform 0.4s cubic-bezier(0.34, 1.15, 0.64, 1);
+            width: 18px;
+            height: 18px;
+            display: block;
+            flex-shrink: 0;
         }
-        .goal-plan-meta-toggle.is-collapsed .goal-plan-meta-toggle__star-svg {
-            transform: rotate(180deg);
-        }
-        .goal-plan-meta-toggle.is-animating .goal-plan-meta-toggle__star-svg {
-            animation: fp-goal-meta-star-spin 0.58s cubic-bezier(0.34, 1.15, 0.64, 1);
+        .goal-plan-meta-toggle.is-animating .goal-plan-meta-toggle__star-spin {
+            animation: fp-goal-meta-star-spin 0.55s cubic-bezier(0.34, 1.15, 0.64, 1);
         }
         @keyframes fp-goal-meta-star-spin {
             from { transform: rotate(0deg); }
@@ -6725,15 +6732,31 @@
     <!-- ===== SUPABASE ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Инициализация Supabase
-document.addEventListener('DOMContentLoaded', function() {
-    const supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
+// Supabase: URL/key сразу — отзывы и планы работают и без supabase-js
+(function () {
+    var supabaseUrl = 'https://euxasgrziemxrgfpkfzg.supabase.co';
+    var supabaseKey =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1eGFzZ3J6aWVteHJnZnBrZnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTczOTEsImV4cCI6MjA3Nzk5MzM5MX0.ACXGFx-6JloJ1i7L43ocFjAxlZqQMn3yWCcO-5ArNCY';
     window.fpSupabaseUrl = supabaseUrl;
     window.fpSupabaseAnonKey = supabaseKey;
-    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-    console.log('✅ Supabase инициализирован');
-});
+    function fpInitSupabaseClient() {
+        if (window.supabaseClient) return;
+        try {
+            if (typeof supabase !== 'undefined' && supabase.createClient) {
+                window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase инициализирован');
+            }
+        } catch (e) {
+            console.warn('[supabase] init', e);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fpInitSupabaseClient);
+    } else {
+        fpInitSupabaseClient();
+    }
+    window.addEventListener('load', fpInitSupabaseClient);
+})();
 </script>
 </head>
 <body>
@@ -12428,13 +12451,81 @@ function setGoalNavActive(isActive) {
 
     function fpGoalFeedbackIsTableMissing(err) {
         if (!err) return false;
+        if (err.code === '42P01') return true;
         var msg = String(err.message || err.details || err.hint || err).toLowerCase();
         return (
-            msg.indexOf('goal_ai_reviews') >= 0 ||
-            msg.indexOf('does not exist') >= 0 ||
-            msg.indexOf('schema cache') >= 0 ||
-            err.code === '42P01'
+            (msg.indexOf('goal_ai_reviews') >= 0 &&
+                (msg.indexOf('does not exist') >= 0 || msg.indexOf('schema cache') >= 0)) ||
+            msg.indexOf('relation "public.goal_ai_reviews" does not exist') >= 0
         );
+    }
+
+    function fpGoalFeedbackRestHeaders() {
+        var key = window.fpSupabaseAnonKey || '';
+        return {
+            'Content-Type': 'application/json',
+            apikey: key,
+            Authorization: 'Bearer ' + key
+        };
+    }
+
+    async function fpGoalFeedbackRestList() {
+        var base = window.fpSupabaseUrl;
+        var key = window.fpSupabaseAnonKey;
+        if (!base || !key) {
+            return { ok: false, error: { message: 'missing_config' } };
+        }
+        try {
+            var url =
+                base.replace(/\/$/, '') +
+                '/rest/v1/goal_ai_reviews?select=id,author_display,personality_type,rating,body,lang,created_at&order=created_at.desc&limit=300';
+            var res = await fetch(url, {
+                method: 'GET',
+                headers: fpGoalFeedbackRestHeaders()
+            });
+            var text = await res.text();
+            if (!res.ok) {
+                var err = {};
+                try {
+                    err = JSON.parse(text);
+                } catch (pe) {
+                    err = { message: text || res.statusText };
+                }
+                return { ok: false, error: err, status: res.status };
+            }
+            var rows = text ? JSON.parse(text) : [];
+            return { ok: true, data: Array.isArray(rows) ? rows : [] };
+        } catch (e) {
+            return { ok: false, error: { message: String((e && e.message) || e) } };
+        }
+    }
+
+    async function fpGoalFeedbackRestInsert(payload) {
+        var base = window.fpSupabaseUrl;
+        var key = window.fpSupabaseAnonKey;
+        if (!base || !key) {
+            return { ok: false, error: { message: 'missing_config' } };
+        }
+        try {
+            var headers = fpGoalFeedbackRestHeaders();
+            headers.Prefer = 'return=minimal';
+            var res = await fetch(base.replace(/\/$/, '') + '/rest/v1/goal_ai_reviews', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(payload)
+            });
+            if (res.ok || res.status === 201) return { ok: true };
+            var text = await res.text();
+            var err = {};
+            try {
+                err = JSON.parse(text);
+            } catch (pe2) {
+                err = { message: text || res.statusText };
+            }
+            return { ok: false, error: err, status: res.status };
+        } catch (e) {
+            return { ok: false, error: { message: String((e && e.message) || e) } };
+        }
     }
 
     function fpGoalEnsureFeedbackModal() {
@@ -12579,20 +12670,16 @@ function setGoalNavActive(isActive) {
     async function fpGoalLoadFeedbackList() {
         var listEl = document.getElementById('goalFeedbackList');
         if (!listEl) return;
-        if (!window.supabaseClient) {
+        if (!window.fpSupabaseUrl || !window.fpSupabaseAnonKey) {
             listEl.innerHTML =
                 '<p class="goal-feedback-pop__empty">' +
-                fpGoalEscapeHtml(fpT('goal.feedback_table_missing')) +
+                fpGoalEscapeHtml(fpT('goal.feedback_error')) +
                 '</p>';
             return;
         }
         listEl.innerHTML = '<p class="goal-feedback-pop__empty">…</p>';
-        var res = await window.supabaseClient
-            .from('goal_ai_reviews')
-            .select('id, author_display, personality_type, rating, body, lang, created_at')
-            .order('created_at', { ascending: false })
-            .limit(300);
-        if (res.error) {
+        var res = await fpGoalFeedbackRestList();
+        if (!res.ok) {
             listEl.innerHTML =
                 '<p class="goal-feedback-pop__empty">' +
                 fpGoalEscapeHtml(
@@ -12658,11 +12745,14 @@ function setGoalNavActive(isActive) {
             return;
         }
         var author = fpGoalFeedbackAuthorDisplay();
-        if (!author) {
+        if (!author || author.length < 2) {
             author = String(user.email).trim().slice(0, 48);
         }
-        if (!window.supabaseClient) {
-            fpGoalFeedbackSetStatus(fpT('goal.feedback_table_missing'), 'error');
+        if (author.length < 2) {
+            author = (getFpLang() === 'en' ? 'User ' : 'Участник ') + Date.now().toString(36);
+        }
+        if (!window.fpSupabaseUrl || !window.fpSupabaseAnonKey) {
+            fpGoalFeedbackSetStatus(fpT('goal.feedback_error'), 'error');
             return;
         }
         var submitBtn = document.getElementById('goalFeedbackSubmit');
@@ -12677,9 +12767,10 @@ function setGoalNavActive(isActive) {
             body: text.slice(0, 2000),
             lang: getFpLang() === 'en' ? 'en' : 'ru'
         };
-        var res = await window.supabaseClient.from('goal_ai_reviews').insert(payload);
+        var res = await fpGoalFeedbackRestInsert(payload);
         if (submitBtn) submitBtn.disabled = false;
-        if (res.error) {
+        if (!res.ok) {
+            console.warn('[goal-feedback]', res.error, res.status);
             fpGoalFeedbackSetStatus(
                 fpGoalFeedbackIsTableMissing(res.error)
                     ? fpT('goal.feedback_table_missing')
@@ -13379,25 +13470,26 @@ function setGoalNavActive(isActive) {
 
     function fpGoalMetaToggleStarSvg() {
         return (
+            '<span class="goal-plan-meta-toggle__star-spin">' +
             '<svg class="goal-plan-meta-toggle__star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
             '<path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/>' +
-            '</svg>'
+            '</svg></span>'
         );
     }
 
     function fpGoalAnimateMetaToggleStar(btn) {
         if (!btn) return;
-        var svg = btn.querySelector('.goal-plan-meta-toggle__star-svg');
-        if (!svg) return;
+        var spin = btn.querySelector('.goal-plan-meta-toggle__star-spin');
+        if (!spin) return;
         btn.classList.remove('is-animating');
         void btn.offsetWidth;
         btn.classList.add('is-animating');
         var clearAnim = function (e) {
-            if (e && e.target !== svg) return;
+            if (e && e.target !== spin) return;
             btn.classList.remove('is-animating');
-            svg.removeEventListener('animationend', clearAnim);
+            spin.removeEventListener('animationend', clearAnim);
         };
-        svg.addEventListener('animationend', clearAnim, { once: true });
+        spin.addEventListener('animationend', clearAnim, { once: true });
     }
 
     function fpGoalTogglePlanMeta() {
@@ -18352,3 +18444,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
+
+    
