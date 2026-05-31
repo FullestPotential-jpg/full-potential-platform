@@ -2429,6 +2429,111 @@
         .goal-plan-phase__slip strong {
             color: #c2410c;
         }
+        .goal-week-review {
+            margin: 14px 0 36px;
+            padding: 14px 16px 14px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(26, 40, 88, 0.18);
+            background: linear-gradient(165deg, #f4f7fc 0%, #e8eef8 52%, #dfe8f5 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .goal-week-review::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(180deg, #0a0e28 0%, #162454 38%, #1e3a6e 100%);
+        }
+        .goal-week-review__title {
+            margin: 0 0 8px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #162454;
+        }
+        .goal-week-review__criterion {
+            margin: 0 0 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #1a2858;
+        }
+        .goal-week-review__row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+            color: #1a2858;
+        }
+        .goal-week-review__row label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .goal-week-review__note {
+            width: 100%;
+            min-height: 56px;
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(26, 40, 88, 0.2);
+            font-family: inherit;
+            font-size: 0.88rem;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .goal-week-review__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .goal-week-review__btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(26, 40, 88, 0.28);
+            background: #fff;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #162454;
+            cursor: pointer;
+        }
+        .goal-week-review__btn--primary {
+            background: linear-gradient(165deg, #162454 0%, #1e3a6e 100%);
+            color: #f4f7fc;
+            border-color: transparent;
+        }
+        .goal-week-review__saved {
+            margin: 8px 0 0;
+            font-size: 0.82rem;
+            color: #243a6e;
+            font-weight: 600;
+        }
+        .goal-plan-journal {
+            margin: 0 0 20px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px dashed rgba(26, 40, 88, 0.25);
+            background: rgba(244, 247, 252, 0.6);
+        }
+        .goal-plan-journal__title {
+            margin: 0 0 8px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #475569;
+        }
+        .goal-plan-journal__item {
+            margin: 0 0 6px;
+            font-size: 0.84rem;
+            line-height: 1.45;
+            color: #334155;
+        }
         .goal-plan-phase-block {
             margin-bottom: 18px;
             opacity: 0;
@@ -7496,6 +7601,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.plan_milestones': 'Этапы пути',
             'goal.plan_week_focus': 'Фокус недели',
             'goal.plan_week_success': 'Успех недели (проверка)',
+            'goal.week_review_title': 'Итог недели',
+            'goal.week_review_status': 'Статус',
+            'goal.week_review_done': 'Выполнено',
+            'goal.week_review_partial': 'Частично',
+            'goal.week_review_slip': 'Срыв',
+            'goal.week_review_met': 'Критерий недели выполнен',
+            'goal.week_review_note': 'Заметка',
+            'goal.week_review_save': 'Сохранить итог',
+            'goal.week_review_deviation': 'Записать отклонение',
+            'goal.week_review_saved': 'Итог недели сохранён',
+            'goal.plan_journal_title': 'Журнал плана',
             'goal.plan_tomorrow_step': 'Завтра — один шаг',
             'goal.plan_barrier_protocol': 'Протокол при барьере',
             'goal.plan_first_48h_hint': 'Цепочка: каждый шаг опирается на результат предыдущего.',
@@ -7782,6 +7898,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'goal.plan_milestones': 'Path milestones',
             'goal.plan_week_focus': 'Week focus',
             'goal.plan_week_success': 'Week success check',
+            'goal.week_review_title': 'Week outcome',
+            'goal.week_review_status': 'Status',
+            'goal.week_review_done': 'Done',
+            'goal.week_review_partial': 'Partial',
+            'goal.week_review_slip': 'Slip',
+            'goal.week_review_met': 'Week success criterion met',
+            'goal.week_review_note': 'Note',
+            'goal.week_review_save': 'Save week outcome',
+            'goal.week_review_deviation': 'Log deviation',
+            'goal.week_review_saved': 'Week outcome saved',
+            'goal.plan_journal_title': 'Plan journal',
             'goal.plan_tomorrow_step': 'Tomorrow — one step',
             'goal.plan_barrier_protocol': 'Barrier protocol',
             'goal.plan_first_48h_hint': 'Chain: each step needs the previous step’s artifact.',
@@ -13244,6 +13371,180 @@ function setGoalNavActive(isActive) {
         return html;
     }
 
+    function fpGoalEnsureExecutionData(entry) {
+        if (!entry) return;
+        if (!entry.phaseReviews || typeof entry.phaseReviews !== 'object') {
+            entry.phaseReviews = {};
+        }
+        if (!Array.isArray(entry.planJournal)) entry.planJournal = [];
+    }
+
+    function fpGoalBuildPlanJournalHtml(entry) {
+        fpGoalEnsureExecutionData(entry);
+        var items = entry.planJournal || [];
+        if (!items.length) return '';
+        var html =
+            '<div class="goal-plan-journal"><p class="goal-plan-journal__title">' +
+            fpGoalEscapeHtml(fpT('goal.plan_journal_title')) +
+            '</p>';
+        items.slice(-8).forEach(function (j) {
+            var when = j.at
+                ? new Date(j.at).toLocaleString(undefined, {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                  })
+                : '';
+            html +=
+                '<p class="goal-plan-journal__item">' +
+                fpGoalEscapeHtml(when + (when ? ' — ' : '') + (j.text || '')) +
+                '</p>';
+        });
+        return html + '</div>';
+    }
+
+    function fpGoalBuildWeekReviewHtml(ph, phaseIdx) {
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry) return '';
+        fpGoalEnsureExecutionData(entry);
+        var key = String(phaseIdx);
+        var rev = entry.phaseReviews[key] || {};
+        var ws = ph.week_success || ph.week_focus || '';
+        var saved =
+            rev.at &&
+            '<p class="goal-week-review__saved">' +
+                fpGoalEscapeHtml(fpT('goal.week_review_saved')) +
+                '</p>';
+        return (
+            '<section class="goal-week-review" id="goalWeekReview-' +
+            phaseIdx +
+            '">' +
+            '<p class="goal-week-review__title">' +
+            fpGoalEscapeHtml(fpT('goal.week_review_title')) +
+            '</p>' +
+            '<p class="goal-week-review__criterion"><strong>' +
+            fpGoalEscapeHtml(fpT('goal.plan_week_success')) +
+            ':</strong> ' +
+            fpGoalEscapeHtml(ws) +
+            '</p>' +
+            '<div class="goal-week-review__row"><span>' +
+            fpGoalEscapeHtml(fpT('goal.week_review_status')) +
+            ':</span>' +
+            '<label><input type="radio" name="goalRevStatus-' +
+            phaseIdx +
+            '" value="done"' +
+            (rev.status === 'done' ? ' checked' : '') +
+            '> ' +
+            fpGoalEscapeHtml(fpT('goal.week_review_done')) +
+            '</label>' +
+            '<label><input type="radio" name="goalRevStatus-' +
+            phaseIdx +
+            '" value="partial"' +
+            (rev.status === 'partial' ? ' checked' : '') +
+            '> ' +
+            fpGoalEscapeHtml(fpT('goal.week_review_partial')) +
+            '</label>' +
+            '<label><input type="radio" name="goalRevStatus-' +
+            phaseIdx +
+            '" value="slip"' +
+            (rev.status === 'slip' ? ' checked' : '') +
+            '> ' +
+            fpGoalEscapeHtml(fpT('goal.week_review_slip')) +
+            '</label></div>' +
+            '<div class="goal-week-review__row"><label><input type="checkbox" id="goalRevMet-' +
+            phaseIdx +
+            '"' +
+            (rev.weekSuccessMet ? ' checked' : '') +
+            '> ' +
+            fpGoalEscapeHtml(fpT('goal.week_review_met')) +
+            '</label></div>' +
+            '<textarea class="goal-week-review__note" id="goalRevNote-' +
+            phaseIdx +
+            '" placeholder="' +
+            fpGoalEscapeHtml(fpT('goal.week_review_note')) +
+            '">' +
+            fpGoalEscapeHtml(rev.note || '') +
+            '</textarea>' +
+            '<div class="goal-week-review__actions">' +
+            '<button type="button" class="goal-week-review__btn goal-week-review__btn--primary" onclick="fpGoalSaveWeekReview(' +
+            phaseIdx +
+            ')">' +
+            fpGoalEscapeHtml(fpT('goal.week_review_save')) +
+            '</button>' +
+            '<button type="button" class="goal-week-review__btn" onclick="fpGoalLogWeekDeviation(' +
+            phaseIdx +
+            ')">' +
+            fpGoalEscapeHtml(fpT('goal.week_review_deviation')) +
+            '</button></div>' +
+            (saved || '') +
+            '</section>'
+        );
+    }
+
+    function fpGoalSaveWeekReview(phaseIdx) {
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry) return;
+        var goals = fpGoalLoadGoalsList();
+        var e = fpGoalFindGoal(goals, entry.id);
+        if (!e) return;
+        fpGoalEnsureExecutionData(e);
+        var status = 'partial';
+        var radios = document.querySelectorAll(
+            'input[name="goalRevStatus-' + phaseIdx + '"]:checked'
+        );
+        if (radios.length) status = radios[0].value;
+        var metEl = document.getElementById('goalRevMet-' + phaseIdx);
+        var noteEl = document.getElementById('goalRevNote-' + phaseIdx);
+        var note = noteEl ? noteEl.value.trim() : '';
+        e.phaseReviews[String(phaseIdx)] = {
+            status: status,
+            weekSuccessMet: metEl ? metEl.checked : false,
+            note: note,
+            at: Date.now()
+        };
+        e.planJournal.push({
+            at: Date.now(),
+            phaseIdx: phaseIdx,
+            type: 'review',
+            text:
+                fpT('goal.week_review_title') +
+                ' ' +
+                (phaseIdx + 1) +
+                ': ' +
+                status +
+                (note ? ' — ' + note : '')
+        });
+        e.updatedAt = Date.now();
+        fpGoalSaveGoalsList(goals);
+        if (e.plan) fpGoalRenderPlan(e.plan, { skipPersist: true });
+    }
+
+    function fpGoalLogWeekDeviation(phaseIdx) {
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry) return;
+        var noteEl = document.getElementById('goalRevNote-' + phaseIdx);
+        var note = noteEl ? noteEl.value.trim() : '';
+        if (!note) {
+            note = prompt(fpT('goal.week_review_note'));
+            if (!note || !note.trim()) return;
+            note = note.trim();
+        }
+        var goals = fpGoalLoadGoalsList();
+        var e = fpGoalFindGoal(goals, entry.id);
+        if (!e) return;
+        fpGoalEnsureExecutionData(e);
+        e.planJournal.push({
+            at: Date.now(),
+            phaseIdx: phaseIdx,
+            type: 'deviation',
+            text: fpT('goal.week_review_deviation') + ' (' + (phaseIdx + 1) + '): ' + note
+        });
+        e.updatedAt = Date.now();
+        fpGoalSaveGoalsList(goals);
+        if (e.plan) fpGoalRenderPlan(e.plan, { skipPersist: true });
+    }
+
     function fpGoalBuildPhaseArticleHtml(ph, idx, plan, completedPhases, completedStepsMap) {
         var isDone = completedPhases.indexOf(idx) >= 0;
         var phaseSteps = ph.steps || [];
@@ -13293,6 +13594,7 @@ function setGoalNavActive(isActive) {
                   fpGoalEscapeHtml(ph.if_slip) +
                   '</p>'
                 : '') +
+            fpGoalBuildWeekReviewHtml(ph, idx) +
             '<button type="button" class="goal-phase-notify' +
             (fpGoalIsWeekNotifyOn(idx) ? ' is-on' : '') +
             '" data-phase-idx="' +
@@ -13463,6 +13765,10 @@ function setGoalNavActive(isActive) {
             '</p></div>' +
             currentWeekHtml +
             allWeeksTitle +
+            (function () {
+                var activeEntry = fpGoalGetActiveGoalEntry();
+                return activeEntry ? fpGoalBuildPlanJournalHtml(activeEntry) : '';
+            })() +
             phasesHtml +
             tipsHtml +
             weekHtml +
@@ -13968,6 +14274,8 @@ function setGoalNavActive(isActive) {
     window.fpGoalStartNewGoal = fpGoalStartNewGoal;
     window.fpGoalBackToList = fpGoalBackToList;
     window.fpGoalOnPhaseCheckClick = fpGoalOnPhaseCheckClick;
+    window.fpGoalSaveWeekReview = fpGoalSaveWeekReview;
+    window.fpGoalLogWeekDeviation = fpGoalLogWeekDeviation;
     window.fpGoalTogglePlanStep = fpGoalTogglePlanStep;
     window.fpGoalOpenNotifyPopover = fpGoalOpenNotifyPopover;
     window.fpGoalTogglePlanMeta = fpGoalTogglePlanMeta;
