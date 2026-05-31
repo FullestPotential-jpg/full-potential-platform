@@ -14069,12 +14069,14 @@ function setGoalNavActive(isActive) {
             async function fpGoalParsePlanResponseText(text) {
                 if (!text) return {};
                 var last = null;
+                var sawHeartbeat = false;
                 var lines = String(text).split('\n');
                 for (var li = 0; li < lines.length; li++) {
                     var line = lines[li].trim();
                     if (!line) continue;
                     try {
                         var j = JSON.parse(line);
+                        if (j._ === 'h') sawHeartbeat = true;
                         if (j._ === 'r') last = j;
                     } catch (pe) {}
                 }
@@ -14088,6 +14090,9 @@ function setGoalNavActive(isActive) {
                         phase_unit: last.phase_unit
                     };
                 }
+                if (sawHeartbeat) {
+                    return { ok: false, error: 'IDLE_TIMEOUT', code: 'IDLE_TIMEOUT' };
+                }
                 try {
                     var single = JSON.parse(String(text).trim());
                     if (single && single._ === 'r') {
@@ -14099,6 +14104,9 @@ function setGoalNavActive(isActive) {
                             week_count: single.week_count,
                             phase_unit: single.phase_unit
                         };
+                    }
+                    if (single && (single.ok === true || single.ok === false || single.error)) {
+                        return single;
                     }
                     return single || {};
                 } catch (pe2) {
@@ -14204,10 +14212,26 @@ function setGoalNavActive(isActive) {
                 }
                 if (d.error) return fpT('goal.err_api') + ' (' + d.error + ')';
                 if (status === 502 || status === 503 || status === 504) return fpT('goal.err_timeout');
+                if (status === 200) return fpT('goal.err_timeout');
+                if (status >= 400) return fpT('goal.err_api') + ' (HTTP ' + status + ')';
                 return fpT('goal.err_api');
             }
 
+            var planObjEarly = data ? fpGoalNormalizePlanObject(data.plan) : null;
+            if (attempt.res.ok && planObjEarly && data && data.ok !== false && !data.error) {
+                fpGoalUpsertActive(goal, planObjEarly, answers);
+                fpGoalViewMode = 'detail';
+                fpGoalPendingDetailPlan = planObjEarly;
+                renderGoalContent();
+                fpGoalPendingDetailPlan = null;
+                if (!document.querySelector('#goalPlanPanel.is-visible')) {
+                    fpGoalRenderPlan(planObjEarly, { skipPersist: true });
+                }
+                return;
+            }
+
             if (!attempt.res.ok || !data || data.ok !== true) {
+                console.warn('[goal-plan] failed', httpStatus, data);
                 fpGoalShowError(fpGoalPlanErrorMessage(data, httpStatus));
                 return;
             }
