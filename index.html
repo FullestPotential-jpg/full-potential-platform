@@ -533,8 +533,8 @@
             position: absolute;
             bottom: 0;
             z-index: 6;
-            width: 26px;
-            height: 26px;
+            width: 30px;
+            height: 30px;
             pointer-events: none;
             align-items: center;
             justify-content: center;
@@ -544,6 +544,9 @@
         }
         .hero-header__corner-star--br {
             right: 0;
+        }
+        html.fp-platform-dark body > .container > header.hero-header {
+            overflow: visible;
         }
         html.fp-platform-dark body > .container > header.hero-header > .hero-header__corner-star {
             display: flex;
@@ -618,9 +621,14 @@
             overflow: visible;
         }
         /* Тёмная тема платформы (включается в профиле) */
+        html.fp-platform-dark {
+            --fp-dark-surface: #080c1c;
+        }
+        html.fp-platform-dark .container,
+        html.fp-platform-dark .content,
         html.fp-platform-dark .content:has(#platform-screen.active),
         html.fp-platform-dark #platform-screen.active {
-            background: #080c1c;
+            background: var(--fp-dark-surface, #080c1c);
         }
         
         .screen {
@@ -1302,8 +1310,8 @@
             position: absolute;
             bottom: 0;
             z-index: 3;
-            width: 26px;
-            height: 26px;
+            width: 30px;
+            height: 30px;
             pointer-events: none;
             align-items: center;
             justify-content: center;
@@ -1314,7 +1322,35 @@
         .platform-header__corner-star--br {
             right: 0;
         }
+        .fp-corner-dark-patch {
+            display: none;
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            background: var(--fp-dark-surface, #080c1c);
+        }
+        html.fp-platform-dark .fp-corner-dark-patch {
+            display: block;
+        }
+        .hero-header__corner-star--bl .fp-corner-dark-patch,
+        .platform-header__corner-star--bl .fp-corner-dark-patch {
+            left: 0;
+            bottom: 0;
+            width: 34px;
+            height: 34px;
+            transform: translate(-2px, 2px);
+        }
+        .hero-header__corner-star--br .fp-corner-dark-patch,
+        .platform-header__corner-star--br .fp-corner-dark-patch {
+            right: 0;
+            bottom: 0;
+            width: 34px;
+            height: 34px;
+            transform: translate(2px, 2px);
+        }
         .platform-header__corner-star-spin {
+            position: relative;
+            z-index: 1;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -1322,23 +1358,52 @@
             height: 20px;
             transform-origin: 50% 50%;
             color: #1a3278;
+            opacity: 0;
         }
         .platform-header__corner-star-svg {
             width: 20px;
             height: 20px;
             display: block;
-            filter: drop-shadow(0 0 6px rgba(56, 100, 220, 0.55));
+            filter: none;
         }
         html.fp-platform-dark #platform-screen > .platform-header > .platform-header__corner-star {
             display: flex;
         }
+        html.fp-platform-dark #platform-screen > .platform-header {
+            overflow: visible;
+        }
         html.fp-platform-dark #platform-screen > .platform-header.is-corner-stars-animating .platform-header__corner-star-spin,
         html.fp-platform-dark header.hero-header.is-corner-stars-animating .hero-header__corner-star .platform-header__corner-star-spin {
-            animation: fp-platform-header-corner-star-spin 1.1s cubic-bezier(0.34, 1.15, 0.64, 1);
+            animation: fp-platform-header-corner-star-spin 1.15s cubic-bezier(0.34, 1.15, 0.64, 1) forwards;
         }
         @keyframes fp-platform-header-corner-star-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(720deg); }
+            0% {
+                transform: rotate(0deg);
+                color: #8fd4ff;
+                opacity: 0.15;
+                filter: drop-shadow(0 0 4px rgba(80, 150, 255, 0.35));
+            }
+            12% {
+                opacity: 1;
+                color: #b8e8ff;
+                filter:
+                    drop-shadow(0 0 14px rgba(96, 180, 255, 1))
+                    drop-shadow(0 0 28px rgba(56, 130, 255, 0.85));
+            }
+            72% {
+                transform: rotate(720deg);
+                color: #6ec8ff;
+                opacity: 1;
+                filter:
+                    drop-shadow(0 0 18px rgba(100, 190, 255, 1))
+                    drop-shadow(0 0 32px rgba(70, 140, 255, 0.75));
+            }
+            100% {
+                transform: rotate(720deg);
+                color: #1a3278;
+                opacity: 0;
+                filter: drop-shadow(0 0 0 transparent);
+            }
         }
         html.fp-platform-dark #platform-screen > .platform-header {
             background: linear-gradient(168deg, #0a1028 0%, #0f1638 45%, #121c42 100%);
@@ -7180,8 +7245,8 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
     </script>
     <div class="container" id="main-container">
         <header class="hero-header">
-            <span class="hero-header__corner-star hero-header__corner-star--bl" aria-hidden="true"><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
-            <span class="hero-header__corner-star hero-header__corner-star--br" aria-hidden="true"><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
+            <span class="hero-header__corner-star hero-header__corner-star--bl" aria-hidden="true"><span class="fp-corner-dark-patch"></span><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
+            <span class="hero-header__corner-star hero-header__corner-star--br" aria-hidden="true"><span class="fp-corner-dark-patch"></span><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
             <div class="stars-layer" aria-hidden="true"></div>
             <div class="stars-layer-2" aria-hidden="true"></div>
             <div class="hero-aurora" aria-hidden="true"></div>
@@ -7435,8 +7500,8 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             <div id="platform-screen" class="screen">
                 <div class="platform-shooting-stars-layer" id="platformShootingStarsLayer" aria-hidden="true"></div>
                 <div class="platform-header">
-                    <span class="platform-header__corner-star platform-header__corner-star--bl" aria-hidden="true"><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
-                    <span class="platform-header__corner-star platform-header__corner-star--br" aria-hidden="true"><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
+                    <span class="platform-header__corner-star platform-header__corner-star--bl" aria-hidden="true"><span class="fp-corner-dark-patch"></span><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
+                    <span class="platform-header__corner-star platform-header__corner-star--br" aria-hidden="true"><span class="fp-corner-dark-patch"></span><span class="platform-header__corner-star-spin"><svg class="platform-header__corner-star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path fill="currentColor" d="M12 2.2l2.1 5.4 5.7.5-4.3 3.8 1.3 5.6L12 14.8 7.2 17.5l1.3-5.6-4.3-3.8 5.7-.5z"/></svg></span></span>
                     <div class="platform-logo platform-logo--brand" data-i18n="platform.title">Полный Потенциал</div>
                     <div class="platform-header-tagline-slot">
                         <p class="platform-header-tagline" data-i18n="platform.tagline">Адаптируем цель под тебя</p>
@@ -8265,7 +8330,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             el.classList.add('is-corner-stars-animating');
             window.setTimeout(function () {
                 el.classList.remove('is-corner-stars-animating');
-            }, 1150);
+            }, 1200);
         });
     }
 
