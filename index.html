@@ -3438,35 +3438,63 @@
             margin-bottom: 22px;
         }
         .goal-card-row {
-            position: relative;
+            display: flex;
+            align-items: stretch;
+            border: 1px solid rgba(120, 165, 255, 0.38);
+            border-radius: 18px;
+            overflow: hidden;
+            background-color: #080c22;
+            background-image:
+                radial-gradient(1px 1px at 12% 28%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 28% 72%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1.5px 1.5px at 55% 22%, rgba(255,255,255,0.85), transparent),
+                radial-gradient(1px 1px at 78% 58%, rgba(255,255,255,0.7), transparent),
+                linear-gradient(165deg, #060818 0%, #0f1438 46%, #162454 100%);
+            box-shadow: 0 10px 28px rgba(8, 12, 42, 0.32), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .goal-card-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(8, 12, 42, 0.4), inset 0 1px 0 rgba(255,255,255,0.12);
         }
         .goal-card-row .goal-card {
-            padding-right: 48px;
+            flex: 1;
+            min-width: 0;
+            border: none;
+            border-radius: 0;
+            padding-right: 20px;
+            background: transparent;
+            background-image: none;
+            box-shadow: none;
+            transition: none;
+        }
+        .goal-card-row .goal-card:hover {
+            transform: none;
+            box-shadow: none;
         }
         .goal-card-delete {
-            position: absolute;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
-            width: 30px;
-            height: 30px;
-            border: 1.5px solid rgba(248, 113, 113, 0.5);
-            border-radius: 50%;
+            position: relative;
+            flex: 0 0 44px;
+            align-self: stretch;
+            width: 44px;
+            height: auto;
+            min-height: 44px;
+            border: none;
+            border-left: 1px solid rgba(120, 165, 255, 0.28);
+            border-radius: 0;
             padding: 0;
             cursor: pointer;
             color: #fca5a5;
-            background: rgba(127, 29, 29, 0.45);
+            background: rgba(127, 29, 29, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2;
-            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            transition: background 0.2s ease, color 0.2s ease;
         }
         .goal-card-delete:hover {
-            background: rgba(185, 28, 28, 0.7);
-            border-color: #f87171;
+            background: rgba(185, 28, 28, 0.65);
             color: #fff;
-            transform: translateY(-50%) scale(1.05);
         }
         .goal-card-delete svg {
             display: block;
@@ -3492,7 +3520,7 @@
             box-shadow: 0 10px 28px rgba(8, 12, 42, 0.32), inset 0 1px 0 rgba(255,255,255,0.1);
             transition: transform 0.22s ease, box-shadow 0.22s ease;
         }
-        .goal-card:hover {
+        .goal-cards > .goal-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 14px 32px rgba(8, 12, 42, 0.4), inset 0 1px 0 rgba(255,255,255,0.12);
         }
@@ -6758,6 +6786,46 @@
     window.addEventListener('load', fpInitSupabaseClient);
 })();
 </script>
+<script>
+(function () {
+    function fpBootScreenId() {
+        try {
+            var authRaw = localStorage.getItem('platformAuth');
+            if (authRaw) {
+                var auth = JSON.parse(authRaw);
+                if (
+                    auth &&
+                    auth.user &&
+                    auth.user.email &&
+                    auth.expires &&
+                    Date.now() <= Date.parse(auth.expires)
+                ) {
+                    return auth.user.personality_type ? 'platform-screen' : 'intro-screen';
+                }
+            }
+            var userRaw = localStorage.getItem('currentUser');
+            if (userRaw) {
+                var user = JSON.parse(userRaw);
+                if (user && user.email) {
+                    return user.personality_type ? 'platform-screen' : 'intro-screen';
+                }
+            }
+        } catch (e) {}
+        return 'auth-screen';
+    }
+    document.documentElement.setAttribute('data-fp-boot-screen', fpBootScreenId());
+})();
+</script>
+<style id="fp-boot-screen-css">
+html[data-fp-boot-screen] .screen {
+    display: none !important;
+}
+html[data-fp-boot-screen="auth-screen"] #auth-screen,
+html[data-fp-boot-screen="platform-screen"] #platform-screen,
+html[data-fp-boot-screen="intro-screen"] #intro-screen {
+    display: block !important;
+}
+</style>
 </head>
 <body>
     <!-- Заставка: звезда-ракета взлетает ~1.4 с; приложение открывается сразу по окончании (без паузы fade) -->
@@ -7043,7 +7111,7 @@
         
         <div class="content">
             <!-- ЭКРАН АВТОРИЗАЦИИ -->
-            <div id="auth-screen" class="screen active">
+            <div id="auth-screen" class="screen">
                 <div class="email-section">
                     <!-- ЛОГИН -->
                     <div id="login-section">
@@ -8162,6 +8230,9 @@
         if (typeof renderGoalContent === 'function') {
             renderGoalContent();
         }
+        if (typeof fpGoalEnsureLocalesForUi === 'function') {
+            fpGoalEnsureLocalesForUi();
+        }
     }
 
     let shootingStarTimer = null;
@@ -9204,14 +9275,12 @@
             if (typeof fpApplyPasswordResetFromHash === 'function') fpApplyPasswordResetFromHash();
         });
 
-        setTimeout(function () {
-            Promise.resolve(restoreSessionFromStorage()).catch(function (e) {
-                console.error(e);
-            });
-            if (typeof fpApplyPasswordResetFromHash === 'function') {
-                fpApplyPasswordResetFromHash();
-            }
-        }, 0);
+        Promise.resolve(restoreSessionFromStorage()).catch(function (e) {
+            console.error(e);
+        });
+        if (typeof fpApplyPasswordResetFromHash === 'function') {
+            fpApplyPasswordResetFromHash();
+        }
         
         // Инициализация обработчиков выбора ответов
         document.querySelectorAll('.option').forEach(option => {
@@ -10565,6 +10634,9 @@ function startTest() {
 }
 
 function showScreen(screenId) {
+    try {
+        document.documentElement.removeAttribute('data-fp-boot-screen');
+    } catch (e) {}
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
@@ -10598,14 +10670,21 @@ async function restoreSessionFromStorage() {
         checkPlatformAuth();
     }
     const raw = localStorage.getItem('currentUser');
-    if (!raw) return;
+    if (!raw) {
+        showScreen('auth-screen');
+        return;
+    }
     let user;
     try {
         user = JSON.parse(raw);
     } catch (e) {
+        showScreen('auth-screen');
         return;
     }
-    if (!user || !user.email) return;
+    if (!user || !user.email) {
+        showScreen('auth-screen');
+        return;
+    }
     currentUser = user;
     window.fpPlatformCurrentUser = user;
 
@@ -10617,20 +10696,34 @@ async function restoreSessionFromStorage() {
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
     }
 
-    await refreshPlatformProfileFromServer(true);
-
     if (currentUser && currentUser.personality_type) {
         showScreen('platform-screen');
-        await updateProfileData();
     } else {
         showScreen('intro-screen');
     }
     if (typeof showBottomNavigation === 'function') {
         showBottomNavigation();
     }
-    /* Продлеваем «скользящие» 7 дней при каждом успешном восстановлении сессии */
     if (typeof savePlatformAuth === 'function') {
         savePlatformAuth(currentUser);
+    }
+    if (currentUser && currentUser.personality_type && typeof updateProfileData === 'function') {
+        updateProfileData();
+    }
+
+    refreshPlatformProfileFromServer(true)
+        .then(function () {
+            if (!currentUser || !currentUser.personality_type) return;
+            if (typeof updateProfileData === 'function') {
+                return updateProfileData();
+            }
+        })
+        .catch(function (e) {
+            console.warn('[profile] restore refresh', e);
+        });
+
+    if (typeof fpGoalEnsureLocalesForUi === 'function') {
+        fpGoalEnsureLocalesForUi();
     }
 }
 
@@ -11056,6 +11149,148 @@ function setGoalNavActive(isActive) {
         return null;
     }
 
+    var fpGoalLangSyncToken = 0;
+
+    function fpGoalHasCyrillic(s) {
+        return /[\u0400-\u04FF]/.test(String(s || ''));
+    }
+
+    function fpGoalInferContentLang(text, plan) {
+        if (plan && plan.lang === 'en') return 'en';
+        if (plan && plan.lang === 'ru') return 'ru';
+        var sample =
+            (plan && plan.title) ||
+            (plan && plan.intro) ||
+            text ||
+            '';
+        return fpGoalHasCyrillic(sample) ? 'ru' : 'en';
+    }
+
+    function fpGoalDisplayBundle(entry) {
+        if (!entry) {
+            return { text: '', label: '', plan: null };
+        }
+        var ui = typeof getFpLang === 'function' ? getFpLang() : 'ru';
+        if (entry.locales && entry.locales[ui]) {
+            var loc = entry.locales[ui];
+            return {
+                text: loc.text != null ? loc.text : entry.text,
+                label: loc.label != null ? loc.label : entry.label,
+                plan: loc.plan || entry.plan
+            };
+        }
+        var src = fpGoalInferContentLang(entry.text, entry.plan);
+        if (ui === src) {
+            return {
+                text: entry.text,
+                label: entry.label,
+                plan: entry.plan
+            };
+        }
+        return {
+            text: entry.text,
+            label: entry.label,
+            plan: entry.plan
+        };
+    }
+
+    function fpGoalWithDisplay(entry) {
+        if (!entry) return null;
+        var b = fpGoalDisplayBundle(entry);
+        return {
+            id: entry.id,
+            text: b.text,
+            label: b.label,
+            plan: b.plan,
+            answers: entry.answers,
+            ownerEmail: entry.ownerEmail,
+            createdAt: entry.createdAt,
+            updatedAt: entry.updatedAt,
+            completedPhases: entry.completedPhases,
+            completedSteps: entry.completedSteps,
+            phaseReviews: entry.phaseReviews,
+            planJournal: entry.planJournal,
+            weekReminders: entry.weekReminders,
+            locales: entry.locales
+        };
+    }
+
+    function fpGoalNeedsLocale(entry, uiLang) {
+        if (!entry) return false;
+        if (entry.locales && entry.locales[uiLang]) return false;
+        var hasPlan = !!(entry.plan && entry.plan.title);
+        var hasText = !!(entry.text && String(entry.text).trim());
+        if (!hasPlan && !hasText) return false;
+        return fpGoalInferContentLang(entry.text, entry.plan) !== uiLang;
+    }
+
+    async function fpGoalFetchLocaleBundle(entry, targetLang) {
+        var base = window.fpSupabaseUrl;
+        var key = window.fpSupabaseAnonKey;
+        if (!base || !key) return null;
+        try {
+            var res = await fetch(
+                base.replace(/\/$/, '') + '/functions/v1/goal-plan-generate',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: 'Bearer ' + key,
+                        apikey: key
+                    },
+                    body: JSON.stringify({
+                        action: 'translate_plan',
+                        target_lang: targetLang,
+                        plan: entry.plan || null,
+                        goal_text: entry.text || ''
+                    })
+                }
+            );
+            var data = await res.json();
+            if (!data || !data.ok) return null;
+            var plan =
+                data.plan && typeof fpGoalNormalizePlanObject === 'function'
+                    ? fpGoalNormalizePlanObject(data.plan) || data.plan
+                    : data.plan;
+            if (plan && typeof plan === 'object') {
+                plan.lang = targetLang;
+            }
+            var goalText = String(data.goal_text || entry.text || '').trim();
+            return {
+                text: goalText || entry.text,
+                label: fpGoalCardLabel(goalText || entry.text, plan),
+                plan: plan || entry.plan
+            };
+        } catch (e) {
+            console.warn('[goal-i18n]', e);
+            return null;
+        }
+    }
+
+    async function fpGoalEnsureLocalesForUi() {
+        var ui = typeof getFpLang === 'function' ? getFpLang() : 'ru';
+        var goals = fpGoalLoadGoalsList();
+        var token = ++fpGoalLangSyncToken;
+        var changed = false;
+        for (var i = 0; i < goals.length; i++) {
+            var g = goals[i];
+            if (!fpGoalNeedsLocale(g, ui)) continue;
+            var bundle = await fpGoalFetchLocaleBundle(g, ui);
+            if (token !== fpGoalLangSyncToken || !bundle) continue;
+            if (!g.locales) g.locales = {};
+            g.locales[ui] = bundle;
+            g.updatedAt = Date.now();
+            changed = true;
+        }
+        if (!changed) return;
+        fpGoalSaveGoalsList(goals);
+        if (fpGoalViewMode === 'list') {
+            fpGoalRenderGoalsList();
+        } else if (typeof renderGoalContent === 'function') {
+            renderGoalContent();
+        }
+    }
+
     function fpGoalMigrateLegacyGoals() {
         if (!fpGoalAccountKey()) return [];
 
@@ -11135,6 +11370,11 @@ function setGoalNavActive(isActive) {
             entry.completedPhases = [];
             entry.completedSteps = {};
         }
+        if (plan && typeof plan === 'object') {
+            var genLang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
+            if (!plan.lang) plan.lang = genLang;
+        }
+        entry.locales = {};
         fpGoalEnsureExecutionData(entry);
         fpGoalSaveGoalsList(goals);
         return entry;
@@ -11176,6 +11416,9 @@ function setGoalNavActive(isActive) {
         if (g.plan) {
             fpGoalViewMode = 'detail';
             renderGoalContent();
+            if (typeof fpGoalEnsureLocalesForUi === 'function') {
+                fpGoalEnsureLocalesForUi();
+            }
         } else {
             fpGoalViewMode = 'edit';
             renderGoalContent();
@@ -11227,6 +11470,7 @@ function setGoalNavActive(isActive) {
         }
         var html = '';
         goals.forEach(function (g) {
+            var disp = fpGoalDisplayBundle(g);
             var meta = g.plan
                 ? fpT('goal.card_has_plan')
                 : fpT('goal.card_no_plan');
@@ -11237,7 +11481,7 @@ function setGoalNavActive(isActive) {
                 gid +
                 '" onclick="fpGoalOpenGoal(this.getAttribute(\'data-goal-id\'))">' +
                 '<span class="goal-card__text">' +
-                fpGoalEscapeHtml(g.label || g.text || '') +
+                fpGoalEscapeHtml(disp.label || disp.text || '') +
                 '</span>' +
                 '<span class="goal-card__meta">' +
                 fpGoalEscapeHtml(meta) +
@@ -14434,7 +14678,8 @@ function setGoalNavActive(isActive) {
             fpGoalViewMode = 'new';
         }
 
-        var activeGoal = fpGoalActiveId ? fpGoalFindGoal(goals, fpGoalActiveId) : null;
+        var activeGoalRaw = fpGoalActiveId ? fpGoalFindGoal(goals, fpGoalActiveId) : null;
+        var activeGoal = activeGoalRaw ? fpGoalWithDisplay(activeGoalRaw) : null;
         var draft = '';
         if (activeGoal && activeGoal.text) {
             draft = activeGoal.text;
@@ -14615,8 +14860,8 @@ function setGoalNavActive(isActive) {
             fpGoalOnInput();
         }
         var savedAnswers =
-            activeGoal && activeGoal.answers
-                ? activeGoal.answers
+            activeGoalRaw && activeGoalRaw.answers
+                ? activeGoalRaw.answers
                 : fpGoalLoadAnswers();
         fpGoalBindAnswersToForm(savedAnswers);
 
@@ -18444,5 +18689,3 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
-
-    
