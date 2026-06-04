@@ -3238,6 +3238,201 @@
             background: rgba(99, 102, 241, 0.08);
             color: #1a2858;
         }
+        .goal-victory-btn {
+            display: block;
+            width: 100%;
+            margin-top: 18px;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #fff;
+            background: linear-gradient(135deg, #1e3a8a 0%, #4338ca 42%, #2563eb 100%);
+            box-shadow:
+                0 8px 28px rgba(37, 99, 235, 0.45),
+                0 0 24px rgba(96, 165, 250, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .goal-victory-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 32px rgba(37, 99, 235, 0.55),
+                0 0 36px rgba(147, 197, 253, 0.5);
+        }
+        .goal-victory-claimed {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            text-align: center;
+            font-weight: 600;
+            color: #c7d6ff;
+            background: rgba(30, 58, 138, 0.25);
+            border: 1px solid rgba(120, 165, 255, 0.35);
+        }
+        .goal-victory-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 12000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .goal-victory-overlay.is-active {
+            display: flex;
+        }
+        .goal-victory-overlay__veil {
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 8, 24, 0.88);
+            backdrop-filter: blur(6px);
+        }
+        .goal-victory-overlay__scene {
+            position: relative;
+            z-index: 1;
+            width: min(92vw, 420px);
+            text-align: center;
+            padding: 28px 20px 24px;
+        }
+        .goal-victory-overlay__star-wrap {
+            position: relative;
+            width: min(72vw, 280px);
+            height: min(72vw, 280px);
+            margin: 0 auto 20px;
+        }
+        .goal-victory-overlay__star {
+            width: 100%;
+            height: 100%;
+            transform-origin: 50% 46%;
+            filter:
+                drop-shadow(0 0 22px rgba(130, 240, 255, 0.75))
+                drop-shadow(0 0 48px rgba(50, 150, 230, 0.45));
+        }
+        .goal-victory-overlay__star.is-idle-glow {
+            animation: fp-goal-victory-star-glow 3.2s ease-in-out infinite;
+        }
+        .goal-victory-overlay__star.is-spinning {
+            animation: fp-goal-victory-star-spin 2.1s cubic-bezier(0.34, 1.1, 0.5, 1) forwards;
+        }
+        @keyframes fp-goal-victory-star-spin {
+            0% {
+                transform: rotate(0deg) scale(0.55);
+                opacity: 0.35;
+                filter: drop-shadow(0 0 8px rgba(80, 160, 255, 0.4));
+            }
+            14% {
+                opacity: 1;
+                filter:
+                    drop-shadow(0 0 28px rgba(120, 220, 255, 1))
+                    drop-shadow(0 0 56px rgba(56, 130, 255, 0.9));
+            }
+            78% {
+                transform: rotate(720deg) scale(1);
+                opacity: 1;
+                filter:
+                    drop-shadow(0 0 32px rgba(140, 230, 255, 1))
+                    drop-shadow(0 0 64px rgba(70, 140, 255, 0.85));
+            }
+            100% {
+                transform: rotate(720deg) scale(1);
+                opacity: 1;
+                filter:
+                    drop-shadow(0 0 24px rgba(100, 200, 255, 0.85))
+                    drop-shadow(0 0 48px rgba(50, 120, 220, 0.55));
+            }
+        }
+        @keyframes fp-goal-victory-star-glow {
+            0%,
+            100% {
+                filter:
+                    drop-shadow(0 0 20px rgba(100, 200, 255, 0.7))
+                    drop-shadow(0 0 40px rgba(50, 120, 220, 0.45));
+            }
+            50% {
+                filter:
+                    drop-shadow(0 0 32px rgba(160, 230, 255, 0.95))
+                    drop-shadow(0 0 60px rgba(80, 150, 255, 0.65));
+            }
+        }
+        .goal-victory-overlay__sparks {
+            position: absolute;
+            inset: -8%;
+            pointer-events: none;
+            overflow: visible;
+        }
+        .goal-victory-spark {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(160, 220, 255, 0.95);
+            opacity: 0;
+        }
+        .goal-victory-overlay.is-sparking .goal-victory-spark {
+            animation: fp-goal-victory-spark-fly 1.4s ease-out forwards;
+        }
+        @keyframes fp-goal-victory-spark-fly {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0.4);
+            }
+            18% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--fp-spark-tx), var(--fp-spark-ty)) scale(0.2);
+            }
+        }
+        .goal-victory-overlay__quote {
+            margin: 0 0 8px;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(1.15rem, 4.2vw, 1.45rem);
+            font-weight: 600;
+            font-style: italic;
+            line-height: 1.45;
+            color: #e8f0ff;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s;
+        }
+        .goal-victory-overlay__quote.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .goal-victory-overlay__author {
+            margin: 0 0 18px;
+            font-size: 0.92rem;
+            color: rgba(186, 210, 255, 0.85);
+            opacity: 0;
+            transition: opacity 0.6s ease 0.35s;
+        }
+        .goal-victory-overlay__author.is-visible {
+            opacity: 1;
+        }
+        .goal-victory-overlay__close {
+            padding: 12px 28px;
+            border: 1px solid rgba(140, 180, 255, 0.45);
+            border-radius: 999px;
+            background: rgba(20, 36, 88, 0.55);
+            color: #e8f0ff;
+            font-weight: 600;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.4s ease 0.5s;
+        }
+        .goal-victory-overlay__close.is-visible {
+            opacity: 1;
+        }
+        html.fp-platform-dark .goal-victory-btn {
+            box-shadow:
+                0 8px 28px rgba(37, 99, 235, 0.35),
+                0 0 20px rgba(56, 130, 255, 0.25);
+        }
         .goal-flow__error {
             margin-top: 14px;
             padding: 12px 14px;
@@ -7493,6 +7688,18 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                     <div class="platform-main-content">
                         <div id="goal-content"></div>
                     </div>
+                    <div id="goalVictoryOverlay" class="goal-victory-overlay" aria-hidden="true">
+                        <div class="goal-victory-overlay__veil" onclick="fpGoalCloseVictoryOverlay()"></div>
+                        <div class="goal-victory-overlay__scene" role="dialog" aria-modal="true" aria-labelledby="goalVictoryQuote">
+                            <div class="goal-victory-overlay__star-wrap">
+                                <div class="goal-victory-overlay__sparks" id="goalVictorySparks" aria-hidden="true"></div>
+                                <div class="goal-victory-overlay__star" id="goalVictoryStar" aria-hidden="true"></div>
+                            </div>
+                            <p class="goal-victory-overlay__quote" id="goalVictoryQuote"></p>
+                            <p class="goal-victory-overlay__author" id="goalVictoryAuthor"></p>
+                            <button type="button" class="goal-victory-overlay__close" id="goalVictoryCloseBtn" onclick="fpGoalCloseVictoryOverlay()" data-i18n="goal.victory_close">Закрыть</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ЭКРАН ЦЕННОСТИ (ВНУТРИ ПЛАТФОРМЫ) -->
@@ -7732,6 +7939,10 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.list_title': 'Мои Цели',
             'goal.add_goal_btn': 'Добавить цель',
             'goal.delete_btn': 'Удалить цель',
+            'goal.victory_btn': 'Получить мою звезду',
+            'goal.victory_claimed': '★ Ваша звезда засияла — цель пройдена до конца',
+            'goal.victory_close': 'Закрыть',
+            'goal.victory_quote_fallback': 'Вы дошли до конца своего маршрута. То, что вы сделали, уже меняет вашу траекторию.',
             'goal.delete_confirm': 'Удалить эту цель? План и прогресс по ней будут потеряны.',
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
             'goal.card_no_plan': 'Продолжить настройку',
@@ -8032,6 +8243,10 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.list_title': 'My goals',
             'goal.add_goal_btn': 'Add goal',
             'goal.delete_btn': 'Delete goal',
+            'goal.victory_btn': 'Claim my star',
+            'goal.victory_claimed': '★ Your star shines — goal completed to the end',
+            'goal.victory_close': 'Close',
+            'goal.victory_quote_fallback': 'You reached the end of your route. What you did already changes your trajectory.',
             'goal.delete_confirm': 'Delete this goal? Its plan and progress will be lost.',
             'goal.card_has_plan': 'Plan ready — tap to open',
             'goal.card_no_plan': 'Continue setup',
@@ -10443,6 +10658,66 @@ const ARCHETYPE_SOURCE_EN = {
             </ul>
         `
     }
+};
+
+/** По 5 вдохновляющих цитат успешных людей на каждый архетип (при завершении цели). */
+const FP_ARCHETYPE_VICTORY_QUOTES = {
+    "amygdala-dopamine-control": [
+        { author: "Steve Jobs", ru: "Ваше время ограничено — не тратьте его, живя чужой жизнью.", en: "Your time is limited — don't waste it living someone else's life." },
+        { author: "Nikola Tesla", ru: "Все, что разум человека способен постичь и во что он способен поверить, достижимо.", en: "What the mind can conceive and believe, it can achieve." },
+        { author: "Walt Disney", ru: "Все наши мечты могут сбыться, если хватит смелости их преследовать.", en: "All our dreams can come true, if we have the courage to pursue them." },
+        { author: "Marie Curie", ru: "Ничего в жизни не следует бояться — нужно только понять.", en: "Nothing in life is to be feared; it is only to be understood." },
+        { author: "Elon Musk", ru: "Когда что-то достаточно важно, вы делаете это, даже если шансы не в вашу пользу.", en: "When something is important enough, you do it even if the odds are not in your favor." }
+    ],
+    "amygdala-dopamine-connection": [
+        { author: "Oprah Winfrey", ru: "Великие моменты рождаются из смелости воспользоваться маленькими возможностями.", en: "Great moments are born from the courage to seize small opportunities." },
+        { author: "Barack Obama", ru: "Если люди сомневаются, насколько далеко они могут зайти, пусть посмотрят, как далеко они уже зашли.", en: "If you're doubting how far you can go, see how far you've already come." },
+        { author: "Richard Branson", ru: "Возможности в бизнесе рождаются из проблем — решайте их.", en: "Business opportunities are like buses — there's always another coming." },
+        { author: "Malala Yousafzai", ru: "Одна книга, одна ручка, один ребёнок и один учитель могут изменить мир.", en: "One child, one teacher, one book, one pen can change the world." },
+        { author: "Winston Churchill", ru: "Успех — это умение идти от поражения к поражению, не теряя энтузиазма.", en: "Success is going from failure to failure without loss of enthusiasm." }
+    ],
+    "amygdala-serotonin-control": [
+        { author: "Henry David Thoreau", ru: "Идите уверенно по направлению к своей мечте. Живите жизнью, которую вы себе представили.", en: "Go confidently in the direction of your dreams. Live the life you have imagined." },
+        { author: "Albert Einstein", ru: "Важно не переставать задавать вопросы. Любопытство имеет собственную причину для существования.", en: "The important thing is not to stop questioning. Curiosity has its own reason for existing." },
+        { author: "Frida Kahlo", ru: "Я рисую свою реальность — иначе как мне её пережить?", en: "I paint my own reality — how else am I to live it?" },
+        { author: "Charles Darwin", ru: "Выживает не самый сильный, а самый приспособленный к изменениям.", en: "It is not the strongest that survives, but the most adaptable to change." },
+        { author: "Virginia Woolf", ru: "Нет барьера, нет замка, который вы не могли бы преодолеть, когда находите свой путь.", en: "There is no gate, no lock that you cannot open once you find your way." }
+    ],
+    "amygdala-serotonin-connection": [
+        { author: "Nelson Mandela", ru: "Победа всегда возможна для тех, кто отказывается сдаваться.", en: "It always seems impossible until it's done." },
+        { author: "Eleanor Roosevelt", ru: "Будущее принадлежит тем, кто верит в красоту своей мечты.", en: "The future belongs to those who believe in the beauty of their dreams." },
+        { author: "Dalai Lama XIV", ru: "Будьте добры, когда это возможно. А это возможно всегда.", en: "Be kind whenever possible. It is always possible." },
+        { author: "Mikhail Gorbachev", ru: "Если то, что вы делаете, кажется вам важным, вы найдёте способ.", en: "If what you are doing is important, you will find a way." },
+        { author: "Desmond Tutu", ru: "Мы принадлежим друг другу — мы связаны единой тканью человечества.", en: "My humanity is bound up in yours, for we can only be human together." }
+    ],
+    "hippocampus-dopamine-control": [
+        { author: "Sun Tzu", ru: "Победа достаётся тому, кто заранее всё просчитал.", en: "Victory belongs to those who calculate thoroughly in advance." },
+        { author: "Warren Buffett", ru: "Кто не инвестирует в себя, не может управлять ничем другим.", en: "The best investment you can make is in yourself." },
+        { author: "Garri Kasparov", ru: "Борьба на доске — это борьба с собственными ограничениями.", en: "The fight on the board is a fight against your own limitations." },
+        { author: "Indra Nooyi", ru: "Лидерство — это способность превращать видение в пошаговый план.", en: "Leadership is the capacity to translate vision into a roadmap." },
+        { author: "Peter Drucker", ru: "Лучший способ предсказать будущее — создать его.", en: "The best way to predict the future is to create it." }
+    ],
+    "hippocampus-dopamine-connection": [
+        { author: "Ernest Shackleton", ru: "Трудности — это то, что делает приключение достойным.", en: "Difficulties are just things to overcome, after all." },
+        { author: "Jacques Cousteau", ru: "Будущее — это то, ради чего стоит жить.", en: "The future is worth living for." },
+        { author: "Roald Amundsen", ru: "Победа ждёт того, кто готовится так, будто от этого зависит всё.", en: "Victory awaits those who prepare as if everything depends on it." },
+        { author: "Sheryl Sandberg", ru: "Смелость — не отсутствие страха, а решение, что цель важнее.", en: "Courage is not the absence of fear, but action despite it." },
+        { author: "Neil Armstrong", ru: "Это один маленький шаг для человека — и гигантский скачок для команды мечты.", en: "That's one small step for a person, one giant leap for a dream team." }
+    ],
+    "hippocampus-serotonin-control": [
+        { author: "Grace Hopper", ru: "Лучше просить прощения, чем разрешения — если вы уверены в расчётах.", en: "It is easier to ask forgiveness than permission — when your math is sound." },
+        { author: "Richard Feynman", ru: "Первый принцип: не обманывайте себя — а себя обмануть легче всего.", en: "The first principle is that you must not fool yourself — and you are the easiest to fool." },
+        { author: "Sakichi Toyoda", ru: "Без стандартов нет улучшений — только случайные удачи.", en: "Without standards there can be no improvement — only luck." },
+        { author: "Katherine Johnson", ru: "Если они говорят «невозможно», перепроверьте цифры — и покажите путь.", en: "If they say it's impossible, recheck the numbers — then show the path." },
+        { author: "Leonardo da Vinci", ru: "Детали доводят до совершенства, а совершенство — не мелочь.", en: "Details make perfection, and perfection is not a detail." }
+    ],
+    "hippocampus-serotonin-connection": [
+        { author: "Mahatma Gandhi", ru: "Сами станьте тем изменением, которое хотите видеть вокруг.", en: "Be the change you wish to see in the world." },
+        { author: "Mother Teresa", ru: "Не все можем сделать великое, но можем сделать малое с великой любовью.", en: "Not all of us can do great things, but we can do small things with great love." },
+        { author: "Abraham Lincoln", ru: "Лучший способ предсказать будущее — создать его с заботой о людях рядом.", en: "The best way to predict the future is to build it with care for those beside you." },
+        { author: "Ruth Bader Ginsburg", ru: "Реальные изменения происходят, когда мы держим друг друга.", en: "Real change happens when we hold each other up." },
+        { author: "Queen Elizabeth II", ru: "Нужно уметь делать шаг за шагом — и не забывать, ради кого вы это делаете.", en: "It is necessary to take one step at a time — and remember who you do it for." }
+    ]
 };
 
 /** 8 архетипов → 4 legacy-типа с большой premium-базой в getTypeSpecificContent */
@@ -13371,6 +13646,7 @@ function setGoalNavActive(isActive) {
         fpGoalSaveGoalsList(goals);
         fpGoalRefreshNotifyPopoverIfOpen(phaseIdx);
         fpGoalCheckReminders();
+        fpGoalSyncVictoryFooter();
     }
 
     function fpGoalMarkPhaseComplete(phaseIdx) {
@@ -13903,6 +14179,202 @@ function setGoalNavActive(isActive) {
         if (!Array.isArray(entry.planJournal)) entry.planJournal = [];
     }
 
+    function fpGoalIsPlanFullyComplete(entry, plan) {
+        plan = fpGoalNormalizePlanObject(plan) || plan;
+        if (!entry || !plan) return false;
+        var phases = fpGoalCoercePlanPhases(plan);
+        if (!phases.length) return false;
+        var completedPhases = entry.completedPhases || [];
+        var completedSteps = entry.completedSteps || {};
+        for (var i = 0; i < phases.length; i++) {
+            if (completedPhases.indexOf(i) < 0) return false;
+            var steps = phases[i].steps || [];
+            if (!Array.isArray(steps)) steps = [];
+            var done = completedSteps[String(i)] || [];
+            for (var j = 0; j < steps.length; j++) {
+                if (done.indexOf(j) < 0) return false;
+            }
+        }
+        return true;
+    }
+
+    function fpGoalPickVictoryQuote(archetypeKey, goalId) {
+        var list =
+            FP_ARCHETYPE_VICTORY_QUOTES[archetypeKey] ||
+            FP_ARCHETYPE_VICTORY_QUOTES['hippocampus-dopamine-control'];
+        if (!list || !list.length) {
+            return {
+                text: fpT('goal.victory_quote_fallback'),
+                author: ''
+            };
+        }
+        var seed = 0;
+        var sid = String(goalId || '');
+        for (var i = 0; i < sid.length; i++) {
+            seed = (seed + sid.charCodeAt(i) * (i + 3)) % list.length;
+        }
+        var q = list[seed];
+        var lang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
+        return {
+            text: lang === 'en' ? q.en : q.ru,
+            author: q.author
+        };
+    }
+
+    function fpGoalVictoryFooterHtml(entry, plan) {
+        if (!fpGoalIsPlanFullyComplete(entry, plan)) return '';
+        if (entry.victoryStarClaimed) {
+            return (
+                '<p class="goal-victory-claimed">' +
+                fpGoalEscapeHtml(fpT('goal.victory_claimed')) +
+                '</p>'
+            );
+        }
+        return (
+            '<button type="button" class="goal-victory-btn" onclick="fpGoalClaimVictoryStar()">' +
+            fpGoalEscapeHtml(fpT('goal.victory_btn')) +
+            '</button>'
+        );
+    }
+
+    function fpGoalVictoryStarInnerHtml() {
+        return (
+            '<svg class="goal-victory-overlay__star-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">' +
+            '<defs>' +
+            '<radialGradient id="fpVictoryStarBodyG" cx="34%" cy="26%" r="78%">' +
+            '<stop offset="0%" stop-color="#ffffff"/>' +
+            '<stop offset="22%" stop-color="#e8fdff"/>' +
+            '<stop offset="50%" stop-color="#4adfff"/>' +
+            '<stop offset="82%" stop-color="#0590c8"/>' +
+            '<stop offset="100%" stop-color="#024a72"/>' +
+            '</radialGradient>' +
+            '<linearGradient id="fpVictoryStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%">' +
+            '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>' +
+            '<stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>' +
+            '<stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>' +
+            '</linearGradient>' +
+            '</defs>' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="#012d4a" opacity="0.72" transform="translate(100 70) scale(1.045) translate(-100 -70)"/>' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="url(#fpVictoryStarBodyG)"/>' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="none" stroke="url(#fpVictoryStarEdgeG)" stroke-width="1.15" stroke-linejoin="round" opacity="0.88"/>' +
+            '</svg>'
+        );
+    }
+
+    function fpGoalFillVictorySparks(container) {
+        if (!container) return;
+        container.innerHTML = '';
+        var count = 16;
+        for (var i = 0; i < count; i++) {
+            var sp = document.createElement('span');
+            sp.className = 'goal-victory-spark';
+            var angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+            var dist = 70 + Math.random() * 90;
+            sp.style.left = '50%';
+            sp.style.top = '46%';
+            sp.style.setProperty('--fp-spark-tx', Math.cos(angle) * dist + 'px');
+            sp.style.setProperty('--fp-spark-ty', Math.sin(angle) * dist + 'px');
+            sp.style.animationDelay = 0.08 * i + 's';
+            container.appendChild(sp);
+        }
+    }
+
+    function fpGoalClaimVictoryStar() {
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry || !entry.plan || !fpGoalIsPlanFullyComplete(entry, entry.plan)) return;
+        var overlay = document.getElementById('goalVictoryOverlay');
+        var starEl = document.getElementById('goalVictoryStar');
+        var sparksEl = document.getElementById('goalVictorySparks');
+        var quoteEl = document.getElementById('goalVictoryQuote');
+        var authorEl = document.getElementById('goalVictoryAuthor');
+        var closeBtn = document.getElementById('goalVictoryCloseBtn');
+        if (!overlay || !starEl) return;
+
+        var ak =
+            typeof resolveArchetypeKeyFromUser === 'function' && currentUser
+                ? resolveArchetypeKeyFromUser(currentUser)
+                : null;
+        var picked = fpGoalPickVictoryQuote(ak, entry.id);
+
+        if (starEl.innerHTML.indexOf('fpVictoryStarBodyG') < 0) {
+            starEl.innerHTML = fpGoalVictoryStarInnerHtml();
+        }
+        fpGoalFillVictorySparks(sparksEl);
+
+        if (quoteEl) {
+            quoteEl.textContent = picked.text;
+            quoteEl.classList.remove('is-visible');
+        }
+        if (authorEl) {
+            authorEl.textContent = picked.author ? '— ' + picked.author : '';
+            authorEl.classList.remove('is-visible');
+        }
+        if (closeBtn) closeBtn.classList.remove('is-visible');
+
+        starEl.classList.remove('is-idle-glow', 'is-spinning');
+        void starEl.offsetWidth;
+        overlay.classList.add('is-active');
+        overlay.setAttribute('aria-hidden', 'false');
+        overlay.classList.add('is-sparking');
+        starEl.classList.add('is-spinning');
+
+        window.setTimeout(function () {
+            overlay.classList.remove('is-sparking');
+            starEl.classList.remove('is-spinning');
+            starEl.classList.add('is-idle-glow');
+            if (quoteEl) quoteEl.classList.add('is-visible');
+            if (authorEl) authorEl.classList.add('is-visible');
+            if (closeBtn) closeBtn.classList.add('is-visible');
+        }, 2100);
+
+        if (!entry.victoryStarClaimed) {
+            entry.victoryStarClaimed = true;
+            entry.victoryQuoteAuthor = picked.author;
+            entry.updatedAt = Date.now();
+            var goals = fpGoalLoadGoalsList();
+            var e = fpGoalFindGoal(goals, entry.id);
+            if (e) {
+                e.victoryStarClaimed = true;
+                e.victoryQuoteAuthor = picked.author;
+                e.updatedAt = Date.now();
+                fpGoalSaveGoalsList(goals);
+            }
+            fpGoalSyncVictoryFooter();
+        }
+    }
+
+    function fpGoalCloseVictoryOverlay() {
+        var overlay = document.getElementById('goalVictoryOverlay');
+        if (!overlay) return;
+        overlay.classList.remove('is-active', 'is-sparking');
+        overlay.setAttribute('aria-hidden', 'true');
+        var starEl = document.getElementById('goalVictoryStar');
+        if (starEl) starEl.classList.remove('is-spinning', 'is-idle-glow');
+    }
+
+    function fpGoalSyncVictoryFooter() {
+        var panel = document.getElementById('goalPlanPanel');
+        if (!panel || !panel.classList.contains('is-visible')) return;
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry || !entry.plan) return;
+        var html = fpGoalVictoryFooterHtml(entry, entry.plan);
+        var existing = document.getElementById('goalVictoryFooter');
+        var backBtn = panel.querySelector('.goal-plan-edit-btn');
+        if (!html) {
+            if (existing) existing.remove();
+            return;
+        }
+        if (existing) {
+            existing.innerHTML = html;
+            return;
+        }
+        if (!backBtn) return;
+        var wrap = document.createElement('div');
+        wrap.id = 'goalVictoryFooter';
+        wrap.innerHTML = html;
+        backBtn.parentNode.insertBefore(wrap, backBtn);
+    }
+
     function fpGoalBuildPlanJournalHtml(entry) {
         fpGoalEnsureExecutionData(entry);
         var items = entry.planJournal || [];
@@ -14317,6 +14789,15 @@ function setGoalNavActive(isActive) {
             phasesHtml +
             tipsHtml +
             weekHtml +
+            (function () {
+                var activeEntry = fpGoalGetActiveGoalEntry();
+                var footer = activeEntry
+                    ? fpGoalVictoryFooterHtml(activeEntry, plan)
+                    : '';
+                return footer
+                    ? '<div id="goalVictoryFooter">' + footer + '</div>'
+                    : '';
+            })() +
             '<button type="button" class="goal-plan-edit-btn" onclick="fpGoalBackToList()">' +
             fpT('goal.back_to_list') +
             '</button>';
@@ -14891,6 +15372,8 @@ function setGoalNavActive(isActive) {
     window.fpGoalOpenNotifyPopover = fpGoalOpenNotifyPopover;
     window.fpGoalTogglePlanMeta = fpGoalTogglePlanMeta;
     window.fpGoalDeleteGoal = fpGoalDeleteGoal;
+    window.fpGoalClaimVictoryStar = fpGoalClaimVictoryStar;
+    window.fpGoalCloseVictoryOverlay = fpGoalCloseVictoryOverlay;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
