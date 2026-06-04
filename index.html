@@ -3449,16 +3449,13 @@
             width: 100%;
             transform-origin: 32% 78%;
             will-change: transform, opacity;
-            filter:
-                drop-shadow(0 0 10px rgba(130, 240, 255, 0.55))
-                drop-shadow(0 0 22px rgba(50, 150, 230, 0.32));
+            filter: drop-shadow(0 0 6px rgba(100, 200, 255, 0.45));
         }
         .platform-victory-star__rocket.is-launching {
             animation: fp-platform-victory-star-launch 2.6s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
             filter:
-                drop-shadow(0 0 14px rgba(180, 255, 255, 0.95))
-                drop-shadow(0 0 28px rgba(80, 200, 255, 0.75))
-                drop-shadow(0 0 48px rgba(40, 120, 220, 0.45));
+                drop-shadow(0 0 8px rgba(160, 230, 255, 0.7))
+                drop-shadow(0 0 14px rgba(60, 160, 230, 0.4));
         }
         .platform-victory-star__trail {
             opacity: 0;
@@ -3469,10 +3466,25 @@
         }
         @keyframes fp-plat-victory-trail-show {
             0%,
-            44% {
+            42% {
+                opacity: 1;
+            }
+            45% {
+                opacity: 0.15;
+            }
+            46% {
+                opacity: 0;
+            }
+            47% {
                 opacity: 1;
             }
             48%,
+            68% {
+                opacity: 0.95;
+            }
+            82% {
+                opacity: 0.45;
+            }
             100% {
                 opacity: 0;
             }
@@ -3481,58 +3493,78 @@
             transform-origin: 50% 0%;
         }
         .platform-victory-star__rocket.is-launching .platform-victory-star__trail-fx {
-            animation:
-                fp-plat-victory-flame-flicker 0.1s ease-in-out infinite alternate,
-                fp-plat-victory-trail-burst 2.2s cubic-bezier(0.22, 0.88, 0.32, 1) forwards;
+            animation: fp-plat-victory-trail-fx-cycle 2.6s linear forwards;
         }
         .platform-victory-star__rocket.is-launching .platform-victory-star__trail-core {
-            animation: fp-plat-victory-trail-core-pulse 0.14s ease-in-out infinite alternate;
+            animation: fp-plat-victory-trail-core-cycle 2.6s linear forwards;
         }
-        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-sparks circle {
-            animation: fp-plat-victory-spark-twinkle 0.35s ease-in-out infinite alternate;
+        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-sparks {
+            animation: fp-plat-victory-sparks-cycle 2.6s linear forwards;
         }
-        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-sparks circle:nth-child(odd) {
-            animation-duration: 0.28s;
-        }
-        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-sparks circle:nth-child(3n) {
-            animation-delay: 0.08s;
-        }
-        @keyframes fp-plat-victory-flame-flicker {
-            0%,
-            100% {
-                opacity: 0.88;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
-        @keyframes fp-plat-victory-trail-burst {
+        @keyframes fp-plat-victory-trail-fx-cycle {
             0% {
-                transform: scaleY(0.85) scaleX(0.96);
+                transform: scaleY(0.88) scaleX(0.97);
             }
             18% {
-                transform: scaleY(1.15) scaleX(1.04);
+                transform: scaleY(1.12) scaleX(1.03);
             }
-            100% {
-                transform: scaleY(1.42) scaleX(1.06);
+            40% {
+                transform: scaleY(1.38) scaleX(1.05);
             }
-        }
-        @keyframes fp-plat-victory-trail-core-pulse {
-            0%,
-            100% {
-                opacity: 0.88;
+            45% {
+                transform: scaleY(0.5) scaleX(0.9);
+                opacity: 0;
             }
-            50% {
+            47% {
+                transform: scaleY(1.28) scaleX(1.04);
                 opacity: 1;
             }
-        }
-        @keyframes fp-plat-victory-spark-twinkle {
-            0%,
-            100% {
-                opacity: 0.25;
+            62% {
+                transform: scaleY(1.05) scaleX(1.02);
+                opacity: 0.85;
             }
-            50% {
+            80% {
+                transform: scaleY(0.72) scaleX(0.98);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scaleY(0.45) scaleX(0.94);
+                opacity: 0.12;
+            }
+        }
+        @keyframes fp-plat-victory-trail-core-cycle {
+            0%,
+            42% {
+                opacity: 0.96;
+            }
+            46% {
+                opacity: 0;
+            }
+            47%,
+            65% {
                 opacity: 1;
+            }
+            85% {
+                opacity: 0.35;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        @keyframes fp-plat-victory-sparks-cycle {
+            0%,
+            44% {
+                opacity: 1;
+            }
+            46% {
+                opacity: 0;
+            }
+            47%,
+            70% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
             }
         }
         .platform-victory-star__svg {
@@ -3540,6 +3572,10 @@
             width: 100%;
             height: auto;
             overflow: visible;
+            shape-rendering: geometricPrecision;
+        }
+        .platform-victory-star__star-body {
+            shape-rendering: geometricPrecision;
         }
         .goal-victory-claimed-block {
             margin-top: 16px;
