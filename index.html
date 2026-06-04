@@ -2875,6 +2875,8 @@
             color: #1a2248;
             line-height: 1.62;
             font-size: 1.02rem;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         .goal-plan-step:last-child {
             margin-bottom: 0;
@@ -2902,9 +2904,10 @@
             line-height: 20px;
             text-align: center;
             color: #6a7898;
-            cursor: pointer;
+            cursor: inherit;
+            pointer-events: none;
             text-decoration: underline;
-            text-decoration-color: rgba(130, 150, 210, 0.42);
+            text-decoration-color: rgba(26, 50, 120, 0.4);
             text-underline-offset: 2px;
             transition:
                 border-color 0.22s ease,
@@ -2913,24 +2916,25 @@
                 box-shadow 0.22s ease,
                 text-decoration-color 0.22s ease;
         }
-        .goal-plan-step__num:hover {
-            color: #0284c7;
-            text-decoration-color: rgba(56, 189, 248, 0.6);
-            border-color: rgba(56, 189, 248, 0.35);
-            background: rgba(56, 189, 248, 0.06);
+        .goal-plan-step:hover .goal-plan-step__num,
+        .goal-plan-step:focus-visible .goal-plan-step__num {
+            color: #1e3a8a;
+            text-decoration-color: rgba(30, 58, 138, 0.55);
+            border-color: rgba(30, 58, 138, 0.45);
+            background: rgba(30, 58, 138, 0.06);
         }
         .goal-plan-step--done .goal-plan-step__num {
-            color: #0284c7;
+            color: #1e3a8a;
             text-decoration: none;
-            border-color: #38bdf8;
-            background: rgba(224, 247, 255, 0.55);
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22);
+            border-color: #1a3278;
+            background: rgba(30, 58, 138, 0.12);
+            box-shadow: 0 0 0 2px rgba(26, 50, 120, 0.28);
         }
-        .goal-plan-step:not(.goal-plan-step--done) .goal-plan-step__num:hover,
-        .goal-plan-step:not(.goal-plan-step--done) .goal-plan-step__num:focus-visible {
-            border-color: rgba(56, 189, 248, 0.45);
-            background: rgba(56, 189, 248, 0.08);
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.12);
+        .goal-plan-step:not(.goal-plan-step--done):hover .goal-plan-step__num,
+        .goal-plan-step:not(.goal-plan-step--done):focus-visible .goal-plan-step__num {
+            border-color: rgba(30, 58, 138, 0.55);
+            background: rgba(30, 58, 138, 0.08);
+            box-shadow: 0 0 0 2px rgba(26, 50, 120, 0.18);
         }
         .goal-plan-step__check {
             position: absolute;
@@ -3414,19 +3418,83 @@
         .goal-victory-overlay__author.is-visible {
             opacity: 1;
         }
-        .goal-victory-overlay__close {
+        .goal-victory-overlay__view-btn {
             padding: 12px 28px;
             border: 1px solid rgba(140, 180, 255, 0.45);
             border-radius: 999px;
-            background: rgba(20, 36, 88, 0.55);
+            background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
             color: #e8f0ff;
             font-weight: 600;
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.4s ease 0.5s;
         }
-        .goal-victory-overlay__close.is-visible {
+        .goal-victory-overlay__view-btn.is-visible {
             opacity: 1;
+        }
+        .platform-victory-star {
+            display: none;
+            position: absolute;
+            left: 50%;
+            bottom: 22%;
+            width: min(28vw, 140px);
+            transform: translateX(-50%);
+            z-index: 14;
+            pointer-events: none;
+        }
+        .platform-victory-star.is-active {
+            display: block;
+        }
+        .platform-victory-star__rocket {
+            width: 100%;
+            transform-origin: 50% 42%;
+            filter:
+                drop-shadow(0 0 18px rgba(130, 240, 255, 0.7))
+                drop-shadow(0 0 36px rgba(50, 150, 230, 0.4));
+        }
+        .platform-victory-star__rocket.is-launching {
+            animation: fp-platform-victory-star-launch 2.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
+        }
+        .platform-victory-star__rocket.is-launching .platform-victory-star__trail {
+            opacity: 1 !important;
+        }
+        .platform-victory-star__svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .goal-victory-claimed-block {
+            margin-top: 16px;
+            text-align: center;
+        }
+        .goal-victory-claimed-block .goal-victory-btn--view {
+            margin-top: 12px;
+        }
+        @keyframes fp-platform-victory-star-launch {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            42% {
+                transform: translateY(-95vh) scale(0.92);
+                opacity: 1;
+            }
+            48% {
+                transform: translateY(95vh) scale(0.85);
+                opacity: 0;
+            }
+            52% {
+                transform: translateY(95vh) scale(0.85);
+                opacity: 0;
+            }
+            58% {
+                transform: translateY(40vh) scale(0.9);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
         }
         html.fp-platform-dark .goal-victory-btn {
             box-shadow:
@@ -7619,6 +7687,9 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                 </div>
                                 <div class="night-moon"></div>
                                 <div class="shooting-stars-layer" id="shootingStarsLayer"></div>
+                                <div class="platform-victory-star" id="platformVictoryStar" hidden aria-hidden="true">
+                                    <div class="platform-victory-star__rocket" id="platformVictoryStarRocket"></div>
+                                </div>
                                 <div class="night-person night-person--default" id="nightPerson">
                                     <div class="person-head"></div>
                                     <div class="person-torso"></div>
@@ -7689,7 +7760,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                         <div id="goal-content"></div>
                     </div>
                     <div id="goalVictoryOverlay" class="goal-victory-overlay" aria-hidden="true">
-                        <div class="goal-victory-overlay__veil" onclick="fpGoalCloseVictoryOverlay()"></div>
+                        <div class="goal-victory-overlay__veil"></div>
                         <div class="goal-victory-overlay__scene" role="dialog" aria-modal="true" aria-labelledby="goalVictoryQuote">
                             <div class="goal-victory-overlay__star-wrap">
                                 <div class="goal-victory-overlay__sparks" id="goalVictorySparks" aria-hidden="true"></div>
@@ -7697,7 +7768,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                             </div>
                             <p class="goal-victory-overlay__quote" id="goalVictoryQuote"></p>
                             <p class="goal-victory-overlay__author" id="goalVictoryAuthor"></p>
-                            <button type="button" class="goal-victory-overlay__close" id="goalVictoryCloseBtn" onclick="fpGoalCloseVictoryOverlay()" data-i18n="goal.victory_close">Закрыть</button>
+                            <button type="button" class="goal-victory-overlay__view-btn" id="goalVictoryViewBtn" onclick="fpGoalViewVictoryStar()" data-i18n="goal.victory_view_btn">Посмотреть звезду</button>
                         </div>
                     </div>
                 </div>
@@ -7941,7 +8012,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.delete_btn': 'Удалить цель',
             'goal.victory_btn': 'Получить мою звезду',
             'goal.victory_claimed': '★ Ваша звезда засияла — цель пройдена до конца',
-            'goal.victory_close': 'Закрыть',
+            'goal.victory_view_btn': 'Посмотреть звезду',
             'goal.victory_quote_fallback': 'Вы дошли до конца своего маршрута. То, что вы сделали, уже меняет вашу траекторию.',
             'goal.delete_confirm': 'Удалить эту цель? План и прогресс по ней будут потеряны.',
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
@@ -8245,7 +8316,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.delete_btn': 'Delete goal',
             'goal.victory_btn': 'Claim my star',
             'goal.victory_claimed': '★ Your star shines — goal completed to the end',
-            'goal.victory_close': 'Close',
+            'goal.victory_view_btn': 'View your star',
             'goal.victory_quote_fallback': 'You reached the end of your route. What you did already changes your trajectory.',
             'goal.delete_confirm': 'Delete this goal? Its plan and progress will be lost.',
             'goal.card_has_plan': 'Plan ready — tap to open',
@@ -11233,6 +11304,9 @@ async function showResult() {
 
 function openGoalScreen(event) {
     if (event) event.preventDefault();
+    if (typeof window.fpDeactivatePlatformVictoryStar === 'function') {
+        window.fpDeactivatePlatformVictoryStar();
+    }
     if (!currentUser || !currentUser.email) {
         alert(fpT('goal.err_need_login'));
         return;
@@ -13604,24 +13678,29 @@ function setGoalNavActive(isActive) {
         if (!Array.isArray(entry.completedSteps[key])) entry.completedSteps[key] = [];
         var arr = entry.completedSteps[key];
         var pos = arr.indexOf(stepIdx);
-        var stepItem = document.querySelector(
-            '.goal-plan-step[data-phase-idx="' +
-                phaseIdx +
-                '"][data-step-idx="' +
-                stepIdx +
-                '"]'
-        );
+        var stepItem =
+            evt && evt.currentTarget && evt.currentTarget.classList
+                ? evt.currentTarget.classList.contains('goal-plan-step')
+                    ? evt.currentTarget
+                    : evt.currentTarget.closest('.goal-plan-step')
+                : null;
+        if (!stepItem) {
+            stepItem = document.querySelector(
+                '.goal-plan-step[data-phase-idx="' +
+                    phaseIdx +
+                    '"][data-step-idx="' +
+                    stepIdx +
+                    '"]'
+            );
+        }
         var numBtn = stepItem ? stepItem.querySelector('.goal-plan-step__num') : null;
         if (pos >= 0) {
             arr.splice(pos, 1);
-            if (stepItem) stepItem.classList.remove('goal-plan-step--done');
+            if (stepItem) {
+                stepItem.classList.remove('goal-plan-step--done');
+                stepItem.setAttribute('aria-label', fpT('goal.step_toggle'));
+            }
             if (numBtn) {
-                numBtn.setAttribute('aria-pressed', 'false');
-                numBtn.setAttribute('aria-label', fpT('goal.step_toggle'));
-                numBtn.blur();
-                numBtn.style.removeProperty('border-color');
-                numBtn.style.removeProperty('background');
-                numBtn.style.removeProperty('box-shadow');
                 var chkOff = numBtn.parentElement
                     ? numBtn.parentElement.querySelector('.goal-plan-step__check')
                     : null;
@@ -13632,15 +13711,11 @@ function setGoalNavActive(isActive) {
             arr.sort(function (a, b) {
                 return a - b;
             });
-            if (stepItem) stepItem.classList.add('goal-plan-step--done');
-            if (numBtn) {
-                numBtn.setAttribute('aria-pressed', 'true');
-                numBtn.setAttribute('aria-label', fpT('goal.step_done'));
-                numBtn.style.removeProperty('border-color');
-                numBtn.style.removeProperty('background');
-                numBtn.style.removeProperty('box-shadow');
-                fpGoalPlayStepCheckAnim(numBtn);
+            if (stepItem) {
+                stepItem.classList.add('goal-plan-step--done');
+                stepItem.setAttribute('aria-label', fpT('goal.step_done'));
             }
+            if (numBtn) fpGoalPlayStepCheckAnim(numBtn);
         }
         entry.updatedAt = Date.now();
         fpGoalSaveGoalsList(goals);
@@ -14126,19 +14201,21 @@ function setGoalNavActive(isActive) {
                 phaseIdx +
                 '" data-step-idx="' +
                 si +
-                '">' +
-                '<span class="goal-plan-step__num-wrap">' +
-                '<button type="button" class="goal-plan-step__num" aria-pressed="' +
-                (stepDone ? 'true' : 'false') +
-                '" aria-label="' +
+                '" role="button" tabindex="0" aria-label="' +
                 fpGoalEscapeHtml(stepDone ? fpT('goal.step_done') : fpT('goal.step_toggle')) +
                 '" onclick="fpGoalTogglePlanStep(' +
                 phaseIdx +
                 ', ' +
                 si +
-                ', event)">' +
+                ', event)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();fpGoalTogglePlanStep(' +
+                phaseIdx +
+                ', ' +
+                si +
+                ', event);}">' +
+                '<span class="goal-plan-step__num-wrap">' +
+                '<span class="goal-plan-step__num" aria-hidden="true">' +
                 stepNum +
-                '.</button>' +
+                '.</span>' +
                 '<span class="goal-plan-step__check" aria-hidden="true">' +
                 fpGoalStepCheckSvg() +
                 '</span></span>' +
@@ -14225,9 +14302,13 @@ function setGoalNavActive(isActive) {
         if (!fpGoalIsPlanFullyComplete(entry, plan)) return '';
         if (entry.victoryStarClaimed) {
             return (
+                '<div class="goal-victory-claimed-block">' +
                 '<p class="goal-victory-claimed">' +
                 fpGoalEscapeHtml(fpT('goal.victory_claimed')) +
-                '</p>'
+                '</p>' +
+                '<button type="button" class="goal-victory-btn goal-victory-btn--view" onclick="fpGoalViewVictoryStar()">' +
+                fpGoalEscapeHtml(fpT('goal.victory_view_btn')) +
+                '</button></div>'
             );
         }
         return (
@@ -14287,7 +14368,7 @@ function setGoalNavActive(isActive) {
         var sparksEl = document.getElementById('goalVictorySparks');
         var quoteEl = document.getElementById('goalVictoryQuote');
         var authorEl = document.getElementById('goalVictoryAuthor');
-        var closeBtn = document.getElementById('goalVictoryCloseBtn');
+        var viewBtn = document.getElementById('goalVictoryViewBtn');
         if (!overlay || !starEl) return;
 
         var ak =
@@ -14309,7 +14390,7 @@ function setGoalNavActive(isActive) {
             authorEl.textContent = picked.author ? '— ' + picked.author : '';
             authorEl.classList.remove('is-visible');
         }
-        if (closeBtn) closeBtn.classList.remove('is-visible');
+        if (viewBtn) viewBtn.classList.remove('is-visible');
 
         starEl.classList.remove('is-idle-glow', 'is-spinning');
         void starEl.offsetWidth;
@@ -14324,7 +14405,7 @@ function setGoalNavActive(isActive) {
             starEl.classList.add('is-idle-glow');
             if (quoteEl) quoteEl.classList.add('is-visible');
             if (authorEl) authorEl.classList.add('is-visible');
-            if (closeBtn) closeBtn.classList.add('is-visible');
+            if (viewBtn) viewBtn.classList.add('is-visible');
         }, 2100);
 
         if (!entry.victoryStarClaimed) {
@@ -14350,6 +14431,108 @@ function setGoalNavActive(isActive) {
         overlay.setAttribute('aria-hidden', 'true');
         var starEl = document.getElementById('goalVictoryStar');
         if (starEl) starEl.classList.remove('is-spinning', 'is-idle-glow');
+        var viewBtn = document.getElementById('goalVictoryViewBtn');
+        if (viewBtn) viewBtn.classList.remove('is-visible');
+    }
+
+    var fpPlatformVictoryStarTimer = null;
+
+    function fpPlatformVictoryStarSvgHtml() {
+        return (
+            '<svg class="platform-victory-star__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">' +
+            '<defs>' +
+            '<clipPath id="fpPlatVictoryStarClip">' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"/>' +
+            '</clipPath>' +
+            '<linearGradient id="fpPlatVictoryTrailG" x1="100" y1="92" x2="100" y2="278" gradientUnits="userSpaceOnUse">' +
+            '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+            '<stop offset="26%" stop-color="#9cf0ff" stop-opacity="0.82"/>' +
+            '<stop offset="48%" stop-color="#30c8ff" stop-opacity="0.45"/>' +
+            '<stop offset="100%" stop-color="#0060c8" stop-opacity="0"/>' +
+            '</linearGradient>' +
+            '<radialGradient id="fpPlatVictoryStarBodyG" cx="34%" cy="26%" r="78%">' +
+            '<stop offset="0%" stop-color="#ffffff"/>' +
+            '<stop offset="22%" stop-color="#e8fdff"/>' +
+            '<stop offset="50%" stop-color="#4adfff"/>' +
+            '<stop offset="82%" stop-color="#0590c8"/>' +
+            '<stop offset="100%" stop-color="#024a72"/>' +
+            '</radialGradient>' +
+            '<linearGradient id="fpPlatVictoryStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%">' +
+            '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>' +
+            '<stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>' +
+            '<stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>' +
+            '</linearGradient>' +
+            '</defs>' +
+            '<g class="platform-victory-star__trail" opacity="0">' +
+            '<path d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z" fill="url(#fpPlatVictoryTrailG)"/>' +
+            '</g>' +
+            '<g filter="drop-shadow(0 0 14px rgba(80,200,255,0.55))">' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="#012d4a" opacity="0.72" transform="translate(100 70) scale(1.045) translate(-100 -70)"/>' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="url(#fpPlatVictoryStarBodyG)"/>' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="none" stroke="url(#fpPlatVictoryStarEdgeG)" stroke-width="1.15" stroke-linejoin="round" opacity="0.88"/>' +
+            '</g></svg>'
+        );
+    }
+
+    function fpPlatformVictoryStarLaunchOnce() {
+        var rocket = document.getElementById('platformVictoryStarRocket');
+        if (!rocket) return;
+        var trail = rocket.querySelector('.platform-victory-star__trail');
+        rocket.classList.remove('is-launching');
+        if (trail) trail.style.opacity = '0';
+        void rocket.offsetWidth;
+        rocket.classList.add('is-launching');
+        if (trail) trail.style.opacity = '1';
+        var onEnd = function (ev) {
+            if (!ev || ev.target !== rocket) return;
+            if (ev.animationName !== 'fp-platform-victory-star-launch') return;
+            rocket.classList.remove('is-launching');
+            if (trail) trail.style.opacity = '0';
+            rocket.removeEventListener('animationend', onEnd);
+        };
+        rocket.addEventListener('animationend', onEnd);
+    }
+
+    function fpDeactivatePlatformVictoryStar() {
+        if (fpPlatformVictoryStarTimer) {
+            window.clearInterval(fpPlatformVictoryStarTimer);
+            fpPlatformVictoryStarTimer = null;
+        }
+        var wrap = document.getElementById('platformVictoryStar');
+        var rocket = document.getElementById('platformVictoryStarRocket');
+        if (wrap) {
+            wrap.hidden = true;
+            wrap.setAttribute('aria-hidden', 'true');
+            wrap.classList.remove('is-active');
+        }
+        if (rocket) rocket.classList.remove('is-launching');
+    }
+
+    function fpActivatePlatformVictoryStar() {
+        var wrap = document.getElementById('platformVictoryStar');
+        var rocket = document.getElementById('platformVictoryStarRocket');
+        if (!wrap || !rocket) return;
+        if (fpPlatformVictoryStarTimer) {
+            window.clearInterval(fpPlatformVictoryStarTimer);
+            fpPlatformVictoryStarTimer = null;
+        }
+        if (!rocket.querySelector('.platform-victory-star__svg')) {
+            rocket.innerHTML = fpPlatformVictoryStarSvgHtml();
+        }
+        wrap.hidden = false;
+        wrap.setAttribute('aria-hidden', 'false');
+        wrap.classList.add('is-active');
+        fpPlatformVictoryStarLaunchOnce();
+        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 5000);
+    }
+
+    function fpGoalViewVictoryStar() {
+        fpGoalCloseVictoryOverlay();
+        if (typeof closeGoalScreen === 'function') closeGoalScreen();
+        if (typeof showScreen === 'function') showScreen('platform-screen');
+        window.requestAnimationFrame(function () {
+            fpActivatePlatformVictoryStar();
+        });
     }
 
     function fpGoalSyncVictoryFooter() {
@@ -14695,24 +14878,6 @@ function setGoalNavActive(isActive) {
                 article +
                 '</details>';
         });
-        if (!currentWeekHtml && phases.length) {
-            var lastPh = phases[activeIdx];
-            if (lastPh) {
-                currentWeekHtml =
-                    '<section class="goal-plan-current-week">' +
-                    '<p class="goal-plan-current-week__title">' +
-                    fpGoalEscapeHtml(fpT('goal.plan_current_week')) +
-                    '</p>' +
-                    fpGoalBuildPhaseArticleHtml(
-                        lastPh,
-                        activeIdx,
-                        plan,
-                        completedPhases,
-                        completedStepsMap
-                    ) +
-                    '</section>';
-            }
-        }
         var allWeeksTitle =
             phases.length > 1
                 ? '<h3 class="goal-plan-all-weeks-title">' +
@@ -15374,6 +15539,8 @@ function setGoalNavActive(isActive) {
     window.fpGoalDeleteGoal = fpGoalDeleteGoal;
     window.fpGoalClaimVictoryStar = fpGoalClaimVictoryStar;
     window.fpGoalCloseVictoryOverlay = fpGoalCloseVictoryOverlay;
+    window.fpGoalViewVictoryStar = fpGoalViewVictoryStar;
+    window.fpDeactivatePlatformVictoryStar = fpDeactivatePlatformVictoryStar;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
