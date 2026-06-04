@@ -3435,10 +3435,9 @@
         .platform-victory-star {
             display: none;
             position: absolute;
-            left: 50%;
-            bottom: 22%;
-            width: min(28vw, 140px);
-            transform: translateX(-50%);
+            left: 10px;
+            bottom: 8%;
+            width: min(14vw, 70px);
             z-index: 14;
             pointer-events: none;
         }
@@ -3447,21 +3446,92 @@
         }
         .platform-victory-star__rocket {
             width: 100%;
-            transform-origin: 50% 42%;
+            transform-origin: 42% 44%;
+            will-change: transform;
             filter:
-                drop-shadow(0 0 18px rgba(130, 240, 255, 0.7))
-                drop-shadow(0 0 36px rgba(50, 150, 230, 0.4));
+                drop-shadow(0 0 10px rgba(130, 240, 255, 0.55))
+                drop-shadow(0 0 22px rgba(50, 150, 230, 0.32));
         }
         .platform-victory-star__rocket.is-launching {
             animation: fp-platform-victory-star-launch 2.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
+            filter:
+                drop-shadow(0 0 14px rgba(180, 255, 255, 0.95))
+                drop-shadow(0 0 28px rgba(80, 200, 255, 0.75))
+                drop-shadow(0 0 48px rgba(40, 120, 220, 0.45));
+        }
+        .platform-victory-star__trail {
+            opacity: 0;
+            transform-origin: 50% 8%;
+            transition: opacity 0.12s ease;
         }
         .platform-victory-star__rocket.is-launching .platform-victory-star__trail {
             opacity: 1 !important;
+        }
+        .platform-victory-star__trail-fx {
+            transform-origin: 50% 0%;
+        }
+        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-fx {
+            animation:
+                fp-plat-victory-flame-flicker 0.1s ease-in-out infinite alternate,
+                fp-plat-victory-trail-burst 2.2s cubic-bezier(0.22, 0.88, 0.32, 1) forwards;
+        }
+        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-core {
+            animation: fp-plat-victory-trail-core-pulse 0.14s ease-in-out infinite alternate;
+        }
+        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-sparks circle {
+            animation: fp-plat-victory-spark-twinkle 0.35s ease-in-out infinite alternate;
+        }
+        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-sparks circle:nth-child(odd) {
+            animation-duration: 0.28s;
+        }
+        .platform-victory-star__rocket.is-launching .platform-victory-star__trail-sparks circle:nth-child(3n) {
+            animation-delay: 0.08s;
+        }
+        @keyframes fp-plat-victory-flame-flicker {
+            0%,
+            100% {
+                opacity: 0.9;
+                filter: brightness(1) saturate(1.05) drop-shadow(0 0 8px rgba(160, 240, 255, 0.5));
+            }
+            50% {
+                opacity: 1;
+                filter: brightness(1.28) saturate(1.2) drop-shadow(0 0 16px rgba(255, 255, 255, 0.75));
+            }
+        }
+        @keyframes fp-plat-victory-trail-burst {
+            0% {
+                transform: scaleY(0.85) scaleX(0.96);
+            }
+            18% {
+                transform: scaleY(1.15) scaleX(1.04);
+            }
+            100% {
+                transform: scaleY(1.42) scaleX(1.06);
+            }
+        }
+        @keyframes fp-plat-victory-trail-core-pulse {
+            0%,
+            100% {
+                opacity: 0.88;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        @keyframes fp-plat-victory-spark-twinkle {
+            0%,
+            100% {
+                opacity: 0.25;
+            }
+            50% {
+                opacity: 1;
+            }
         }
         .platform-victory-star__svg {
             display: block;
             width: 100%;
             height: auto;
+            overflow: visible;
         }
         .goal-victory-claimed-block {
             margin-top: 16px;
@@ -14441,15 +14511,27 @@ function setGoalNavActive(isActive) {
         return (
             '<svg class="platform-victory-star__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">' +
             '<defs>' +
-            '<clipPath id="fpPlatVictoryStarClip">' +
-            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53"/>' +
-            '</clipPath>' +
+            '<linearGradient id="fpPlatVictoryTrailOuterG" x1="100" y1="94" x2="100" y2="282" gradientUnits="userSpaceOnUse">' +
+            '<stop offset="0%" stop-color="#7af6ff" stop-opacity="0.55"/>' +
+            '<stop offset="38%" stop-color="#28b8ff" stop-opacity="0.32"/>' +
+            '<stop offset="100%" stop-color="#003878" stop-opacity="0"/>' +
+            '</linearGradient>' +
             '<linearGradient id="fpPlatVictoryTrailG" x1="100" y1="92" x2="100" y2="278" gradientUnits="userSpaceOnUse">' +
             '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
-            '<stop offset="26%" stop-color="#9cf0ff" stop-opacity="0.82"/>' +
-            '<stop offset="48%" stop-color="#30c8ff" stop-opacity="0.45"/>' +
+            '<stop offset="10%" stop-color="#f4feff" stop-opacity="0.98"/>' +
+            '<stop offset="26%" stop-color="#9cf0ff" stop-opacity="0.88"/>' +
+            '<stop offset="48%" stop-color="#30c8ff" stop-opacity="0.55"/>' +
             '<stop offset="100%" stop-color="#0060c8" stop-opacity="0"/>' +
             '</linearGradient>' +
+            '<linearGradient id="fpPlatVictoryTrailCoreG" x1="100" y1="92" x2="100" y2="252" gradientUnits="userSpaceOnUse">' +
+            '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+            '<stop offset="28%" stop-color="#e8ffff" stop-opacity="0.96"/>' +
+            '<stop offset="100%" stop-color="#5ee8ff" stop-opacity="0"/>' +
+            '</linearGradient>' +
+            '<filter id="fpPlatVictoryTrailBlur" x="-35%" y="-8%" width="170%" height="115%">' +
+            '<feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="b"/>' +
+            '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+            '</filter>' +
             '<radialGradient id="fpPlatVictoryStarBodyG" cx="34%" cy="26%" r="78%">' +
             '<stop offset="0%" stop-color="#ffffff"/>' +
             '<stop offset="22%" stop-color="#e8fdff"/>' +
@@ -14462,11 +14544,23 @@ function setGoalNavActive(isActive) {
             '<stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>' +
             '<stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>' +
             '</linearGradient>' +
+            '<filter id="fpPlatVictoryStarGlow" x="-70%" y="-70%" width="240%" height="240%">' +
+            '<feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b"/>' +
+            '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+            '</filter>' +
             '</defs>' +
-            '<g class="platform-victory-star__trail" opacity="0">' +
-            '<path d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z" fill="url(#fpPlatVictoryTrailG)"/>' +
-            '</g>' +
-            '<g filter="drop-shadow(0 0 14px rgba(80,200,255,0.55))">' +
+            '<g class="platform-victory-star__trail">' +
+            '<g class="platform-victory-star__trail-fx">' +
+            '<path d="M100 92 Q148 100 138 148 L118 282 Q100 292 82 282 L62 148 Q52 100 100 92 Z" fill="url(#fpPlatVictoryTrailOuterG)" opacity="0.9" filter="url(#fpPlatVictoryTrailBlur)"/>' +
+            '<path d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z" fill="url(#fpPlatVictoryTrailG)" opacity="0.98"/>' +
+            '<path class="platform-victory-star__trail-core" d="M100 90 Q120 94 116 128 L104 256 Q100 262 96 256 L84 128 Q80 94 100 90 Z" fill="url(#fpPlatVictoryTrailCoreG)" opacity="0.96"/>' +
+            '<g class="platform-victory-star__trail-sparks" fill="#ffffff">' +
+            '<circle cx="93" cy="118" r="1.5"/><circle cx="107" cy="138" r="1.2"/><circle cx="96" cy="168" r="1.4"/>' +
+            '<circle cx="104" cy="192" r="1.1"/><circle cx="90" cy="212" r="1.25"/><circle cx="110" cy="232" r="1.35"/>' +
+            '<circle cx="100" cy="152" r="1.5"/><circle cx="98" cy="248" r="0.95"/>' +
+            '<circle cx="88" cy="178" r="1.1"/><circle cx="112" cy="205" r="1.2"/>' +
+            '</g></g></g>' +
+            '<g filter="url(#fpPlatVictoryStarGlow)">' +
             '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="#012d4a" opacity="0.72" transform="translate(100 70) scale(1.045) translate(-100 -70)"/>' +
             '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="url(#fpPlatVictoryStarBodyG)"/>' +
             '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="none" stroke="url(#fpPlatVictoryStarEdgeG)" stroke-width="1.15" stroke-linejoin="round" opacity="0.88"/>' +
@@ -14477,17 +14571,13 @@ function setGoalNavActive(isActive) {
     function fpPlatformVictoryStarLaunchOnce() {
         var rocket = document.getElementById('platformVictoryStarRocket');
         if (!rocket) return;
-        var trail = rocket.querySelector('.platform-victory-star__trail');
         rocket.classList.remove('is-launching');
-        if (trail) trail.style.opacity = '0';
         void rocket.offsetWidth;
         rocket.classList.add('is-launching');
-        if (trail) trail.style.opacity = '1';
         var onEnd = function (ev) {
             if (!ev || ev.target !== rocket) return;
             if (ev.animationName !== 'fp-platform-victory-star-launch') return;
             rocket.classList.remove('is-launching');
-            if (trail) trail.style.opacity = '0';
             rocket.removeEventListener('animationend', onEnd);
         };
         rocket.addEventListener('animationend', onEnd);
@@ -14516,14 +14606,14 @@ function setGoalNavActive(isActive) {
             window.clearInterval(fpPlatformVictoryStarTimer);
             fpPlatformVictoryStarTimer = null;
         }
-        if (!rocket.querySelector('.platform-victory-star__svg')) {
+        if (!rocket.querySelector('.platform-victory-star__trail-fx')) {
             rocket.innerHTML = fpPlatformVictoryStarSvgHtml();
         }
         wrap.hidden = false;
         wrap.setAttribute('aria-hidden', 'false');
         wrap.classList.add('is-active');
         fpPlatformVictoryStarLaunchOnce();
-        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 5000);
+        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 10000);
     }
 
     function fpGoalViewVictoryStar() {
