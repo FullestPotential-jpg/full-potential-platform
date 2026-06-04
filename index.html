@@ -3436,24 +3436,25 @@
             display: none;
             position: absolute;
             left: 10px;
-            bottom: 8%;
+            bottom: 3%;
             width: min(14vw, 70px);
             z-index: 14;
             pointer-events: none;
+            overflow: visible;
         }
         .platform-victory-star.is-active {
             display: block;
         }
         .platform-victory-star__rocket {
             width: 100%;
-            transform-origin: 42% 44%;
-            will-change: transform;
+            transform-origin: 32% 78%;
+            will-change: transform, opacity;
             filter:
                 drop-shadow(0 0 10px rgba(130, 240, 255, 0.55))
                 drop-shadow(0 0 22px rgba(50, 150, 230, 0.32));
         }
         .platform-victory-star__rocket.is-launching {
-            animation: fp-platform-victory-star-launch 2.4s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
+            animation: fp-platform-victory-star-launch 2.6s cubic-bezier(0.34, 0.02, 0.12, 1) forwards;
             filter:
                 drop-shadow(0 0 14px rgba(180, 255, 255, 0.95))
                 drop-shadow(0 0 28px rgba(80, 200, 255, 0.75))
@@ -3462,10 +3463,19 @@
         .platform-victory-star__trail {
             opacity: 0;
             transform-origin: 50% 8%;
-            transition: opacity 0.12s ease;
         }
         .platform-victory-star__rocket.is-launching .platform-victory-star__trail {
-            opacity: 1 !important;
+            animation: fp-plat-victory-trail-show 2.6s linear forwards;
+        }
+        @keyframes fp-plat-victory-trail-show {
+            0%,
+            44% {
+                opacity: 1;
+            }
+            48%,
+            100% {
+                opacity: 0;
+            }
         }
         .platform-victory-star__trail-fx {
             transform-origin: 50% 0%;
@@ -3490,12 +3500,10 @@
         @keyframes fp-plat-victory-flame-flicker {
             0%,
             100% {
-                opacity: 0.9;
-                filter: brightness(1) saturate(1.05) drop-shadow(0 0 8px rgba(160, 240, 255, 0.5));
+                opacity: 0.88;
             }
             50% {
                 opacity: 1;
-                filter: brightness(1.28) saturate(1.2) drop-shadow(0 0 16px rgba(255, 255, 255, 0.75));
             }
         }
         @keyframes fp-plat-victory-trail-burst {
@@ -3542,27 +3550,27 @@
         }
         @keyframes fp-platform-victory-star-launch {
             0% {
-                transform: translateY(0) scale(1);
+                transform: translate3d(0, 0, 0) scale(1);
                 opacity: 1;
             }
-            42% {
-                transform: translateY(-95vh) scale(0.92);
+            38% {
+                transform: translate3d(0, -92vh, 0) scale(0.94);
                 opacity: 1;
             }
-            48% {
-                transform: translateY(95vh) scale(0.85);
+            46% {
+                transform: translate3d(0, -98vh, 0) scale(0.9);
                 opacity: 0;
             }
-            52% {
-                transform: translateY(95vh) scale(0.85);
+            47% {
+                transform: translate3d(0, 16px, 0) scale(0.96);
                 opacity: 0;
             }
             58% {
-                transform: translateY(40vh) scale(0.9);
-                opacity: 1;
+                transform: translate3d(0, 5px, 0) scale(0.98);
+                opacity: 0.55;
             }
             100% {
-                transform: translateY(0) scale(1);
+                transform: translate3d(0, 0, 0) scale(1);
                 opacity: 1;
             }
         }
@@ -14570,7 +14578,7 @@ function setGoalNavActive(isActive) {
 
     function fpPlatformVictoryStarLaunchOnce() {
         var rocket = document.getElementById('platformVictoryStarRocket');
-        if (!rocket) return;
+        if (!rocket || rocket.classList.contains('is-launching')) return;
         rocket.classList.remove('is-launching');
         void rocket.offsetWidth;
         rocket.classList.add('is-launching');
@@ -14578,6 +14586,8 @@ function setGoalNavActive(isActive) {
             if (!ev || ev.target !== rocket) return;
             if (ev.animationName !== 'fp-platform-victory-star-launch') return;
             rocket.classList.remove('is-launching');
+            rocket.style.transform = '';
+            rocket.style.opacity = '';
             rocket.removeEventListener('animationend', onEnd);
         };
         rocket.addEventListener('animationend', onEnd);
@@ -14613,7 +14623,7 @@ function setGoalNavActive(isActive) {
         wrap.setAttribute('aria-hidden', 'false');
         wrap.classList.add('is-active');
         fpPlatformVictoryStarLaunchOnce();
-        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 10000);
+        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 15000);
     }
 
     function fpGoalViewVictoryStar() {
