@@ -11111,6 +11111,11 @@ function showScreen(screenId) {
 
     if (screenId === 'platform-screen') {
         window.setTimeout(fpFlushPendingBlueGoalMeteor, 350);
+        window.setTimeout(function () {
+            if (typeof window.fpSyncPlatformVictoryStar === 'function') {
+                window.fpSyncPlatformVictoryStar();
+            }
+        }, 80);
     }
 
     if (isQuestionScreen) {
@@ -11280,6 +11285,9 @@ async function showResult() {
         document.getElementById('goal-screen').style.display = 'none';
         document.getElementById('platform-main').style.display = 'block';
         setGoalNavActive(false);
+        if (typeof window.fpSyncPlatformVictoryStar === 'function') {
+            window.fpSyncPlatformVictoryStar();
+        }
     }
 
     function closeProfileArchetypePanel() {
@@ -11418,8 +11426,8 @@ async function showResult() {
 
 function openGoalScreen(event) {
     if (event) event.preventDefault();
-    if (typeof window.fpDeactivatePlatformVictoryStar === 'function') {
-        window.fpDeactivatePlatformVictoryStar();
+    if (typeof window.fpPausePlatformVictoryStar === 'function') {
+        window.fpPausePlatformVictoryStar();
     }
     if (!currentUser || !currentUser.email) {
         alert(fpT('goal.err_need_login'));
@@ -11454,6 +11462,9 @@ function closeGoalScreen() {
     document.getElementById('goal-screen').style.display = 'none';
     document.getElementById('platform-main').style.display = 'block';
     setGoalNavActive(false);
+    if (typeof window.fpSyncPlatformVictoryStar === 'function') {
+        window.fpSyncPlatformVictoryStar();
+    }
 }
 
 function setGoalNavActive(isActive) {
@@ -14629,19 +14640,68 @@ function setGoalNavActive(isActive) {
         rocket.addEventListener('animationend', onEnd);
     }
 
-    function fpDeactivatePlatformVictoryStar() {
+    function fpGoalHasVictoryStarClaimed() {
+        var goals = fpGoalLoadGoalsList();
+        for (var i = 0; i < goals.length; i++) {
+            if (goals[i] && goals[i].victoryStarClaimed) return true;
+        }
+        return false;
+    }
+
+    function fpIsPlatformMainStarSceneVisible() {
+        var platformScreen = document.getElementById('platform-screen');
+        if (!platformScreen || !platformScreen.classList.contains('active')) return false;
+        var platformMain = document.getElementById('platform-main');
+        if (!platformMain || platformMain.style.display === 'none') return false;
+        var goalScreen = document.getElementById('goal-screen');
+        if (goalScreen && goalScreen.style.display === 'block') return false;
+        var valueScreen = document.getElementById('platform-value-screen');
+        if (valueScreen && valueScreen.style.display === 'block') return false;
+        return true;
+    }
+
+    function fpPausePlatformVictoryStar() {
         if (fpPlatformVictoryStarTimer) {
             window.clearInterval(fpPlatformVictoryStarTimer);
             fpPlatformVictoryStarTimer = null;
         }
-        var wrap = document.getElementById('platformVictoryStar');
         var rocket = document.getElementById('platformVictoryStarRocket');
+        if (rocket) {
+            rocket.classList.remove('is-launching');
+            rocket.style.transform = '';
+            rocket.style.opacity = '';
+        }
+    }
+
+    function fpDeactivatePlatformVictoryStar() {
+        fpPausePlatformVictoryStar();
+        var wrap = document.getElementById('platformVictoryStar');
         if (wrap) {
             wrap.hidden = true;
             wrap.setAttribute('aria-hidden', 'true');
             wrap.classList.remove('is-active');
         }
-        if (rocket) rocket.classList.remove('is-launching');
+    }
+
+    function fpSyncPlatformVictoryStar() {
+        if (!fpGoalHasVictoryStarClaimed()) {
+            fpDeactivatePlatformVictoryStar();
+            return;
+        }
+        if (!fpIsPlatformMainStarSceneVisible()) {
+            fpPausePlatformVictoryStar();
+            return;
+        }
+        var wrap = document.getElementById('platformVictoryStar');
+        if (
+            wrap &&
+            wrap.classList.contains('is-active') &&
+            !wrap.hidden &&
+            fpPlatformVictoryStarTimer
+        ) {
+            return;
+        }
+        fpActivatePlatformVictoryStar();
     }
 
     function fpActivatePlatformVictoryStar() {
@@ -14667,7 +14727,7 @@ function setGoalNavActive(isActive) {
         if (typeof closeGoalScreen === 'function') closeGoalScreen();
         if (typeof showScreen === 'function') showScreen('platform-screen');
         window.requestAnimationFrame(function () {
-            fpActivatePlatformVictoryStar();
+            fpSyncPlatformVictoryStar();
         });
     }
 
@@ -15676,18 +15736,22 @@ function setGoalNavActive(isActive) {
     window.fpGoalClaimVictoryStar = fpGoalClaimVictoryStar;
     window.fpGoalCloseVictoryOverlay = fpGoalCloseVictoryOverlay;
     window.fpGoalViewVictoryStar = fpGoalViewVictoryStar;
+    window.fpPausePlatformVictoryStar = fpPausePlatformVictoryStar;
     window.fpDeactivatePlatformVictoryStar = fpDeactivatePlatformVictoryStar;
+    window.fpSyncPlatformVictoryStar = fpSyncPlatformVictoryStar;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
         document.getElementById('platform-value-screen').style.display = 'block';
+        fpPausePlatformVictoryStar();
         loadValueContent();
     }
 
     function hideValueContent() {
         document.getElementById('platform-value-screen').style.display = 'none';
         document.getElementById('platform-main').style.display = 'block';
+        fpSyncPlatformVictoryStar();
     }
 
     function loadValueContent() {
