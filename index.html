@@ -3741,12 +3741,13 @@
             cursor: pointer;
         }
         .night-person-reminder {
-            position: absolute;
-            left: 50%;
-            bottom: 30%;
-            transform: translateX(-50%);
-            z-index: 9;
-            width: min(88%, 300px);
+            position: relative;
+            left: auto;
+            bottom: auto;
+            transform: none;
+            z-index: 1;
+            width: 100%;
+            max-width: 300px;
             padding: 10px 14px 11px;
             border-radius: 14px;
             border: 1px solid rgba(130, 180, 255, 0.42);
@@ -3758,15 +3759,13 @@
             pointer-events: none;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.32s ease, transform 0.32s ease, visibility 0.32s ease;
+            display: none;
+            transition: opacity 0.32s ease, visibility 0.32s ease;
         }
         .night-person-reminder.is-visible {
+            display: block;
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        .night-person-reminder:not(.is-visible) {
-            transform: translateX(-50%) translateY(8px);
         }
         .night-person-reminder__label {
             margin: 0 0 5px;
@@ -3784,10 +3783,6 @@
             color: #f3f7ff;
         }
         @media (max-width: 768px) {
-            .night-person-reminder {
-                bottom: 34%;
-                width: min(92%, 260px);
-            }
             .platform-victory-star__tap {
                 inset: -30px;
             }
@@ -5064,19 +5059,34 @@
             outline-offset: 4px;
             border-radius: 12px;
         }
-        .night-person-archetype-toast {
+        .night-person-popover-stack {
             position: absolute;
             left: 50%;
-            bottom: 38%;
+            bottom: calc(7% + 26% + 10px);
+            transform: translateX(-50%);
             z-index: 12;
-            max-width: min(300px, 90%);
-            transform: translateX(-50%) translateY(10px) scale(0.96);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: min(92%, 300px);
+            pointer-events: none;
+        }
+        .night-person-archetype-toast {
+            position: relative;
+            left: auto;
+            bottom: auto;
+            z-index: 1;
+            width: 100%;
+            max-width: 300px;
+            transform: none;
             padding: 14px 20px 16px;
             border-radius: 18px;
             text-align: center;
             pointer-events: none;
             opacity: 0;
             visibility: hidden;
+            display: none;
             background: linear-gradient(
                 155deg,
                 rgba(255, 255, 255, 0.18) 0%,
@@ -5092,16 +5102,14 @@
             -webkit-backdrop-filter: blur(14px);
             transition:
                 opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
                 visibility 0s linear 0.38s;
         }
         .night-person-archetype-toast.is-visible {
+            display: block;
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) translateY(0) scale(1);
             transition:
                 opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
                 visibility 0s linear 0s;
         }
         .night-person-archetype-toast__line1 {
@@ -5127,6 +5135,13 @@
         }
         .night-person-archetype-toast__line2.is-hidden {
             display: none;
+        }
+        @media (max-width: 768px) {
+            .night-person-popover-stack {
+                bottom: calc(7% + 26% + 6px);
+                width: min(94%, 260px);
+                gap: 8px;
+            }
         }
         @media (prefers-reduced-motion: reduce) {
             .night-person-archetype-toast {
@@ -8068,9 +8083,18 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                     <button type="button" class="platform-victory-star__tap" id="platformVictoryStarTap" onclick="fpOpenPlatformVictoryAdvice(event)" data-i18n-aria-label="goal.victory_advice_star_label" aria-label="Звезда первой достигнутой цели — нажмите, чтобы прочитать совет"></button>
                                     <div class="platform-victory-star__rocket" id="platformVictoryStarRocket"></div>
                                 </div>
-                                <div class="night-person-reminder" id="nightPersonReminder" hidden aria-hidden="true">
-                                    <p class="night-person-reminder__label" data-i18n="goal.victory_my_thought_label">Моё напоминание</p>
-                                    <p class="night-person-reminder__text" id="nightPersonReminderText"></p>
+                                <div class="night-person-popover-stack" id="nightPersonPopoverStack">
+                                    <div
+                                        class="night-person-archetype-toast"
+                                        id="nightPersonArchetypeToast"
+                                        aria-hidden="true">
+                                        <p class="night-person-archetype-toast__line1" id="nightPersonToastLine1"></p>
+                                        <p class="night-person-archetype-toast__line2" id="nightPersonToastLine2"></p>
+                                    </div>
+                                    <div class="night-person-reminder" id="nightPersonReminder" hidden aria-hidden="true">
+                                        <p class="night-person-reminder__label" data-i18n="goal.victory_my_thought_label">Моё напоминание</p>
+                                        <p class="night-person-reminder__text" id="nightPersonReminderText"></p>
+                                    </div>
                                 </div>
                                 <div class="night-person-reminder-hint" id="nightPersonReminderHint" hidden aria-hidden="true">
                                     <p class="night-person-reminder-hint__text" data-i18n="goal.victory_reminder_tap_hint">Нажмите на архетип — там ваше напоминание</p>
@@ -8083,13 +8107,6 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                     <div class="person-arm right"></div>
                                     <span class="person-accent"></span>
                                     <span class="person-archetype-emblem" aria-hidden="true"></span>
-                                </div>
-                                <div
-                                    class="night-person-archetype-toast"
-                                    id="nightPersonArchetypeToast"
-                                    aria-hidden="true">
-                                    <p class="night-person-archetype-toast__line1" id="nightPersonToastLine1"></p>
-                                    <p class="night-person-archetype-toast__line2" id="nightPersonToastLine2"></p>
                                 </div>
                             </div>
                         </div>
