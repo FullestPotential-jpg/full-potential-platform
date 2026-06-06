@@ -3745,7 +3745,7 @@
             left: 50%;
             bottom: 30%;
             transform: translateX(-50%);
-            z-index: 8;
+            z-index: 9;
             width: min(88%, 300px);
             padding: 10px 14px 11px;
             border-radius: 14px;
@@ -3757,10 +3757,12 @@
             text-align: center;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.35s ease, transform 0.35s ease;
+            visibility: hidden;
+            transition: opacity 0.32s ease, transform 0.32s ease, visibility 0.32s ease;
         }
         .night-person-reminder.is-visible {
             opacity: 1;
+            visibility: visible;
             transform: translateX(-50%) translateY(0);
         }
         .night-person-reminder:not(.is-visible) {
@@ -11413,6 +11415,9 @@ function fpDismissNightPersonArchetypeToast() {
 }
 
 function fpShowNightPersonArchetypeToast() {
+    if (typeof window.fpHideVictoryPersonalReminder === 'function') {
+        window.fpHideVictoryPersonalReminder();
+    }
     var toast = document.getElementById('nightPersonArchetypeToast');
     var line1 = document.getElementById('nightPersonToastLine1');
     var line2 = document.getElementById('nightPersonToastLine2');
@@ -11471,12 +11476,20 @@ function fpBindNightPersonArchetypeInteractions() {
     root.addEventListener('click', function (ev) {
         ev.preventDefault();
         ev.stopPropagation();
-        fpShowNightPersonArchetypeToast();
+        if (typeof window.fpOnNightPersonArchetypeTap === 'function') {
+            window.fpOnNightPersonArchetypeTap();
+        } else {
+            fpShowNightPersonArchetypeToast();
+        }
     });
     root.addEventListener('keydown', function (ev) {
         if (ev.key === 'Enter' || ev.key === ' ') {
             ev.preventDefault();
-            fpShowNightPersonArchetypeToast();
+            if (typeof window.fpOnNightPersonArchetypeTap === 'function') {
+                window.fpOnNightPersonArchetypeTap();
+            } else {
+                fpShowNightPersonArchetypeToast();
+            }
         }
     });
     fpRefreshNightPersonTapAria(root, typeof currentUser !== 'undefined' ? currentUser : null);
@@ -15066,31 +15079,69 @@ function setGoalNavActive(isActive) {
         }
     }
 
-    function fpRenderVictoryPersonalReminder() {
+    var fpVictoryReminderTimer = null;
+
+    function fpHideVictoryPersonalReminder() {
+        if (fpVictoryReminderTimer) {
+            window.clearTimeout(fpVictoryReminderTimer);
+            fpVictoryReminderTimer = null;
+        }
         var el = document.getElementById('nightPersonReminder');
-        var textEl = document.getElementById('nightPersonReminderText');
-        if (!el || !textEl) return;
+        if (!el) return;
+        el.hidden = true;
+        el.setAttribute('aria-hidden', 'true');
+        el.classList.remove('is-visible');
+    }
+
+    function fpShowVictoryPersonalReminder(autoHideMs) {
         if (
             !fpGoalHasVictoryStarClaimed() ||
             (typeof fpIsPlatformMainStarSceneVisible === 'function' &&
                 !fpIsPlatformMainStarSceneVisible())
         ) {
-            el.hidden = true;
-            el.setAttribute('aria-hidden', 'true');
-            el.classList.remove('is-visible');
-            return;
+            fpHideVictoryPersonalReminder();
+            return false;
         }
         var data = fpLoadVictoryPersonalThought();
-        if (!data || !data.text) {
-            el.hidden = true;
-            el.setAttribute('aria-hidden', 'true');
-            el.classList.remove('is-visible');
-            return;
+        if (!data || !data.text) return false;
+        var el = document.getElementById('nightPersonReminder');
+        var textEl = document.getElementById('nightPersonReminderText');
+        if (!el || !textEl) return false;
+        if (typeof fpDismissNightPersonArchetypeToast === 'function') {
+            fpDismissNightPersonArchetypeToast();
         }
         textEl.textContent = data.text;
         el.hidden = false;
         el.setAttribute('aria-hidden', 'false');
         el.classList.add('is-visible');
+        if (fpVictoryReminderTimer) {
+            window.clearTimeout(fpVictoryReminderTimer);
+            fpVictoryReminderTimer = null;
+        }
+        var ms = autoHideMs == null ? 7000 : autoHideMs;
+        if (ms > 0) {
+            fpVictoryReminderTimer = window.setTimeout(fpHideVictoryPersonalReminder, ms);
+        }
+        return true;
+    }
+
+    function fpOnNightPersonArchetypeTap() {
+        var el = document.getElementById('nightPersonReminder');
+        if (el && el.classList.contains('is-visible')) {
+            fpHideVictoryPersonalReminder();
+            return;
+        }
+        var data = fpLoadVictoryPersonalThought();
+        if (data && data.text && fpShowVictoryPersonalReminder(7000)) {
+            return;
+        }
+        if (typeof fpShowNightPersonArchetypeToast === 'function') {
+            fpShowNightPersonArchetypeToast();
+        }
+    }
+
+    function fpRenderVictoryPersonalReminder() {
+        fpHideVictoryPersonalReminder();
     }
 
     function fpHideVictoryPersonalThoughtForm() {
@@ -16378,12 +16429,15 @@ function setGoalNavActive(isActive) {
     window.fpToggleVictoryPersonalThoughtForm = fpToggleVictoryPersonalThoughtForm;
     window.fpSaveVictoryPersonalThoughtFromForm = fpSaveVictoryPersonalThoughtFromForm;
     window.fpRenderVictoryPersonalReminder = fpRenderVictoryPersonalReminder;
+    window.fpOnNightPersonArchetypeTap = fpOnNightPersonArchetypeTap;
+    window.fpHideVictoryPersonalReminder = fpHideVictoryPersonalReminder;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
         document.getElementById('platform-value-screen').style.display = 'block';
         fpPausePlatformVictoryStar();
+        fpHideVictoryPersonalReminder();
         loadValueContent();
     }
 
