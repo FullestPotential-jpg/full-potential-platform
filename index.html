@@ -5072,70 +5072,6 @@
             width: min(92%, 300px);
             pointer-events: none;
         }
-        .night-person-archetype-toast {
-            position: relative;
-            left: auto;
-            bottom: auto;
-            z-index: 1;
-            width: 100%;
-            max-width: 300px;
-            transform: none;
-            padding: 14px 20px 16px;
-            border-radius: 18px;
-            text-align: center;
-            pointer-events: none;
-            opacity: 0;
-            visibility: hidden;
-            display: none;
-            background: linear-gradient(
-                155deg,
-                rgba(255, 255, 255, 0.18) 0%,
-                rgba(140, 170, 255, 0.12) 45%,
-                rgba(30, 45, 110, 0.55) 100%
-            );
-            border: 1px solid rgba(255, 228, 200, 0.55);
-            box-shadow:
-                0 16px 44px rgba(4, 8, 40, 0.55),
-                inset 0 1px 0 rgba(255, 255, 255, 0.35),
-                0 0 32px rgba(120, 160, 255, 0.22);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            transition:
-                opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-                visibility 0s linear 0.38s;
-        }
-        .night-person-archetype-toast.is-visible {
-            display: block;
-            opacity: 1;
-            visibility: visible;
-            transition:
-                opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-                visibility 0s linear 0s;
-        }
-        .night-person-archetype-toast__line1 {
-            margin: 0;
-            font-size: clamp(0.84rem, 2.6vw, 1rem);
-            font-weight: 800;
-            letter-spacing: 0.04em;
-            line-height: 1.35;
-            color: #fff;
-            text-shadow:
-                0 2px 14px rgba(0, 8, 36, 0.65),
-                0 0 24px rgba(100, 140, 255, 0.35);
-        }
-        .night-person-archetype-toast__line2 {
-            margin: 8px 0 0;
-            font-size: clamp(0.72rem, 2.1vw, 0.88rem);
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            line-height: 1.3;
-            color: rgba(255, 224, 186, 0.96);
-            text-shadow: 0 2px 10px rgba(0, 6, 28, 0.55);
-        }
-        .night-person-archetype-toast__line2.is-hidden {
-            display: none;
-        }
         @media (max-width: 768px) {
             .night-person-popover-stack {
                 bottom: calc(7% + 26% + 6px);
@@ -5144,9 +5080,6 @@
             }
         }
         @media (prefers-reduced-motion: reduce) {
-            .night-person-archetype-toast {
-                transition-duration: 0.08s;
-            }
             .night-person:hover {
                 filter: drop-shadow(0 3px 8px rgba(0, 10, 42, 0.72));
             }
@@ -8084,13 +8017,6 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                     <div class="platform-victory-star__rocket" id="platformVictoryStarRocket"></div>
                                 </div>
                                 <div class="night-person-popover-stack" id="nightPersonPopoverStack">
-                                    <div
-                                        class="night-person-archetype-toast"
-                                        id="nightPersonArchetypeToast"
-                                        aria-hidden="true">
-                                        <p class="night-person-archetype-toast__line1" id="nightPersonToastLine1"></p>
-                                        <p class="night-person-archetype-toast__line2" id="nightPersonToastLine2"></p>
-                                    </div>
                                     <div class="night-person-reminder" id="nightPersonReminder" hidden aria-hidden="true">
                                         <p class="night-person-reminder__label" data-i18n="goal.victory_my_thought_label">Моё напоминание</p>
                                         <p class="night-person-reminder__text" id="nightPersonReminderText"></p>
@@ -11481,56 +11407,6 @@ function resolveArchetypeKeyFromUser(user) {
     return null;
 }
 
-var fpNightPersonToastTimer = null;
-
-function fpDismissNightPersonArchetypeToast() {
-    var toast = document.getElementById('nightPersonArchetypeToast');
-    if (toast) {
-        toast.classList.remove('is-visible');
-        toast.setAttribute('aria-hidden', 'true');
-    }
-    fpNightPersonToastTimer = null;
-}
-
-function fpShowNightPersonArchetypeToast() {
-    var toast = document.getElementById('nightPersonArchetypeToast');
-    var line1 = document.getElementById('nightPersonToastLine1');
-    var line2 = document.getElementById('nightPersonToastLine2');
-    if (!toast || !line1 || !line2) return;
-    if (fpNightPersonToastTimer) {
-        clearTimeout(fpNightPersonToastTimer);
-        fpNightPersonToastTimer = null;
-    }
-    var user = typeof currentUser !== 'undefined' ? currentUser : null;
-    var ak = user ? resolveArchetypeKeyFromUser(user) : null;
-    var hasKnown = ak && typeof ARCHETYPE_SOURCE_RU !== 'undefined' && ARCHETYPE_SOURCE_RU[ak];
-    var incomplete =
-        user &&
-        user.personality_type &&
-        user.personality_type === FP_MSG.ru['archetype.incomplete.name'];
-
-    if (hasKnown) {
-        line1.textContent = fpT('night_scene.archetype_icon_title');
-        line2.textContent = fpArchetypeDisplayNameFromUser(user);
-        line2.classList.remove('is-hidden');
-    } else if (incomplete) {
-        line1.textContent = fpT('night_scene.archetype_icon_incomplete');
-        line2.textContent = '';
-        line2.classList.add('is-hidden');
-    } else {
-        line1.textContent = fpT('night_scene.archetype_icon_pending');
-        line2.textContent = '';
-        line2.classList.add('is-hidden');
-    }
-
-    toast.setAttribute('aria-hidden', 'false');
-    toast.classList.add('is-visible');
-
-    fpNightPersonToastTimer = window.setTimeout(function () {
-        fpDismissNightPersonArchetypeToast();
-    }, 2500);
-}
-
 function fpRefreshNightPersonTapAria(personEl, user) {
     if (!personEl) return;
     personEl.setAttribute('role', 'button');
@@ -11553,8 +11429,6 @@ function fpBindNightPersonArchetypeInteractions() {
         ev.stopPropagation();
         if (typeof window.fpOnNightPersonArchetypeTap === 'function') {
             window.fpOnNightPersonArchetypeTap();
-        } else {
-            fpShowNightPersonArchetypeToast();
         }
     });
     root.addEventListener('keydown', function (ev) {
@@ -11562,8 +11436,6 @@ function fpBindNightPersonArchetypeInteractions() {
             ev.preventDefault();
             if (typeof window.fpOnNightPersonArchetypeTap === 'function') {
                 window.fpOnNightPersonArchetypeTap();
-            } else {
-                fpShowNightPersonArchetypeToast();
             }
         }
     });
@@ -15232,7 +15104,7 @@ function setGoalNavActive(isActive) {
             window.clearTimeout(fpVictoryReminderTimer);
             fpVictoryReminderTimer = null;
         }
-        var ms = autoHideMs == null ? 7000 : autoHideMs;
+        var ms = autoHideMs == null ? 0 : autoHideMs;
         if (ms > 0) {
             fpVictoryReminderTimer = window.setTimeout(fpHideVictoryPersonalReminder, ms);
         }
@@ -15241,16 +15113,13 @@ function setGoalNavActive(isActive) {
 
     function fpOnNightPersonArchetypeTap() {
         fpDismissVictoryReminderTapHint();
-        if (typeof fpShowNightPersonArchetypeToast === 'function') {
-            fpShowNightPersonArchetypeToast();
-        }
         var data = fpLoadVictoryPersonalThought();
         if (!data || !data.text) return;
         var el = document.getElementById('nightPersonReminder');
         if (el && el.classList.contains('is-visible')) {
             fpHideVictoryPersonalReminder();
         } else {
-            fpShowVictoryPersonalReminder(7000);
+            fpShowVictoryPersonalReminder(0);
         }
     }
 
