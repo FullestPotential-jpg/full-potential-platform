@@ -3787,6 +3787,53 @@
                 inset: -30px;
             }
         }
+        .platform-victory-star-hint {
+            position: absolute;
+            left: 8px;
+            bottom: calc(3% + min(14vw, 70px) + 10px);
+            z-index: 31;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .platform-victory-star-hint.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .platform-victory-star-hint__text {
+            margin: 0;
+            max-width: min(58vw, 168px);
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1.35;
+            text-align: left;
+            color: rgba(210, 230, 255, 0.95);
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+        }
+        .platform-victory-star-hint__arrow {
+            display: block;
+            margin-left: 10px;
+            font-size: 1.35rem;
+            line-height: 1;
+            color: rgba(170, 220, 255, 0.98);
+            text-shadow: 0 0 10px rgba(90, 170, 255, 0.65);
+            animation: fp-reminder-hint-bounce 1.05s ease-in-out infinite;
+        }
+        @media (max-width: 768px) {
+            .platform-victory-star-hint {
+                left: 6px;
+                bottom: calc(3% + min(14vw, 70px) + 6px);
+            }
+            .platform-victory-star-hint__text {
+                font-size: 0.68rem;
+                max-width: min(62vw, 150px);
+            }
+        }
         .night-person-reminder-hint {
             position: absolute;
             left: 50%;
@@ -8016,6 +8063,10 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                     <button type="button" class="platform-victory-star__tap" id="platformVictoryStarTap" onclick="fpOpenPlatformVictoryAdvice(event)" data-i18n-aria-label="goal.victory_advice_star_label" aria-label="Звезда первой достигнутой цели — нажмите, чтобы прочитать совет"></button>
                                     <div class="platform-victory-star__rocket" id="platformVictoryStarRocket"></div>
                                 </div>
+                                <div class="platform-victory-star-hint" id="platformVictoryStarHint" hidden aria-hidden="true">
+                                    <p class="platform-victory-star-hint__text" data-i18n="goal.victory_star_tap_hint">Нажмите на звезду — она кликабельна</p>
+                                    <span class="platform-victory-star-hint__arrow" aria-hidden="true">↓</span>
+                                </div>
                                 <div class="night-person-popover-stack" id="nightPersonPopoverStack">
                                     <div class="night-person-reminder" id="nightPersonReminder" hidden aria-hidden="true">
                                         <p class="night-person-reminder__label" data-i18n="goal.victory_my_thought_label">Моё напоминание</p>
@@ -8368,6 +8419,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_write_own_save': 'Сохранить напоминание',
             'goal.victory_my_thought_label': 'Моё напоминание',
             'goal.victory_reminder_tap_hint': 'Нажмите на архетип — там ваше напоминание',
+            'goal.victory_star_tap_hint': 'Нажмите на звезду — она кликабельна',
             'goal.victory_write_own_empty': 'Напишите хотя бы несколько слов.',
             'goal.victory_quote_fallback': 'Вы дошли до конца своего маршрута. То, что вы сделали, уже меняет вашу траекторию.',
             'goal.delete_confirm': 'Удалить эту цель? План и прогресс по ней будут потеряны.',
@@ -8683,6 +8735,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_write_own_save': 'Save reminder',
             'goal.victory_my_thought_label': 'My reminder',
             'goal.victory_reminder_tap_hint': 'Tap your archetype to see your reminder',
+            'goal.victory_star_tap_hint': 'Tap the star — it is clickable',
             'goal.victory_write_own_empty': 'Write at least a few words.',
             'goal.victory_quote_fallback': 'You reached the end of your route. What you did already changes your trajectory.',
             'goal.delete_confirm': 'Delete this goal? Its plan and progress will be lost.',
@@ -11883,6 +11936,7 @@ function setGoalNavActive(isActive) {
     const FP_GOALS_LIST_KEY = 'fp_goals_list';
     const FP_VICTORY_PERSONAL_THOUGHT_KEY = 'fp_victory_personal_thought';
     const FP_VICTORY_REMINDER_HINT_PENDING_KEY = 'fp_victory_reminder_hint_pending';
+    const FP_VICTORY_STAR_HINT_PENDING_KEY = 'fp_victory_star_hint_pending';
     var fpGoalCurrentStep = 1;
     var fpGoalViewMode = 'list';
     var fpGoalActiveId = null;
@@ -15068,6 +15122,48 @@ function setGoalNavActive(isActive) {
         fpHideVictoryReminderTapHint();
     }
 
+    function fpVictoryStarHintStorageKey() {
+        return fpGoalScopedStorageKey(FP_VICTORY_STAR_HINT_PENDING_KEY);
+    }
+
+    function fpMarkVictoryStarTapHintPending() {
+        var key = fpVictoryStarHintStorageKey();
+        if (key) localStorage.setItem(key, '1');
+    }
+
+    function fpShowVictoryStarTapHintIfPending() {
+        var key = fpVictoryStarHintStorageKey();
+        if (!key || localStorage.getItem(key) !== '1') return;
+        if (
+            typeof fpIsPlatformMainStarSceneVisible === 'function' &&
+            !fpIsPlatformMainStarSceneVisible()
+        ) {
+            return;
+        }
+        var star = document.getElementById('platformVictoryStar');
+        if (!star || star.hidden || !star.classList.contains('is-active')) return;
+        var hint = document.getElementById('platformVictoryStarHint');
+        if (!hint) return;
+        hint.hidden = false;
+        hint.setAttribute('aria-hidden', 'false');
+        hint.classList.add('is-visible');
+    }
+
+    function fpHideVictoryStarTapHint() {
+        var hint = document.getElementById('platformVictoryStarHint');
+        if (hint) {
+            hint.hidden = true;
+            hint.setAttribute('aria-hidden', 'true');
+            hint.classList.remove('is-visible');
+        }
+    }
+
+    function fpDismissVictoryStarTapHint() {
+        var key = fpVictoryStarHintStorageKey();
+        if (key) localStorage.removeItem(key);
+        fpHideVictoryStarTapHint();
+    }
+
     var fpVictoryReminderTimer = null;
 
     function fpHideVictoryPersonalReminder() {
@@ -15172,6 +15268,8 @@ function setGoalNavActive(isActive) {
         if (wrap.classList.contains('is-launching-click-lock')) return;
         if (rocket && rocket.classList.contains('is-launching')) return;
 
+        fpDismissVictoryStarTapHint();
+
         var ak =
             typeof resolveArchetypeKeyFromUser === 'function' && currentUser
                 ? resolveArchetypeKeyFromUser(currentUser)
@@ -15220,6 +15318,7 @@ function setGoalNavActive(isActive) {
         }
         window.requestAnimationFrame(function () {
             fpShowVictoryReminderTapHintIfPending();
+            fpShowVictoryStarTapHintIfPending();
         });
     }
 
@@ -15341,6 +15440,7 @@ function setGoalNavActive(isActive) {
 
     function fpDeactivatePlatformVictoryStar() {
         fpPausePlatformVictoryStar();
+        fpHideVictoryStarTapHint();
         var wrap = document.getElementById('platformVictoryStar');
         if (wrap) {
             wrap.hidden = true;
@@ -15368,6 +15468,7 @@ function setGoalNavActive(isActive) {
             fpPlatformVictoryStarTimer
         ) {
             fpRenderVictoryPersonalReminder();
+            fpShowVictoryStarTapHintIfPending();
             return;
         }
         fpActivatePlatformVictoryStar();
@@ -15392,14 +15493,17 @@ function setGoalNavActive(isActive) {
         fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 15000);
         fpRenderVictoryPersonalReminder();
         fpShowVictoryReminderTapHintIfPending();
+        fpShowVictoryStarTapHintIfPending();
     }
 
     function fpGoalViewVictoryStar() {
         fpGoalCloseVictoryOverlay();
+        fpMarkVictoryStarTapHintPending();
         if (typeof closeGoalScreen === 'function') closeGoalScreen();
         if (typeof showScreen === 'function') showScreen('platform-screen');
         window.requestAnimationFrame(function () {
             fpSyncPlatformVictoryStar();
+            fpShowVictoryStarTapHintIfPending();
         });
     }
 
@@ -16420,6 +16524,8 @@ function setGoalNavActive(isActive) {
     window.fpHideVictoryPersonalReminder = fpHideVictoryPersonalReminder;
     window.fpDismissVictoryReminderTapHint = fpDismissVictoryReminderTapHint;
     window.fpShowVictoryReminderTapHintIfPending = fpShowVictoryReminderTapHintIfPending;
+    window.fpDismissVictoryStarTapHint = fpDismissVictoryStarTapHint;
+    window.fpShowVictoryStarTapHintIfPending = fpShowVictoryStarTapHintIfPending;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
@@ -16428,6 +16534,7 @@ function setGoalNavActive(isActive) {
         fpPausePlatformVictoryStar();
         fpHideVictoryPersonalReminder();
         fpHideVictoryReminderTapHint();
+        fpHideVictoryStarTapHint();
         loadValueContent();
     }
 
