@@ -10401,6 +10401,68 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
     }
 
     /** Слияние ответа platform_accounts_verify_login в объект пользователя (локальный store или currentUser). */
+    function fpVictoryThoughtLocalKeyForEmail(email) {
+        if (!email) return null;
+        var em =
+            typeof normalizeEmail === 'function'
+                ? normalizeEmail(email)
+                : String(email).trim().toLowerCase();
+        if (!em) return null;
+        return 'fp_victory_personal_thought_' + em.replace(/[^a-z0-9@._-]/g, '_');
+    }
+
+    function fpPersistVictoryThoughtLocal(email, text, updatedAt) {
+        var key = fpVictoryThoughtLocalKeyForEmail(email);
+        if (!key) return;
+        var t = String(text || '').trim();
+        if (t.length < 2) {
+            localStorage.removeItem(key);
+            return;
+        }
+        localStorage.setItem(
+            key,
+            JSON.stringify({
+                text: t.slice(0, 240),
+                updatedAt: updatedAt || Date.now()
+            })
+        );
+    }
+
+    function fpMergeVictoryThoughtFromServer(serverProfile, email) {
+        if (!serverProfile || serverProfile.ok !== true) return;
+        email = email || (typeof currentUser !== 'undefined' && currentUser ? currentUser.email : null);
+        if (!email) return;
+        var serverText =
+            serverProfile.victory_personal_thought != null
+                ? String(serverProfile.victory_personal_thought).trim()
+                : '';
+        var key = fpVictoryThoughtLocalKeyForEmail(email);
+        var local = null;
+        try {
+            var raw = key ? localStorage.getItem(key) : null;
+            if (raw) local = JSON.parse(raw);
+        } catch (e) {}
+        if (serverText.length < 2) {
+            if (local && local.text && typeof syncVictoryThoughtToServerIfPossible === 'function') {
+                syncVictoryThoughtToServerIfPossible(local.text);
+            }
+            return;
+        }
+        var serverAt = serverProfile.victory_personal_thought_at
+            ? new Date(serverProfile.victory_personal_thought_at).getTime()
+            : Date.now();
+        if (local && local.text && local.updatedAt && local.updatedAt > serverAt) {
+            if (typeof syncVictoryThoughtToServerIfPossible === 'function') {
+                syncVictoryThoughtToServerIfPossible(local.text);
+            }
+            return;
+        }
+        fpPersistVictoryThoughtLocal(email, serverText, serverAt);
+        if (typeof window.fpRenderVictoryPersonalReminder === 'function') {
+            window.fpRenderVictoryPersonalReminder();
+        }
+    }
+
     function applyServerProfileToStoredUser(userOrCurrent, serverProfile) {
         if (!userOrCurrent || !serverProfile || serverProfile.ok !== true) return;
         if (serverProfile.personality_type) {
@@ -10414,6 +10476,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
         if (sn && isValidNickname(sn)) {
             userOrCurrent.nickname = sn;
         }
+        fpMergeVictoryThoughtFromServer(serverProfile, userOrCurrent.email);
     }
 
     let fpLastPlatformProfileFetch = 0;
@@ -10441,8 +10504,43 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                 savePlatformAuth(currentUser);
             }
             fpLastPlatformProfileFetch = Date.now();
+            if (typeof window.fpRenderVictoryPersonalReminder === 'function') {
+                window.fpRenderVictoryPersonalReminder();
+            }
         } catch (e) {
             console.warn('[profile] не удалось подтянуть профиль с сервера:', e);
+        }
+    }
+
+    async function syncVictoryThoughtToServerIfPossible(text) {
+        try {
+            if (!window.supabaseClient) return { ok: false };
+            if (!currentUser || !currentUser.email) return { ok: false };
+            const found = findUserByEmail(currentUser.email);
+            const passwordHash = found && found.user ? found.user.password_hash : null;
+            if (!passwordHash) return { ok: false };
+            const trimmed = String(text || '').trim().slice(0, 240);
+            if (trimmed.length < 2) return { ok: false };
+            const { data, error } = await window.supabaseClient.rpc(
+                'platform_accounts_update_victory_thought',
+                {
+                    p_email: normalizeEmail(currentUser.email),
+                    p_hash: passwordHash,
+                    p_text: trimmed
+                }
+            );
+            if (error) {
+                console.warn('[victory-thought] RPC:', error);
+                return { ok: false, error: error };
+            }
+            if (data && data.ok === false) {
+                console.warn('[victory-thought] отклонено:', data);
+                return { ok: false, data: data };
+            }
+            return { ok: true };
+        } catch (e) {
+            console.warn('[victory-thought] не удалось синхронизировать на сервер:', e);
+            return { ok: false, error: e };
         }
     }
 
@@ -14954,9 +15052,18 @@ function setGoalNavActive(isActive) {
     }
 
     function fpSaveVictoryPersonalThought(text) {
-        var payload = { text: String(text || '').trim(), updatedAt: Date.now() };
-        localStorage.setItem(fpVictoryThoughtStorageKey(), JSON.stringify(payload));
+        var payload = { text: String(text || '').trim().slice(0, 240), updatedAt: Date.now() };
+        if (payload.text.length < 2) return;
+        if (currentUser && currentUser.email) {
+            fpPersistVictoryThoughtLocal(currentUser.email, payload.text, payload.updatedAt);
+        } else {
+            var key = fpVictoryThoughtStorageKey();
+            if (key) localStorage.setItem(key, JSON.stringify(payload));
+        }
         fpRenderVictoryPersonalReminder();
+        if (typeof syncVictoryThoughtToServerIfPossible === 'function') {
+            syncVictoryThoughtToServerIfPossible(payload.text);
+        }
     }
 
     function fpRenderVictoryPersonalReminder() {
@@ -15053,13 +15160,7 @@ function setGoalNavActive(isActive) {
 
         fpHideVictoryPersonalThoughtForm();
         if (badgeEl) {
-            badgeEl.textContent =
-                fpT('goal.victory_advice_badge') +
-                ' · ' +
-                fpT('goal.victory_advice_day_hint').replace(
-                    '{n}',
-                    String((picked.dayIndex != null ? picked.dayIndex : fpVictoryDailyDayIndex()) + 1)
-                );
+            badgeEl.textContent = fpT('goal.victory_advice_badge');
         }
         if (fromEl) {
             fromEl.textContent = fpT('goal.victory_advice_from').replace('{name}', archetypeName || '—');
