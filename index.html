@@ -3792,6 +3792,61 @@
                 inset: -30px;
             }
         }
+        .night-person-reminder-hint {
+            position: absolute;
+            left: 50%;
+            bottom: 17%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .night-person-reminder-hint.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .night-person-reminder-hint__text {
+            margin: 0;
+            max-width: min(72vw, 220px);
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1.35;
+            text-align: center;
+            color: rgba(210, 230, 255, 0.95);
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+        }
+        .night-person-reminder-hint__arrow {
+            display: block;
+            font-size: 1.35rem;
+            line-height: 1;
+            color: rgba(170, 220, 255, 0.98);
+            text-shadow: 0 0 10px rgba(90, 170, 255, 0.65);
+            animation: fp-reminder-hint-bounce 1.05s ease-in-out infinite;
+        }
+        @keyframes fp-reminder-hint-bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(7px);
+            }
+        }
+        @media (max-width: 768px) {
+            .night-person-reminder-hint {
+                bottom: 19%;
+            }
+            .night-person-reminder-hint__text {
+                font-size: 0.68rem;
+                max-width: min(78vw, 200px);
+            }
+        }
         @keyframes fp-platform-victory-star-launch {
             0% {
                 transform: translate3d(0, 0, 0) scale(1);
@@ -8017,6 +8072,10 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                     <p class="night-person-reminder__label" data-i18n="goal.victory_my_thought_label">Моё напоминание</p>
                                     <p class="night-person-reminder__text" id="nightPersonReminderText"></p>
                                 </div>
+                                <div class="night-person-reminder-hint" id="nightPersonReminderHint" hidden aria-hidden="true">
+                                    <p class="night-person-reminder-hint__text" data-i18n="goal.victory_reminder_tap_hint">Нажмите на архетип — там ваше напоминание</p>
+                                    <span class="night-person-reminder-hint__arrow" aria-hidden="true">↓</span>
+                                </div>
                                 <div class="night-person night-person--default" id="nightPerson">
                                     <div class="person-head"></div>
                                     <div class="person-torso"></div>
@@ -8365,6 +8424,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_write_own_placeholder': 'Ваша мысль — короткое напоминание себе…',
             'goal.victory_write_own_save': 'Сохранить напоминание',
             'goal.victory_my_thought_label': 'Моё напоминание',
+            'goal.victory_reminder_tap_hint': 'Нажмите на архетип — там ваше напоминание',
             'goal.victory_write_own_empty': 'Напишите хотя бы несколько слов.',
             'goal.victory_quote_fallback': 'Вы дошли до конца своего маршрута. То, что вы сделали, уже меняет вашу траекторию.',
             'goal.delete_confirm': 'Удалить эту цель? План и прогресс по ней будут потеряны.',
@@ -8679,6 +8739,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_write_own_placeholder': 'Your thought — a short reminder to yourself…',
             'goal.victory_write_own_save': 'Save reminder',
             'goal.victory_my_thought_label': 'My reminder',
+            'goal.victory_reminder_tap_hint': 'Tap your archetype to see your reminder',
             'goal.victory_write_own_empty': 'Write at least a few words.',
             'goal.victory_quote_fallback': 'You reached the end of your route. What you did already changes your trajectory.',
             'goal.delete_confirm': 'Delete this goal? Its plan and progress will be lost.',
@@ -11415,9 +11476,6 @@ function fpDismissNightPersonArchetypeToast() {
 }
 
 function fpShowNightPersonArchetypeToast() {
-    if (typeof window.fpHideVictoryPersonalReminder === 'function') {
-        window.fpHideVictoryPersonalReminder();
-    }
     var toast = document.getElementById('nightPersonArchetypeToast');
     var line1 = document.getElementById('nightPersonToastLine1');
     var line2 = document.getElementById('nightPersonToastLine2');
@@ -11935,6 +11993,7 @@ function setGoalNavActive(isActive) {
     const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
     const FP_GOALS_LIST_KEY = 'fp_goals_list';
     const FP_VICTORY_PERSONAL_THOUGHT_KEY = 'fp_victory_personal_thought';
+    const FP_VICTORY_REMINDER_HINT_PENDING_KEY = 'fp_victory_reminder_hint_pending';
     var fpGoalCurrentStep = 1;
     var fpGoalViewMode = 'list';
     var fpGoalActiveId = null;
@@ -15074,9 +15133,50 @@ function setGoalNavActive(isActive) {
             if (key) localStorage.setItem(key, JSON.stringify(payload));
         }
         fpRenderVictoryPersonalReminder();
+        fpMarkVictoryReminderHintPending();
         if (typeof syncVictoryThoughtToServerIfPossible === 'function') {
             syncVictoryThoughtToServerIfPossible(payload.text);
         }
+    }
+
+    function fpVictoryReminderHintStorageKey() {
+        return fpGoalScopedStorageKey(FP_VICTORY_REMINDER_HINT_PENDING_KEY);
+    }
+
+    function fpMarkVictoryReminderHintPending() {
+        var key = fpVictoryReminderHintStorageKey();
+        if (key) localStorage.setItem(key, '1');
+    }
+
+    function fpShowVictoryReminderTapHintIfPending() {
+        var key = fpVictoryReminderHintStorageKey();
+        if (!key || localStorage.getItem(key) !== '1') return;
+        if (
+            typeof fpIsPlatformMainStarSceneVisible === 'function' &&
+            !fpIsPlatformMainStarSceneVisible()
+        ) {
+            return;
+        }
+        var hint = document.getElementById('nightPersonReminderHint');
+        if (!hint) return;
+        hint.hidden = false;
+        hint.setAttribute('aria-hidden', 'false');
+        hint.classList.add('is-visible');
+    }
+
+    function fpHideVictoryReminderTapHint() {
+        var hint = document.getElementById('nightPersonReminderHint');
+        if (hint) {
+            hint.hidden = true;
+            hint.setAttribute('aria-hidden', 'true');
+            hint.classList.remove('is-visible');
+        }
+    }
+
+    function fpDismissVictoryReminderTapHint() {
+        var key = fpVictoryReminderHintStorageKey();
+        if (key) localStorage.removeItem(key);
+        fpHideVictoryReminderTapHint();
     }
 
     var fpVictoryReminderTimer = null;
@@ -15107,9 +15207,6 @@ function setGoalNavActive(isActive) {
         var el = document.getElementById('nightPersonReminder');
         var textEl = document.getElementById('nightPersonReminderText');
         if (!el || !textEl) return false;
-        if (typeof fpDismissNightPersonArchetypeToast === 'function') {
-            fpDismissNightPersonArchetypeToast();
-        }
         textEl.textContent = data.text;
         el.hidden = false;
         el.setAttribute('aria-hidden', 'false');
@@ -15126,17 +15223,17 @@ function setGoalNavActive(isActive) {
     }
 
     function fpOnNightPersonArchetypeTap() {
+        fpDismissVictoryReminderTapHint();
+        if (typeof fpShowNightPersonArchetypeToast === 'function') {
+            fpShowNightPersonArchetypeToast();
+        }
+        var data = fpLoadVictoryPersonalThought();
+        if (!data || !data.text) return;
         var el = document.getElementById('nightPersonReminder');
         if (el && el.classList.contains('is-visible')) {
             fpHideVictoryPersonalReminder();
-            return;
-        }
-        var data = fpLoadVictoryPersonalThought();
-        if (data && data.text && fpShowVictoryPersonalReminder(7000)) {
-            return;
-        }
-        if (typeof fpShowNightPersonArchetypeToast === 'function') {
-            fpShowNightPersonArchetypeToast();
+        } else {
+            fpShowVictoryPersonalReminder(7000);
         }
     }
 
@@ -15235,6 +15332,9 @@ function setGoalNavActive(isActive) {
         if (typeof fpSyncPlatformVictoryStar === 'function') {
             fpSyncPlatformVictoryStar();
         }
+        window.requestAnimationFrame(function () {
+            fpShowVictoryReminderTapHintIfPending();
+        });
     }
 
     var fpPlatformVictoryStarTimer = null;
@@ -15405,6 +15505,7 @@ function setGoalNavActive(isActive) {
         fpPlatformVictoryStarLaunchOnce();
         fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 15000);
         fpRenderVictoryPersonalReminder();
+        fpShowVictoryReminderTapHintIfPending();
     }
 
     function fpGoalViewVictoryStar() {
@@ -16431,6 +16532,8 @@ function setGoalNavActive(isActive) {
     window.fpRenderVictoryPersonalReminder = fpRenderVictoryPersonalReminder;
     window.fpOnNightPersonArchetypeTap = fpOnNightPersonArchetypeTap;
     window.fpHideVictoryPersonalReminder = fpHideVictoryPersonalReminder;
+    window.fpDismissVictoryReminderTapHint = fpDismissVictoryReminderTapHint;
+    window.fpShowVictoryReminderTapHintIfPending = fpShowVictoryReminderTapHintIfPending;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
@@ -16438,6 +16541,7 @@ function setGoalNavActive(isActive) {
         document.getElementById('platform-value-screen').style.display = 'block';
         fpPausePlatformVictoryStar();
         fpHideVictoryPersonalReminder();
+        fpHideVictoryReminderTapHint();
         loadValueContent();
     }
 
