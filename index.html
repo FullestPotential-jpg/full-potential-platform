@@ -3445,19 +3445,37 @@
         .platform-victory-star.is-active {
             display: block;
             pointer-events: auto;
-            cursor: pointer;
-        }
-        .platform-victory-star.is-active:focus-visible {
-            outline: 2px solid rgba(120, 180, 255, 0.85);
-            outline-offset: 4px;
-            border-radius: 8px;
+            z-index: 30;
         }
         .platform-victory-star.is-launching-click-lock {
+            pointer-events: none;
+        }
+        .platform-victory-star__tap {
+            position: absolute;
+            inset: -22px;
+            z-index: 5;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .platform-victory-star__tap:focus-visible {
+            outline: 2px solid rgba(120, 180, 255, 0.85);
+            outline-offset: 2px;
+        }
+        .platform-victory-star.is-launching-click-lock .platform-victory-star__tap {
             pointer-events: none;
             cursor: default;
         }
         .platform-victory-star__rocket {
             width: 100%;
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
             transform-origin: 32% 78%;
             will-change: transform, opacity;
             filter: drop-shadow(0 0 6px rgba(100, 200, 255, 0.45));
@@ -3672,6 +3690,105 @@
         }
         .platform-victory-advice__close:hover {
             filter: brightness(1.08);
+        }
+        .platform-victory-advice__write-btn {
+            display: block;
+            width: 100%;
+            margin: 0 0 12px;
+            padding: 10px 16px;
+            border: 1px dashed rgba(140, 180, 255, 0.45);
+            border-radius: 12px;
+            background: rgba(30, 58, 138, 0.18);
+            color: #dbeafe;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .platform-victory-advice__write-btn:hover {
+            background: rgba(30, 58, 138, 0.28);
+        }
+        .platform-victory-advice__own-form {
+            margin: 0 0 12px;
+            text-align: left;
+        }
+        .platform-victory-advice__own-form.is-visible {
+            display: block;
+        }
+        .platform-victory-advice__own-form:not(.is-visible) {
+            display: none;
+        }
+        .platform-victory-advice__own-input {
+            width: 100%;
+            min-height: 88px;
+            padding: 12px 14px;
+            border: 1px solid rgba(120, 165, 255, 0.4);
+            border-radius: 12px;
+            background: rgba(6, 12, 32, 0.72);
+            color: #eef4ff;
+            font: inherit;
+            line-height: 1.45;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .platform-victory-advice__own-save {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+            color: #f8fbff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .night-person-reminder {
+            position: absolute;
+            left: 50%;
+            bottom: 30%;
+            transform: translateX(-50%);
+            z-index: 8;
+            width: min(88%, 300px);
+            padding: 10px 14px 11px;
+            border-radius: 14px;
+            border: 1px solid rgba(130, 180, 255, 0.42);
+            background: linear-gradient(165deg, rgba(10, 18, 44, 0.94) 0%, rgba(6, 12, 32, 0.92) 100%);
+            box-shadow:
+                0 10px 28px rgba(0, 0, 0, 0.38),
+                0 0 20px rgba(50, 120, 220, 0.18);
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .night-person-reminder.is-visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .night-person-reminder:not(.is-visible) {
+            transform: translateX(-50%) translateY(8px);
+        }
+        .night-person-reminder__label {
+            margin: 0 0 5px;
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: rgba(160, 210, 255, 0.9);
+        }
+        .night-person-reminder__text {
+            margin: 0;
+            font-size: clamp(0.8rem, 3.1vw, 0.94rem);
+            line-height: 1.45;
+            font-weight: 600;
+            color: #f3f7ff;
+        }
+        @media (max-width: 768px) {
+            .night-person-reminder {
+                bottom: 34%;
+                width: min(92%, 260px);
+            }
+            .platform-victory-star__tap {
+                inset: -30px;
+            }
         }
         @keyframes fp-platform-victory-star-launch {
             0% {
@@ -7890,8 +8007,13 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                 </div>
                                 <div class="night-moon"></div>
                                 <div class="shooting-stars-layer" id="shootingStarsLayer"></div>
-                                <div class="platform-victory-star" id="platformVictoryStar" hidden aria-hidden="true" role="button" tabindex="0" data-i18n-aria-label="goal.victory_advice_star_label" aria-label="Звезда первой достигнутой цели — нажмите, чтобы прочитать совет">
+                                <div class="platform-victory-star" id="platformVictoryStar" hidden aria-hidden="true">
+                                    <button type="button" class="platform-victory-star__tap" id="platformVictoryStarTap" onclick="fpOpenPlatformVictoryAdvice(event)" data-i18n-aria-label="goal.victory_advice_star_label" aria-label="Звезда первой достигнутой цели — нажмите, чтобы прочитать совет"></button>
                                     <div class="platform-victory-star__rocket" id="platformVictoryStarRocket"></div>
+                                </div>
+                                <div class="night-person-reminder" id="nightPersonReminder" hidden aria-hidden="true">
+                                    <p class="night-person-reminder__label" data-i18n="goal.victory_my_thought_label">Моё напоминание</p>
+                                    <p class="night-person-reminder__text" id="nightPersonReminderText"></p>
                                 </div>
                                 <div class="night-person night-person--default" id="nightPerson">
                                     <div class="person-head"></div>
@@ -7920,6 +8042,11 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                         <p class="platform-victory-advice__from" id="platformVictoryAdviceFrom"></p>
                         <p class="platform-victory-advice__quote" id="platformVictoryAdviceQuote"></p>
                         <p class="platform-victory-advice__author" id="platformVictoryAdviceAuthor"></p>
+                        <button type="button" class="platform-victory-advice__write-btn" id="platformVictoryAdviceWriteBtn" onclick="fpToggleVictoryPersonalThoughtForm()" data-i18n="goal.victory_write_own">Написать свою</button>
+                        <div class="platform-victory-advice__own-form" id="platformVictoryAdviceOwnForm">
+                            <textarea class="platform-victory-advice__own-input" id="platformVictoryPersonalThoughtInput" maxlength="240" rows="3" data-i18n-placeholder="goal.victory_write_own_placeholder" placeholder="Ваша мысль — короткое напоминание себе…"></textarea>
+                            <button type="button" class="platform-victory-advice__own-save" onclick="fpSaveVictoryPersonalThoughtFromForm()" data-i18n="goal.victory_write_own_save">Сохранить напоминание</button>
+                        </div>
                         <button type="button" class="platform-victory-advice__close" onclick="fpClosePlatformVictoryAdvice()" data-i18n="goal.victory_advice_close">Понятно</button>
                     </div>
                 </div>
@@ -8231,6 +8358,12 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_advice_from': 'Совет от похожего успешного человека с тем же архетипом — «{name}»',
             'goal.victory_advice_close': 'Понятно',
             'goal.victory_advice_star_label': 'Звезда первой достигнутой цели — нажмите, чтобы прочитать совет',
+            'goal.victory_advice_day_hint': 'Совет дня {n} из 10',
+            'goal.victory_write_own': 'Написать свою',
+            'goal.victory_write_own_placeholder': 'Ваша мысль — короткое напоминание себе…',
+            'goal.victory_write_own_save': 'Сохранить напоминание',
+            'goal.victory_my_thought_label': 'Моё напоминание',
+            'goal.victory_write_own_empty': 'Напишите хотя бы несколько слов.',
             'goal.victory_quote_fallback': 'Вы дошли до конца своего маршрута. То, что вы сделали, уже меняет вашу траекторию.',
             'goal.delete_confirm': 'Удалить эту цель? План и прогресс по ней будут потеряны.',
             'goal.card_has_plan': 'План готов — нажмите, чтобы открыть',
@@ -8539,6 +8672,12 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_advice_from': 'Advice from a successful person who shares your archetype — "{name}"',
             'goal.victory_advice_close': 'Got it',
             'goal.victory_advice_star_label': 'Star of your first completed goal — tap for advice',
+            'goal.victory_advice_day_hint': 'Daily advice {n} of 10',
+            'goal.victory_write_own': 'Write your own',
+            'goal.victory_write_own_placeholder': 'Your thought — a short reminder to yourself…',
+            'goal.victory_write_own_save': 'Save reminder',
+            'goal.victory_my_thought_label': 'My reminder',
+            'goal.victory_write_own_empty': 'Write at least a few words.',
             'goal.victory_quote_fallback': 'You reached the end of your route. What you did already changes your trajectory.',
             'goal.delete_confirm': 'Delete this goal? Its plan and progress will be lost.',
             'goal.card_has_plan': 'Plan ready — tap to open',
@@ -11013,6 +11152,95 @@ const FP_ARCHETYPE_VICTORY_QUOTES = {
     ]
 };
 
+/** Ещё 5 цитат на архетип — советы дня 6–10 (первая достигнутая цель). */
+const FP_ARCHETYPE_DAILY_QUOTES_EXTRA = {
+    "amygdala-dopamine-control": [
+        { author: "Jeff Bezos", ru: "Первая завершённая цель — это доказательство: ваше видение можно довести до конца.", en: "Your first completed goal proves your vision can be carried through." },
+        { author: "Pablo Picasso", ru: "Начните с одного шага — и вы уже ближе к тому, чего ещё не существует.", en: "Take one step — you are already closer to what does not yet exist." },
+        { author: "Reed Hastings", ru: "Первая победа учит: смелая идея становится реальностью, когда вы доводите её до финала.", en: "The first win teaches that a bold idea becomes real when you finish it." },
+        { author: "James Dyson", ru: "Первый пройденный маршрут важнее идеального плана — он доказывает, что вы можете довести дело до конца.", en: "The first route you finish matters more than a perfect plan — it proves you can complete." },
+        { author: "Amelia Earhart", ru: "Самое трудное — решиться на первый полный путь. Вы уже это сделали.", en: "The hardest part is committing to the first full journey. You already did." }
+    ],
+    "amygdala-dopamine-connection": [
+        { author: "Michelle Obama", ru: "Первая достигнутая цель — это не финал, а доказательство, что ваша энергия может менять реальность.", en: "Your first achieved goal is not the end — it proves your energy can change reality." },
+        { author: "Simon Sinek", ru: "Завершив первую цель, вы показали себе: ваш «зачем» сильнее сомнений.", en: "By finishing your first goal, you showed yourself your why is stronger than doubt." },
+        { author: "Brené Brown", ru: "Первая победа рождается, когда вы позволяете себе быть видимым до конца пути.", en: "The first victory comes when you let yourself be seen all the way through." },
+        { author: "Tony Robbins", ru: "Одна пройденная цель — это импульс: теперь вы знаете, как превращать слова в результат.", en: "One completed goal is momentum — now you know how to turn words into results." },
+        { author: "Les Brown", ru: "Вы доказали себе главное: когда цель важна, вы доводите её до конца.", en: "You proved the main thing: when a goal matters, you see it through." }
+    ],
+    "amygdala-serotonin-control": [
+        { author: "Carl Jung", ru: "Первая пройденная цель — это встреча с собой: вы выдержали свой собственный путь.", en: "Your first completed goal is a meeting with yourself — you endured your own path." },
+        { author: "Paulo Coelho", ru: "Когда первая цель достигнута, вселенная видит: вы идёте своей дорогой до конца.", en: "When the first goal is reached, the universe sees you walk your road to the end." },
+        { author: "Rumi", ru: "Один завершённый путь открывает следующий — вы уже не тот, кто только мечтал.", en: "One finished path opens the next — you are no longer only the one who dreamed." },
+        { author: "Anaïs Nin", ru: "Первая победа — это свобода: вы выбрали свой ритм и довели его до финала.", en: "The first win is freedom — you chose your rhythm and carried it to the finish." },
+        { author: "Jon Kabat-Zinn", ru: "Завершив первую цель, вы укрепили главное — доверие к своему внутреннему компасу.", en: "By finishing your first goal, you strengthened what matters most — trust in your inner compass." }
+    ],
+    "amygdala-serotonin-connection": [
+        { author: "Martin Luther King Jr.", ru: "Первая достигнутая цель — маленький шаг, который доказывает: мир можно менять мягко, но до конца.", en: "Your first achieved goal is a small step proving the world can be changed gently, yet fully." },
+        { author: "Audrey Hepburn", ru: "Завершив первую цель, вы подарили себе и другим доказательство, что доброта тоже доводится до результата.", en: "By finishing your first goal, you gave yourself and others proof that kindness can reach a result." },
+        { author: "Fred Rogers", ru: "Первая пройденная цель — это забота о себе, доведённая до конца. Это уже победа.", en: "Your first completed goal is self-care carried through. That is already a victory." },
+        { author: "Jane Goodall", ru: "Одна завершённая цель показывает: маленькие шаги, сделанные с сердцем, меняют многое.", en: "One completed goal shows that small steps taken with heart change a great deal." },
+        { author: "Thich Nhat Hanh", ru: "Вы дошли до конца первого пути — значит, умеете идти без насилия над собой.", en: "You reached the end of your first path — you know how to walk without violence toward yourself." }
+    ],
+    "hippocampus-dopamine-control": [
+        { author: "Bill Gates", ru: "Первая завершённая цель — лучший KPI: вы умеете доводить систему до результата.", en: "Your first completed goal is the best KPI — you can drive a system to a result." },
+        { author: "Satya Nadella", ru: "Закрыв первую цель, вы доказали: стратегия работает, когда её доводят до финала.", en: "By closing your first goal, you proved strategy works when carried to the finish." },
+        { author: "Jack Ma", ru: "Первая победа — это не удача, а расчёт, доведённый до последнего шага.", en: "The first win is not luck — it is calculation carried through the last step." },
+        { author: "Tim Cook", ru: "Завершив первую цель, вы показали дисциплину исполнения — самый редкий навык.", en: "By finishing your first goal, you showed execution discipline — the rarest skill." },
+        { author: "Reid Hoffman", ru: "Первая пройденная цель — ваш proof of work: план можно не только построить, но и закрыть.", en: "Your first completed goal is your proof of work — a plan can be built and closed." }
+    ],
+    "hippocampus-dopamine-connection": [
+        { author: "Tom Brady", ru: "Первая достигнутая цель — это командная победа: даже solo-путь требует довести её до конца.", en: "Your first achieved goal is a team win — even a solo path must be finished." },
+        { author: "Bear Grylls", ru: "Завершив первую цель, вы прошли свой экспедиционный маршрут — дальше будет легче.", en: "By finishing your first goal, you completed your expedition route — next will be easier." },
+        { author: "Edmund Hillary", ru: "Первая вершина показывает: подготовка имеет смысл только если вы доходите до финала.", en: "The first summit shows preparation only matters if you reach the finish." },
+        { author: "Venus Williams", ru: "Одна пройденная цель — это победа над «брошу на полпути». Вы уже сильнее.", en: "One completed goal is a victory over quitting halfway. You are already stronger." },
+        { author: "Alex Honnold", ru: "Первый пройденный маршрут доказывает: страх не отменяет финиш, если цель выбрана верно.", en: "The first route you finish proves fear does not cancel the finish when the goal is right." }
+    ],
+    "hippocampus-serotonin-control": [
+        { author: "James Clear", ru: "Первая завершённая цель — это система, которая сработала до конца. Повторите её.", en: "Your first completed goal is a system that worked through the end. Repeat it." },
+        { author: "Deming", ru: "Закрыв первую цель, вы получили данные: процесс можно довести до стандарта.", en: "By closing your first goal, you gained data — a process can reach standard." },
+        { author: "Isaac Newton", ru: "Первая победа — это аккуратно собранная цепочка шагов, доведённая до результата.", en: "The first win is a carefully built chain of steps carried to a result." },
+        { author: "Marie Kondo", ru: "Завершив первую цель, вы навести порядок в одной важной части жизни — до конца.", en: "By finishing your first goal, you brought order to one important part of life — fully." },
+        { author: "Andy Grove", ru: "Первая достигнутая цель — ваш baseline: теперь измеряйте рост от неё.", en: "Your first achieved goal is your baseline — now measure growth from it." }
+    ],
+    "hippocampus-serotonin-connection": [
+        { author: "Jimmy Carter", ru: "Первая пройденная цель — это забота о своих людях и о себе, доведённая до конца.", en: "Your first completed goal is care for your people and yourself, carried through." },
+        { author: "Princess Diana", ru: "Завершив первую цель, вы показали: стабильность тоже требует смелости дойти до финала.", en: "By finishing your first goal, you showed stability also takes courage to reach the end." },
+        { author: "Fred Rogers", ru: "Первая победа — это обещание себе, которое вы сдержали. Это основа доверия.", en: "The first win is a promise to yourself that you kept. That is the foundation of trust." },
+        { author: "Wendell Berry", ru: "Одна завершённая цель укрепляет корни — вы уже знаете, как не бросать на полпути.", en: "One completed goal strengthens roots — you already know how not to quit halfway." },
+        { author: "Yo-Yo Ma", ru: "Первая достигнутая цель — как первая сыгранная до конца мелодия: теперь можно строить дальше.", en: "Your first achieved goal is like the first melody played to the end — now you can build further." }
+    ]
+};
+
+function fpVictoryDailyDayIndex() {
+    return Math.floor(Date.now() / 86400000) % 10;
+}
+
+function fpGetArchetypeAdviceQuotes(archetypeKey) {
+    var key = archetypeKey || 'hippocampus-dopamine-control';
+    var base =
+        FP_ARCHETYPE_VICTORY_QUOTES[key] ||
+        FP_ARCHETYPE_VICTORY_QUOTES['hippocampus-dopamine-control'];
+    var extra = FP_ARCHETYPE_DAILY_QUOTES_EXTRA[key] || [];
+    var merged = base.concat(extra);
+    while (merged.length < 10 && base.length) {
+        merged = merged.concat(base);
+    }
+    return merged.slice(0, 10);
+}
+
+function fpGoalPickDailyPlatformQuote(archetypeKey) {
+    var list = fpGetArchetypeAdviceQuotes(archetypeKey);
+    var idx = fpVictoryDailyDayIndex() % list.length;
+    var q = list[idx];
+    var lang = typeof getFpLang === 'function' ? getFpLang() : 'ru';
+    return {
+        text: lang === 'en' ? q.en : q.ru,
+        author: q.author,
+        dayIndex: idx
+    };
+}
+
 /** 8 архетипов → 4 legacy-типа с большой premium-базой в getTypeSpecificContent */
 const FP_ARCHETYPE_PREMIUM_LEGACY = {
     "amygdala-dopamine-control": "творческий",
@@ -11573,6 +11801,9 @@ function closeGoalScreen() {
     if (typeof window.fpSyncPlatformVictoryStar === 'function') {
         window.fpSyncPlatformVictoryStar();
     }
+    if (typeof window.fpRenderVictoryPersonalReminder === 'function') {
+        window.fpRenderVictoryPersonalReminder();
+    }
 }
 
 function setGoalNavActive(isActive) {
@@ -11592,6 +11823,7 @@ function setGoalNavActive(isActive) {
     const FP_GOAL_PLAN_KEY = 'fp_goal_last_plan';
     const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
     const FP_GOALS_LIST_KEY = 'fp_goals_list';
+    const FP_VICTORY_PERSONAL_THOUGHT_KEY = 'fp_victory_personal_thought';
     var fpGoalCurrentStep = 1;
     var fpGoalViewMode = 'list';
     var fpGoalActiveId = null;
@@ -14705,17 +14937,87 @@ function setGoalNavActive(isActive) {
         return archetypeKey;
     }
 
-    function fpBindPlatformVictoryStarInteract() {
-        var wrap = document.getElementById('platformVictoryStar');
-        if (!wrap || wrap.dataset.fpInteractBound === '1') return;
-        wrap.dataset.fpInteractBound = '1';
-        wrap.addEventListener('click', fpOpenPlatformVictoryAdvice);
-        wrap.addEventListener('keydown', function (ev) {
-            if (ev.key === 'Enter' || ev.key === ' ') {
-                ev.preventDefault();
-                fpOpenPlatformVictoryAdvice(ev);
+    function fpVictoryThoughtStorageKey() {
+        return fpGoalScopedStorageKey(FP_VICTORY_PERSONAL_THOUGHT_KEY);
+    }
+
+    function fpLoadVictoryPersonalThought() {
+        try {
+            var raw = localStorage.getItem(fpVictoryThoughtStorageKey());
+            if (!raw) return null;
+            var data = JSON.parse(raw);
+            if (!data || !data.text) return null;
+            return data;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function fpSaveVictoryPersonalThought(text) {
+        var payload = { text: String(text || '').trim(), updatedAt: Date.now() };
+        localStorage.setItem(fpVictoryThoughtStorageKey(), JSON.stringify(payload));
+        fpRenderVictoryPersonalReminder();
+    }
+
+    function fpRenderVictoryPersonalReminder() {
+        var el = document.getElementById('nightPersonReminder');
+        var textEl = document.getElementById('nightPersonReminderText');
+        if (!el || !textEl) return;
+        if (
+            !fpGoalHasVictoryStarClaimed() ||
+            (typeof fpIsPlatformMainStarSceneVisible === 'function' &&
+                !fpIsPlatformMainStarSceneVisible())
+        ) {
+            el.hidden = true;
+            el.setAttribute('aria-hidden', 'true');
+            el.classList.remove('is-visible');
+            return;
+        }
+        var data = fpLoadVictoryPersonalThought();
+        if (!data || !data.text) {
+            el.hidden = true;
+            el.setAttribute('aria-hidden', 'true');
+            el.classList.remove('is-visible');
+            return;
+        }
+        textEl.textContent = data.text;
+        el.hidden = false;
+        el.setAttribute('aria-hidden', 'false');
+        el.classList.add('is-visible');
+    }
+
+    function fpHideVictoryPersonalThoughtForm() {
+        var form = document.getElementById('platformVictoryAdviceOwnForm');
+        if (form) form.classList.remove('is-visible');
+    }
+
+    function fpToggleVictoryPersonalThoughtForm() {
+        var form = document.getElementById('platformVictoryAdviceOwnForm');
+        if (!form) return;
+        form.classList.toggle('is-visible');
+        if (form.classList.contains('is-visible')) {
+            var ta = document.getElementById('platformVictoryPersonalThoughtInput');
+            var saved = fpLoadVictoryPersonalThought();
+            if (ta && saved && saved.text) ta.value = saved.text;
+            if (ta) {
+                window.requestAnimationFrame(function () {
+                    ta.focus();
+                });
             }
-        });
+        }
+    }
+
+    function fpSaveVictoryPersonalThoughtFromForm() {
+        var ta = document.getElementById('platformVictoryPersonalThoughtInput');
+        if (!ta) return;
+        var text = ta.value.trim();
+        if (text.length < 2) {
+            alert(fpT('goal.victory_write_own_empty'));
+            return;
+        }
+        fpSaveVictoryPersonalThought(text);
+        fpHideVictoryPersonalThoughtForm();
+        fpClosePlatformVictoryAdvice();
     }
 
     function fpOpenPlatformVictoryAdvice(evt) {
@@ -14726,22 +15028,39 @@ function setGoalNavActive(isActive) {
         var wrap = document.getElementById('platformVictoryStar');
         var rocket = document.getElementById('platformVictoryStarRocket');
         if (!wrap || !wrap.classList.contains('is-active') || wrap.hidden) return;
+        if (wrap.classList.contains('is-launching-click-lock')) return;
         if (rocket && rocket.classList.contains('is-launching')) return;
 
-        var entry = fpGoalGetFirstVictoryGoalEntry();
         var ak =
             typeof resolveArchetypeKeyFromUser === 'function' && currentUser
                 ? resolveArchetypeKeyFromUser(currentUser)
                 : null;
-        var picked = fpGoalPickVictoryQuote(ak, entry ? entry.id : 'first-victory');
-        var archetypeName = fpArchetypeDisplayName(ak);
+        var picked =
+            typeof fpGoalPickDailyPlatformQuote === 'function'
+                ? fpGoalPickDailyPlatformQuote(ak)
+                : fpGoalPickVictoryQuote(ak, 'first-victory');
+        var archetypeName =
+            typeof fpArchetypeDisplayNameFromUser === 'function'
+                ? fpArchetypeDisplayNameFromUser(currentUser)
+                : fpArchetypeDisplayName(ak);
 
         var overlay = document.getElementById('platformVictoryAdviceOverlay');
+        var badgeEl = document.getElementById('platformVictoryAdviceBadge');
         var fromEl = document.getElementById('platformVictoryAdviceFrom');
         var quoteEl = document.getElementById('platformVictoryAdviceQuote');
         var authorEl = document.getElementById('platformVictoryAdviceAuthor');
         if (!overlay || !quoteEl) return;
 
+        fpHideVictoryPersonalThoughtForm();
+        if (badgeEl) {
+            badgeEl.textContent =
+                fpT('goal.victory_advice_badge') +
+                ' · ' +
+                fpT('goal.victory_advice_day_hint').replace(
+                    '{n}',
+                    String((picked.dayIndex != null ? picked.dayIndex : fpVictoryDailyDayIndex()) + 1)
+                );
+        }
         if (fromEl) {
             fromEl.textContent = fpT('goal.victory_advice_from').replace('{name}', archetypeName || '—');
         }
@@ -14760,6 +15079,7 @@ function setGoalNavActive(isActive) {
         if (!overlay) return;
         overlay.classList.remove('is-active');
         overlay.setAttribute('aria-hidden', 'true');
+        fpHideVictoryPersonalThoughtForm();
         if (typeof fpSyncPlatformVictoryStar === 'function') {
             fpSyncPlatformVictoryStar();
         }
@@ -14894,10 +15214,12 @@ function setGoalNavActive(isActive) {
     function fpSyncPlatformVictoryStar() {
         if (!fpGoalHasVictoryStarClaimed()) {
             fpDeactivatePlatformVictoryStar();
+            fpRenderVictoryPersonalReminder();
             return;
         }
         if (!fpIsPlatformMainStarSceneVisible()) {
             fpPausePlatformVictoryStar();
+            fpRenderVictoryPersonalReminder();
             return;
         }
         var wrap = document.getElementById('platformVictoryStar');
@@ -14907,9 +15229,11 @@ function setGoalNavActive(isActive) {
             !wrap.hidden &&
             fpPlatformVictoryStarTimer
         ) {
+            fpRenderVictoryPersonalReminder();
             return;
         }
         fpActivatePlatformVictoryStar();
+        fpRenderVictoryPersonalReminder();
     }
 
     function fpActivatePlatformVictoryStar() {
@@ -14926,9 +15250,9 @@ function setGoalNavActive(isActive) {
         wrap.hidden = false;
         wrap.setAttribute('aria-hidden', 'false');
         wrap.classList.add('is-active');
-        fpBindPlatformVictoryStarInteract();
         fpPlatformVictoryStarLaunchOnce();
         fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 15000);
+        fpRenderVictoryPersonalReminder();
     }
 
     function fpGoalViewVictoryStar() {
@@ -15950,6 +16274,9 @@ function setGoalNavActive(isActive) {
     window.fpSyncPlatformVictoryStar = fpSyncPlatformVictoryStar;
     window.fpOpenPlatformVictoryAdvice = fpOpenPlatformVictoryAdvice;
     window.fpClosePlatformVictoryAdvice = fpClosePlatformVictoryAdvice;
+    window.fpToggleVictoryPersonalThoughtForm = fpToggleVictoryPersonalThoughtForm;
+    window.fpSaveVictoryPersonalThoughtFromForm = fpSaveVictoryPersonalThoughtFromForm;
+    window.fpRenderVictoryPersonalReminder = fpRenderVictoryPersonalReminder;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
 
     function showValueContent() {
