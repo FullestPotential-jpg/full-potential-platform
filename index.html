@@ -10610,6 +10610,20 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             userOrCurrent.nickname = sn;
         }
         fpMergeVictoryThoughtFromServer(serverProfile, userOrCurrent.email);
+        if (serverProfile.goals_json && typeof window.fpGoalSaveGoalsList === 'function') {
+            try {
+                var srvGoals = Array.isArray(serverProfile.goals_json) ? serverProfile.goals_json : [];
+                var localGoals = typeof window.fpGoalLoadGoalsList === 'function'
+                    ? window.fpGoalLoadGoalsList()
+                    : [];
+                var mergedGoals = typeof window.fpMergeGoalsForSync === 'function'
+                    ? window.fpMergeGoalsForSync(localGoals, srvGoals)
+                    : srvGoals;
+                window.fpGoalSaveGoalsList(mergedGoals);
+            } catch (e) {
+                console.warn('[goal-sync] failed to merge goals from profile:', e);
+            }
+        }
     }
 
     let fpLastPlatformProfileFetch = 0;
@@ -12159,14 +12173,154 @@ function setGoalNavActive(isActive) {
         return merged;
     }
 
+    var fpGoalServerSyncBusy = false;
+    var fpGoalServerSyncQueued = false;
+    var fpGoalServerSyncTimer = null;
+
+    function fpGoalServerGoalsStorageKey() {
+        return fpGoalScopedStorageKey('fp_goals_server_cache');
+    }
+
+    function fpNormalizeGoalEntry(g) {
+        if (!g || !g.id) return null;
+        var copy = JSON.parse(JSON.stringify(g));
+        if (!copy.ownerEmail) copy.ownerEmail = fpGoalOwnerEmail();
+        return copy;
+    }
+
+    function fpMergeGoalsForSync(localGoals, serverGoals) {
+        var map = {};
+        (serverGoals || []).forEach(function (g) {
+            var n = fpNormalizeGoalEntry(g);
+            if (!n) return;
+            map[n.id] = n;
+        });
+        (localGoals || []).forEach(function (g) {
+            var n = fpNormalizeGoalEntry(g);
+            if (!n) return;
+            var prev = map[n.id];
+            var prevAt = prev ? (prev.updatedAt || prev.createdAt || 0) : 0;
+            var nextAt = n.updatedAt || n.createdAt || 0;
+            if (!prev || nextAt >= prevAt) map[n.id] = n;
+        });
+        var merged = Object.keys(map).map(function (id) {
+            return map[id];
+        });
+        merged.sort(function (a, b) {
+            return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
+        });
+        return merged.slice(0, 50);
+    }
+
+    async function fpSyncGoalsToServerIfPossible(goals) {
+        try {
+            if (!window.supabaseClient) return { ok: false };
+            if (!currentUser || !currentUser.email) return { ok: false };
+            var found = findUserByEmail(currentUser.email);
+            var passwordHash = found && found.user ? found.user.password_hash : null;
+            if (!passwordHash) return { ok: false };
+            var payload = fpGoalStampOwner((goals || []).slice(0, 50));
+            var result = await window.supabaseClient.rpc('platform_accounts_update_goals', {
+                p_email: normalizeEmail(currentUser.email),
+                p_hash: passwordHash,
+                p_goals_json: payload
+            });
+            if (result.error) {
+                console.warn('[goal-sync] RPC update goals:', result.error);
+                return { ok: false, error: result.error };
+            }
+            if (result.data && result.data.ok === false) {
+                console.warn('[goal-sync] update rejected:', result.data);
+                return { ok: false, data: result.data };
+            }
+            return { ok: true };
+        } catch (e) {
+            console.warn('[goal-sync] failed to sync goals to server:', e);
+            return { ok: false, error: e };
+        }
+    }
+
+    async function fpSyncGoalsFromServerIfPossible(force) {
+        try {
+            if (!window.supabaseClient || !currentUser || !currentUser.email) return false;
+            var found = findUserByEmail(currentUser.email);
+            var passwordHash = found && found.user ? found.user.password_hash : null;
+            if (!passwordHash) return false;
+            var key = fpGoalGoalsStorageKey();
+            if (!key) return false;
+            var local = fpGoalLoadGoalsList();
+            var serverRaw = null;
+            if (!force) {
+                try {
+                    var cacheRaw = localStorage.getItem(fpGoalServerGoalsStorageKey());
+                    if (cacheRaw) serverRaw = JSON.parse(cacheRaw);
+                } catch (e) {}
+            }
+            if (!serverRaw || force) {
+                var loginRes = await window.supabaseClient.rpc('platform_accounts_verify_login', {
+                    p_email: normalizeEmail(currentUser.email),
+                    p_hash: passwordHash
+                });
+                if (loginRes.error || !loginRes.data || !loginRes.data.ok) return false;
+                serverRaw = loginRes.data.goals_json;
+                try {
+                    localStorage.setItem(
+                        fpGoalServerGoalsStorageKey(),
+                        JSON.stringify(serverRaw || [])
+                    );
+                } catch (e) {}
+            }
+            var serverGoals = Array.isArray(serverRaw) ? serverRaw : [];
+            var merged = fpMergeGoalsForSync(local, fpGoalFilterGoalsForCurrentUser(serverGoals));
+            fpGoalSaveGoalsList(merged);
+            if (JSON.stringify(merged) !== JSON.stringify(serverGoals)) {
+                await fpSyncGoalsToServerIfPossible(merged);
+                try {
+                    localStorage.setItem(
+                        fpGoalServerGoalsStorageKey(),
+                        JSON.stringify(merged)
+                    );
+                } catch (e) {}
+            }
+            return true;
+        } catch (e) {
+            console.warn('[goal-sync] failed to sync goals from server:', e);
+            return false;
+        }
+    }
+
+    function fpScheduleGoalsSync() {
+        if (fpGoalServerSyncTimer) window.clearTimeout(fpGoalServerSyncTimer);
+        fpGoalServerSyncTimer = window.setTimeout(function () {
+            fpGoalServerSyncTimer = null;
+            fpRunGoalsSync();
+        }, 400);
+    }
+
+    async function fpRunGoalsSync() {
+        if (fpGoalServerSyncBusy) {
+            fpGoalServerSyncQueued = true;
+            return;
+        }
+        fpGoalServerSyncBusy = true;
+        try {
+            await fpSyncGoalsFromServerIfPossible(false);
+        } finally {
+            fpGoalServerSyncBusy = false;
+            if (fpGoalServerSyncQueued) {
+                fpGoalServerSyncQueued = false;
+                fpScheduleGoalsSync();
+            }
+        }
+    }
+
     function fpGoalSaveGoalsList(goals) {
         var key = fpGoalGoalsStorageKey();
         if (!key) return false;
         try {
-            localStorage.setItem(
-                key,
-                JSON.stringify(fpGoalStampOwner(goals.slice(0, 50)))
-            );
+            var stamped = fpGoalStampOwner(goals.slice(0, 50));
+            localStorage.setItem(key, JSON.stringify(stamped));
+            fpScheduleGoalsSync();
             return true;
         } catch (e) {
             console.warn('[goal] save failed', e);
@@ -16714,6 +16868,11 @@ function setGoalNavActive(isActive) {
     window.fpDismissVictoryStarTapHint = fpDismissVictoryStarTapHint;
     window.fpShowVictoryStarTapHintIfPending = fpShowVictoryStarTapHintIfPending;
     window.fpGoalOpenFeedbackModal = fpGoalOpenFeedbackModal;
+    window.fpGoalLoadGoalsList = fpGoalLoadGoalsList;
+    window.fpGoalSaveGoalsList = fpGoalSaveGoalsList;
+    window.fpMergeGoalsForSync = fpMergeGoalsForSync;
+    window.fpSyncGoalsFromServerIfPossible = fpSyncGoalsFromServerIfPossible;
+    window.fpRunGoalsSync = fpRunGoalsSync;
 
     function showValueContent() {
         document.getElementById('platform-main').style.display = 'none';
