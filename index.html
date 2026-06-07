@@ -11112,6 +11112,9 @@ async function login() {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     
     savePlatformAuth(currentUser);
+    if (typeof window.fpSyncGoalsFromServerIfPossible === 'function') {
+        await window.fpSyncGoalsFromServerIfPossible(true);
+    }
 
     const srvNickMerged = serverProfile && serverProfile.nickname != null ? sanitizeNickname(String(serverProfile.nickname)) : '';
     if (!srvNickMerged || !isValidNickname(srvNickMerged)) {
@@ -12240,6 +12243,20 @@ function setGoalNavActive(isActive) {
         }
     }
 
+    function fpGoalsListFingerprint(goals) {
+        var arr = (goals || []).map(function (g) {
+            return {
+                id: g && g.id ? g.id : '',
+                updatedAt: g && g.updatedAt ? g.updatedAt : 0,
+                createdAt: g && g.createdAt ? g.createdAt : 0
+            };
+        });
+        arr.sort(function (a, b) {
+            return String(a.id).localeCompare(String(b.id));
+        });
+        return JSON.stringify(arr);
+    }
+
     async function fpSyncGoalsFromServerIfPossible(force) {
         try {
             if (!window.supabaseClient || !currentUser || !currentUser.email) return false;
@@ -12272,8 +12289,11 @@ function setGoalNavActive(isActive) {
             }
             var serverGoals = Array.isArray(serverRaw) ? serverRaw : [];
             var merged = fpMergeGoalsForSync(local, fpGoalFilterGoalsForCurrentUser(serverGoals));
+            var localFp = fpGoalsListFingerprint(local);
+            var serverFp = fpGoalsListFingerprint(serverGoals);
+            var mergedFp = fpGoalsListFingerprint(merged);
             fpGoalSaveGoalsList(merged);
-            if (JSON.stringify(merged) !== JSON.stringify(serverGoals)) {
+            if (mergedFp !== serverFp || mergedFp !== localFp) {
                 await fpSyncGoalsToServerIfPossible(merged);
                 try {
                     localStorage.setItem(
@@ -12282,7 +12302,7 @@ function setGoalNavActive(isActive) {
                     );
                 } catch (e) {}
             }
-            return true;
+            return mergedFp !== localFp || force;
         } catch (e) {
             console.warn('[goal-sync] failed to sync goals from server:', e);
             return false;
