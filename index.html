@@ -10532,9 +10532,22 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             if (typeof syncVictoryThoughtToServerIfPossible === 'function') {
                 syncVictoryThoughtToServerIfPossible(local.text);
             }
+            if (serverProfile.victory_reminder_open === true) {
+                fpPersistVictoryReminderOpenLocal(true);
+            } else if (serverProfile.victory_reminder_open === false) {
+                fpPersistVictoryReminderOpenLocal(false);
+            }
+            if (typeof window.fpRenderVictoryPersonalReminder === 'function') {
+                window.fpRenderVictoryPersonalReminder();
+            }
             return;
         }
         fpPersistVictoryThoughtLocal(email, serverText, serverAt);
+        if (serverProfile.victory_reminder_open === true) {
+            fpPersistVictoryReminderOpenLocal(true);
+        } else if (serverProfile.victory_reminder_open === false) {
+            fpPersistVictoryReminderOpenLocal(false);
+        }
         if (typeof window.fpRenderVictoryPersonalReminder === 'function') {
             window.fpRenderVictoryPersonalReminder();
         }
@@ -10617,6 +10630,36 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             return { ok: true };
         } catch (e) {
             console.warn('[victory-thought] не удалось синхронизировать на сервер:', e);
+            return { ok: false, error: e };
+        }
+    }
+
+    async function syncVictoryReminderOpenToServerIfPossible(isOpen) {
+        try {
+            if (!window.supabaseClient) return { ok: false };
+            if (!currentUser || !currentUser.email) return { ok: false };
+            const found = findUserByEmail(currentUser.email);
+            const passwordHash = found && found.user ? found.user.password_hash : null;
+            if (!passwordHash) return { ok: false };
+            const { data, error } = await window.supabaseClient.rpc(
+                'platform_accounts_update_victory_reminder_open',
+                {
+                    p_email: normalizeEmail(currentUser.email),
+                    p_hash: passwordHash,
+                    p_open: !!isOpen
+                }
+            );
+            if (error) {
+                console.warn('[victory-reminder-open] RPC:', error);
+                return { ok: false, error: error };
+            }
+            if (data && data.ok === false) {
+                console.warn('[victory-reminder-open] отклонено:', data);
+                return { ok: false, data: data };
+            }
+            return { ok: true };
+        } catch (e) {
+            console.warn('[victory-reminder-open] не удалось синхронизировать на сервер:', e);
             return { ok: false, error: e };
         }
     }
@@ -11953,6 +11996,7 @@ function setGoalNavActive(isActive) {
     const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
     const FP_GOALS_LIST_KEY = 'fp_goals_list';
     const FP_VICTORY_PERSONAL_THOUGHT_KEY = 'fp_victory_personal_thought';
+    const FP_VICTORY_REMINDER_OPEN_KEY = 'fp_victory_reminder_open';
     const FP_VICTORY_REMINDER_HINT_PENDING_KEY = 'fp_victory_reminder_hint_pending';
     const FP_VICTORY_STAR_HINT_PENDING_KEY = 'fp_victory_star_hint_pending';
     var fpGoalCurrentStep = 1;
@@ -15072,6 +15116,32 @@ function setGoalNavActive(isActive) {
         return fpGoalScopedStorageKey(FP_VICTORY_PERSONAL_THOUGHT_KEY);
     }
 
+    function fpVictoryReminderOpenStorageKey() {
+        return fpGoalScopedStorageKey(FP_VICTORY_REMINDER_OPEN_KEY);
+    }
+
+    function fpIsVictoryReminderOpenPersisted() {
+        var key = fpVictoryReminderOpenStorageKey();
+        return !!(key && localStorage.getItem(key) === '1');
+    }
+
+    function fpPersistVictoryReminderOpenLocal(isOpen) {
+        var key = fpVictoryReminderOpenStorageKey();
+        if (!key) return;
+        if (isOpen) localStorage.setItem(key, '1');
+        else localStorage.removeItem(key);
+    }
+
+    function fpPersistVictoryReminderOpen(isOpen, skipServer) {
+        fpPersistVictoryReminderOpenLocal(isOpen);
+        if (
+            !skipServer &&
+            typeof syncVictoryReminderOpenToServerIfPossible === 'function'
+        ) {
+            syncVictoryReminderOpenToServerIfPossible(!!isOpen);
+        }
+    }
+
     function fpLoadVictoryPersonalThought() {
         try {
             var raw = localStorage.getItem(fpVictoryThoughtStorageKey());
@@ -15184,7 +15254,7 @@ function setGoalNavActive(isActive) {
 
     var fpVictoryReminderTimer = null;
 
-    function fpHideVictoryPersonalReminder() {
+    function fpHideVictoryPersonalReminderUI() {
         if (fpVictoryReminderTimer) {
             window.clearTimeout(fpVictoryReminderTimer);
             fpVictoryReminderTimer = null;
@@ -15196,17 +15266,30 @@ function setGoalNavActive(isActive) {
         el.classList.remove('is-visible');
     }
 
-    function fpShowVictoryPersonalReminder(autoHideMs) {
+    function fpHideVictoryPersonalReminder() {
+        fpPersistVictoryReminderOpen(false);
+        fpHideVictoryPersonalReminderUI();
+    }
+
+    function fpOpenVictoryPersonalReminder() {
+        fpPersistVictoryReminderOpen(true);
+        return fpShowVictoryPersonalReminderUI(0);
+    }
+
+    function fpShowVictoryPersonalReminderUI(autoHideMs) {
         if (
             !fpGoalHasVictoryStarClaimed() ||
             (typeof fpIsPlatformMainStarSceneVisible === 'function' &&
                 !fpIsPlatformMainStarSceneVisible())
         ) {
-            fpHideVictoryPersonalReminder();
+            fpHideVictoryPersonalReminderUI();
             return false;
         }
         var data = fpLoadVictoryPersonalThought();
-        if (!data || !data.text) return false;
+        if (!data || !data.text) {
+            fpHideVictoryPersonalReminderUI();
+            return false;
+        }
         var el = document.getElementById('nightPersonReminder');
         var textEl = document.getElementById('nightPersonReminderText');
         if (!el || !textEl) return false;
@@ -15225,6 +15308,10 @@ function setGoalNavActive(isActive) {
         return true;
     }
 
+    function fpShowVictoryPersonalReminder(autoHideMs) {
+        return fpOpenVictoryPersonalReminder();
+    }
+
     function fpOnNightPersonArchetypeTap() {
         fpDismissVictoryReminderTapHint();
         var data = fpLoadVictoryPersonalThought();
@@ -15233,12 +15320,21 @@ function setGoalNavActive(isActive) {
         if (el && el.classList.contains('is-visible')) {
             fpHideVictoryPersonalReminder();
         } else {
-            fpShowVictoryPersonalReminder(0);
+            fpOpenVictoryPersonalReminder();
         }
     }
 
     function fpRenderVictoryPersonalReminder() {
-        fpHideVictoryPersonalReminder();
+        if (!fpLoadVictoryPersonalThought()) {
+            fpPersistVictoryReminderOpen(false);
+            fpHideVictoryPersonalReminderUI();
+            return;
+        }
+        if (fpIsVictoryReminderOpenPersisted()) {
+            fpShowVictoryPersonalReminderUI(0);
+        } else {
+            fpHideVictoryPersonalReminderUI();
+        }
     }
 
     function fpHideVictoryPersonalThoughtForm() {
@@ -16550,7 +16646,7 @@ function setGoalNavActive(isActive) {
         document.getElementById('platform-main').style.display = 'none';
         document.getElementById('platform-value-screen').style.display = 'block';
         fpPausePlatformVictoryStar();
-        fpHideVictoryPersonalReminder();
+        fpHideVictoryPersonalReminderUI();
         fpHideVictoryReminderTapHint();
         fpHideVictoryStarTapHint();
         loadValueContent();
