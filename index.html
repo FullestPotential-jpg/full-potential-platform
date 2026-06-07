@@ -1980,18 +1980,61 @@
         .goal-flow__loading.is-active {
             display: block;
         }
-        .goal-flow__loading-orbit {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 18px;
-            border-radius: 50%;
-            border: 2px solid rgba(56, 189, 248, 0.25);
-            border-top-color: rgba(125, 211, 252, 0.95);
-            animation: fp-goal-spin 1s linear infinite;
-            box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+        .goal-flow__loading-star-scene {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
         }
-        @keyframes fp-goal-spin {
-            to { transform: rotate(360deg); }
+        .goal-flow__loading-star-main {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 54px;
+            height: 54px;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.42));
+            animation: fp-goal-loading-star-pulse 1.5s ease-in-out infinite;
+        }
+        .goal-flow__loading-star-orbit {
+            position: absolute;
+            inset: 0;
+            animation: fp-goal-loading-star-orbit 1.25s linear infinite;
+        }
+        .goal-flow__loading-star-orbit__ic {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 13px;
+            height: 13px;
+            margin-left: -6.5px;
+            margin-top: -6.5px;
+            transform: translateY(-36px);
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.95));
+        }
+        @keyframes fp-goal-loading-star-orbit {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes fp-goal-loading-star-pulse {
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+                opacity: 0.94;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .goal-flow__loading-star-orbit {
+                animation-duration: 2.4s;
+            }
+            .goal-flow__loading-star-main {
+                animation: none;
+            }
         }
         .goal-flow__loading p {
             margin: 0;
@@ -14958,6 +15001,36 @@ function setGoalNavActive(isActive) {
         );
     }
 
+    function fpGoalPlanLoadingStarHtml() {
+        return (
+            '<div class="goal-flow__loading-star-scene" aria-hidden="true">' +
+            '<div class="goal-flow__loading-star-orbit">' +
+            '<svg class="goal-flow__loading-star-orbit__ic" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="#38bdf8"/>' +
+            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="none" stroke="#bae6fd" stroke-width="0.45" stroke-linejoin="round"/>' +
+            '</svg></div>' +
+            '<svg class="goal-flow__loading-star-main" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+            '<defs>' +
+            '<radialGradient id="fpGoalLoadStarBodyG" cx="34%" cy="26%" r="78%">' +
+            '<stop offset="0%" stop-color="#ffffff"/>' +
+            '<stop offset="22%" stop-color="#e8fdff"/>' +
+            '<stop offset="50%" stop-color="#4adfff"/>' +
+            '<stop offset="82%" stop-color="#0590c8"/>' +
+            '<stop offset="100%" stop-color="#024a72"/>' +
+            '</radialGradient>' +
+            '<linearGradient id="fpGoalLoadStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%">' +
+            '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>' +
+            '<stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>' +
+            '<stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>' +
+            '</linearGradient>' +
+            '</defs>' +
+            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="#012d4a" opacity="0.55" transform="translate(12 12) scale(1.04) translate(-12 -12)"/>' +
+            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="url(#fpGoalLoadStarBodyG)"/>' +
+            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="none" stroke="url(#fpGoalLoadStarEdgeG)" stroke-width="0.4" stroke-linejoin="round" opacity="0.9"/>' +
+            '</svg></div>'
+        );
+    }
+
     function fpGoalVictoryStarInnerHtml() {
         return (
             '<svg class="goal-victory-overlay__star-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">' +
@@ -16571,7 +16644,7 @@ function setGoalNavActive(isActive) {
             '</button></div></div>' +
             '<div class="goal-flow__error" id="goalFlowErrorStep2" role="alert"></div></div>' +
             '<div class="goal-flow__loading" id="goalFlowLoading">' +
-            '<div class="goal-flow__loading-orbit" aria-hidden="true"></div>' +
+            fpGoalPlanLoadingStarHtml() +
             '<p class="goal-flow__loading-title" data-i18n="goal.launch_loading">' +
             fpT('goal.launch_loading') +
             '</p>' +
@@ -20437,10 +20510,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupRealtimeSubscription() {}
     if (typeof supabase !== 'undefined') {
         setupRealtimeSubscription();
-    } else {
+    } else { 
         console.log('ℹ️ Supabase не доступен, используем localStorage синхронизацию');
     }
-    </script>
+    </script>  
     
 </body>
 </html>
