@@ -1247,6 +1247,8 @@
         /* Шапка платформы: 1-я строка — логотип и профиль; 2-я — слоган */
         #platform-screen > .platform-header {
             position: relative;
+            z-index: 100;
+            isolation: isolate;
             display: grid;
             grid-template-columns: 1fr auto;
             grid-template-rows: auto auto;
@@ -1290,6 +1292,8 @@
             display: none;
         }
         #platform-main {
+            position: relative;
+            z-index: 1;
             margin-top: 4px;
         }
         #goal-screen > .platform-header {
@@ -1653,7 +1657,7 @@
             flex-shrink: 0;
             margin-left: 0;
             position: relative;
-            z-index: 30;
+            z-index: 110;
         }
         /* Подсказка над кнопкой «Моя цель» */
         .platform-goal-hint {
@@ -4600,7 +4604,7 @@
         .profile-menu {
             position: relative;
             overflow: visible;
-            z-index: 30;
+            z-index: 110;
         }
         
         .profile-icon {
