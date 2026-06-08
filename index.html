@@ -16032,6 +16032,14 @@ function setGoalNavActive(isActive) {
         return true;
     }
 
+    function fpResumePlatformVictoryStarInterval() {
+        if (fpPlatformVictoryStarTimer) return;
+        fpPlatformVictoryStarTimer = window.setInterval(
+            fpPlatformVictoryStarLaunchAll,
+            FP_PLATFORM_VICTORY_STAR_LAUNCH_MS
+        );
+    }
+
     function fpPausePlatformVictoryStar() {
         if (fpPlatformVictoryStarTimer) {
             window.clearInterval(fpPlatformVictoryStarTimer);
@@ -16083,18 +16091,19 @@ function setGoalNavActive(isActive) {
             row &&
             row.classList.contains('is-active') &&
             !row.hidden &&
-            fpPlatformVictoryStarTimer &&
-            rendered === claimedCount
+            rendered === claimedCount &&
+            rendered > 0
         ) {
+            fpResumePlatformVictoryStarInterval();
             fpRenderVictoryPersonalReminder();
             fpShowVictoryStarTapHintIfPending();
             return;
         }
-        fpActivatePlatformVictoryStar();
+        fpActivatePlatformVictoryStar(true);
         fpRenderVictoryPersonalReminder();
     }
 
-    function fpActivatePlatformVictoryStar() {
+    function fpActivatePlatformVictoryStar(launchNow) {
         var row = document.getElementById('platformVictoryStars');
         if (!row) return;
         fpBindPlatformVictoryStarsResize();
@@ -16110,11 +16119,10 @@ function setGoalNavActive(isActive) {
         row.hidden = false;
         row.setAttribute('aria-hidden', 'false');
         row.classList.add('is-active');
-        fpPlatformVictoryStarLaunchAll();
-        fpPlatformVictoryStarTimer = window.setInterval(
-            fpPlatformVictoryStarLaunchAll,
-            FP_PLATFORM_VICTORY_STAR_LAUNCH_MS
-        );
+        if (launchNow !== false) {
+            fpPlatformVictoryStarLaunchAll();
+        }
+        fpResumePlatformVictoryStarInterval();
         fpRenderVictoryPersonalReminder();
         fpShowVictoryReminderTapHintIfPending();
         fpShowVictoryStarTapHintIfPending();
