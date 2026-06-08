@@ -3091,6 +3091,28 @@
             display: block;
             width: 100%;
         }
+        .goal-plan-step--daily-locked {
+            opacity: 0.58;
+            cursor: not-allowed;
+        }
+        .goal-plan-step--daily-locked:hover .goal-plan-step__num,
+        .goal-plan-step--daily-locked:focus-visible .goal-plan-step__num {
+            color: #6a7898;
+            border-color: transparent;
+            background: transparent;
+            box-shadow: none;
+        }
+        .goal-daily-step-hint {
+            margin: 0 0 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: linear-gradient(165deg, #eef2ff 0%, #e0e7ff 100%);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.45;
+            color: #312e81;
+        }
         .goal-plan-phase__name {
             margin: 0 0 6px;
             font-size: 1.12rem;
@@ -8672,6 +8694,9 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.week_done': 'Неделя выполнена',
             'goal.step_toggle': 'Отметить шаг выполненным',
             'goal.step_done': 'Шаг выполнен',
+            'goal.step_daily_limit':
+                'Сегодня можно отметить не больше 2 шагов. Остальные — завтра.',
+            'goal.step_daily_locked': 'Лимит шагов на сегодня исчерпан',
             'goal.notify_btn': 'Уведомления на неделю',
             'goal.notify_on': 'Уведомления включены',
             'goal.notify_pop_title': 'Напоминания на эту неделю',
@@ -8995,6 +9020,9 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.week_done': 'Week complete',
             'goal.step_toggle': 'Mark step complete',
             'goal.step_done': 'Step complete',
+            'goal.step_daily_limit':
+                'You can mark at most 2 steps today. The rest — tomorrow.',
+            'goal.step_daily_locked': 'Today’s step limit reached',
             'goal.notify_btn': 'Week notifications',
             'goal.notify_on': 'Notifications on',
             'goal.notify_pop_title': 'Reminders for this week',
@@ -12228,6 +12256,8 @@ function setGoalNavActive(isActive) {
     const FP_GOAL_DRAFT_KEY = 'fp_goal_draft';
     const FP_GOAL_PLAN_KEY = 'fp_goal_last_plan';
     const FP_GOAL_ANSWERS_KEY = 'fp_goal_answers';
+    const FP_GOAL_DAILY_STEPS_KEY = 'fp_goal_daily_steps';
+    const FP_GOAL_MAX_STEPS_PER_DAY = 2;
     const FP_GOALS_LIST_KEY = 'fp_goals_list';
     const FP_VICTORY_PERSONAL_THOUGHT_KEY = 'fp_victory_personal_thought';
     const FP_VICTORY_REMINDER_OPEN_KEY = 'fp_victory_reminder_open';
@@ -14693,6 +14723,151 @@ function setGoalNavActive(isActive) {
         chk.addEventListener('animationend', clearAnim);
     }
 
+    function fpGoalLocalDateKey() {
+        var d = new Date();
+        var y = d.getFullYear();
+        var m = d.getMonth() + 1;
+        var day = d.getDate();
+        return (
+            y +
+            '-' +
+            (m < 10 ? '0' + m : String(m)) +
+            '-' +
+            (day < 10 ? '0' + day : String(day))
+        );
+    }
+
+    function fpGoalDailyStepsStorageKey() {
+        return fpGoalScopedStorageKey(FP_GOAL_DAILY_STEPS_KEY);
+    }
+
+    function fpGoalLoadDailyStepsLog() {
+        var key = fpGoalDailyStepsStorageKey();
+        var empty = { date: fpGoalLocalDateKey(), completions: [] };
+        if (!key) return empty;
+        try {
+            var raw = localStorage.getItem(key);
+            if (!raw) return empty;
+            var log = JSON.parse(raw);
+            if (!log || typeof log !== 'object') return empty;
+            if (!Array.isArray(log.completions)) log.completions = [];
+            if (!log.date) log.date = fpGoalLocalDateKey();
+            return log;
+        } catch (e) {
+            return empty;
+        }
+    }
+
+    function fpGoalSaveDailyStepsLog(log) {
+        var key = fpGoalDailyStepsStorageKey();
+        if (!key || !log) return;
+        try {
+            localStorage.setItem(key, JSON.stringify(log));
+        } catch (e) {}
+    }
+
+    function fpGoalNormalizeDailyStepsLog(log) {
+        var today = fpGoalLocalDateKey();
+        if (log.date !== today) {
+            log.date = today;
+            log.completions = [];
+            fpGoalSaveDailyStepsLog(log);
+        }
+        return log;
+    }
+
+    function fpGoalDailyStepCompletionKey(goalId, phaseIdx, stepIdx) {
+        return String(goalId) + ':' + String(phaseIdx) + ':' + String(stepIdx);
+    }
+
+    function fpGoalIsStepInDailyLog(log, goalId, phaseIdx, stepIdx) {
+        var ck = fpGoalDailyStepCompletionKey(goalId, phaseIdx, stepIdx);
+        for (var i = 0; i < log.completions.length; i++) {
+            if (log.completions[i].key === ck) return true;
+        }
+        return false;
+    }
+
+    function fpGoalRecordDailyStepCompletion(goalId, phaseIdx, stepIdx) {
+        var log = fpGoalLoadDailyStepsLog();
+        fpGoalNormalizeDailyStepsLog(log);
+        if (fpGoalIsStepInDailyLog(log, goalId, phaseIdx, stepIdx)) return;
+        log.completions.push({
+            key: fpGoalDailyStepCompletionKey(goalId, phaseIdx, stepIdx),
+            goalId: goalId,
+            phaseIdx: phaseIdx,
+            stepIdx: stepIdx,
+            at: Date.now()
+        });
+        fpGoalSaveDailyStepsLog(log);
+    }
+
+    function fpGoalRemoveDailyStepCompletion(goalId, phaseIdx, stepIdx) {
+        var log = fpGoalLoadDailyStepsLog();
+        fpGoalNormalizeDailyStepsLog(log);
+        var ck = fpGoalDailyStepCompletionKey(goalId, phaseIdx, stepIdx);
+        var next = [];
+        var removed = false;
+        for (var i = 0; i < log.completions.length; i++) {
+            if (!removed && log.completions[i].key === ck) {
+                removed = true;
+                continue;
+            }
+            next.push(log.completions[i]);
+        }
+        if (removed) {
+            log.completions = next;
+            fpGoalSaveDailyStepsLog(log);
+        }
+    }
+
+    function fpGoalSyncStepDailyLimits() {
+        if (!fpGoalActiveId) return;
+        var log = fpGoalLoadDailyStepsLog();
+        fpGoalNormalizeDailyStepsLog(log);
+        var atLimit = log.completions.length >= FP_GOAL_MAX_STEPS_PER_DAY;
+        document.querySelectorAll('.goal-plan-step:not(.goal-plan-step--done)').forEach(function (el) {
+            if (atLimit) {
+                el.classList.add('goal-plan-step--daily-locked');
+                el.setAttribute('aria-label', fpT('goal.step_daily_locked'));
+            } else {
+                el.classList.remove('goal-plan-step--daily-locked');
+                el.setAttribute('aria-label', fpT('goal.step_toggle'));
+            }
+        });
+        var panel = document.getElementById('goalPlanPanel');
+        var hintId = 'goalDailyStepHint';
+        var existing = document.getElementById(hintId);
+        if (atLimit) {
+            if (!existing && panel) {
+                var hint = document.createElement('p');
+                hint.id = hintId;
+                hint.className = 'goal-daily-step-hint';
+                hint.setAttribute('role', 'status');
+                hint.textContent = fpT('goal.step_daily_limit');
+                var currentWeek = panel.querySelector('.goal-plan-current-week');
+                var anchor = currentWeek
+                    ? currentWeek.querySelector('.goal-plan-phase__steps')
+                    : null;
+                if (anchor && anchor.parentNode) {
+                    anchor.parentNode.insertBefore(hint, anchor);
+                } else if (currentWeek) {
+                    currentWeek.insertBefore(hint, currentWeek.firstChild);
+                } else {
+                    panel.insertBefore(hint, panel.firstChild);
+                }
+            } else if (existing) {
+                existing.textContent = fpT('goal.step_daily_limit');
+            }
+        } else if (existing) {
+            existing.remove();
+        }
+    }
+
+    function fpGoalShowDailyStepLimitHint(phaseIdx) {
+        fpGoalShowWeekFlowHint(phaseIdx, 'goal.step_daily_limit', 'steps');
+    }
+
     function fpGoalTogglePlanStep(phaseIdx, stepIdx, evt) {
         if (evt) {
             evt.preventDefault();
@@ -14727,6 +14902,7 @@ function setGoalNavActive(isActive) {
         var numBtn = stepItem ? stepItem.querySelector('.goal-plan-step__num') : null;
         if (pos >= 0) {
             arr.splice(pos, 1);
+            fpGoalRemoveDailyStepCompletion(entry.id, phaseIdx, stepIdx);
             if (stepItem) {
                 stepItem.classList.remove('goal-plan-step--done');
                 stepItem.setAttribute('aria-label', fpT('goal.step_toggle'));
@@ -14738,10 +14914,21 @@ function setGoalNavActive(isActive) {
                 if (chkOff) chkOff.classList.remove('is-animating');
             }
         } else {
+            var dailyLog = fpGoalLoadDailyStepsLog();
+            fpGoalNormalizeDailyStepsLog(dailyLog);
+            if (
+                !fpGoalIsStepInDailyLog(dailyLog, entry.id, phaseIdx, stepIdx) &&
+                dailyLog.completions.length >= FP_GOAL_MAX_STEPS_PER_DAY
+            ) {
+                fpGoalShowDailyStepLimitHint(phaseIdx);
+                fpGoalSyncStepDailyLimits();
+                return;
+            }
             arr.push(stepIdx);
             arr.sort(function (a, b) {
                 return a - b;
             });
+            fpGoalRecordDailyStepCompletion(entry.id, phaseIdx, stepIdx);
             if (stepItem) {
                 stepItem.classList.add('goal-plan-step--done');
                 stepItem.setAttribute('aria-label', fpT('goal.step_done'));
@@ -14754,6 +14941,7 @@ function setGoalNavActive(isActive) {
         fpGoalCheckReminders();
         fpGoalSyncVictoryFooter();
         fpGoalSyncPhaseWeekLocks(phaseIdx);
+        fpGoalSyncStepDailyLimits();
         fpGoalMaybeGuideAfterStepsToggle(phaseIdx);
     }
 
@@ -16901,6 +17089,7 @@ function setGoalNavActive(isActive) {
         fpGoalSetStep(3);
         fpGoalSyncNotifyButtons();
         fpGoalInitReminders();
+        fpGoalSyncStepDailyLimits();
         if (!opts.skipPersist) {
             try {
                 localStorage.setItem(fpGoalLegacyPlanKey(), JSON.stringify(plan));
