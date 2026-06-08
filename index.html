@@ -3853,8 +3853,20 @@
             color: #f3f7ff;
         }
         @media (max-width: 768px) {
+            .platform-victory-stars .platform-victory-star {
+                width: min(10vw, 50px);
+            }
+            .platform-victory-stars--many .platform-victory-star {
+                width: min(9vw, 44px);
+            }
+            .platform-victory-stars__row {
+                gap: 6px;
+            }
             .platform-victory-star__tap {
-                inset: -30px;
+                inset: -14px;
+            }
+            .night-person {
+                z-index: 35;
             }
         }
         .platform-victory-stars--stacked + .platform-victory-star-hint {
@@ -15801,8 +15813,36 @@ function setGoalNavActive(isActive) {
     }
 
     var fpPlatformVictoryStarTimer = null;
-    var FP_PLATFORM_VICTORY_STARS_PER_ROW = 4;
+    var FP_PLATFORM_VICTORY_STARS_PER_ROW_DESKTOP = 4;
+    var FP_PLATFORM_VICTORY_STARS_PER_ROW_MOBILE = 3;
+    var FP_PLATFORM_VICTORY_STARS_MOBILE_MAX = 768;
     var FP_PLATFORM_VICTORY_STAR_LAUNCH_MS = 25000;
+    var fpPlatformVictoryStarsResizeBound = false;
+
+    function fpPlatformVictoryStarsPerRow() {
+        if (
+            typeof window !== 'undefined' &&
+            window.matchMedia &&
+            window.matchMedia('(max-width: ' + FP_PLATFORM_VICTORY_STARS_MOBILE_MAX + 'px)').matches
+        ) {
+            return FP_PLATFORM_VICTORY_STARS_PER_ROW_MOBILE;
+        }
+        return FP_PLATFORM_VICTORY_STARS_PER_ROW_DESKTOP;
+    }
+
+    function fpBindPlatformVictoryStarsResize() {
+        if (fpPlatformVictoryStarsResizeBound || typeof window === 'undefined') return;
+        fpPlatformVictoryStarsResizeBound = true;
+        var resizeTimer = null;
+        window.addEventListener('resize', function () {
+            if (resizeTimer) window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(function () {
+                var row = document.getElementById('platformVictoryStars');
+                if (!row || !row.classList.contains('is-active')) return;
+                fpRenderPlatformVictoryStarsRow();
+            }, 180);
+        });
+    }
 
     function fpGoalGetVictoryGoalsClaimed() {
         var goals = fpGoalLoadGoalsList();
@@ -15908,16 +15948,14 @@ function setGoalNavActive(isActive) {
         var row = document.getElementById('platformVictoryStars');
         if (!row) return 0;
         var claimed = fpGoalGetVictoryGoalsClaimed();
+        var perRow = fpPlatformVictoryStarsPerRow();
         row.innerHTML = '';
-        row.classList.toggle('platform-victory-stars--many', claimed.length > 3);
-        row.classList.toggle(
-            'platform-victory-stars--stacked',
-            claimed.length > FP_PLATFORM_VICTORY_STARS_PER_ROW
-        );
-        for (var i = 0; i < claimed.length; i += FP_PLATFORM_VICTORY_STARS_PER_ROW) {
+        row.classList.toggle('platform-victory-stars--many', claimed.length > perRow);
+        row.classList.toggle('platform-victory-stars--stacked', claimed.length > perRow);
+        for (var i = 0; i < claimed.length; i += perRow) {
             var rowEl = document.createElement('div');
             rowEl.className = 'platform-victory-stars__row';
-            var chunk = claimed.slice(i, i + FP_PLATFORM_VICTORY_STARS_PER_ROW);
+            var chunk = claimed.slice(i, i + perRow);
             chunk.forEach(function (goalEntry, colIndex) {
                 var globalIndex = i + colIndex;
                 rowEl.appendChild(fpBuildPlatformVictoryStarNode(goalEntry, globalIndex));
@@ -16034,6 +16072,7 @@ function setGoalNavActive(isActive) {
     function fpActivatePlatformVictoryStar() {
         var row = document.getElementById('platformVictoryStars');
         if (!row) return;
+        fpBindPlatformVictoryStarsResize();
         if (fpPlatformVictoryStarTimer) {
             window.clearInterval(fpPlatformVictoryStarTimer);
             fpPlatformVictoryStarTimer = null;
