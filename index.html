@@ -3474,20 +3474,40 @@
         .goal-victory-overlay__view-btn.is-visible {
             opacity: 1;
         }
-        .platform-victory-star {
+        .platform-victory-stars {
             display: none;
             position: absolute;
             left: 10px;
             bottom: 3%;
-            width: min(14vw, 70px);
-            z-index: 14;
+            z-index: 30;
+            flex-direction: row;
+            align-items: flex-end;
+            gap: 8px;
             pointer-events: none;
             overflow: visible;
         }
-        .platform-victory-star.is-active {
-            display: block;
+        .platform-victory-stars.is-active {
+            display: flex;
             pointer-events: auto;
-            z-index: 30;
+        }
+        .platform-victory-stars--many {
+            gap: 5px;
+        }
+        .platform-victory-stars .platform-victory-star {
+            display: block;
+            position: relative;
+            left: auto;
+            bottom: auto;
+            width: min(12vw, 62px);
+            flex-shrink: 0;
+            pointer-events: auto;
+        }
+        .platform-victory-stars--many .platform-victory-star {
+            width: min(10vw, 52px);
+        }
+        .platform-victory-star {
+            width: min(14vw, 70px);
+            overflow: visible;
         }
         .platform-victory-star.is-launching-click-lock {
             pointer-events: none;
@@ -8120,10 +8140,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                                 </div>
                                 <div class="night-moon"></div>
                                 <div class="shooting-stars-layer" id="shootingStarsLayer"></div>
-                                <div class="platform-victory-star" id="platformVictoryStar" hidden aria-hidden="true">
-                                    <button type="button" class="platform-victory-star__tap" id="platformVictoryStarTap" onclick="fpOpenPlatformVictoryAdvice(event)" data-i18n-aria-label="goal.victory_advice_star_label" aria-label="Звезда первой достигнутой цели — нажмите, чтобы прочитать совет"></button>
-                                    <div class="platform-victory-star__rocket" id="platformVictoryStarRocket"></div>
-                                </div>
+                                <div class="platform-victory-stars" id="platformVictoryStars" hidden aria-hidden="true"></div>
                                 <div class="platform-victory-star-hint" id="platformVictoryStarHint" hidden aria-hidden="true">
                                     <p class="platform-victory-star-hint__text" data-i18n="goal.victory_star_tap_hint">Нажмите на звезду — она кликабельна</p>
                                     <span class="platform-victory-star-hint__arrow" aria-hidden="true">▾</span>
@@ -8471,6 +8488,8 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_claimed': '★ Ваша звезда засияла — цель пройдена до конца',
             'goal.victory_view_btn': 'Посмотреть звезду',
             'goal.victory_advice_badge': 'После вашей первой достигнутой цели',
+            'goal.victory_advice_badge_goal': 'После цели «{goal}»',
+            'goal.victory_advice_star_label_n': 'Звезда достигнутой цели — нажмите, чтобы прочитать совет',
             'goal.victory_advice_from': 'Совет от похожего успешного человека с тем же архетипом — «{name}»',
             'goal.victory_advice_close': 'Понятно',
             'goal.victory_advice_star_label': 'Звезда первой достигнутой цели — нажмите, чтобы прочитать совет',
@@ -8787,6 +8806,8 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.victory_claimed': '★ Your star shines — goal completed to the end',
             'goal.victory_view_btn': 'View your star',
             'goal.victory_advice_badge': 'After your first completed goal',
+            'goal.victory_advice_badge_goal': 'After goal «{goal}»',
+            'goal.victory_advice_star_label_n': 'Completed goal star — tap for advice',
             'goal.victory_advice_from': 'Advice from a successful person who shares your archetype — "{name}"',
             'goal.victory_advice_close': 'Got it',
             'goal.victory_advice_star_label': 'Star of your first completed goal — tap for advice',
@@ -15475,8 +15496,8 @@ function setGoalNavActive(isActive) {
         ) {
             return;
         }
-        var star = document.getElementById('platformVictoryStar');
-        if (!star || star.hidden || !star.classList.contains('is-active')) return;
+        var starsRow = document.getElementById('platformVictoryStars');
+        if (!starsRow || starsRow.hidden || !starsRow.classList.contains('is-active')) return;
         var hint = document.getElementById('platformVictoryStarHint');
         if (!hint) return;
         hint.hidden = false;
@@ -15618,15 +15639,22 @@ function setGoalNavActive(isActive) {
         fpClosePlatformVictoryAdvice();
     }
 
-    function fpOpenPlatformVictoryAdvice(evt) {
+    function fpOpenPlatformVictoryAdvice(evt, goalId) {
         if (evt) {
             evt.preventDefault();
             evt.stopPropagation();
         }
-        var wrap = document.getElementById('platformVictoryStar');
-        var rocket = document.getElementById('platformVictoryStarRocket');
-        if (!wrap || !wrap.classList.contains('is-active') || wrap.hidden) return;
-        if (wrap.classList.contains('is-launching-click-lock')) return;
+        var starsRow = document.getElementById('platformVictoryStars');
+        if (!starsRow || !starsRow.classList.contains('is-active') || starsRow.hidden) return;
+
+        var tapBtn = evt && evt.currentTarget ? evt.currentTarget : null;
+        var gid =
+            goalId ||
+            (tapBtn && tapBtn.getAttribute('data-goal-id')) ||
+            '';
+        var starWrap = tapBtn ? tapBtn.closest('.platform-victory-star') : null;
+        if (starWrap && starWrap.classList.contains('is-launching-click-lock')) return;
+        var rocket = starWrap ? starWrap.querySelector('.platform-victory-star__rocket') : null;
         if (rocket && rocket.classList.contains('is-launching')) return;
 
         fpDismissVictoryStarTapHint();
@@ -15635,10 +15663,14 @@ function setGoalNavActive(isActive) {
             typeof resolveArchetypeKeyFromUser === 'function' && currentUser
                 ? resolveArchetypeKeyFromUser(currentUser)
                 : null;
-        var picked =
-            typeof fpGoalPickDailyPlatformQuote === 'function'
-                ? fpGoalPickDailyPlatformQuote(ak)
-                : fpGoalPickVictoryQuote(ak, 'first-victory');
+        var goalEntry = gid
+            ? fpGoalFindGoal(fpGoalLoadGoalsList(), gid)
+            : null;
+        var picked = goalEntry
+            ? fpGoalPickVictoryQuote(ak, gid)
+            : typeof fpGoalPickDailyPlatformQuote === 'function'
+              ? fpGoalPickDailyPlatformQuote(ak)
+              : fpGoalPickVictoryQuote(ak, 'first-victory');
         var archetypeName =
             typeof fpArchetypeDisplayNameFromUser === 'function'
                 ? fpArchetypeDisplayNameFromUser(currentUser)
@@ -15653,7 +15685,15 @@ function setGoalNavActive(isActive) {
 
         fpHideVictoryPersonalThoughtForm();
         if (badgeEl) {
-            badgeEl.textContent = fpT('goal.victory_advice_badge');
+            var goalTitle = goalEntry && (goalEntry.title || goalEntry.goalText || goalEntry.text);
+            if (goalTitle) {
+                badgeEl.textContent = fpT('goal.victory_advice_badge_goal').replace(
+                    '{goal}',
+                    String(goalTitle).slice(0, 80)
+                );
+            } else {
+                badgeEl.textContent = fpT('goal.victory_advice_badge');
+            }
         }
         if (fromEl) {
             fromEl.textContent = fpT('goal.victory_advice_from').replace('{name}', archetypeName || '—');
@@ -15685,70 +15725,119 @@ function setGoalNavActive(isActive) {
 
     var fpPlatformVictoryStarTimer = null;
 
-    function fpPlatformVictoryStarSvgHtml() {
+    function fpGoalGetVictoryGoalsClaimed() {
+        var goals = fpGoalLoadGoalsList();
+        var claimed = [];
+        goals.forEach(function (g) {
+            if (g && g.victoryStarClaimed) claimed.push(g);
+        });
+        claimed.sort(function (a, b) {
+            var at = a.victoryClaimedAt || a.updatedAt || 0;
+            var bt = b.victoryClaimedAt || b.updatedAt || 0;
+            return at - bt;
+        });
+        return claimed;
+    }
+
+    function fpGoalHasVictoryStarClaimed() {
+        return fpGoalGetVictoryGoalsClaimed().length > 0;
+    }
+
+    function fpPlatformVictoryStarSvgHtml(idSuffix) {
+        var sid = String(idSuffix == null ? 0 : idSuffix);
         return (
             '<svg class="platform-victory-star__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 288" focusable="false">' +
             '<defs>' +
-            '<linearGradient id="fpPlatVictoryTrailOuterG" x1="100" y1="94" x2="100" y2="282" gradientUnits="userSpaceOnUse">' +
+            '<linearGradient id="fpPlatVictoryTrailOuterG' + sid + '" x1="100" y1="94" x2="100" y2="282" gradientUnits="userSpaceOnUse">' +
             '<stop offset="0%" stop-color="#7af6ff" stop-opacity="0.55"/>' +
             '<stop offset="38%" stop-color="#28b8ff" stop-opacity="0.32"/>' +
             '<stop offset="100%" stop-color="#003878" stop-opacity="0"/>' +
             '</linearGradient>' +
-            '<linearGradient id="fpPlatVictoryTrailG" x1="100" y1="92" x2="100" y2="278" gradientUnits="userSpaceOnUse">' +
+            '<linearGradient id="fpPlatVictoryTrailG' + sid + '" x1="100" y1="92" x2="100" y2="278" gradientUnits="userSpaceOnUse">' +
             '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
             '<stop offset="10%" stop-color="#f4feff" stop-opacity="0.98"/>' +
             '<stop offset="26%" stop-color="#9cf0ff" stop-opacity="0.88"/>' +
             '<stop offset="48%" stop-color="#30c8ff" stop-opacity="0.55"/>' +
             '<stop offset="100%" stop-color="#0060c8" stop-opacity="0"/>' +
             '</linearGradient>' +
-            '<linearGradient id="fpPlatVictoryTrailCoreG" x1="100" y1="92" x2="100" y2="252" gradientUnits="userSpaceOnUse">' +
+            '<linearGradient id="fpPlatVictoryTrailCoreG' + sid + '" x1="100" y1="92" x2="100" y2="252" gradientUnits="userSpaceOnUse">' +
             '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
             '<stop offset="28%" stop-color="#e8ffff" stop-opacity="0.96"/>' +
             '<stop offset="100%" stop-color="#5ee8ff" stop-opacity="0"/>' +
             '</linearGradient>' +
-            '<filter id="fpPlatVictoryTrailBlur" x="-35%" y="-8%" width="170%" height="115%">' +
+            '<filter id="fpPlatVictoryTrailBlur' + sid + '" x="-35%" y="-8%" width="170%" height="115%">' +
             '<feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="b"/>' +
             '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>' +
             '</filter>' +
-            '<radialGradient id="fpPlatVictoryStarBodyG" cx="34%" cy="26%" r="78%">' +
+            '<radialGradient id="fpPlatVictoryStarBodyG' + sid + '" cx="34%" cy="26%" r="78%">' +
             '<stop offset="0%" stop-color="#ffffff"/>' +
             '<stop offset="22%" stop-color="#e8fdff"/>' +
             '<stop offset="50%" stop-color="#4adfff"/>' +
             '<stop offset="82%" stop-color="#0590c8"/>' +
             '<stop offset="100%" stop-color="#024a72"/>' +
             '</radialGradient>' +
-            '<linearGradient id="fpPlatVictoryStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%">' +
+            '<linearGradient id="fpPlatVictoryStarEdgeG' + sid + '" x1="15%" y1="10%" x2="85%" y2="95%">' +
             '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>' +
             '<stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>' +
             '<stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>' +
             '</linearGradient>' +
-            '<filter id="fpPlatVictoryStarGlow" x="-70%" y="-70%" width="240%" height="240%">' +
+            '<filter id="fpPlatVictoryStarGlow' + sid + '" x="-70%" y="-70%" width="240%" height="240%">' +
             '<feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b"/>' +
             '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>' +
             '</filter>' +
             '</defs>' +
             '<g class="platform-victory-star__trail">' +
             '<g class="platform-victory-star__trail-fx">' +
-            '<path d="M100 92 Q148 100 138 148 L118 282 Q100 292 82 282 L62 148 Q52 100 100 92 Z" fill="url(#fpPlatVictoryTrailOuterG)" opacity="0.9" filter="url(#fpPlatVictoryTrailBlur)"/>' +
-            '<path d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z" fill="url(#fpPlatVictoryTrailG)" opacity="0.98"/>' +
-            '<path class="platform-victory-star__trail-core" d="M100 90 Q120 94 116 128 L104 256 Q100 262 96 256 L84 128 Q80 94 100 90 Z" fill="url(#fpPlatVictoryTrailCoreG)" opacity="0.96"/>' +
+            '<path d="M100 92 Q148 100 138 148 L118 282 Q100 292 82 282 L62 148 Q52 100 100 92 Z" fill="url(#fpPlatVictoryTrailOuterG' + sid + ')" opacity="0.9" filter="url(#fpPlatVictoryTrailBlur' + sid + ')"/>' +
+            '<path d="M100 90 Q138 96 130 142 L110 272 Q100 280 90 272 L70 142 Q62 96 100 90 Z" fill="url(#fpPlatVictoryTrailG' + sid + ')" opacity="0.98"/>' +
+            '<path class="platform-victory-star__trail-core" d="M100 90 Q120 94 116 128 L104 256 Q100 262 96 256 L84 128 Q80 94 100 90 Z" fill="url(#fpPlatVictoryTrailCoreG' + sid + ')" opacity="0.96"/>' +
             '<g class="platform-victory-star__trail-sparks" fill="#ffffff">' +
             '<circle cx="93" cy="118" r="1.5"/><circle cx="107" cy="138" r="1.2"/><circle cx="96" cy="168" r="1.4"/>' +
             '<circle cx="104" cy="192" r="1.1"/><circle cx="90" cy="212" r="1.25"/><circle cx="110" cy="232" r="1.35"/>' +
             '<circle cx="100" cy="152" r="1.5"/><circle cx="98" cy="248" r="0.95"/>' +
             '<circle cx="88" cy="178" r="1.1"/><circle cx="112" cy="205" r="1.2"/>' +
             '</g></g></g>' +
-            '<g filter="url(#fpPlatVictoryStarGlow)">' +
+            '<g filter="url(#fpPlatVictoryStarGlow' + sid + ')">' +
             '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="#012d4a" opacity="0.72" transform="translate(100 70) scale(1.045) translate(-100 -70)"/>' +
-            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="url(#fpPlatVictoryStarBodyG)"/>' +
-            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="none" stroke="url(#fpPlatVictoryStarEdgeG)" stroke-width="1.15" stroke-linejoin="round" opacity="0.88"/>' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="url(#fpPlatVictoryStarBodyG' + sid + ')"/>' +
+            '<polygon points="100,20 113,53 150,58 123,82 131,120 100,99 69,120 77,82 50,58 87,53" fill="none" stroke="url(#fpPlatVictoryStarEdgeG' + sid + ')" stroke-width="1.15" stroke-linejoin="round" opacity="0.88"/>' +
             '</g></svg>'
         );
     }
 
-    function fpPlatformVictoryStarLaunchOnce() {
-        var rocket = document.getElementById('platformVictoryStarRocket');
-        var wrap = document.getElementById('platformVictoryStar');
+    function fpBuildPlatformVictoryStarNode(goalEntry, index) {
+        var wrap = document.createElement('div');
+        wrap.className = 'platform-victory-star';
+        wrap.setAttribute('data-goal-id', goalEntry.id || '');
+        var tap = document.createElement('button');
+        tap.type = 'button';
+        tap.className = 'platform-victory-star__tap';
+        tap.setAttribute('data-goal-id', goalEntry.id || '');
+        tap.setAttribute('aria-label', fpT('goal.victory_advice_star_label_n'));
+        tap.onclick = function (ev) {
+            fpOpenPlatformVictoryAdvice(ev, goalEntry.id);
+        };
+        var rocket = document.createElement('div');
+        rocket.className = 'platform-victory-star__rocket';
+        rocket.innerHTML = fpPlatformVictoryStarSvgHtml(index);
+        wrap.appendChild(tap);
+        wrap.appendChild(rocket);
+        return wrap;
+    }
+
+    function fpRenderPlatformVictoryStarsRow() {
+        var row = document.getElementById('platformVictoryStars');
+        if (!row) return 0;
+        var claimed = fpGoalGetVictoryGoalsClaimed();
+        row.innerHTML = '';
+        row.classList.toggle('platform-victory-stars--many', claimed.length > 3);
+        claimed.forEach(function (goalEntry, index) {
+            row.appendChild(fpBuildPlatformVictoryStarNode(goalEntry, index));
+        });
+        return claimed.length;
+    }
+
+    function fpPlatformVictoryStarLaunchOnce(rocket, wrap) {
         if (!rocket || rocket.classList.contains('is-launching')) return;
         if (wrap) wrap.classList.add('is-launching-click-lock');
         rocket.classList.remove('is-launching');
@@ -15766,12 +15855,16 @@ function setGoalNavActive(isActive) {
         rocket.addEventListener('animationend', onEnd);
     }
 
-    function fpGoalHasVictoryStarClaimed() {
-        var goals = fpGoalLoadGoalsList();
-        for (var i = 0; i < goals.length; i++) {
-            if (goals[i] && goals[i].victoryStarClaimed) return true;
-        }
-        return false;
+    function fpPlatformVictoryStarLaunchAll() {
+        var row = document.getElementById('platformVictoryStars');
+        if (!row) return;
+        var stars = row.querySelectorAll('.platform-victory-star');
+        stars.forEach(function (wrap, index) {
+            var rocket = wrap.querySelector('.platform-victory-star__rocket');
+            window.setTimeout(function () {
+                fpPlatformVictoryStarLaunchOnce(rocket, wrap);
+            }, index * 420);
+        });
     }
 
     function fpIsPlatformMainStarSceneVisible() {
@@ -15791,27 +15884,33 @@ function setGoalNavActive(isActive) {
             window.clearInterval(fpPlatformVictoryStarTimer);
             fpPlatformVictoryStarTimer = null;
         }
-        var rocket = document.getElementById('platformVictoryStarRocket');
-        if (rocket) {
+        var row = document.getElementById('platformVictoryStars');
+        if (!row) return;
+        row.querySelectorAll('.platform-victory-star__rocket').forEach(function (rocket) {
             rocket.classList.remove('is-launching');
             rocket.style.transform = '';
             rocket.style.opacity = '';
-        }
+        });
+        row.querySelectorAll('.platform-victory-star').forEach(function (wrap) {
+            wrap.classList.remove('is-launching-click-lock');
+        });
     }
 
     function fpDeactivatePlatformVictoryStar() {
         fpPausePlatformVictoryStar();
         fpHideVictoryStarTapHint();
-        var wrap = document.getElementById('platformVictoryStar');
-        if (wrap) {
-            wrap.hidden = true;
-            wrap.setAttribute('aria-hidden', 'true');
-            wrap.classList.remove('is-active');
+        var row = document.getElementById('platformVictoryStars');
+        if (row) {
+            row.hidden = true;
+            row.setAttribute('aria-hidden', 'true');
+            row.classList.remove('is-active', 'platform-victory-stars--many');
+            row.innerHTML = '';
         }
     }
 
     function fpSyncPlatformVictoryStar() {
-        if (!fpGoalHasVictoryStarClaimed()) {
+        var claimedCount = fpGoalGetVictoryGoalsClaimed().length;
+        if (!claimedCount) {
             fpDeactivatePlatformVictoryStar();
             fpRenderVictoryPersonalReminder();
             return;
@@ -15821,12 +15920,14 @@ function setGoalNavActive(isActive) {
             fpRenderVictoryPersonalReminder();
             return;
         }
-        var wrap = document.getElementById('platformVictoryStar');
+        var row = document.getElementById('platformVictoryStars');
+        var rendered = row ? row.querySelectorAll('.platform-victory-star').length : 0;
         if (
-            wrap &&
-            wrap.classList.contains('is-active') &&
-            !wrap.hidden &&
-            fpPlatformVictoryStarTimer
+            row &&
+            row.classList.contains('is-active') &&
+            !row.hidden &&
+            fpPlatformVictoryStarTimer &&
+            rendered === claimedCount
         ) {
             fpRenderVictoryPersonalReminder();
             fpShowVictoryStarTapHintIfPending();
@@ -15837,21 +15938,22 @@ function setGoalNavActive(isActive) {
     }
 
     function fpActivatePlatformVictoryStar() {
-        var wrap = document.getElementById('platformVictoryStar');
-        var rocket = document.getElementById('platformVictoryStarRocket');
-        if (!wrap || !rocket) return;
+        var row = document.getElementById('platformVictoryStars');
+        if (!row) return;
         if (fpPlatformVictoryStarTimer) {
             window.clearInterval(fpPlatformVictoryStarTimer);
             fpPlatformVictoryStarTimer = null;
         }
-        if (!rocket.querySelector('.platform-victory-star__trail-fx')) {
-            rocket.innerHTML = fpPlatformVictoryStarSvgHtml();
+        var count = fpRenderPlatformVictoryStarsRow();
+        if (!count) {
+            fpDeactivatePlatformVictoryStar();
+            return;
         }
-        wrap.hidden = false;
-        wrap.setAttribute('aria-hidden', 'false');
-        wrap.classList.add('is-active');
-        fpPlatformVictoryStarLaunchOnce();
-        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchOnce, 15000);
+        row.hidden = false;
+        row.setAttribute('aria-hidden', 'false');
+        row.classList.add('is-active');
+        fpPlatformVictoryStarLaunchAll();
+        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchAll, 15000);
         fpRenderVictoryPersonalReminder();
         fpShowVictoryReminderTapHintIfPending();
         fpShowVictoryStarTapHintIfPending();
