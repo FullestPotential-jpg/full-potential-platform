@@ -8246,7 +8246,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                         Оставить отзыв
                     </button>
                     <div class="platform-header">
-                        <button type="button" class="goal-screen-back-btn" onclick="closeGoalScreen()" data-i18n-title="goal.back" title="Назад" aria-label="Назад">
+                        <button type="button" class="goal-screen-back-btn" onclick="fpGoalScreenBack()" data-i18n-title="goal.back" title="Назад" aria-label="Назад">
                             <span class="goal-screen-back-btn__arrow" aria-hidden="true">←</span>
                             <span class="goal-screen-back-btn__label" data-i18n="goal.back">Назад</span>
                         </button>
@@ -12092,6 +12092,31 @@ function closeGoalScreen() {
     if (typeof window.fpRenderVictoryPersonalReminder === 'function') {
         window.fpRenderVictoryPersonalReminder();
     }
+}
+
+function fpGoalScreenBack() {
+    var victoryOverlay = document.getElementById('goalVictoryOverlay');
+    if (victoryOverlay && victoryOverlay.classList.contains('is-active')) {
+        if (typeof fpGoalCloseVictoryOverlay === 'function') {
+            fpGoalCloseVictoryOverlay();
+        }
+        return;
+    }
+    var goals =
+        typeof fpGoalMigrateLegacyGoals === 'function' ? fpGoalMigrateLegacyGoals() : [];
+    var onGoalsList =
+        typeof fpGoalViewMode !== 'undefined' &&
+        fpGoalViewMode === 'list' &&
+        goals.length > 0;
+    if (onGoalsList) {
+        closeGoalScreen();
+        return;
+    }
+    if (goals.length > 0 && typeof fpGoalBackToList === 'function') {
+        fpGoalBackToList();
+        return;
+    }
+    closeGoalScreen();
 }
 
 function setGoalNavActive(isActive) {
@@ -17101,6 +17126,7 @@ function setGoalNavActive(isActive) {
     window.fpGoalOpenGoal = fpGoalOpenGoal;
     window.fpGoalStartNewGoal = fpGoalStartNewGoal;
     window.fpGoalBackToList = fpGoalBackToList;
+    window.fpGoalScreenBack = fpGoalScreenBack;
     window.fpGoalOnPhaseCheckClick = fpGoalOnPhaseCheckClick;
     window.fpGoalSaveWeekReview = fpGoalSaveWeekReview;
     window.fpGoalLogWeekDeviation = fpGoalLogWeekDeviation;
