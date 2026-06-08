@@ -3807,6 +3807,8 @@
             color: #f8fbff;
             font-weight: 600;
             cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .night-person-reminder {
             position: relative;
@@ -10068,6 +10070,9 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
         if (typeof fpBindNightPersonArchetypeInteractions === 'function') {
             fpBindNightPersonArchetypeInteractions();
         }
+        if (typeof window.fpInitVictoryAdviceForm === 'function') {
+            window.fpInitVictoryAdviceForm();
+        }
 
         window.addEventListener('hashchange', function () {
             if (typeof fpApplyPasswordResetFromHash === 'function') fpApplyPasswordResetFromHash();
@@ -10552,17 +10557,26 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
 
     /** Слияние ответа platform_accounts_verify_login в объект пользователя (локальный store или currentUser). */
     function fpVictoryThoughtLocalKeyForEmail(email) {
-        if (!email) return null;
+        if (!email) return 'fp_victory_personal_thought_guest';
         var em =
             typeof normalizeEmail === 'function'
                 ? normalizeEmail(email)
                 : String(email).trim().toLowerCase();
-        if (!em) return null;
+        if (!em) return 'fp_victory_personal_thought_guest';
         return 'fp_victory_personal_thought_' + em.replace(/[^a-z0-9@._-]/g, '_');
     }
 
+    function fpVictoryThoughtKey() {
+        if (typeof currentUser !== 'undefined' && currentUser && currentUser.email) {
+            return fpVictoryThoughtLocalKeyForEmail(currentUser.email);
+        }
+        return 'fp_victory_personal_thought_guest';
+    }
+
     function fpPersistVictoryThoughtLocal(email, text, updatedAt) {
-        var key = fpVictoryThoughtLocalKeyForEmail(email);
+        var key = email
+            ? fpVictoryThoughtLocalKeyForEmail(email)
+            : fpVictoryThoughtKey();
         if (!key) return;
         var t = String(text || '').trim();
         if (t.length < 2) {
@@ -15390,11 +15404,19 @@ function setGoalNavActive(isActive) {
     }
 
     function fpVictoryThoughtStorageKey() {
+        if (typeof fpVictoryThoughtKey === 'function') {
+            return fpVictoryThoughtKey();
+        }
         return fpGoalScopedStorageKey(FP_VICTORY_PERSONAL_THOUGHT_KEY);
     }
 
+    function fpVictoryGuestScopedStorageKey(prefix) {
+        var scoped = fpGoalScopedStorageKey(prefix);
+        return scoped || prefix + '_guest';
+    }
+
     function fpVictoryReminderOpenStorageKey() {
-        return fpGoalScopedStorageKey(FP_VICTORY_REMINDER_OPEN_KEY);
+        return fpVictoryGuestScopedStorageKey(FP_VICTORY_REMINDER_OPEN_KEY);
     }
 
     function fpIsVictoryReminderOpenPersisted() {
@@ -15421,11 +15443,33 @@ function setGoalNavActive(isActive) {
 
     function fpLoadVictoryPersonalThought() {
         try {
-            var raw = localStorage.getItem(fpVictoryThoughtStorageKey());
-            if (!raw) return null;
-            var data = JSON.parse(raw);
-            if (!data || !data.text) return null;
-            return data;
+            var keys = [];
+            var primary = fpVictoryThoughtStorageKey();
+            if (primary) keys.push(primary);
+            if (typeof currentUser !== 'undefined' && currentUser && currentUser.email) {
+                var emailKey = fpVictoryThoughtLocalKeyForEmail(currentUser.email);
+                if (keys.indexOf(emailKey) < 0) keys.push(emailKey);
+            }
+            var scoped = fpGoalScopedStorageKey(FP_VICTORY_PERSONAL_THOUGHT_KEY);
+            if (scoped && keys.indexOf(scoped) < 0) keys.push(scoped);
+            if (keys.indexOf('fp_victory_personal_thought_guest') < 0) {
+                keys.push('fp_victory_personal_thought_guest');
+            }
+            for (var i = 0; i < keys.length; i++) {
+                var raw = localStorage.getItem(keys[i]);
+                if (!raw) continue;
+                var data = JSON.parse(raw);
+                if (!data || !data.text || String(data.text).trim().length < 2) continue;
+                if (primary && keys[i] !== primary) {
+                    var em =
+                        typeof currentUser !== 'undefined' && currentUser && currentUser.email
+                            ? currentUser.email
+                            : '';
+                    fpPersistVictoryThoughtLocal(em, data.text, data.updatedAt || Date.now());
+                }
+                return data;
+            }
+            return null;
         } catch (e) {
             return null;
         }
@@ -15433,22 +15477,23 @@ function setGoalNavActive(isActive) {
 
     function fpSaveVictoryPersonalThought(text) {
         var payload = { text: String(text || '').trim().slice(0, 240), updatedAt: Date.now() };
-        if (payload.text.length < 2) return;
-        if (currentUser && currentUser.email) {
-            fpPersistVictoryThoughtLocal(currentUser.email, payload.text, payload.updatedAt);
-        } else {
-            var key = fpVictoryThoughtStorageKey();
-            if (key) localStorage.setItem(key, JSON.stringify(payload));
-        }
+        if (payload.text.length < 2) return false;
+        var email =
+            typeof currentUser !== 'undefined' && currentUser && currentUser.email
+                ? currentUser.email
+                : '';
+        fpPersistVictoryThoughtLocal(email, payload.text, payload.updatedAt);
+        fpDismissVictoryReminderTapHint();
+        fpPersistVictoryReminderOpen(true);
         fpRenderVictoryPersonalReminder();
-        fpMarkVictoryReminderHintPending();
         if (typeof syncVictoryThoughtToServerIfPossible === 'function') {
             syncVictoryThoughtToServerIfPossible(payload.text);
         }
+        return true;
     }
 
     function fpVictoryReminderHintStorageKey() {
-        return fpGoalScopedStorageKey(FP_VICTORY_REMINDER_HINT_PENDING_KEY);
+        return fpVictoryGuestScopedStorageKey(FP_VICTORY_REMINDER_HINT_PENDING_KEY);
     }
 
     function fpMarkVictoryReminderHintPending() {
@@ -15554,16 +15599,15 @@ function setGoalNavActive(isActive) {
     }
 
     function fpShowVictoryPersonalReminderUI(autoHideMs) {
-        if (
-            !fpGoalHasVictoryStarClaimed() ||
-            (typeof fpIsPlatformMainStarSceneVisible === 'function' &&
-                !fpIsPlatformMainStarSceneVisible())
-        ) {
+        var data = fpLoadVictoryPersonalThought();
+        if (!data || !data.text) {
             fpHideVictoryPersonalReminderUI();
             return false;
         }
-        var data = fpLoadVictoryPersonalThought();
-        if (!data || !data.text) {
+        if (
+            typeof fpIsPlatformMainStarSceneVisible === 'function' &&
+            !fpIsPlatformMainStarSceneVisible()
+        ) {
             fpHideVictoryPersonalReminderUI();
             return false;
         }
@@ -15607,6 +15651,13 @@ function setGoalNavActive(isActive) {
             fpHideVictoryPersonalReminderUI();
             return;
         }
+        if (
+            !fpGoalHasVictoryStarClaimed() &&
+            !fpIsVictoryReminderOpenPersisted()
+        ) {
+            fpHideVictoryPersonalReminderUI();
+            return;
+        }
         if (fpIsVictoryReminderOpenPersisted()) {
             fpShowVictoryPersonalReminderUI(0);
         } else {
@@ -15643,9 +15694,21 @@ function setGoalNavActive(isActive) {
             alert(fpT('goal.victory_write_own_empty'));
             return;
         }
-        fpSaveVictoryPersonalThought(text);
+        if (!fpSaveVictoryPersonalThought(text)) return;
         fpHideVictoryPersonalThoughtForm();
-        fpClosePlatformVictoryAdvice();
+        fpClosePlatformVictoryAdvice(true);
+        window.requestAnimationFrame(function () {
+            fpOpenVictoryPersonalReminder();
+        });
+    }
+
+    function fpInitVictoryAdviceForm() {
+        var btn = document.querySelector('.platform-victory-advice__own-save');
+        if (!btn || btn.dataset.fpBound === '1') return;
+        btn.dataset.fpBound = '1';
+        if (!btn.getAttribute('onclick')) {
+            btn.setAttribute('onclick', 'fpSaveVictoryPersonalThoughtFromForm()');
+        }
     }
 
     function fpOpenPlatformVictoryAdvice(evt, goalId) {
@@ -15693,6 +15756,9 @@ function setGoalNavActive(isActive) {
         if (!overlay || !quoteEl) return;
 
         fpHideVictoryPersonalThoughtForm();
+        if (typeof fpInitVictoryAdviceForm === 'function') {
+            fpInitVictoryAdviceForm();
+        }
         if (badgeEl) {
             var goalTitle = goalEntry && (goalEntry.title || goalEntry.goalText || goalEntry.text);
             if (goalTitle) {
@@ -15717,7 +15783,7 @@ function setGoalNavActive(isActive) {
         fpPausePlatformVictoryStar();
     }
 
-    function fpClosePlatformVictoryAdvice() {
+    function fpClosePlatformVictoryAdvice(skipReminderHint) {
         var overlay = document.getElementById('platformVictoryAdviceOverlay');
         if (!overlay) return;
         overlay.classList.remove('is-active');
@@ -15726,10 +15792,12 @@ function setGoalNavActive(isActive) {
         if (typeof fpSyncPlatformVictoryStar === 'function') {
             fpSyncPlatformVictoryStar();
         }
-        window.requestAnimationFrame(function () {
-            fpShowVictoryReminderTapHintIfPending();
-            fpShowVictoryStarTapHintIfPending();
-        });
+        if (!skipReminderHint) {
+            window.requestAnimationFrame(function () {
+                fpShowVictoryReminderTapHintIfPending();
+                fpShowVictoryStarTapHintIfPending();
+            });
+        }
     }
 
     var fpPlatformVictoryStarTimer = null;
@@ -17011,6 +17079,7 @@ function setGoalNavActive(isActive) {
     window.fpClosePlatformVictoryAdvice = fpClosePlatformVictoryAdvice;
     window.fpToggleVictoryPersonalThoughtForm = fpToggleVictoryPersonalThoughtForm;
     window.fpSaveVictoryPersonalThoughtFromForm = fpSaveVictoryPersonalThoughtFromForm;
+    window.fpInitVictoryAdviceForm = fpInitVictoryAdviceForm;
     window.fpRenderVictoryPersonalReminder = fpRenderVictoryPersonalReminder;
     window.fpOnNightPersonArchetypeTap = fpOnNightPersonArchetypeTap;
     window.fpHideVictoryPersonalReminder = fpHideVictoryPersonalReminder;
