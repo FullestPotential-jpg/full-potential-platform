@@ -2701,9 +2701,35 @@
             transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
             z-index: 2;
         }
-        .goal-phase-check:hover:not(.is-done) {
-            border-color: rgba(56, 189, 248, 0.65);
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        .goal-phase-check:hover:not(.is-done):not(.is-locked) {
+            border-color: rgba(59, 91, 219, 0.65);
+            box-shadow: 0 0 12px rgba(30, 58, 138, 0.28);
+        }
+        .goal-phase-check.is-locked {
+            opacity: 0.42;
+            cursor: not-allowed;
+            border-color: rgba(130, 150, 210, 0.28);
+            box-shadow: none;
+        }
+        .goal-week-review--locked {
+            opacity: 0.72;
+        }
+        .goal-week-review--locked .goal-week-review__row,
+        .goal-week-review--locked .goal-week-review__note,
+        .goal-week-review--locked .goal-week-review__actions {
+            pointer-events: none;
+            user-select: none;
+        }
+        .goal-week-review__locked-hint {
+            margin: 0 0 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(22, 36, 84, 0.08);
+            border: 1px solid rgba(26, 40, 88, 0.18);
+            font-size: 0.84rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #243a6e;
         }
         .goal-phase-check__icon {
             display: block;
@@ -3135,8 +3161,18 @@
             bottom: 0;
             width: 0;
             border-radius: inherit;
-            background: linear-gradient(90deg, #a5b4fc 0%, #818cf8 35%, #6366f1 65%, #38bdf8 100%);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            background: linear-gradient(
+                90deg,
+                #060818 0%,
+                #0a1028 18%,
+                #0f1a42 42%,
+                #162454 68%,
+                #1a3268 88%,
+                #1e3a7a 100%
+            );
+            box-shadow:
+                inset 0 1px 0 rgba(120, 165, 255, 0.28),
+                inset 0 -1px 0 rgba(6, 8, 24, 0.35);
             pointer-events: none;
             transition: width 0.08s linear;
         }
@@ -3166,8 +3202,8 @@
             justify-content: center;
             transition: box-shadow 0.18s ease, transform 0.14s ease, filter 0.14s ease;
             filter:
-                drop-shadow(0 2px 8px rgba(99, 102, 241, calc(0.12 + 0.28 * var(--glow))))
-                drop-shadow(0 0 calc(8px + 18px * var(--glow)) rgba(56, 189, 248, calc(0.2 + 0.45 * var(--glow))));
+                drop-shadow(0 2px 8px rgba(22, 36, 84, calc(0.18 + 0.32 * var(--glow))))
+                drop-shadow(0 0 calc(8px + 18px * var(--glow)) rgba(59, 91, 219, calc(0.22 + 0.42 * var(--glow))));
         }
         .goal-phase-swipe-star::before,
         .goal-phase-swipe-star::after {
@@ -3185,8 +3221,8 @@
             height: 56px;
             background: radial-gradient(
                 circle,
-                rgba(129, 140, 248, 0.45) 0%,
-                rgba(56, 189, 248, 0.22) 42%,
+                rgba(59, 91, 219, 0.42) 0%,
+                rgba(26, 50, 104, 0.28) 42%,
                 transparent 72%
             );
             opacity: calc(0.2 + 0.75 * var(--glow));
@@ -3196,8 +3232,8 @@
             height: 80px;
             background: radial-gradient(
                 circle,
-                rgba(165, 180, 252, 0.35) 0%,
-                rgba(99, 102, 241, 0.12) 50%,
+                rgba(30, 58, 138, 0.32) 0%,
+                rgba(15, 26, 66, 0.14) 50%,
                 transparent 72%
             );
             opacity: calc(0.15 + 0.55 * var(--glow));
@@ -3211,7 +3247,7 @@
             height: 32px;
             overflow: visible;
             transition: transform 0.14s ease, filter 0.14s ease;
-            filter: drop-shadow(0 1px 3px rgba(79, 70, 229, 0.2));
+            filter: drop-shadow(0 1px 3px rgba(22, 36, 84, 0.28));
         }
         .goal-phase-swipe-star.is-hot svg {
             animation: fp-goal-swipe-star-pulse 0.95s ease-in-out infinite;
@@ -3230,11 +3266,11 @@
             transform: translate(-50%, -50%) translateY(-72px) scale(1.14);
             z-index: 3;
             box-shadow:
-                0 14px 32px rgba(99, 102, 241, 0.32),
-                0 0 0 1px rgba(165, 180, 252, 0.35);
+                0 14px 32px rgba(22, 36, 84, 0.38),
+                0 0 0 1px rgba(59, 91, 219, 0.32);
             filter:
-                drop-shadow(0 4px 12px rgba(99, 102, 241, 0.35))
-                drop-shadow(0 0 28px rgba(56, 189, 248, 0.55));
+                drop-shadow(0 4px 12px rgba(22, 36, 84, 0.42))
+                drop-shadow(0 0 28px rgba(59, 91, 219, 0.48));
         }
         .goal-phase-swipe-star--flying {
             position: fixed;
@@ -3245,12 +3281,12 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.98);
             box-shadow:
-                0 8px 22px rgba(99, 102, 241, 0.35),
-                0 0 20px rgba(56, 189, 248, 0.3);
+                0 8px 22px rgba(22, 36, 84, 0.38),
+                0 0 20px rgba(59, 91, 219, 0.32);
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.25));
+            filter: drop-shadow(0 2px 8px rgba(22, 36, 84, 0.3));
         }
         .goal-phase-swipe-star--flying svg {
             width: 32px;
@@ -4391,6 +4427,24 @@
         }
         html.fp-platform-dark .goal-phase-swipe-star {
             background: #f8fafc;
+        }
+        html.fp-platform-dark .goal-phase-swipe-track__fill {
+            background: linear-gradient(
+                90deg,
+                #040610 0%,
+                #080c1c 20%,
+                #0c1438 45%,
+                #121a4a 72%,
+                #162454 100%
+            );
+            box-shadow:
+                inset 0 1px 0 rgba(120, 165, 255, 0.22),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+        }
+        html.fp-platform-dark .goal-week-review__locked-hint {
+            background: rgba(18, 28, 58, 0.65);
+            border-color: rgba(120, 165, 255, 0.2);
+            color: #b8c8f0;
         }
         html.fp-platform-dark .goal-plan-timeline-banner,
         html.fp-platform-dark .goal-plan-first48,
@@ -8525,6 +8579,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.week_hint_need_complete': 'Итог сохранён. Проведите звезду вправо («Завершить неделю»), чтобы перейти к следующей.',
             'goal.week_hint_need_steps': 'Сначала отметьте все шаги этой недели.',
             'goal.week_hint_need_review_before_swipe': 'Сначала заполните и сохраните итог недели.',
+            'goal.week_review_locked': 'Сначала отметьте все шаги недели — затем можно записать итог.',
             'goal.plan_journal_title': 'Журнал плана',
             'goal.plan_tomorrow_step': 'Завтра — один шаг',
             'goal.plan_barrier_protocol': 'Протокол при барьере',
@@ -8847,6 +8902,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'goal.week_hint_need_complete': 'Outcome saved. Drag the star right («Complete week») to move to the next week.',
             'goal.week_hint_need_steps': 'Mark all steps for this week first.',
             'goal.week_hint_need_review_before_swipe': 'Fill in and save the week outcome first.',
+            'goal.week_review_locked': 'Mark all steps for this week first — then you can record the outcome.',
             'goal.plan_journal_title': 'Plan journal',
             'goal.plan_tomorrow_step': 'Tomorrow — one step',
             'goal.plan_barrier_protocol': 'Barrier protocol',
@@ -14693,6 +14749,7 @@ function setGoalNavActive(isActive) {
         fpGoalRefreshNotifyPopoverIfOpen(phaseIdx);
         fpGoalCheckReminders();
         fpGoalSyncVictoryFooter();
+        fpGoalSyncPhaseWeekLocks(phaseIdx);
         fpGoalMaybeGuideAfterStepsToggle(phaseIdx);
     }
 
@@ -15261,16 +15318,75 @@ function setGoalNavActive(isActive) {
         return Array.isArray(steps) ? steps.length : 0;
     }
 
-    function fpGoalAreAllPhaseStepsDone(entry, phaseIdx) {
-        if (!entry) return false;
-        var total = fpGoalGetPhaseStepCount(phaseIdx);
-        if (total < 1) return true;
-        var done = (entry.completedSteps && entry.completedSteps[String(phaseIdx)]) || [];
+    function fpGoalArePhaseStepsDoneFromMap(phaseIdx, stepCount, completedStepsMap) {
+        if (stepCount < 1) return true;
+        var done =
+            (completedStepsMap && completedStepsMap[String(phaseIdx)]) ||
+            (completedStepsMap && completedStepsMap[phaseIdx]) ||
+            [];
         if (!Array.isArray(done)) return false;
-        for (var i = 0; i < total; i++) {
+        for (var i = 0; i < stepCount; i++) {
             if (done.indexOf(i) < 0) return false;
         }
         return true;
+    }
+
+    function fpGoalAreAllPhaseStepsDone(entry, phaseIdx) {
+        if (!entry) return false;
+        var total = fpGoalGetPhaseStepCount(phaseIdx);
+        return fpGoalArePhaseStepsDoneFromMap(
+            phaseIdx,
+            total,
+            entry.completedSteps || {}
+        );
+    }
+
+    function fpGoalSyncPhaseWeekLocks(phaseIdx) {
+        var entry = fpGoalGetActiveGoalEntry();
+        if (!entry) return;
+        var phase = document.querySelector(
+            '.goal-plan-phase[data-phase-idx="' + phaseIdx + '"]'
+        );
+        if (!phase) return;
+        var completed = fpGoalGetCompletedPhases();
+        if (completed.indexOf(phaseIdx) >= 0) return;
+        var stepsReady = fpGoalAreAllPhaseStepsDone(entry, phaseIdx);
+        var btn = phase.querySelector('.goal-phase-check');
+        if (btn && !btn.classList.contains('is-done')) {
+            btn.classList.toggle('is-locked', !stepsReady);
+            if (!stepsReady) {
+                btn.setAttribute('disabled', 'disabled');
+                btn.setAttribute('aria-disabled', 'true');
+            } else {
+                btn.removeAttribute('disabled');
+                btn.setAttribute('aria-disabled', 'false');
+            }
+        }
+        var review = document.getElementById('goalWeekReview-' + phaseIdx);
+        if (!review) return;
+        review.classList.toggle('goal-week-review--locked', !stepsReady);
+        var lockHint = review.querySelector('.goal-week-review__locked-hint');
+        if (!stepsReady) {
+            if (!lockHint) {
+                lockHint = document.createElement('p');
+                lockHint.className = 'goal-week-review__locked-hint';
+                lockHint.textContent = fpT('goal.week_review_locked');
+                var title = review.querySelector('.goal-week-review__title');
+                if (title && title.nextSibling) {
+                    review.insertBefore(lockHint, title.nextSibling);
+                } else {
+                    review.insertBefore(lockHint, review.firstChild);
+                }
+            }
+            review.querySelectorAll('input, textarea, button').forEach(function (el) {
+                el.setAttribute('disabled', 'disabled');
+            });
+        } else {
+            if (lockHint) lockHint.remove();
+            review.querySelectorAll('input, textarea, button').forEach(function (el) {
+                el.removeAttribute('disabled');
+            });
+        }
     }
 
     function fpGoalIsWeekReviewSaved(entry, phaseIdx) {
@@ -16344,25 +16460,37 @@ function setGoalNavActive(isActive) {
         return html + '</div>';
     }
 
-    function fpGoalBuildWeekReviewHtml(ph, phaseIdx) {
+    function fpGoalBuildWeekReviewHtml(ph, phaseIdx, stepsReady) {
         var entry = fpGoalGetActiveGoalEntry();
         if (!entry) return '';
         fpGoalEnsureExecutionData(entry);
+        if (stepsReady == null) {
+            stepsReady = fpGoalAreAllPhaseStepsDone(entry, phaseIdx);
+        }
         var key = String(phaseIdx);
         var rev = entry.phaseReviews[key] || {};
         var ws = ph.week_success || ph.week_focus || '';
+        var locked = !stepsReady;
+        var dis = locked ? ' disabled' : '';
         var saved =
             rev.at &&
             '<p class="goal-week-review__saved">' +
                 fpGoalEscapeHtml(fpT('goal.week_review_saved')) +
                 '</p>';
         return (
-            '<section class="goal-week-review" id="goalWeekReview-' +
+            '<section class="goal-week-review' +
+            (locked ? ' goal-week-review--locked' : '') +
+            '" id="goalWeekReview-' +
             phaseIdx +
             '">' +
             '<p class="goal-week-review__title">' +
             fpGoalEscapeHtml(fpT('goal.week_review_title')) +
             '</p>' +
+            (locked
+                ? '<p class="goal-week-review__locked-hint">' +
+                  fpGoalEscapeHtml(fpT('goal.week_review_locked')) +
+                  '</p>'
+                : '') +
             '<p class="goal-week-review__criterion"><strong>' +
             fpGoalEscapeHtml(fpT('goal.plan_week_success')) +
             ':</strong> ' +
@@ -16375,6 +16503,7 @@ function setGoalNavActive(isActive) {
             phaseIdx +
             '" value="done"' +
             (rev.status === 'done' ? ' checked' : '') +
+            dis +
             '> ' +
             fpGoalEscapeHtml(fpT('goal.week_review_done')) +
             '</label>' +
@@ -16382,6 +16511,7 @@ function setGoalNavActive(isActive) {
             phaseIdx +
             '" value="partial"' +
             (rev.status === 'partial' ? ' checked' : '') +
+            dis +
             '> ' +
             fpGoalEscapeHtml(fpT('goal.week_review_partial')) +
             '</label>' +
@@ -16389,6 +16519,7 @@ function setGoalNavActive(isActive) {
             phaseIdx +
             '" value="slip"' +
             (rev.status === 'slip' ? ' checked' : '') +
+            dis +
             '> ' +
             fpGoalEscapeHtml(fpT('goal.week_review_slip')) +
             '</label></div>' +
@@ -16396,12 +16527,15 @@ function setGoalNavActive(isActive) {
             phaseIdx +
             '"' +
             (rev.weekSuccessMet ? ' checked' : '') +
+            dis +
             '> ' +
             fpGoalEscapeHtml(fpT('goal.week_review_met')) +
             '</label></div>' +
             '<textarea class="goal-week-review__note" id="goalRevNote-' +
             phaseIdx +
-            '" placeholder="' +
+            '"' +
+            dis +
+            ' placeholder="' +
             fpGoalEscapeHtml(fpT('goal.week_review_note')) +
             '">' +
             fpGoalEscapeHtml(rev.note || '') +
@@ -16409,12 +16543,16 @@ function setGoalNavActive(isActive) {
             '<div class="goal-week-review__actions">' +
             '<button type="button" class="goal-week-review__btn goal-week-review__btn--primary" onclick="fpGoalSaveWeekReview(' +
             phaseIdx +
-            ')">' +
+            ')"' +
+            dis +
+            '>' +
             fpGoalEscapeHtml(fpT('goal.week_review_save')) +
             '</button>' +
             '<button type="button" class="goal-week-review__btn" onclick="fpGoalLogWeekDeviation(' +
             phaseIdx +
-            ')">' +
+            ')"' +
+            dis +
+            '>' +
             fpGoalEscapeHtml(fpT('goal.week_review_deviation')) +
             '</button></div>' +
             (saved || '') +
@@ -16425,6 +16563,10 @@ function setGoalNavActive(isActive) {
     function fpGoalSaveWeekReview(phaseIdx) {
         var entry = fpGoalGetActiveGoalEntry();
         if (!entry) return;
+        if (!fpGoalAreAllPhaseStepsDone(entry, phaseIdx)) {
+            fpGoalShowWeekFlowHint(phaseIdx, 'goal.week_hint_need_steps', 'steps');
+            return;
+        }
         var goals = fpGoalLoadGoalsList();
         var e = fpGoalFindGoal(goals, entry.id);
         if (!e) return;
@@ -16466,6 +16608,10 @@ function setGoalNavActive(isActive) {
     function fpGoalLogWeekDeviation(phaseIdx) {
         var entry = fpGoalGetActiveGoalEntry();
         if (!entry) return;
+        if (!fpGoalAreAllPhaseStepsDone(entry, phaseIdx)) {
+            fpGoalShowWeekFlowHint(phaseIdx, 'goal.week_hint_need_steps', 'steps');
+            return;
+        }
         var noteEl = document.getElementById('goalRevNote-' + phaseIdx);
         var note = noteEl ? noteEl.value.trim() : '';
         if (!note) {
@@ -16494,6 +16640,12 @@ function setGoalNavActive(isActive) {
         if (!Array.isArray(phaseSteps)) {
             phaseSteps = [];
         }
+        var stepsReady = fpGoalArePhaseStepsDoneFromMap(
+            idx,
+            phaseSteps.length,
+            completedStepsMap
+        );
+        var completeLocked = !isDone && !stepsReady;
         return (
             '<article class="goal-plan-phase' +
             (isDone ? ' goal-plan-phase--done' : '') +
@@ -16514,10 +16666,13 @@ function setGoalNavActive(isActive) {
             '</p>' +
             '<button type="button" class="goal-phase-check' +
             (isDone ? ' is-done is-settled' : '') +
+            (completeLocked ? ' is-locked' : '') +
             '" data-phase-idx="' +
             idx +
             '" aria-pressed="' +
             (isDone ? 'true' : 'false') +
+            '" aria-disabled="' +
+            (completeLocked || isDone ? 'true' : 'false') +
             '" aria-label="' +
             fpGoalEscapeHtml(
                 isDone ? fpT(fpGoalPhaseFinishKey(plan, 'done')) : fpT(fpGoalPhaseFinishKey(plan, 'mark_done'))
@@ -16525,7 +16680,7 @@ function setGoalNavActive(isActive) {
             '" onclick="fpGoalOnPhaseCheckClick(' +
             idx +
             ', event)"' +
-            (isDone ? ' disabled' : '') +
+            (isDone || completeLocked ? ' disabled' : '') +
             '><span class="goal-phase-check__icon" aria-hidden="true">' +
             fpGoalBlueStarSvg('gpsChk' + idx) +
             '</span></button></div></div>' +
@@ -16540,7 +16695,7 @@ function setGoalNavActive(isActive) {
                   fpGoalEscapeHtml(ph.if_slip) +
                   '</p>'
                 : '') +
-            fpGoalBuildWeekReviewHtml(ph, idx) +
+            fpGoalBuildWeekReviewHtml(ph, idx, stepsReady) +
             '<button type="button" class="goal-phase-notify' +
             (fpGoalIsWeekNotifyOn(idx) ? ' is-on' : '') +
             '" data-phase-idx="' +
