@@ -3480,9 +3480,9 @@
             left: 10px;
             bottom: 3%;
             z-index: 30;
-            flex-direction: row;
-            align-items: flex-end;
-            gap: 8px;
+            flex-direction: column-reverse;
+            align-items: flex-start;
+            gap: 6px;
             pointer-events: none;
             overflow: visible;
         }
@@ -3490,7 +3490,13 @@
             display: flex;
             pointer-events: auto;
         }
-        .platform-victory-stars--many {
+        .platform-victory-stars__row {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            gap: 8px;
+        }
+        .platform-victory-stars--many .platform-victory-stars__row {
             gap: 5px;
         }
         .platform-victory-stars .platform-victory-star {
@@ -3848,6 +3854,9 @@
             .platform-victory-star__tap {
                 inset: -30px;
             }
+        }
+        .platform-victory-stars--stacked + .platform-victory-star-hint {
+            bottom: calc(3% + min(12vw, 62px) + min(10vw, 52px) + 30px);
         }
         .platform-victory-star-hint {
             position: absolute;
@@ -15724,6 +15733,8 @@ function setGoalNavActive(isActive) {
     }
 
     var fpPlatformVictoryStarTimer = null;
+    var FP_PLATFORM_VICTORY_STARS_PER_ROW = 4;
+    var FP_PLATFORM_VICTORY_STAR_LAUNCH_MS = 25000;
 
     function fpGoalGetVictoryGoalsClaimed() {
         var goals = fpGoalLoadGoalsList();
@@ -15831,9 +15842,20 @@ function setGoalNavActive(isActive) {
         var claimed = fpGoalGetVictoryGoalsClaimed();
         row.innerHTML = '';
         row.classList.toggle('platform-victory-stars--many', claimed.length > 3);
-        claimed.forEach(function (goalEntry, index) {
-            row.appendChild(fpBuildPlatformVictoryStarNode(goalEntry, index));
-        });
+        row.classList.toggle(
+            'platform-victory-stars--stacked',
+            claimed.length > FP_PLATFORM_VICTORY_STARS_PER_ROW
+        );
+        for (var i = 0; i < claimed.length; i += FP_PLATFORM_VICTORY_STARS_PER_ROW) {
+            var rowEl = document.createElement('div');
+            rowEl.className = 'platform-victory-stars__row';
+            var chunk = claimed.slice(i, i + FP_PLATFORM_VICTORY_STARS_PER_ROW);
+            chunk.forEach(function (goalEntry, colIndex) {
+                var globalIndex = i + colIndex;
+                rowEl.appendChild(fpBuildPlatformVictoryStarNode(goalEntry, globalIndex));
+            });
+            row.appendChild(rowEl);
+        }
         return claimed.length;
     }
 
@@ -15903,7 +15925,11 @@ function setGoalNavActive(isActive) {
         if (row) {
             row.hidden = true;
             row.setAttribute('aria-hidden', 'true');
-            row.classList.remove('is-active', 'platform-victory-stars--many');
+            row.classList.remove(
+                'is-active',
+                'platform-victory-stars--many',
+                'platform-victory-stars--stacked'
+            );
             row.innerHTML = '';
         }
     }
@@ -15953,7 +15979,10 @@ function setGoalNavActive(isActive) {
         row.setAttribute('aria-hidden', 'false');
         row.classList.add('is-active');
         fpPlatformVictoryStarLaunchAll();
-        fpPlatformVictoryStarTimer = window.setInterval(fpPlatformVictoryStarLaunchAll, 15000);
+        fpPlatformVictoryStarTimer = window.setInterval(
+            fpPlatformVictoryStarLaunchAll,
+            FP_PLATFORM_VICTORY_STAR_LAUNCH_MS
+        );
         fpRenderVictoryPersonalReminder();
         fpShowVictoryReminderTapHintIfPending();
         fpShowVictoryStarTapHintIfPending();
