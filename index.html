@@ -1250,7 +1250,7 @@
             z-index: 100;
             isolation: isolate;
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1fr auto auto;
             grid-template-rows: auto auto;
             column-gap: 16px;
             row-gap: 10px;
@@ -1594,6 +1594,56 @@
             justify-self: start;
             align-self: center;
         }
+        #platform-screen > .platform-header > .platform-admin-stats {
+            grid-column: 2;
+            grid-row: 1;
+            justify-self: end;
+            align-self: center;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            min-width: 54px;
+            margin-right: 10px;
+            padding: 7px 13px 8px;
+            box-sizing: border-box;
+            border-radius: 14px;
+            border: 1px solid rgba(120, 165, 255, 0.42);
+            background-color: #080c22;
+            background-image:
+                radial-gradient(1px 1px at 18% 30%, rgba(255, 255, 255, 0.88), transparent),
+                radial-gradient(1px 1px at 78% 22%, rgba(255, 255, 255, 0.55), transparent),
+                radial-gradient(1.5px 1.5px at 62% 72%, rgba(186, 210, 255, 0.65), transparent),
+                linear-gradient(158deg, #060818 0%, #0e1438 46%, #162454 100%);
+            box-shadow:
+                0 4px 16px rgba(20, 32, 88, 0.18),
+                0 0 20px rgba(72, 110, 220, 0.1);
+        }
+        #platform-screen > .platform-header > .platform-admin-stats[hidden] {
+            display: none !important;
+        }
+        .platform-admin-stats__count {
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-size: clamp(1.05rem, 3.2vw, 1.28rem);
+            font-weight: 700;
+            font-style: normal;
+            line-height: 1;
+            letter-spacing: 0.02em;
+            color: #fef08a;
+            text-shadow: 0 0 14px rgba(251, 191, 36, 0.45);
+        }
+        .platform-admin-stats__label {
+            font-size: clamp(0.52rem, 2.1vw, 0.6rem);
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            line-height: 1.15;
+            text-transform: lowercase;
+            color: rgba(196, 214, 255, 0.88);
+            white-space: nowrap;
+        }
         #platform-screen > .platform-header > .platform-header-tagline-slot {
             grid-column: 1 / -1;
             grid-row: 2;
@@ -1650,7 +1700,7 @@
             pointer-events: none;
         }
         #platform-screen > .platform-header > .profile-menu {
-            grid-column: 2;
+            grid-column: 3;
             grid-row: 1;
             justify-self: end;
             align-self: center;
@@ -4665,31 +4715,6 @@
             display: block;
             flex-shrink: 0;
         }
-        .profile-icon-user-count {
-            position: absolute;
-            top: -3px;
-            right: -3px;
-            z-index: 2;
-            min-width: 18px;
-            height: 18px;
-            padding: 0 5px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.62rem;
-            font-weight: 800;
-            line-height: 1;
-            letter-spacing: -0.02em;
-            color: #0a0e28;
-            background: linear-gradient(165deg, #fef9c3 0%, #fbbf24 55%, #f59e0b 100%);
-            border: 1.5px solid rgba(10, 14, 40, 0.85);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
-            pointer-events: none;
-        }
-        .profile-icon-user-count[hidden] {
-            display: none !important;
-        }
         
         .profile-dropdown {
             position: absolute;
@@ -6377,6 +6402,12 @@
     #platform-screen > .platform-header > .platform-header-tagline-slot > .platform-header-tagline::after {
         left: 11px;
         font-size: 0.68em;
+    }
+    #platform-screen > .platform-header > .platform-admin-stats {
+        margin-right: 8px;
+        padding: 6px 10px 7px;
+        min-width: 48px;
+        border-radius: 12px;
     }
     #platform-screen > .platform-header {
         align-items: start;
@@ -8225,9 +8256,18 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                     <div class="platform-header-tagline-slot">
                         <p class="platform-header-tagline" data-i18n="platform.tagline">Адаптируем цель под тебя</p>
                     </div>
+                    <div
+                        class="platform-admin-stats"
+                        id="platformAdminStats"
+                        hidden
+                        role="status"
+                        aria-live="polite"
+                    >
+                        <span class="platform-admin-stats__count" id="platformAdminUserCount">—</span>
+                        <span class="platform-admin-stats__label" data-i18n="platform.admin_users_label">пользователей</span>
+                    </div>
                     <div class="profile-menu">
                         <div class="profile-icon" onclick="toggleProfileMenu(event)" data-i18n-title="platform.profile_tooltip" title="Профиль">
-                            <span class="profile-icon-user-count" id="profileIconUserCount" hidden aria-hidden="true"></span>
                             <svg class="profile-icon-person" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
                                     <linearGradient id="fpProfStroke" x1="5" y1="4" x2="19" y2="22" gradientUnits="userSpaceOnUse">
@@ -8540,6 +8580,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'platform.tagline': 'Адаптируем цель под тебя',
             'platform.profile_tooltip': 'Профиль',
             'platform.admin_users_count': 'Пользователей на платформе: %n%',
+            'platform.admin_users_label': 'пользователей',
             'platform.lang_group': 'Язык интерфейса',
             'platform.lang_ru': 'Русский',
             'platform.lang_en': 'English',
@@ -8867,6 +8908,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'platform.tagline': 'We tailor your goal to you',
             'platform.profile_tooltip': 'Profile',
             'platform.admin_users_count': 'Platform users: %n%',
+            'platform.admin_users_label': 'users',
             'platform.lang_group': 'Interface language',
             'platform.lang_ru': 'Russian',
             'platform.lang_en': 'English',
@@ -10846,21 +10888,13 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
         return em === FP_PLATFORM_ADMIN_STATS_EMAIL;
     }
 
-    function fpHidePlatformUserCountBadge() {
-        var badge = document.getElementById('profileIconUserCount');
-        if (!badge) return;
-        badge.hidden = true;
-        badge.setAttribute('aria-hidden', 'true');
-        badge.textContent = '';
-        var icon = badge.closest('.profile-icon');
-        if (icon) {
-            icon.removeAttribute('data-admin-users-title');
-            if (icon.hasAttribute('data-i18n-title')) {
-                icon.title = fpT('platform.profile_tooltip');
-            } else {
-                icon.removeAttribute('title');
-            }
-        }
+    function fpHidePlatformAdminStats() {
+        var box = document.getElementById('platformAdminStats');
+        var countEl = document.getElementById('platformAdminUserCount');
+        if (!box) return;
+        box.hidden = true;
+        box.removeAttribute('aria-label');
+        if (countEl) countEl.textContent = '—';
     }
 
     function fpFormatPlatformUserCount(n) {
@@ -10870,26 +10904,39 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
         return String(Math.floor(num));
     }
 
-    async function fpRefreshPlatformUserCountBadge(force) {
-        var badge = document.getElementById('profileIconUserCount');
-        if (!badge) return;
+    async function fpRefreshPlatformAdminStats(force) {
+        var box = document.getElementById('platformAdminStats');
+        var countEl = document.getElementById('platformAdminUserCount');
+        if (!box || !countEl) return;
         if (!fpIsPlatformAdminStatsViewer()) {
-            fpHidePlatformUserCountBadge();
+            fpHidePlatformAdminStats();
             return;
         }
         var now = Date.now();
-        if (!force && now - fpLastAdminUserCountFetch < FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS && badge.textContent) {
+        if (
+            !force &&
+            now - fpLastAdminUserCountFetch < FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS &&
+            countEl.textContent &&
+            countEl.textContent !== '—'
+        ) {
+            var labelEl = box.querySelector('.platform-admin-stats__label');
+            if (labelEl) labelEl.textContent = fpT('platform.admin_users_label');
+            box.setAttribute(
+                'aria-label',
+                fpT('platform.admin_users_count').replace('%n%', countEl.textContent)
+            );
+            box.hidden = false;
             return;
         }
         try {
             if (!window.supabaseClient || !currentUser || !currentUser.email) {
-                fpHidePlatformUserCountBadge();
+                fpHidePlatformAdminStats();
                 return;
             }
             var found = findUserByEmail(currentUser.email);
             var passwordHash = found && found.user ? found.user.password_hash : null;
             if (!passwordHash) {
-                fpHidePlatformUserCountBadge();
+                fpHidePlatformAdminStats();
                 return;
             }
             var result = await window.supabaseClient.rpc('platform_accounts_admin_user_count', {
@@ -10898,24 +10945,22 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             });
             var data = result && result.data;
             if (result.error || !data || !data.ok) {
-                fpHidePlatformUserCountBadge();
+                fpHidePlatformAdminStats();
                 return;
             }
             var countLabel = fpFormatPlatformUserCount(data.users_with_test);
-            badge.textContent = countLabel;
-            badge.hidden = false;
-            badge.setAttribute('aria-hidden', 'false');
-            var tip = fpT('platform.admin_users_count').replace('%n%', countLabel);
-            badge.setAttribute('aria-label', tip);
-            var icon = badge.closest('.profile-icon');
-            if (icon) {
-                icon.setAttribute('data-admin-users-title', tip);
-                icon.title = tip;
-            }
+            countEl.textContent = countLabel;
+            var labelNode = box.querySelector('.platform-admin-stats__label');
+            if (labelNode) labelNode.textContent = fpT('platform.admin_users_label');
+            box.hidden = false;
+            box.setAttribute(
+                'aria-label',
+                fpT('platform.admin_users_count').replace('%n%', countLabel)
+            );
             fpLastAdminUserCountFetch = Date.now();
         } catch (e) {
             console.warn('[admin-stats] user count fetch failed:', e);
-            fpHidePlatformUserCountBadge();
+            fpHidePlatformAdminStats();
         }
     }
 
@@ -12269,10 +12314,10 @@ async function showResult() {
                 }
             }
             syncNightPersonArchetype(currentUser);
-            await fpRefreshPlatformUserCountBadge(!!options.force);
+            await fpRefreshPlatformAdminStats(!!options.force);
         } else {
             syncNightPersonArchetype(null);
-            fpHidePlatformUserCountBadge();
+            fpHidePlatformAdminStats();
         }
     }
 
