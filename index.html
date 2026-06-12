@@ -4665,6 +4665,31 @@
             display: block;
             flex-shrink: 0;
         }
+        .profile-icon-user-count {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            z-index: 2;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.62rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: #0a0e28;
+            background: linear-gradient(165deg, #fef9c3 0%, #fbbf24 55%, #f59e0b 100%);
+            border: 1.5px solid rgba(10, 14, 40, 0.85);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+            pointer-events: none;
+        }
+        .profile-icon-user-count[hidden] {
+            display: none !important;
+        }
         
         .profile-dropdown {
             position: absolute;
@@ -8202,6 +8227,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                     </div>
                     <div class="profile-menu">
                         <div class="profile-icon" onclick="toggleProfileMenu(event)" data-i18n-title="platform.profile_tooltip" title="Профиль">
+                            <span class="profile-icon-user-count" id="profileIconUserCount" hidden aria-hidden="true"></span>
                             <svg class="profile-icon-person" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
                                     <linearGradient id="fpProfStroke" x1="5" y1="4" x2="19" y2="22" gradientUnits="userSpaceOnUse">
@@ -8513,6 +8539,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'platform.title': 'Полный Потенциал',
             'platform.tagline': 'Адаптируем цель под тебя',
             'platform.profile_tooltip': 'Профиль',
+            'platform.admin_users_count': 'Пользователей на платформе: %n%',
             'platform.lang_group': 'Язык интерфейса',
             'platform.lang_ru': 'Русский',
             'platform.lang_en': 'English',
@@ -8839,6 +8866,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'platform.title': 'Full Potentiall',
             'platform.tagline': 'We tailor your goal to you',
             'platform.profile_tooltip': 'Profile',
+            'platform.admin_users_count': 'Platform users: %n%',
             'platform.lang_group': 'Interface language',
             'platform.lang_ru': 'Russian',
             'platform.lang_en': 'English',
@@ -10805,6 +10833,91 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
 
     let fpLastPlatformProfileFetch = 0;
     const FP_PLATFORM_PROFILE_MIN_INTERVAL_MS = 20000;
+    const FP_PLATFORM_ADMIN_STATS_EMAIL = 'ptonub@gmail.com';
+    let fpLastAdminUserCountFetch = 0;
+    const FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS = 60000;
+
+    function fpIsPlatformAdminStatsViewer() {
+        if (!currentUser || !currentUser.email) return false;
+        var em =
+            typeof normalizeEmail === 'function'
+                ? normalizeEmail(currentUser.email)
+                : String(currentUser.email).trim().toLowerCase();
+        return em === FP_PLATFORM_ADMIN_STATS_EMAIL;
+    }
+
+    function fpHidePlatformUserCountBadge() {
+        var badge = document.getElementById('profileIconUserCount');
+        if (!badge) return;
+        badge.hidden = true;
+        badge.setAttribute('aria-hidden', 'true');
+        badge.textContent = '';
+        var icon = badge.closest('.profile-icon');
+        if (icon) {
+            icon.removeAttribute('data-admin-users-title');
+            if (icon.hasAttribute('data-i18n-title')) {
+                icon.title = fpT('platform.profile_tooltip');
+            } else {
+                icon.removeAttribute('title');
+            }
+        }
+    }
+
+    function fpFormatPlatformUserCount(n) {
+        var num = Number(n);
+        if (!isFinite(num) || num < 0) return '—';
+        if (num > 9999) return '9999+';
+        return String(Math.floor(num));
+    }
+
+    async function fpRefreshPlatformUserCountBadge(force) {
+        var badge = document.getElementById('profileIconUserCount');
+        if (!badge) return;
+        if (!fpIsPlatformAdminStatsViewer()) {
+            fpHidePlatformUserCountBadge();
+            return;
+        }
+        var now = Date.now();
+        if (!force && now - fpLastAdminUserCountFetch < FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS && badge.textContent) {
+            return;
+        }
+        try {
+            if (!window.supabaseClient || !currentUser || !currentUser.email) {
+                fpHidePlatformUserCountBadge();
+                return;
+            }
+            var found = findUserByEmail(currentUser.email);
+            var passwordHash = found && found.user ? found.user.password_hash : null;
+            if (!passwordHash) {
+                fpHidePlatformUserCountBadge();
+                return;
+            }
+            var result = await window.supabaseClient.rpc('platform_accounts_admin_user_count', {
+                p_email: normalizeEmail(currentUser.email),
+                p_hash: passwordHash
+            });
+            var data = result && result.data;
+            if (result.error || !data || !data.ok) {
+                fpHidePlatformUserCountBadge();
+                return;
+            }
+            var countLabel = fpFormatPlatformUserCount(data.users_with_test);
+            badge.textContent = countLabel;
+            badge.hidden = false;
+            badge.setAttribute('aria-hidden', 'false');
+            var tip = fpT('platform.admin_users_count').replace('%n%', countLabel);
+            badge.setAttribute('aria-label', tip);
+            var icon = badge.closest('.profile-icon');
+            if (icon) {
+                icon.setAttribute('data-admin-users-title', tip);
+                icon.title = tip;
+            }
+            fpLastAdminUserCountFetch = Date.now();
+        } catch (e) {
+            console.warn('[admin-stats] user count fetch failed:', e);
+            fpHidePlatformUserCountBadge();
+        }
+    }
 
     async function refreshPlatformProfileFromServer(force) {
         try {
@@ -12156,8 +12269,10 @@ async function showResult() {
                 }
             }
             syncNightPersonArchetype(currentUser);
+            await fpRefreshPlatformUserCountBadge(!!options.force);
         } else {
             syncNightPersonArchetype(null);
+            fpHidePlatformUserCountBadge();
         }
     }
 
