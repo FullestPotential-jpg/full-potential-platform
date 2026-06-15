@@ -49,8 +49,11 @@
     </style>
     <script>
     try {
-        if (localStorage.getItem('fpPlatformTheme') === 'dark') {
+        var fpThemeEarly = localStorage.getItem('fpPlatformTheme');
+        if (fpThemeEarly === 'dark') {
             document.documentElement.classList.add('fp-platform-dark');
+        } else if (fpThemeEarly === 'sunset') {
+            document.documentElement.classList.add('fp-platform-sunset');
         }
     } catch (e) {}
     </script>
@@ -1594,11 +1597,19 @@
             justify-self: start;
             align-self: center;
         }
-        #platform-screen > .platform-header > .platform-admin-stats {
+        #platform-screen > .platform-header > .platform-admin-stats-wrap {
             grid-column: 2;
             grid-row: 1;
             justify-self: end;
             align-self: center;
+            position: relative;
+            z-index: 112;
+            margin-right: 10px;
+        }
+        #platform-screen > .platform-header > .platform-admin-stats-wrap[hidden] {
+            display: none !important;
+        }
+        #platform-screen > .platform-header > .platform-admin-stats {
             position: relative;
             z-index: 1;
             display: flex;
@@ -1607,7 +1618,7 @@
             justify-content: center;
             gap: 2px;
             min-width: 54px;
-            margin-right: 10px;
+            margin: 0;
             padding: 7px 13px 8px;
             box-sizing: border-box;
             border-radius: 14px;
@@ -1621,6 +1632,127 @@
             box-shadow:
                 0 4px 16px rgba(20, 32, 88, 0.18),
                 0 0 20px rgba(72, 110, 220, 0.1);
+            cursor: pointer;
+            font: inherit;
+            color: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        #platform-screen > .platform-header > .platform-admin-stats:hover,
+        #platform-screen > .platform-header > .platform-admin-stats:focus-visible {
+            transform: translateY(-1px);
+            border-color: rgba(160, 195, 255, 0.62);
+            box-shadow:
+                0 6px 20px rgba(20, 32, 88, 0.24),
+                0 0 24px rgba(96, 140, 255, 0.16);
+            outline: none;
+        }
+        #platform-screen > .platform-header > .platform-admin-stats.is-open {
+            border-color: rgba(251, 191, 36, 0.55);
+            box-shadow:
+                0 6px 22px rgba(20, 32, 88, 0.26),
+                0 0 0 2px rgba(251, 191, 36, 0.18);
+        }
+        .platform-admin-users-pop {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: min(360px, calc(100vw - 48px));
+            max-height: min(62vh, 420px);
+            display: flex;
+            flex-direction: column;
+            border-radius: 14px;
+            border: 1px solid rgba(120, 165, 255, 0.35);
+            background: #ffffff;
+            box-shadow: 0 16px 40px rgba(8, 12, 40, 0.22);
+            overflow: hidden;
+        }
+        .platform-admin-users-pop[hidden] {
+            display: none !important;
+        }
+        .platform-admin-users-pop__head {
+            flex-shrink: 0;
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid rgba(130, 150, 210, 0.2);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #1a2858;
+            background: linear-gradient(180deg, #f8faff 0%, #f2f6ff 100%);
+        }
+        .platform-admin-users-pop__body {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 6px 0;
+        }
+        .platform-admin-users-pop__loading,
+        .platform-admin-users-pop__empty,
+        .platform-admin-users-pop__error {
+            margin: 0;
+            padding: 16px 14px;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #4a5680;
+        }
+        .platform-admin-users-pop__error {
+            color: #b42318;
+        }
+        .platform-admin-users-pop__item {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(130, 150, 210, 0.12);
+        }
+        .platform-admin-users-pop__item:last-child {
+            border-bottom: none;
+        }
+        .platform-admin-users-pop__email {
+            display: block;
+            font-size: 0.86rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #141e52;
+            word-break: break-all;
+        }
+        .platform-admin-users-pop__nick {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.74rem;
+            line-height: 1.3;
+            color: #5a6890;
+        }
+        .platform-admin-users-pop__archetype {
+            display: block;
+            margin-top: 4px;
+            font-size: 0.8rem;
+            line-height: 1.35;
+            color: #2d4aa8;
+            font-weight: 600;
+        }
+        html.fp-platform-dark .platform-admin-users-pop {
+            background: #0f1438;
+            border-color: rgba(120, 165, 255, 0.32);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        }
+        html.fp-platform-dark .platform-admin-users-pop__head {
+            color: #e8f0ff;
+            background: linear-gradient(180deg, #141e48 0%, #101838 100%);
+            border-bottom-color: rgba(120, 165, 255, 0.22);
+        }
+        html.fp-platform-dark .platform-admin-users-pop__loading,
+        html.fp-platform-dark .platform-admin-users-pop__empty {
+            color: #a8b8e8;
+        }
+        html.fp-platform-dark .platform-admin-users-pop__email {
+            color: #eef2ff;
+        }
+        html.fp-platform-dark .platform-admin-users-pop__nick {
+            color: #9aa8d8;
+        }
+        html.fp-platform-dark .platform-admin-users-pop__archetype {
+            color: #93c5fd;
+        }
+        html.fp-platform-dark .platform-admin-users-pop__item {
+            border-bottom-color: rgba(120, 165, 255, 0.14);
         }
         #platform-screen > .platform-header > .platform-admin-stats[hidden] {
             display: none !important;
@@ -4672,6 +4804,177 @@
         html.fp-platform-dark .goal-plan-phase li {
             color: #c8d4ff;
         }
+
+        /* Тема «закат»: розовые облака на фоне и в шапке; белые контент-блоки не трогаем */
+        html.fp-platform-sunset .container:has(#platform-screen.active),
+        html.fp-platform-sunset .content:has(#platform-screen.active),
+        html.fp-platform-sunset #platform-screen.active {
+            background:
+                radial-gradient(ellipse 55% 38% at 8% 8%, rgba(255, 255, 255, 0.72) 0%, transparent 58%),
+                radial-gradient(ellipse 42% 32% at 92% 12%, rgba(255, 220, 210, 0.65) 0%, transparent 55%),
+                radial-gradient(ellipse 48% 36% at 50% 0%, rgba(255, 200, 215, 0.45) 0%, transparent 62%),
+                linear-gradient(180deg, #8ec8f7 0%, #b8dafb 18%, #ffd4e5 48%, #ffb8a8 72%, #f8a88a 100%);
+        }
+        html.fp-platform-sunset #platform-screen.active {
+            position: relative;
+        }
+        html.fp-platform-sunset #platform-screen.active::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 28% 12% at 18% 14%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 230, 235, 0.45) 48%, transparent 72%),
+                radial-gradient(ellipse 22% 10% at 30% 16%, rgba(255, 210, 220, 0.7) 0%, transparent 68%),
+                radial-gradient(ellipse 34% 14% at 68% 10%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 200, 210, 0.42) 46%, transparent 70%),
+                radial-gradient(ellipse 20% 9% at 82% 18%, rgba(255, 240, 245, 0.75) 0%, transparent 65%),
+                radial-gradient(ellipse 26% 11% at 48% 22%, rgba(255, 255, 255, 0.55) 0%, transparent 68%);
+        }
+        html.fp-platform-sunset #platform-screen > .platform-header {
+            border-color: rgba(255, 155, 135, 0.42);
+            background:
+                radial-gradient(ellipse 90px 38px at 88% 28%, rgba(255, 255, 255, 0.82) 0%, transparent 72%),
+                radial-gradient(ellipse 70px 30px at 78% 34%, rgba(255, 210, 200, 0.55) 0%, transparent 68%),
+                radial-gradient(ellipse 55px 24px at 12% 72%, rgba(255, 230, 240, 0.5) 0%, transparent 70%),
+                linear-gradient(168deg, rgba(255, 252, 248, 0.96) 0%, rgba(255, 238, 228, 0.94) 42%, rgba(255, 224, 232, 0.92) 100%);
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.88) inset,
+                0 14px 36px rgba(180, 90, 70, 0.12),
+                0 3px 14px rgba(255, 140, 120, 0.1);
+        }
+        html.fp-platform-sunset #platform-screen > .platform-header::after {
+            background:
+                radial-gradient(ellipse 90% 55% at 50% -30%, rgba(255, 190, 170, 0.2) 0%, transparent 62%),
+                radial-gradient(ellipse 30% 40% at 100% 0%, rgba(255, 160, 180, 0.12) 0%, transparent 55%);
+        }
+        html.fp-platform-sunset #platform-screen > .platform-header > .platform-logo--brand {
+            background: linear-gradient(118deg, #9a3412 0%, #ea580c 32%, #f472b6 58%, #be123c 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        html.fp-platform-sunset #platform-screen > .platform-header > .platform-logo--brand::after {
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 190, 160, 0.35) 20%,
+                rgba(255, 130, 110, 0.88) 50%,
+                rgba(255, 190, 160, 0.35) 80%,
+                transparent 100%
+            );
+            box-shadow: 0 0 12px rgba(255, 140, 110, 0.42);
+        }
+        html.fp-platform-sunset #platform-screen > .platform-header > .platform-header-tagline-slot {
+            border-color: rgba(255, 170, 150, 0.45);
+            background-color: #6eb0e8;
+            background-image:
+                radial-gradient(ellipse 38% 62% at 10% 48%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 228, 235, 0.5) 44%, transparent 70%),
+                radial-gradient(ellipse 32% 54% at 26% 54%, rgba(255, 205, 215, 0.78) 0%, transparent 64%),
+                radial-gradient(ellipse 44% 68% at 68% 40%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 195, 205, 0.48) 42%, transparent 72%),
+                radial-gradient(ellipse 34% 56% at 88% 50%, rgba(255, 245, 248, 0.82) 0%, transparent 66%),
+                radial-gradient(ellipse 28% 48% at 48% 58%, rgba(255, 220, 210, 0.55) 0%, transparent 68%),
+                linear-gradient(175deg, #6eb0e8 0%, #9ec8f5 16%, #ffc8d8 50%, #ffb0a0 78%, #ff9878 100%);
+            box-shadow:
+                0 6px 22px rgba(200, 100, 80, 0.14),
+                0 0 28px rgba(255, 150, 130, 0.12);
+        }
+        html.fp-platform-sunset .platform-header-tagline {
+            color: #6b2d3e;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+        }
+        html.fp-platform-sunset .platform-header-tagline::after {
+            color: rgba(255, 120, 140, 0.92);
+            text-shadow: 0 0 10px rgba(255, 150, 130, 0.65);
+        }
+        html.fp-platform-sunset #platform-screen > .platform-header > .platform-admin-stats {
+            border-color: rgba(255, 175, 155, 0.5);
+            background-image:
+                radial-gradient(ellipse 70% 80% at 30% 35%, rgba(255, 255, 255, 0.75) 0%, transparent 58%),
+                radial-gradient(ellipse 55% 65% at 72% 55%, rgba(255, 210, 200, 0.65) 0%, transparent 60%),
+                linear-gradient(158deg, #ffd6b0 0%, #ffb8c8 46%, #ff9a8a 100%);
+            box-shadow:
+                0 4px 16px rgba(200, 90, 70, 0.18),
+                0 0 20px rgba(255, 140, 120, 0.14);
+        }
+        html.fp-platform-sunset .platform-admin-stats__count {
+            color: #9a3412;
+            text-shadow: 0 0 12px rgba(255, 200, 150, 0.45);
+        }
+        html.fp-platform-sunset .platform-admin-stats__label {
+            color: rgba(120, 45, 35, 0.88);
+        }
+        html.fp-platform-sunset .profile-icon {
+            border-color: rgba(255, 150, 120, 0.45);
+            background-color: #ffd4a8;
+            background-image:
+                radial-gradient(ellipse 58% 48% at 32% 34%, rgba(255, 255, 255, 0.95) 0%, transparent 56%),
+                radial-gradient(ellipse 42% 36% at 68% 42%, rgba(255, 215, 205, 0.85) 0%, transparent 52%),
+                radial-gradient(ellipse 35% 28% at 50% 68%, rgba(255, 180, 170, 0.55) 0%, transparent 58%),
+                linear-gradient(165deg, #ffe8c8 0%, #ffb8a8 42%, #ff8fab 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                0 4px 14px rgba(200, 90, 70, 0.22);
+        }
+        html.fp-platform-sunset .profile-icon:hover {
+            box-shadow:
+                0 6px 18px rgba(200, 90, 70, 0.32),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+        html.fp-platform-sunset .profile-icon .profile-icon-person circle,
+        html.fp-platform-sunset .profile-icon .profile-icon-person path {
+            stroke: #b45309 !important;
+        }
+        html.fp-platform-sunset #goal-screen > .platform-header {
+            border-color: rgba(255, 155, 135, 0.35);
+            background:
+                radial-gradient(ellipse 80px 34px at 90% 30%, rgba(255, 255, 255, 0.75) 0%, transparent 70%),
+                linear-gradient(168deg, rgba(255, 250, 245, 0.97) 0%, rgba(255, 232, 224, 0.95) 100%);
+            box-shadow: 0 2px 14px rgba(180, 90, 70, 0.1);
+        }
+        html.fp-platform-sunset #goal-screen > .platform-header > .platform-logo {
+            color: #9a3412;
+        }
+        html.fp-platform-sunset .night-scene {
+            background:
+                radial-gradient(ellipse 50% 38% at 76% 18%, rgba(255, 230, 180, 0.65) 0%, transparent 55%),
+                radial-gradient(ellipse 48% 36% at 22% 32%, rgba(255, 255, 255, 0.78) 0%, transparent 60%),
+                radial-gradient(ellipse 38% 28% at 52% 28%, rgba(255, 200, 210, 0.62) 0%, transparent 58%),
+                radial-gradient(ellipse 32% 22% at 85% 38%, rgba(255, 240, 230, 0.55) 0%, transparent 62%),
+                linear-gradient(180deg, #6eb5ff 0%, #9ecfff 20%, #ffc4d6 46%, #ffb088 72%, #e89070 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 24px rgba(180, 90, 70, 0.2);
+        }
+        html.fp-platform-sunset .night-scene::before,
+        html.fp-platform-sunset .night-scene::after {
+            opacity: 0.35;
+        }
+        html.fp-platform-sunset .night-moon {
+            background: radial-gradient(circle at 35% 32%, #fffef0 0%, #fde68a 42%, #fbbf24 100%);
+            box-shadow:
+                0 0 22px rgba(251, 191, 36, 0.65),
+                0 0 52px rgba(255, 160, 80, 0.4);
+        }
+        html.fp-platform-sunset .night-moon::after {
+            background: rgba(255, 200, 100, 0.25);
+        }
+        html.fp-platform-sunset .night-mountains {
+            opacity: 0.55;
+            filter: saturate(0.85) hue-rotate(-8deg);
+        }
+        html.fp-platform-sunset .platform-shooting-stars-layer {
+            opacity: 0.28;
+            filter: sepia(0.45) saturate(1.4) hue-rotate(-15deg);
+        }
+        html.fp-platform-sunset .profile-theme-btn.is-active {
+            background: linear-gradient(135deg, #fb923c 0%, #f472b6 52%, #e11d48 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+        html.fp-platform-sunset #platform-main,
+        html.fp-platform-sunset #platform-screen > .platform-header,
+        html.fp-platform-sunset #goal-screen {
+            position: relative;
+            z-index: 1;
+        }
         
         .profile-menu {
             position: relative;
@@ -4723,7 +5026,7 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 48px 16px 12px;
+            padding: 86px 16px 12px;
             min-width: 300px;
             max-width: min(100vw - 24px, 360px);
             max-height: min(90vh, 560px);
@@ -4744,7 +5047,7 @@
             align-items: stretch;
             gap: 5px;
             z-index: 3;
-            max-width: 88px;
+            max-width: 96px;
         }
 
         .profile-lang-switch {
@@ -6403,11 +6706,17 @@
         left: 11px;
         font-size: 0.68em;
     }
-    #platform-screen > .platform-header > .platform-admin-stats {
+    #platform-screen > .platform-header > .platform-admin-stats-wrap {
         margin-right: 8px;
+    }
+    #platform-screen > .platform-header > .platform-admin-stats {
         padding: 6px 10px 7px;
         min-width: 48px;
         border-radius: 12px;
+    }
+    .platform-admin-users-pop {
+        width: min(320px, calc(100vw - 32px));
+        max-height: min(56vh, 360px);
     }
     #platform-screen > .platform-header {
         align-items: start;
@@ -8256,15 +8565,33 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                     <div class="platform-header-tagline-slot">
                         <p class="platform-header-tagline" data-i18n="platform.tagline">Адаптируем цель под тебя</p>
                     </div>
-                    <div
-                        class="platform-admin-stats"
-                        id="platformAdminStats"
-                        hidden
-                        role="status"
-                        aria-live="polite"
-                    >
-                        <span class="platform-admin-stats__count" id="platformAdminUserCount">—</span>
-                        <span class="platform-admin-stats__label" data-i18n="platform.admin_users_label">пользователей</span>
+                    <div class="platform-admin-stats-wrap" id="platformAdminStatsWrap" hidden>
+                        <button
+                            type="button"
+                            class="platform-admin-stats"
+                            id="platformAdminStats"
+                            onclick="fpTogglePlatformAdminUsersList(event)"
+                            aria-expanded="false"
+                            aria-controls="platformAdminUsersPop"
+                            data-i18n-title="platform.admin_users_open"
+                            title="Список пользователей"
+                        >
+                            <span class="platform-admin-stats__count" id="platformAdminUserCount">—</span>
+                            <span class="platform-admin-stats__label" data-i18n="platform.admin_users_label">пользователей</span>
+                        </button>
+                        <div
+                            class="platform-admin-users-pop"
+                            id="platformAdminUsersPop"
+                            hidden
+                            role="dialog"
+                            aria-labelledby="platformAdminUsersPopTitle"
+                            onclick="event.stopPropagation()"
+                        >
+                            <div class="platform-admin-users-pop__head" id="platformAdminUsersPopTitle" data-i18n="platform.admin_users_list_title">
+                                Пользователи платформы
+                            </div>
+                            <div class="platform-admin-users-pop__body" id="platformAdminUsersList"></div>
+                        </div>
                     </div>
                     <div class="profile-menu">
                         <div class="profile-icon" onclick="toggleProfileMenu(event)" data-i18n-title="platform.profile_tooltip" title="Профиль">
@@ -8282,6 +8609,7 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                         <div class="profile-dropdown" id="profileDropdown">
                             <div class="profile-theme-switch" role="group" data-i18n-aria="platform.theme_group" aria-label="Тема оформления" onclick="event.stopPropagation()">
                                 <button type="button" class="profile-theme-btn" id="fpThemeLight" data-fp-theme="light" onclick="setFpPlatformTheme('light')" data-i18n="platform.theme_light_btn" data-i18n-title="platform.theme_light" title="Светлая тема">Светлая</button>
+                                <button type="button" class="profile-theme-btn" id="fpThemeSunset" data-fp-theme="sunset" onclick="setFpPlatformTheme('sunset')" data-i18n="platform.theme_sunset_btn" data-i18n-title="platform.theme_sunset" title="Тема заката">Закат</button>
                                 <button type="button" class="profile-theme-btn" id="fpThemeDark" data-fp-theme="dark" onclick="setFpPlatformTheme('dark')" data-i18n="platform.theme_dark_btn" data-i18n-title="platform.theme_dark" title="Тёмная тема">Тёмная</button>
                             </div>
                             <div class="profile-lang-switch" role="group" data-i18n-aria="platform.lang_group" aria-label="Язык интерфейса" onclick="event.stopPropagation()">
@@ -8581,13 +8909,20 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'platform.profile_tooltip': 'Профиль',
             'platform.admin_users_count': 'Пользователей на платформе: %n%',
             'platform.admin_users_label': 'пользователей',
+            'platform.admin_users_open': 'Открыть список пользователей',
+            'platform.admin_users_list_title': 'Пользователи платформы',
+            'platform.admin_users_loading': 'Загрузка…',
+            'platform.admin_users_empty': 'Пока нет пользователей с пройденным тестом.',
+            'platform.admin_users_error': 'Не удалось загрузить список.',
             'platform.lang_group': 'Язык интерфейса',
             'platform.lang_ru': 'Русский',
             'platform.lang_en': 'English',
             'platform.theme_group': 'Тема оформления',
             'platform.theme_light': 'Светлая тема',
+            'platform.theme_sunset': 'Тема заката',
             'platform.theme_dark': 'Тёмная тема',
             'platform.theme_light_btn': 'Светлая',
+            'platform.theme_sunset_btn': 'Закат',
             'platform.theme_dark_btn': 'Тёмная',
             'profile.edit_nick': 'Изменить ник',
             'profile.nick_placeholder': 'Ваш ник (до 32 символов)',
@@ -8909,13 +9244,20 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             'platform.profile_tooltip': 'Profile',
             'platform.admin_users_count': 'Platform users: %n%',
             'platform.admin_users_label': 'users',
+            'platform.admin_users_open': 'Open user list',
+            'platform.admin_users_list_title': 'Platform users',
+            'platform.admin_users_loading': 'Loading…',
+            'platform.admin_users_empty': 'No users with a completed test yet.',
+            'platform.admin_users_error': 'Could not load the list.',
             'platform.lang_group': 'Interface language',
             'platform.lang_ru': 'Russian',
             'platform.lang_en': 'English',
             'platform.theme_group': 'Theme',
             'platform.theme_light': 'Light theme',
+            'platform.theme_sunset': 'Sunset theme',
             'platform.theme_dark': 'Dark theme',
             'platform.theme_light_btn': 'Light',
+            'platform.theme_sunset_btn': 'Sunset',
             'platform.theme_dark_btn': 'Dark',
             'profile.edit_nick': 'Edit nickname',
             'profile.nick_placeholder': 'Your nickname (up to 32 characters)',
@@ -9157,10 +9499,10 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
 
     function fpGetPlatformTheme() {
         try {
-            return localStorage.getItem(FP_PLATFORM_THEME_KEY) === 'dark' ? 'dark' : 'light';
-        } catch (e) {
-            return 'light';
-        }
+            const v = localStorage.getItem(FP_PLATFORM_THEME_KEY);
+            if (v === 'dark' || v === 'sunset') return v;
+        } catch (e) {}
+        return 'light';
     }
 
     function syncFpThemeButtons() {
@@ -9171,16 +9513,17 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
     }
 
     function fpApplyPlatformTheme(theme) {
-        theme = theme === 'dark' ? 'dark' : 'light';
+        if (theme !== 'dark' && theme !== 'sunset') theme = 'light';
         try {
             localStorage.setItem(FP_PLATFORM_THEME_KEY, theme);
         } catch (e) {}
         document.documentElement.classList.toggle('fp-platform-dark', theme === 'dark');
+        document.documentElement.classList.toggle('fp-platform-sunset', theme === 'sunset');
         syncFpThemeButtons();
     }
 
     function setFpPlatformTheme(theme) {
-        if (theme !== 'dark' && theme !== 'light') return;
+        if (theme !== 'dark' && theme !== 'light' && theme !== 'sunset') return;
         fpApplyPlatformTheme(theme);
     }
 
@@ -10879,6 +11222,142 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
     let fpLastAdminUserCountFetch = 0;
     const FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS = 60000;
 
+    let fpLastAdminUserCountFetch = 0;
+    const FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS = 60000;
+    let fpAdminUsersListCache = null;
+    let fpLastAdminUsersListFetch = 0;
+    const FP_ADMIN_USERS_LIST_MIN_INTERVAL_MS = 30000;
+
+    function fpAdminEscapeHtml(s) {
+        return String(s || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function fpGetAdminCredentials() {
+        if (!currentUser || !currentUser.email) return null;
+        var found = findUserByEmail(currentUser.email);
+        var passwordHash = found && found.user ? found.user.password_hash : null;
+        if (!passwordHash) return null;
+        return {
+            email: normalizeEmail(currentUser.email),
+            hash: passwordHash
+        };
+    }
+
+    function fpAdminArchetypeLabel(row) {
+        if (!row) return '—';
+        var userLike = {
+            archetype_key: row.archetype_key || null,
+            personality_type: row.personality_type || null
+        };
+        if (typeof fpArchetypeDisplayNameFromUser === 'function') {
+            return fpArchetypeDisplayNameFromUser(userLike);
+        }
+        return row.personality_type || row.archetype_key || '—';
+    }
+
+    function fpClosePlatformAdminUsersList() {
+        var btn = document.getElementById('platformAdminStats');
+        var pop = document.getElementById('platformAdminUsersPop');
+        if (btn) {
+            btn.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+        if (pop) pop.hidden = true;
+    }
+
+    function fpRenderPlatformAdminUsersList(users) {
+        var listEl = document.getElementById('platformAdminUsersList');
+        var titleEl = document.getElementById('platformAdminUsersPopTitle');
+        if (titleEl) titleEl.textContent = fpT('platform.admin_users_list_title');
+        if (!listEl) return;
+        if (!users || !users.length) {
+            listEl.innerHTML =
+                '<p class="platform-admin-users-pop__empty">' +
+                fpAdminEscapeHtml(fpT('platform.admin_users_empty')) +
+                '</p>';
+            return;
+        }
+        var html = '';
+        users.forEach(function (row) {
+            var email = fpAdminEscapeHtml(row.email || '');
+            var nick = row.nickname ? String(row.nickname).trim() : '';
+            var archetype = fpAdminEscapeHtml(fpAdminArchetypeLabel(row));
+            html += '<div class="platform-admin-users-pop__item">';
+            html += '<span class="platform-admin-users-pop__email">' + email + '</span>';
+            if (nick) {
+                html += '<span class="platform-admin-users-pop__nick">' + fpAdminEscapeHtml(nick) + '</span>';
+            }
+            html += '<span class="platform-admin-users-pop__archetype">' + archetype + '</span>';
+            html += '</div>';
+        });
+        listEl.innerHTML = html;
+    }
+
+    async function fpLoadPlatformAdminUsersList(force) {
+        var listEl = document.getElementById('platformAdminUsersList');
+        var pop = document.getElementById('platformAdminUsersPop');
+        if (!listEl || !pop || pop.hidden) return;
+        var now = Date.now();
+        if (
+            !force &&
+            fpAdminUsersListCache &&
+            now - fpLastAdminUsersListFetch < FP_ADMIN_USERS_LIST_MIN_INTERVAL_MS
+        ) {
+            fpRenderPlatformAdminUsersList(fpAdminUsersListCache);
+            return;
+        }
+        listEl.innerHTML =
+            '<p class="platform-admin-users-pop__loading">' +
+            fpAdminEscapeHtml(fpT('platform.admin_users_loading')) +
+            '</p>';
+        try {
+            if (!window.supabaseClient) throw new Error('no client');
+            var creds = fpGetAdminCredentials();
+            if (!creds) throw new Error('no creds');
+            var result = await window.supabaseClient.rpc('platform_accounts_admin_user_list', {
+                p_email: creds.email,
+                p_hash: creds.hash
+            });
+            var data = result && result.data;
+            if (result.error || !data || !data.ok) throw new Error('bad response');
+            var users = Array.isArray(data.users) ? data.users : [];
+            fpAdminUsersListCache = users;
+            fpLastAdminUsersListFetch = Date.now();
+            fpRenderPlatformAdminUsersList(users);
+        } catch (e) {
+            console.warn('[admin-stats] user list fetch failed:', e);
+            listEl.innerHTML =
+                '<p class="platform-admin-users-pop__error">' +
+                fpAdminEscapeHtml(fpT('platform.admin_users_error')) +
+                '</p>';
+        }
+    }
+
+    async function fpTogglePlatformAdminUsersList(evt) {
+        if (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+        if (!fpIsPlatformAdminStatsViewer()) return;
+        var btn = document.getElementById('platformAdminStats');
+        var pop = document.getElementById('platformAdminUsersPop');
+        if (!btn || !pop) return;
+        if (pop.hidden) {
+            var profileDrop = document.getElementById('profileDropdown');
+            if (profileDrop) profileDrop.classList.remove('active');
+            btn.classList.add('is-open');
+            btn.setAttribute('aria-expanded', 'true');
+            pop.hidden = false;
+            await fpLoadPlatformAdminUsersList(false);
+        } else {
+            fpClosePlatformAdminUsersList();
+        }
+    }
+
     function fpIsPlatformAdminStatsViewer() {
         if (!currentUser || !currentUser.email) return false;
         var em =
@@ -10889,11 +11368,12 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
     }
 
     function fpHidePlatformAdminStats() {
-        var box = document.getElementById('platformAdminStats');
+        var wrap = document.getElementById('platformAdminStatsWrap');
         var countEl = document.getElementById('platformAdminUserCount');
-        if (!box) return;
-        box.hidden = true;
-        box.removeAttribute('aria-label');
+        fpClosePlatformAdminUsersList();
+        fpAdminUsersListCache = null;
+        if (!wrap) return;
+        wrap.hidden = true;
         if (countEl) countEl.textContent = '—';
     }
 
@@ -10905,9 +11385,10 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
     }
 
     async function fpRefreshPlatformAdminStats(force) {
+        var wrap = document.getElementById('platformAdminStatsWrap');
         var box = document.getElementById('platformAdminStats');
         var countEl = document.getElementById('platformAdminUserCount');
-        if (!box || !countEl) return;
+        if (!wrap || !box || !countEl) return;
         if (!fpIsPlatformAdminStatsViewer()) {
             fpHidePlatformAdminStats();
             return;
@@ -10921,11 +11402,16 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
         ) {
             var labelEl = box.querySelector('.platform-admin-stats__label');
             if (labelEl) labelEl.textContent = fpT('platform.admin_users_label');
+            box.title = fpT('platform.admin_users_open');
             box.setAttribute(
                 'aria-label',
                 fpT('platform.admin_users_count').replace('%n%', countEl.textContent)
             );
-            box.hidden = false;
+            wrap.hidden = false;
+            var pop = document.getElementById('platformAdminUsersPop');
+            if (pop && !pop.hidden) {
+                fpRenderPlatformAdminUsersList(fpAdminUsersListCache || []);
+            }
             return;
         }
         try {
@@ -10933,15 +11419,14 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
                 fpHidePlatformAdminStats();
                 return;
             }
-            var found = findUserByEmail(currentUser.email);
-            var passwordHash = found && found.user ? found.user.password_hash : null;
-            if (!passwordHash) {
+            var creds = fpGetAdminCredentials();
+            if (!creds) {
                 fpHidePlatformAdminStats();
                 return;
             }
             var result = await window.supabaseClient.rpc('platform_accounts_admin_user_count', {
-                p_email: normalizeEmail(currentUser.email),
-                p_hash: passwordHash
+                p_email: creds.email,
+                p_hash: creds.hash
             });
             var data = result && result.data;
             if (result.error || !data || !data.ok) {
@@ -10952,12 +11437,18 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
             countEl.textContent = countLabel;
             var labelNode = box.querySelector('.platform-admin-stats__label');
             if (labelNode) labelNode.textContent = fpT('platform.admin_users_label');
-            box.hidden = false;
+            box.title = fpT('platform.admin_users_open');
+            wrap.hidden = false;
             box.setAttribute(
                 'aria-label',
                 fpT('platform.admin_users_count').replace('%n%', countLabel)
             );
             fpLastAdminUserCountFetch = Date.now();
+            fpAdminUsersListCache = null;
+            var openPop = document.getElementById('platformAdminUsersPop');
+            if (openPop && !openPop.hidden) {
+                await fpLoadPlatformAdminUsersList(true);
+            }
         } catch (e) {
             console.warn('[admin-stats] user count fetch failed:', e);
             fpHidePlatformAdminStats();
@@ -12228,6 +12719,10 @@ async function showResult() {
         if (dropdown && !profileMenu) {
             dropdown.classList.remove('active');
             closeProfileArchetypePanel();
+        }
+        var adminWrap = event.target.closest('.platform-admin-stats-wrap');
+        if (!adminWrap && typeof fpClosePlatformAdminUsersList === 'function') {
+            fpClosePlatformAdminUsersList();
         }
     });
 
