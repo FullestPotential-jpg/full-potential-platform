@@ -4971,9 +4971,14 @@
         }
         html.fp-platform-sunset #platform-main,
         html.fp-platform-sunset #platform-screen > .platform-header,
+        html.fp-platform-sunset .platform-goal-hint,
+        html.fp-platform-sunset .goal-entry-wrap,
         html.fp-platform-sunset #goal-screen {
             position: relative;
-            z-index: 1;
+            z-index: 2;
+        }
+        html.fp-platform-sunset .platform-admin-stats-wrap {
+            z-index: 113;
         }
         
         .profile-menu {
@@ -11219,9 +11224,6 @@ html[data-fp-boot-screen="intro-screen"] #intro-screen {
     let fpLastPlatformProfileFetch = 0;
     const FP_PLATFORM_PROFILE_MIN_INTERVAL_MS = 20000;
     const FP_PLATFORM_ADMIN_STATS_EMAIL = 'ptonub@gmail.com';
-    let fpLastAdminUserCountFetch = 0;
-    const FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS = 60000;
-
     let fpLastAdminUserCountFetch = 0;
     const FP_ADMIN_USER_COUNT_MIN_INTERVAL_MS = 60000;
     let fpAdminUsersListCache = null;
