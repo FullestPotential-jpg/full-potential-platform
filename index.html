@@ -2164,60 +2164,52 @@
         .goal-flow__loading.is-active {
             display: block;
         }
-        .goal-flow__loading-star-scene {
+        .goal-flow__loading-brand-scene {
             position: relative;
-            width: 80px;
-            height: 80px;
+            width: min(100%, 380px);
+            height: 76px;
             margin: 0 auto 20px;
         }
-        .goal-flow__loading-star-main {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 54px;
-            height: 54px;
-            transform: translate(-50%, -50%);
-            filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.42));
-            animation: fp-goal-loading-star-pulse 1.5s ease-in-out infinite;
+        .goal-flow__loading-brand-svg {
+            display: block;
+            width: 100%;
+            height: 76px;
+            overflow: visible;
         }
-        .goal-flow__loading-star-orbit {
-            position: absolute;
-            inset: 0;
-            animation: fp-goal-loading-star-orbit 1.25s linear infinite;
+        .fp-goal-load-letter-path {
+            fill: transparent;
+            stroke: #3b5bcc;
+            stroke-width: 1.35;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+            vector-effect: non-scaling-stroke;
+            transition: fill 0.35s ease;
         }
-        .goal-flow__loading-star-orbit__ic {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 13px;
-            height: 13px;
-            margin-left: -6.5px;
-            margin-top: -6.5px;
-            transform: translateY(-36px);
-            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.95));
+        .fp-goal-load-letter-path.is-drawn {
+            fill: #1a2858;
+            stroke: rgba(72, 120, 210, 0.42);
         }
-        @keyframes fp-goal-loading-star-orbit {
-            to {
-                transform: rotate(360deg);
-            }
+        #fpGoalLoadStarRunner {
+            filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.9));
+            pointer-events: none;
         }
-        @keyframes fp-goal-loading-star-pulse {
-            0%,
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.05);
-                opacity: 0.94;
-            }
+        html.fp-platform-dark .fp-goal-load-letter-path {
+            stroke: #7aa8ff;
+        }
+        html.fp-platform-dark .fp-goal-load-letter-path.is-drawn {
+            fill: #e8f0ff;
+            stroke: rgba(140, 185, 255, 0.45);
+        }
+        html.fp-platform-sunset .fp-goal-load-letter-path {
+            stroke: #b87058;
+        }
+        html.fp-platform-sunset .fp-goal-load-letter-path.is-drawn {
+            fill: #6b3a28;
+            stroke: rgba(190, 120, 90, 0.45);
         }
         @media (prefers-reduced-motion: reduce) {
-            .goal-flow__loading-star-orbit {
-                animation-duration: 2.4s;
-            }
-            .goal-flow__loading-star-main {
-                animation: none;
+            #fpGoalLoadStarRunner {
+                display: none;
             }
         }
         .goal-flow__loading p {
@@ -16479,32 +16471,278 @@ function setGoalNavActive(isActive) {
 
     function fpGoalPlanLoadingStarHtml() {
         return (
-            '<div class="goal-flow__loading-star-scene" aria-hidden="true">' +
-            '<div class="goal-flow__loading-star-orbit">' +
-            '<svg class="goal-flow__loading-star-orbit__ic" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
-            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="#38bdf8"/>' +
-            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="none" stroke="#bae6fd" stroke-width="0.45" stroke-linejoin="round"/>' +
-            '</svg></div>' +
-            '<svg class="goal-flow__loading-star-main" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
-            '<defs>' +
-            '<radialGradient id="fpGoalLoadStarBodyG" cx="34%" cy="26%" r="78%">' +
-            '<stop offset="0%" stop-color="#ffffff"/>' +
-            '<stop offset="22%" stop-color="#e8fdff"/>' +
-            '<stop offset="50%" stop-color="#4adfff"/>' +
-            '<stop offset="82%" stop-color="#0590c8"/>' +
-            '<stop offset="100%" stop-color="#024a72"/>' +
-            '</radialGradient>' +
-            '<linearGradient id="fpGoalLoadStarEdgeG" x1="15%" y1="10%" x2="85%" y2="95%">' +
-            '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>' +
-            '<stop offset="35%" stop-color="#c4f8ff" stop-opacity="0.7"/>' +
-            '<stop offset="100%" stop-color="#00a8e0" stop-opacity="0.35"/>' +
-            '</linearGradient>' +
-            '</defs>' +
-            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="#012d4a" opacity="0.55" transform="translate(12 12) scale(1.04) translate(-12 -12)"/>' +
-            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="url(#fpGoalLoadStarBodyG)"/>' +
-            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="none" stroke="url(#fpGoalLoadStarEdgeG)" stroke-width="0.4" stroke-linejoin="round" opacity="0.9"/>' +
-            '</svg></div>'
+            '<div class="goal-flow__loading-brand-scene" id="fpGoalLoadBrandScene" aria-hidden="true">' +
+            '<svg class="goal-flow__loading-brand-svg" id="fpGoalLoadBrandSvg" viewBox="0 0 380 76" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+            '<g id="fpGoalLoadTextGroup"></g>' +
+            '<g id="fpGoalLoadStarRunner" opacity="0">' +
+            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="#38bdf8" stroke="#bae6fd" stroke-width="0.55" stroke-linejoin="round"/>' +
+            '</g></svg></div>'
         );
+    }
+
+    var fpGoalLoadAnimToken = 0;
+    var fpGoalLoadAnimRaf = 0;
+
+    function fpGoalStopLoadingBrandAnim() {
+        fpGoalLoadAnimToken++;
+        if (fpGoalLoadAnimRaf) {
+            cancelAnimationFrame(fpGoalLoadAnimRaf);
+            fpGoalLoadAnimRaf = 0;
+        }
+    }
+
+    function fpGoalCanvasLetterContour(char, font, fontSize) {
+        var pad = 6;
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.font = font;
+        var width = Math.max(8, Math.ceil(ctx.measureText(char).width + pad * 2));
+        var height = Math.max(8, Math.ceil(fontSize * 1.22 + pad * 2));
+        canvas.width = width;
+        canvas.height = height;
+        ctx.font = font;
+        ctx.fillStyle = '#000';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(char, pad, pad + fontSize * 0.82);
+
+        var img = ctx.getImageData(0, 0, width, height).data;
+        function filled(x, y) {
+            if (x < 0 || y < 0 || x >= width || y >= height) return false;
+            return img[(y * width + x) * 4 + 3] > 128;
+        }
+
+        var sx = -1;
+        var sy = -1;
+        outer: for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                if (filled(x, y) && !filled(x, y - 1)) {
+                    sx = x;
+                    sy = y;
+                    break outer;
+                }
+            }
+        }
+        if (sx < 0) {
+            return {
+                points: [
+                    { x: pad, y: pad },
+                    { x: width - pad, y: pad },
+                    { x: width - pad, y: height - pad },
+                    { x: pad, y: height - pad },
+                    { x: pad, y: pad }
+                ],
+                width: width,
+                height: height
+            };
+        }
+
+        var dirs = [
+            [0, -1],
+            [1, -1],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [-1, 1],
+            [-1, 0],
+            [-1, -1]
+        ];
+        var pts = [];
+        var cx = sx;
+        var cy = sy;
+        var backDir = 4;
+        var maxSteps = width * height * 6;
+        for (var step = 0; step < maxSteps; step++) {
+            pts.push({ x: cx, y: cy });
+            var found = false;
+            for (var k = 0; k < 8; k++) {
+                var di = (backDir + k + 6) % 8;
+                var nx = cx + dirs[di][0];
+                var ny = cy + dirs[di][1];
+                if (filled(nx, ny)) {
+                    cx = nx;
+                    cy = ny;
+                    backDir = (di + 4) % 8;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) break;
+            if (cx === sx && cy === sy && pts.length > 10) break;
+        }
+
+        var stepN = Math.max(1, Math.floor(pts.length / 52));
+        var out = [];
+        for (var i = 0; i < pts.length; i += stepN) out.push(pts[i]);
+        if (out.length > 2) out.push(out[0]);
+        return { points: out, width: width, height: height };
+    }
+
+    function fpGoalContourToPathD(points) {
+        if (!points || !points.length) return '';
+        var d = 'M' + points[0].x + ' ' + points[0].y;
+        for (var i = 1; i < points.length; i++) {
+            d += ' L' + points[i].x + ' ' + points[i].y;
+        }
+        return d;
+    }
+
+    function fpGoalBuildLoadingBrandLetters(group, word, font, fontSize, svgWidth) {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.font = font;
+        var chars = word.split('');
+        var widths = chars.map(function (ch) {
+            return ctx.measureText(ch).width;
+        });
+        var gap = 1.5;
+        var total = widths.reduce(function (a, b) {
+            return a + b;
+        }, 0) + gap * (chars.length - 1);
+        var xOff = (svgWidth - total) / 2;
+        var baselineY = 56;
+        var contourPad = 6;
+        var yShift = baselineY - (contourPad + fontSize * 0.82);
+        var letters = [];
+
+        chars.forEach(function (ch, idx) {
+            var contour = fpGoalCanvasLetterContour(ch, font, fontSize);
+            var pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            var pts = contour.points.map(function (p) {
+                return { x: p.x + xOff, y: p.y + yShift };
+            });
+            pathEl.setAttribute('d', fpGoalContourToPathD(pts));
+            pathEl.setAttribute('class', 'fp-goal-load-letter-path');
+            group.appendChild(pathEl);
+            letters.push({ path: pathEl, points: pts });
+            xOff += widths[idx] + gap;
+        });
+        return letters;
+    }
+
+    function fpGoalAnimateLoadingPathDraw(token, pathEl, durationMs, done) {
+        var len = pathEl.getTotalLength();
+        if (!len || len < 1) {
+            pathEl.classList.add('is-drawn');
+            done();
+            return;
+        }
+        pathEl.style.strokeDasharray = String(len);
+        pathEl.style.strokeDashoffset = String(len);
+        var t0 = performance.now();
+        function frame(now) {
+            if (token !== fpGoalLoadAnimToken) return;
+            var u = Math.min(1, (now - t0) / durationMs);
+            pathEl.style.strokeDashoffset = String(len * (1 - u));
+            if (u >= 1) {
+                pathEl.style.strokeDashoffset = '0';
+                pathEl.classList.add('is-drawn');
+                done();
+                return;
+            }
+            fpGoalLoadAnimRaf = requestAnimationFrame(frame);
+        }
+        fpGoalLoadAnimRaf = requestAnimationFrame(frame);
+    }
+
+    function fpGoalAnimateLoadingStarOnPoints(token, runner, points, durationMs, done) {
+        if (!points || points.length < 2) {
+            done();
+            return;
+        }
+        var segLens = [];
+        var total = 0;
+        for (var i = 1; i < points.length; i++) {
+            var d = Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+            segLens.push(d);
+            total += d;
+        }
+        if (total < 1e-4) {
+            done();
+            return;
+        }
+        runner.setAttribute('opacity', '1');
+        var t0 = performance.now();
+        function frame(now) {
+            if (token !== fpGoalLoadAnimToken) return;
+            var u = Math.min(1, (now - t0) / durationMs);
+            var dist = u * total;
+            var acc = 0;
+            var i = 0;
+            for (; i < segLens.length; i++) {
+                if (acc + segLens[i] >= dist) break;
+                acc += segLens[i];
+            }
+            var sl = segLens[i] > 1e-6 ? segLens[i] : 1;
+            var segT = (dist - acc) / sl;
+            var p0 = points[i];
+            var p1 = points[i + 1];
+            var x = p0.x + (p1.x - p0.x) * segT;
+            var y = p0.y + (p1.y - p0.y) * segT;
+            runner.setAttribute('transform', 'translate(' + (x - 12) + ' ' + (y - 12) + ') scale(0.72)');
+            if (u >= 1) {
+                done();
+                return;
+            }
+            fpGoalLoadAnimRaf = requestAnimationFrame(frame);
+        }
+        fpGoalLoadAnimRaf = requestAnimationFrame(frame);
+    }
+
+    function fpGoalRunLoadingBrandDrawSequence(token, letters, runner, idx, onDone) {
+        if (token !== fpGoalLoadAnimToken) return;
+        if (idx >= letters.length) {
+            onDone();
+            return;
+        }
+        fpGoalAnimateLoadingPathDraw(token, letters[idx].path, 220, function () {
+            fpGoalRunLoadingBrandDrawSequence(token, letters, runner, idx + 1, onDone);
+        });
+    }
+
+    function fpGoalRunLoadingBrandStarLoop(token, letters, runner, idx) {
+        if (token !== fpGoalLoadAnimToken) return;
+        if (!letters.length) return;
+        var letter = letters[idx % letters.length];
+        fpGoalAnimateLoadingStarOnPoints(token, runner, letter.points, 780, function () {
+            fpGoalRunLoadingBrandStarLoop(token, letters, runner, idx + 1);
+        });
+    }
+
+    function fpGoalStartLoadingBrandAnim() {
+        fpGoalStopLoadingBrandAnim();
+        var token = fpGoalLoadAnimToken;
+        var group = document.getElementById('fpGoalLoadTextGroup');
+        var runner = document.getElementById('fpGoalLoadStarRunner');
+        if (!group || !runner) return;
+
+        var word = 'Potentiall';
+        var fontSize = 40;
+        var font = '600 ' + fontSize + 'px "Cormorant Garamond", Georgia, serif';
+        group.innerHTML = '';
+        runner.setAttribute('opacity', '0');
+        runner.removeAttribute('transform');
+
+        function boot() {
+            if (token !== fpGoalLoadAnimToken) return;
+            var letters = fpGoalBuildLoadingBrandLetters(group, word, font, fontSize, 380);
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                letters.forEach(function (L) {
+                    L.path.classList.add('is-drawn');
+                    L.path.style.strokeDashoffset = '0';
+                });
+                return;
+            }
+            fpGoalRunLoadingBrandDrawSequence(token, letters, runner, 0, function () {
+                if (token !== fpGoalLoadAnimToken) return;
+                fpGoalRunLoadingBrandStarLoop(token, letters, runner, 0);
+            });
+        }
+
+        if (document.fonts && document.fonts.load) {
+            document.fonts.load(font).then(boot).catch(boot);
+        } else {
+            boot();
+        }
     }
 
     function fpGoalVictoryStarInnerHtml() {
@@ -17862,6 +18100,7 @@ function setGoalNavActive(isActive) {
 
     function fpGoalStartLoadingUi() {
         fpGoalStopLoadingUi();
+        fpGoalStartLoadingBrandAnim();
         var timerEl = document.getElementById('goalLoadingTimer');
         var started = Date.now();
         if (timerEl) timerEl.textContent = fpT('goal.launch_elapsed').replace('%time%', '0:00');
@@ -17880,6 +18119,7 @@ function setGoalNavActive(isActive) {
     }
 
     function fpGoalStopLoadingUi() {
+        fpGoalStopLoadingBrandAnim();
         if (fpGoalLoadingTimerId) {
             clearInterval(fpGoalLoadingTimerId);
             fpGoalLoadingTimerId = null;
