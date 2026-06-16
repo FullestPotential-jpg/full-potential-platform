@@ -2167,49 +2167,75 @@
         .goal-flow__loading-brand-scene {
             position: relative;
             width: min(100%, 380px);
-            height: 76px;
+            height: 80px;
             margin: 0 auto 20px;
         }
         .goal-flow__loading-brand-svg {
             display: block;
             width: 100%;
-            height: 76px;
+            height: 80px;
             overflow: visible;
         }
-        .fp-goal-load-letter-path {
-            fill: transparent;
-            stroke: #3b5bcc;
+        .fp-goal-load-letter {
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-size: 42px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .fp-goal-load-letter__stroke {
+            fill: none;
+            stroke: #38bdf8;
             stroke-width: 1.35;
             stroke-linejoin: round;
             stroke-linecap: round;
-            vector-effect: non-scaling-stroke;
-            transition: fill 0.35s ease;
+            paint-order: stroke fill;
+            opacity: 1;
         }
-        .fp-goal-load-letter-path.is-drawn {
+        .fp-goal-load-letter__fill {
             fill: #1a2858;
-            stroke: rgba(72, 120, 210, 0.42);
+            stroke: none;
+            opacity: 0;
         }
-        #fpGoalLoadStarRunner {
-            filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.9));
+        .fp-goal-load-letter.is-drawn .fp-goal-load-letter__fill {
+            opacity: 1;
+        }
+        .fp-goal-load-letter.is-drawn .fp-goal-load-letter__stroke {
+            opacity: 0;
+        }
+        #fpGoalLoadSparkRunner {
             pointer-events: none;
         }
-        html.fp-platform-dark .fp-goal-load-letter-path {
-            stroke: #7aa8ff;
+        .fp-goal-load-spark__halo {
+            fill: #38bdf8;
+            opacity: 0.28;
         }
-        html.fp-platform-dark .fp-goal-load-letter-path.is-drawn {
+        .fp-goal-load-spark__core {
+            fill: #e0f2fe;
+        }
+        .fp-goal-load-spark__hot {
+            fill: #ffffff;
+        }
+        html.fp-platform-dark .fp-goal-load-letter__stroke {
+            stroke: #7dd3fc;
+        }
+        html.fp-platform-dark .fp-goal-load-letter__fill {
             fill: #e8f0ff;
-            stroke: rgba(140, 185, 255, 0.45);
         }
-        html.fp-platform-sunset .fp-goal-load-letter-path {
-            stroke: #b87058;
+        html.fp-platform-sunset .fp-goal-load-letter__stroke {
+            stroke: #5eb8e8;
         }
-        html.fp-platform-sunset .fp-goal-load-letter-path.is-drawn {
+        html.fp-platform-sunset .fp-goal-load-letter__fill {
             fill: #6b3a28;
-            stroke: rgba(190, 120, 90, 0.45);
         }
         @media (prefers-reduced-motion: reduce) {
-            #fpGoalLoadStarRunner {
+            #fpGoalLoadSparkRunner {
                 display: none;
+            }
+            .fp-goal-load-letter__stroke {
+                display: none;
+            }
+            .fp-goal-load-letter__fill {
+                opacity: 1 !important;
             }
         }
         .goal-flow__loading p {
@@ -16472,10 +16498,17 @@ function setGoalNavActive(isActive) {
     function fpGoalPlanLoadingStarHtml() {
         return (
             '<div class="goal-flow__loading-brand-scene" id="fpGoalLoadBrandScene" aria-hidden="true">' +
-            '<svg class="goal-flow__loading-brand-svg" id="fpGoalLoadBrandSvg" viewBox="0 0 380 76" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+            '<svg class="goal-flow__loading-brand-svg" id="fpGoalLoadBrandSvg" viewBox="0 0 380 80" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+            '<defs>' +
+            '<filter id="fpGoalLoadSparkGlow" x="-120%" y="-120%" width="340%" height="340%">' +
+            '<feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="blur"/>' +
+            '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+            '</filter></defs>' +
             '<g id="fpGoalLoadTextGroup"></g>' +
-            '<g id="fpGoalLoadStarRunner" opacity="0">' +
-            '<polygon points="12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6" fill="#38bdf8" stroke="#bae6fd" stroke-width="0.55" stroke-linejoin="round"/>' +
+            '<g id="fpGoalLoadSparkRunner" opacity="0" filter="url(#fpGoalLoadSparkGlow)">' +
+            '<circle class="fp-goal-load-spark__halo" cx="0" cy="0" r="7"/>' +
+            '<circle class="fp-goal-load-spark__core" cx="0" cy="0" r="3.2"/>' +
+            '<circle class="fp-goal-load-spark__hot" cx="0" cy="0" r="1.3"/>' +
             '</g></svg></div>'
         );
     }
@@ -16491,151 +16524,121 @@ function setGoalNavActive(isActive) {
         }
     }
 
-    function fpGoalCanvasLetterContour(char, font, fontSize) {
-        var pad = 6;
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d', { willReadFrequently: true });
-        ctx.font = font;
-        var width = Math.max(8, Math.ceil(ctx.measureText(char).width + pad * 2));
-        var height = Math.max(8, Math.ceil(fontSize * 1.22 + pad * 2));
-        canvas.width = width;
-        canvas.height = height;
-        ctx.font = font;
-        ctx.fillStyle = '#000';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(char, pad, pad + fontSize * 0.82);
-
-        var img = ctx.getImageData(0, 0, width, height).data;
-        function filled(x, y) {
-            if (x < 0 || y < 0 || x >= width || y >= height) return false;
-            return img[(y * width + x) * 4 + 3] > 128;
-        }
-
-        var sx = -1;
-        var sy = -1;
-        outer: for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                if (filled(x, y) && !filled(x, y - 1)) {
-                    sx = x;
-                    sy = y;
-                    break outer;
-                }
+    function fpGoalEstimateTextStrokeLength(textEl) {
+        if (!textEl) return 120;
+        try {
+            if (typeof textEl.getTotalLength === 'function') {
+                var tl = textEl.getTotalLength();
+                if (tl > 1) return tl;
             }
-        }
-        if (sx < 0) {
-            return {
-                points: [
-                    { x: pad, y: pad },
-                    { x: width - pad, y: pad },
-                    { x: width - pad, y: height - pad },
-                    { x: pad, y: height - pad },
-                    { x: pad, y: pad }
-                ],
-                width: width,
-                height: height
-            };
-        }
-
-        var dirs = [
-            [0, -1],
-            [1, -1],
-            [1, 0],
-            [1, 1],
-            [0, 1],
-            [-1, 1],
-            [-1, 0],
-            [-1, -1]
-        ];
-        var pts = [];
-        var cx = sx;
-        var cy = sy;
-        var backDir = 4;
-        var maxSteps = width * height * 6;
-        for (var step = 0; step < maxSteps; step++) {
-            pts.push({ x: cx, y: cy });
-            var found = false;
-            for (var k = 0; k < 8; k++) {
-                var di = (backDir + k + 6) % 8;
-                var nx = cx + dirs[di][0];
-                var ny = cy + dirs[di][1];
-                if (filled(nx, ny)) {
-                    cx = nx;
-                    cy = ny;
-                    backDir = (di + 4) % 8;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) break;
-            if (cx === sx && cy === sy && pts.length > 10) break;
-        }
-
-        var stepN = Math.max(1, Math.floor(pts.length / 52));
-        var out = [];
-        for (var i = 0; i < pts.length; i += stepN) out.push(pts[i]);
-        if (out.length > 2) out.push(out[0]);
-        return { points: out, width: width, height: height };
+        } catch (e) {}
+        var bb = textEl.getBBox();
+        return Math.max(56, (bb.width + bb.height) * 2.35);
     }
 
-    function fpGoalContourToPathD(points) {
-        if (!points || !points.length) return '';
-        var d = 'M' + points[0].x + ' ' + points[0].y;
-        for (var i = 1; i < points.length; i++) {
-            d += ' L' + points[i].x + ' ' + points[i].y;
-        }
-        return d;
-    }
-
-    function fpGoalBuildLoadingBrandLetters(group, word, font, fontSize, svgWidth) {
+    function fpGoalBuildLoadingBrandLetters(group, word, fontSize, svgWidth) {
+        var NS = 'http://www.w3.org/2000/svg';
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
+        var font = '600 ' + fontSize + 'px "Cormorant Garamond", Georgia, serif';
         ctx.font = font;
         var chars = word.split('');
         var widths = chars.map(function (ch) {
             return ctx.measureText(ch).width;
         });
-        var gap = 1.5;
+        var gap = 1;
         var total = widths.reduce(function (a, b) {
             return a + b;
         }, 0) + gap * (chars.length - 1);
         var xOff = (svgWidth - total) / 2;
-        var baselineY = 56;
-        var contourPad = 6;
-        var yShift = baselineY - (contourPad + fontSize * 0.82);
+        var baselineY = 58;
         var letters = [];
 
         chars.forEach(function (ch, idx) {
-            var contour = fpGoalCanvasLetterContour(ch, font, fontSize);
-            var pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            var pts = contour.points.map(function (p) {
-                return { x: p.x + xOff, y: p.y + yShift };
+            var g = document.createElementNS(NS, 'g');
+            g.setAttribute('class', 'fp-goal-load-letter');
+
+            var attrs = {
+                x: String(xOff),
+                y: String(baselineY),
+                'font-size': String(fontSize),
+                'font-weight': '600',
+                'font-family': "'Cormorant Garamond', Georgia, serif"
+            };
+
+            var strokeEl = document.createElementNS(NS, 'text');
+            strokeEl.setAttribute('class', 'fp-goal-load-letter__stroke');
+            Object.keys(attrs).forEach(function (k) {
+                strokeEl.setAttribute(k, attrs[k]);
             });
-            pathEl.setAttribute('d', fpGoalContourToPathD(pts));
-            pathEl.setAttribute('class', 'fp-goal-load-letter-path');
-            group.appendChild(pathEl);
-            letters.push({ path: pathEl, points: pts });
+            strokeEl.textContent = ch;
+
+            var fillEl = document.createElementNS(NS, 'text');
+            fillEl.setAttribute('class', 'fp-goal-load-letter__fill');
+            Object.keys(attrs).forEach(function (k) {
+                fillEl.setAttribute(k, attrs[k]);
+            });
+            fillEl.textContent = ch;
+
+            g.appendChild(strokeEl);
+            g.appendChild(fillEl);
+            group.appendChild(g);
+
+            letters.push({ group: g, strokeEl: strokeEl, fillEl: fillEl });
             xOff += widths[idx] + gap;
         });
         return letters;
     }
 
-    function fpGoalAnimateLoadingPathDraw(token, pathEl, durationMs, done) {
-        var len = pathEl.getTotalLength();
-        if (!len || len < 1) {
-            pathEl.classList.add('is-drawn');
-            done();
-            return;
-        }
-        pathEl.style.strokeDasharray = String(len);
-        pathEl.style.strokeDashoffset = String(len);
+    function fpGoalLetterTracePoints(fillEl, pad) {
+        pad = pad == null ? 3 : pad;
+        var bb = fillEl.getBBox();
+        var L = bb.x - pad;
+        var T = bb.y - pad;
+        var W = bb.width + pad * 2;
+        var H = bb.height + pad * 2;
+        var R = Math.min(7, W * 0.22, H * 0.22);
+        return fpRoundedRectPerimeterPts(L, T, W, H, R, 5);
+    }
+
+    function fpGoalAnimateHelloLetterDraw(token, letter, durationMs, done) {
+        var NS = 'http://www.w3.org/2000/svg';
+        var strokeEl = letter.strokeEl;
+        var fillEl = letter.fillEl;
+        var svg = fillEl.ownerSVGElement;
+        var bb = fillEl.getBBox();
+        var len = fpGoalEstimateTextStrokeLength(strokeEl);
+        strokeEl.style.strokeDasharray = String(len);
+        strokeEl.style.strokeDashoffset = String(len);
+        strokeEl.style.opacity = '1';
+
+        var clipId = 'fpGoalLoadClip' + Math.random().toString(36).slice(2, 9);
+        var defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(NS, 'defs'), svg.firstChild);
+        var clipPath = document.createElementNS(NS, 'clipPath');
+        clipPath.setAttribute('id', clipId);
+        var clipRect = document.createElementNS(NS, 'rect');
+        clipRect.setAttribute('x', String(bb.x - 1));
+        clipRect.setAttribute('y', String(bb.y - 2));
+        clipRect.setAttribute('height', String(bb.height + 4));
+        clipRect.setAttribute('width', '0');
+        clipPath.appendChild(clipRect);
+        defs.appendChild(clipPath);
+        fillEl.setAttribute('clip-path', 'url(#' + clipId + ')');
+        fillEl.style.opacity = '1';
+
         var t0 = performance.now();
         function frame(now) {
             if (token !== fpGoalLoadAnimToken) return;
             var u = Math.min(1, (now - t0) / durationMs);
-            pathEl.style.strokeDashoffset = String(len * (1 - u));
+            var eased = 1 - Math.pow(1 - u, 2.2);
+            strokeEl.style.strokeDashoffset = String(len * (1 - eased));
+            clipRect.setAttribute('width', String(Math.max(0, (bb.width + 2) * eased)));
             if (u >= 1) {
-                pathEl.style.strokeDashoffset = '0';
-                pathEl.classList.add('is-drawn');
+                strokeEl.style.strokeDashoffset = '0';
+                strokeEl.style.opacity = '0';
+                fillEl.removeAttribute('clip-path');
+                clipPath.remove();
+                letter.group.classList.add('is-drawn');
                 done();
                 return;
             }
@@ -16644,7 +16647,7 @@ function setGoalNavActive(isActive) {
         fpGoalLoadAnimRaf = requestAnimationFrame(frame);
     }
 
-    function fpGoalAnimateLoadingStarOnPoints(token, runner, points, durationMs, done) {
+    function fpGoalAnimateLoadingSparkOnPoints(token, runner, points, durationMs, done) {
         if (!points || points.length < 2) {
             done();
             return;
@@ -16678,7 +16681,7 @@ function setGoalNavActive(isActive) {
             var p1 = points[i + 1];
             var x = p0.x + (p1.x - p0.x) * segT;
             var y = p0.y + (p1.y - p0.y) * segT;
-            runner.setAttribute('transform', 'translate(' + (x - 12) + ' ' + (y - 12) + ') scale(0.72)');
+            runner.setAttribute('transform', 'translate(' + x + ' ' + y + ')');
             if (u >= 1) {
                 done();
                 return;
@@ -16688,23 +16691,24 @@ function setGoalNavActive(isActive) {
         fpGoalLoadAnimRaf = requestAnimationFrame(frame);
     }
 
-    function fpGoalRunLoadingBrandDrawSequence(token, letters, runner, idx, onDone) {
+    function fpGoalRunLoadingHelloDrawSequence(token, letters, idx, onDone) {
         if (token !== fpGoalLoadAnimToken) return;
         if (idx >= letters.length) {
             onDone();
             return;
         }
-        fpGoalAnimateLoadingPathDraw(token, letters[idx].path, 220, function () {
-            fpGoalRunLoadingBrandDrawSequence(token, letters, runner, idx + 1, onDone);
+        fpGoalAnimateHelloLetterDraw(token, letters[idx], 520, function () {
+            fpGoalRunLoadingHelloDrawSequence(token, letters, idx + 1, onDone);
         });
     }
 
-    function fpGoalRunLoadingBrandStarLoop(token, letters, runner, idx) {
+    function fpGoalRunLoadingSparkLoop(token, letters, runner, idx) {
         if (token !== fpGoalLoadAnimToken) return;
         if (!letters.length) return;
         var letter = letters[idx % letters.length];
-        fpGoalAnimateLoadingStarOnPoints(token, runner, letter.points, 780, function () {
-            fpGoalRunLoadingBrandStarLoop(token, letters, runner, idx + 1);
+        var points = fpGoalLetterTracePoints(letter.fillEl, 4);
+        fpGoalAnimateLoadingSparkOnPoints(token, runner, points, 920, function () {
+            fpGoalRunLoadingSparkLoop(token, letters, runner, idx + 1);
         });
     }
 
@@ -16712,11 +16716,11 @@ function setGoalNavActive(isActive) {
         fpGoalStopLoadingBrandAnim();
         var token = fpGoalLoadAnimToken;
         var group = document.getElementById('fpGoalLoadTextGroup');
-        var runner = document.getElementById('fpGoalLoadStarRunner');
+        var runner = document.getElementById('fpGoalLoadSparkRunner');
         if (!group || !runner) return;
 
         var word = 'Potentiall';
-        var fontSize = 40;
+        var fontSize = 42;
         var font = '600 ' + fontSize + 'px "Cormorant Garamond", Georgia, serif';
         group.innerHTML = '';
         runner.setAttribute('opacity', '0');
@@ -16724,17 +16728,18 @@ function setGoalNavActive(isActive) {
 
         function boot() {
             if (token !== fpGoalLoadAnimToken) return;
-            var letters = fpGoalBuildLoadingBrandLetters(group, word, font, fontSize, 380);
+            var letters = fpGoalBuildLoadingBrandLetters(group, word, fontSize, 380);
             if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 letters.forEach(function (L) {
-                    L.path.classList.add('is-drawn');
-                    L.path.style.strokeDashoffset = '0';
+                    L.group.classList.add('is-drawn');
+                    L.fillEl.style.opacity = '1';
+                    L.strokeEl.style.opacity = '0';
                 });
                 return;
             }
-            fpGoalRunLoadingBrandDrawSequence(token, letters, runner, 0, function () {
+            fpGoalRunLoadingHelloDrawSequence(token, letters, 0, function () {
                 if (token !== fpGoalLoadAnimToken) return;
-                fpGoalRunLoadingBrandStarLoop(token, letters, runner, 0);
+                fpGoalRunLoadingSparkLoop(token, letters, runner, 0);
             });
         }
 
