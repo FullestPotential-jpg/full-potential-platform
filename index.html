@@ -2167,8 +2167,10 @@
         .goal-flow__loading-brand-scene {
             position: relative;
             width: min(100%, 380px);
-            height: 80px;
-            margin: 0 auto 20px;
+            min-height: 80px;
+            height: auto;
+            margin: 0 auto 24px;
+            overflow: visible;
         }
         .goal-flow__loading-brand-svg {
             display: block;
@@ -2202,18 +2204,31 @@
         .fp-goal-load-letter.is-drawn .fp-goal-load-letter__stroke {
             opacity: 0;
         }
-        #fpGoalLoadSparkRunner {
+        .fp-goal-load-letter.is-abducted {
+            visibility: hidden;
+        }
+        .fp-goal-load-rocket {
             pointer-events: none;
         }
-        .fp-goal-load-spark__halo {
-            fill: #38bdf8;
-            opacity: 0.28;
+        .fp-goal-load-rocket__trail {
+            stroke: url(#fpGoalLoadRocketTrailG);
+            stroke-width: 3.2;
+            stroke-linecap: round;
+            opacity: 0.9;
         }
-        .fp-goal-load-spark__core {
-            fill: #e0f2fe;
+        .fp-goal-load-rocket__hook {
+            fill: none;
+            stroke: #bae6fd;
+            stroke-width: 1.6;
+            stroke-linecap: round;
+            opacity: 0;
+            transition: opacity 0.15s ease;
         }
-        .fp-goal-load-spark__hot {
-            fill: #ffffff;
+        .fp-goal-load-rocket.is-hooking .fp-goal-load-rocket__hook {
+            opacity: 0.95;
+        }
+        .fp-goal-load-rocket__star {
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.85));
         }
         html.fp-platform-dark .fp-goal-load-letter__stroke {
             stroke: #7dd3fc;
@@ -2228,7 +2243,7 @@
             fill: #6b3a28;
         }
         @media (prefers-reduced-motion: reduce) {
-            #fpGoalLoadSparkRunner {
+            .fp-goal-load-rocket {
                 display: none;
             }
             .fp-goal-load-letter__stroke {
@@ -16500,29 +16515,160 @@ function setGoalNavActive(isActive) {
             '<div class="goal-flow__loading-brand-scene" id="fpGoalLoadBrandScene" aria-hidden="true">' +
             '<svg class="goal-flow__loading-brand-svg" id="fpGoalLoadBrandSvg" viewBox="0 0 380 80" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
             '<defs>' +
-            '<filter id="fpGoalLoadSparkGlow" x="-120%" y="-120%" width="340%" height="340%">' +
-            '<feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="blur"/>' +
-            '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
-            '</filter></defs>' +
+            '<linearGradient id="fpGoalLoadRocketTrailG" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#ffffff"/>' +
+            '<stop offset="35%" stop-color="#7dd3fc"/>' +
+            '<stop offset="100%" stop-color="rgba(56,189,248,0)"/>' +
+            '</linearGradient>' +
+            '<radialGradient id="fpGoalLoadRocketStarG" cx="34%" cy="28%" r="72%">' +
+            '<stop offset="0%" stop-color="#ffffff"/>' +
+            '<stop offset="45%" stop-color="#7dd3fc"/>' +
+            '<stop offset="100%" stop-color="#0284c7"/>' +
+            '</radialGradient>' +
+            '</defs>' +
             '<g id="fpGoalLoadTextGroup"></g>' +
-            '<g id="fpGoalLoadSparkRunner" opacity="0" filter="url(#fpGoalLoadSparkGlow)">' +
-            '<circle class="fp-goal-load-spark__halo" cx="0" cy="0" r="5"/>' +
-            '<circle class="fp-goal-load-spark__core" cx="0" cy="0" r="2.4"/>' +
-            '<circle class="fp-goal-load-spark__hot" cx="0" cy="0" r="1"/>' +
-            '</g></svg></div>'
+            '<g id="fpGoalLoadAbductLayer"></g>' +
+            '</svg></div>'
         );
     }
 
     var fpGoalLoadAnimToken = 0;
     var fpGoalLoadAnimRaf = 0;
+    var fpGoalLoadAbductTimers = [];
+    var FP_GOAL_LOAD_ABDUCT_INTERVAL_MS = 10000;
+    var FP_GOAL_LOAD_ABDUCT_ANIM_MS = 2800;
 
     function fpGoalStopLoadingBrandAnim() {
         fpGoalLoadAnimToken++;
+        fpGoalLoadAbductTimers.forEach(function (tid) {
+            clearTimeout(tid);
+        });
+        fpGoalLoadAbductTimers = [];
         if (fpGoalLoadAnimRaf) {
             cancelAnimationFrame(fpGoalLoadAnimRaf);
             fpGoalLoadAnimRaf = 0;
         }
-        fpGoalClearSparkLetterClip(document.getElementById('fpGoalLoadSparkRunner'));
+        var layer = document.getElementById('fpGoalLoadAbductLayer');
+        if (layer) layer.innerHTML = '';
+    }
+
+    function fpGoalCreateLoadRocketSvg() {
+        var NS = 'http://www.w3.org/2000/svg';
+        var g = document.createElementNS(NS, 'g');
+        g.setAttribute('class', 'fp-goal-load-rocket');
+
+        var trail = document.createElementNS(NS, 'line');
+        trail.setAttribute('class', 'fp-goal-load-rocket__trail');
+        trail.setAttribute('x1', '0');
+        trail.setAttribute('y1', '10');
+        trail.setAttribute('x2', '0');
+        trail.setAttribute('y2', '38');
+
+        var hook = document.createElementNS(NS, 'path');
+        hook.setAttribute('class', 'fp-goal-load-rocket__hook');
+        hook.setAttribute('d', 'M0,8 C8,14 8,22 0,28');
+
+        var star = document.createElementNS(NS, 'polygon');
+        star.setAttribute('class', 'fp-goal-load-rocket__star');
+        star.setAttribute(
+            'points',
+            '12,2 14.6,8.6 22,9.6 16.6,14.4 18.2,22 12,17.8 6.2,22 7.4,14.4 2,9.6 9.4,8.6'
+        );
+        star.setAttribute('fill', 'url(#fpGoalLoadRocketStarG)');
+        star.setAttribute('transform', 'translate(-12,-10) scale(0.62)');
+
+        g.appendChild(trail);
+        g.appendChild(hook);
+        g.appendChild(star);
+        return g;
+    }
+
+    function fpGoalAbductLetterWithStar(token, letter, done) {
+        if (!letter || letter.abducted) {
+            if (done) done();
+            return;
+        }
+        var layer = document.getElementById('fpGoalLoadAbductLayer');
+        if (!layer) {
+            if (done) done();
+            return;
+        }
+
+        var bb = letter.group.getBBox();
+        var cx = bb.x + bb.width / 2;
+        var letterTop = bb.y + 1;
+        var attachY = letterTop - 6;
+        var startY = letterTop - 58;
+        var rocket = fpGoalCreateLoadRocketSvg();
+        layer.appendChild(rocket);
+
+        var phaseDescend = 680;
+        var phaseHook = 480;
+        var phaseLift = FP_GOAL_LOAD_ABDUCT_ANIM_MS - phaseDescend - phaseHook;
+        var total = FP_GOAL_LOAD_ABDUCT_ANIM_MS;
+        var t0 = performance.now();
+
+        function frame(now) {
+            if (token !== fpGoalLoadAnimToken) {
+                rocket.remove();
+                return;
+            }
+            var t = now - t0;
+
+            if (t < phaseDescend) {
+                var p = t / phaseDescend;
+                var ease = 1 - Math.pow(1 - p, 2.4);
+                var y = startY + (attachY - startY) * ease;
+                var x = cx + Math.sin(p * Math.PI) * 7;
+                rocket.classList.remove('is-hooking');
+                rocket.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + p * 14 + ')');
+                letter.group.removeAttribute('transform');
+                letter.group.removeAttribute('opacity');
+            } else if (t < phaseDescend + phaseHook) {
+                var p = (t - phaseDescend) / phaseHook;
+                var x = cx + Math.sin(p * Math.PI * 1.6) * 5;
+                var y = attachY + Math.sin(p * Math.PI) * 3.5;
+                var rot = 14 + Math.sin(p * Math.PI * 2) * 11;
+                rocket.classList.add('is-hooking');
+                rocket.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + rot + ')');
+                letter.group.setAttribute('transform', 'translate(0 ' + (-p * 2.5) + ')');
+            } else {
+                var p = (t - phaseDescend - phaseHook) / phaseLift;
+                var ease = p * p * (3 - 2 * p);
+                var lift = ease * 135;
+                var y = attachY - lift;
+                var x = cx + Math.sin(p * 1.15) * 3.5;
+                rocket.classList.remove('is-hooking');
+                rocket.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + (-6 + p * 4) + ')');
+                letter.group.setAttribute(
+                    'transform',
+                    'translate(0 ' + -lift + ') scale(' + (1 - p * 0.06) + ')'
+                );
+                letter.group.setAttribute('opacity', String(Math.max(0, 1 - p * 1.08)));
+            }
+
+            if (t >= total) {
+                letter.abducted = true;
+                letter.group.classList.add('is-abducted');
+                letter.group.style.display = 'none';
+                rocket.remove();
+                if (done) done();
+                return;
+            }
+            fpGoalLoadAnimRaf = requestAnimationFrame(frame);
+        }
+        fpGoalLoadAnimRaf = requestAnimationFrame(frame);
+    }
+
+    function fpGoalScheduleLetterAbductions(token, letters) {
+        letters.forEach(function (L, i) {
+            var delay = FP_GOAL_LOAD_ABDUCT_INTERVAL_MS * (i + 1);
+            var tid = setTimeout(function () {
+                if (token !== fpGoalLoadAnimToken || L.abducted) return;
+                fpGoalAbductLetterWithStar(token, L);
+            }, delay);
+            fpGoalLoadAbductTimers.push(tid);
+        });
     }
 
     function fpGoalEstimateTextStrokeLength(textEl) {
@@ -16585,68 +16731,10 @@ function setGoalNavActive(isActive) {
             g.appendChild(fillEl);
             group.appendChild(g);
 
-            letters.push({ group: g, strokeEl: strokeEl, fillEl: fillEl });
+            letters.push({ group: g, strokeEl: strokeEl, fillEl: fillEl, abducted: false });
             xOff += widths[idx] + gap;
         });
         return letters;
-    }
-
-    function fpGoalLetterTracePoints(fillEl) {
-        var bb = fillEl.getBBox();
-        var insetX = Math.max(4, bb.width * 0.26);
-        var insetY = Math.max(3, bb.height * 0.2);
-        var narrow = bb.width < bb.height * 0.46;
-
-        if (narrow) {
-            insetX = Math.max(2.5, bb.width * 0.16);
-        }
-
-        var L = bb.x + insetX;
-        var T = bb.y + insetY;
-        var W = Math.max(2, bb.width - insetX * 2);
-        var H = Math.max(2, bb.height - insetY * 2);
-
-        if (narrow && W < 4) {
-            var cx = bb.x + bb.width / 2;
-            var y0 = bb.y + bb.height * 0.24;
-            var y1 = bb.y + bb.height * 0.76;
-            return [
-                { x: cx, y: y0 },
-                { x: cx, y: y1 },
-                { x: cx, y: y0 }
-            ];
-        }
-
-        var R = Math.min(W, H) * 0.42;
-        return fpRoundedRectPerimeterPts(L, T, W, H, R, 4);
-    }
-
-    function fpGoalSetSparkLetterClip(svg, runner, fillEl) {
-        if (!svg || !runner || !fillEl) return;
-        var NS = 'http://www.w3.org/2000/svg';
-        var defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(NS, 'defs'), svg.firstChild);
-        var old = defs.querySelector('#fpGoalSparkClipActive');
-        if (old) old.remove();
-
-        var clipPath = document.createElementNS(NS, 'clipPath');
-        clipPath.setAttribute('id', 'fpGoalSparkClipActive');
-        clipPath.setAttribute('clipPathUnits', 'userSpaceOnUse');
-        var clipText = fillEl.cloneNode(true);
-        clipText.removeAttribute('clip-path');
-        clipText.removeAttribute('style');
-        clipPath.appendChild(clipText);
-        defs.appendChild(clipPath);
-        runner.setAttribute('clip-path', 'url(#fpGoalSparkClipActive)');
-    }
-
-    function fpGoalClearSparkLetterClip(runner) {
-        if (!runner) return;
-        runner.removeAttribute('clip-path');
-        var svg = runner.ownerSVGElement;
-        if (svg) {
-            var old = svg.querySelector('#fpGoalSparkClipActive');
-            if (old) old.remove();
-        }
     }
 
     function fpGoalAnimateHelloLetterDraw(token, letter, durationMs, done) {
@@ -16695,50 +16783,6 @@ function setGoalNavActive(isActive) {
         fpGoalLoadAnimRaf = requestAnimationFrame(frame);
     }
 
-    function fpGoalAnimateLoadingSparkOnPoints(token, runner, points, durationMs, done) {
-        if (!points || points.length < 2) {
-            done();
-            return;
-        }
-        var segLens = [];
-        var total = 0;
-        for (var i = 1; i < points.length; i++) {
-            var d = Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
-            segLens.push(d);
-            total += d;
-        }
-        if (total < 1e-4) {
-            done();
-            return;
-        }
-        runner.setAttribute('opacity', '1');
-        var t0 = performance.now();
-        function frame(now) {
-            if (token !== fpGoalLoadAnimToken) return;
-            var u = Math.min(1, (now - t0) / durationMs);
-            var dist = u * total;
-            var acc = 0;
-            var i = 0;
-            for (; i < segLens.length; i++) {
-                if (acc + segLens[i] >= dist) break;
-                acc += segLens[i];
-            }
-            var sl = segLens[i] > 1e-6 ? segLens[i] : 1;
-            var segT = (dist - acc) / sl;
-            var p0 = points[i];
-            var p1 = points[i + 1];
-            var x = p0.x + (p1.x - p0.x) * segT;
-            var y = p0.y + (p1.y - p0.y) * segT;
-            runner.setAttribute('transform', 'translate(' + x + ' ' + y + ')');
-            if (u >= 1) {
-                done();
-                return;
-            }
-            fpGoalLoadAnimRaf = requestAnimationFrame(frame);
-        }
-        fpGoalLoadAnimRaf = requestAnimationFrame(frame);
-    }
-
     function fpGoalRunLoadingHelloDrawSequence(token, letters, idx, onDone) {
         if (token !== fpGoalLoadAnimToken) return;
         if (idx >= letters.length) {
@@ -16750,31 +16794,18 @@ function setGoalNavActive(isActive) {
         });
     }
 
-    function fpGoalRunLoadingSparkLoop(token, letters, runner, idx) {
-        if (token !== fpGoalLoadAnimToken) return;
-        if (!letters.length) return;
-        var letter = letters[idx % letters.length];
-        var svg = letter.fillEl.ownerSVGElement;
-        fpGoalSetSparkLetterClip(svg, runner, letter.fillEl);
-        var points = fpGoalLetterTracePoints(letter.fillEl);
-        fpGoalAnimateLoadingSparkOnPoints(token, runner, points, 920, function () {
-            fpGoalRunLoadingSparkLoop(token, letters, runner, idx + 1);
-        });
-    }
-
     function fpGoalStartLoadingBrandAnim() {
         fpGoalStopLoadingBrandAnim();
         var token = fpGoalLoadAnimToken;
         var group = document.getElementById('fpGoalLoadTextGroup');
-        var runner = document.getElementById('fpGoalLoadSparkRunner');
-        if (!group || !runner) return;
+        if (!group) return;
 
         var word = 'Potentiall';
         var fontSize = 42;
         var font = '600 ' + fontSize + 'px "Cormorant Garamond", Georgia, serif';
         group.innerHTML = '';
-        runner.setAttribute('opacity', '0');
-        runner.removeAttribute('transform');
+        var abductLayer = document.getElementById('fpGoalLoadAbductLayer');
+        if (abductLayer) abductLayer.innerHTML = '';
 
         function boot() {
             if (token !== fpGoalLoadAnimToken) return;
@@ -16789,7 +16820,7 @@ function setGoalNavActive(isActive) {
             }
             fpGoalRunLoadingHelloDrawSequence(token, letters, 0, function () {
                 if (token !== fpGoalLoadAnimToken) return;
-                fpGoalRunLoadingSparkLoop(token, letters, runner, 0);
+                fpGoalScheduleLetterAbductions(token, letters);
             });
         }
 
